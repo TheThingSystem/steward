@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>steward</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<script src='js-beautify-master/beautify.js'></script>
+<script>
+// BEGIN: BOOSTRAP
+
+// all of these things are normally done by the first client that does the tap...
+
+
+// you may change the name field, if you wish
+// you may change the physical address field, if you wish
+// please change the latitude and longitude in the coordinates below
+
+var place_info   = { name        : 'home'
+                   , physical    : ''
+                   , coordinates : [ 39.50000, -98.35000 ]
+                   };
+
+
+// please go to http://www.prowlapp.com and login (if need be, please register for an account)
+// then go to https://www.prowlapp.com/api_settings.php and generate an API key
+// fill-in the apikey field below
+
+var prowl_info   = { name        : 'prowler'
+                   , apikey      : ''
+                   };
+
+
+// if you want to have status snapshots written to a directory (e.g., for use by statusboard),
+// please fill-in the directory here (or leave it be to disable this feature)
+
+var status_info  = { name       : 'statusboard'
+                   , directory  : ''
+                   };
+
+
+// if you have a netatmo account,
+// please enter the email address and passphrase here
+
+var netatmo_info = { email       : 'user@example.com'
+                   , passphrase  : ''
+                   };
+
+
+// if you have a Nest account,
+// please enter the email address and passphrase here
+
+var nest_info =    { email       : 'user@example.com'
+                   , passphrase  : ''
+                   };
+
+
+// if you have a cosm account,
+// please enter the email address and passphrase here
+
+var cosm_info =    { apikey      : '8cw1Vjl7Zu0FySOehxWUPPAw3P-SzlHRKPCsY3BDWmU5LzI0KzQ9'
+                   };
+
+
+// END: BOOTSTRAP
+
+
+var bootstrap = function(ws) {
+  blinky(ws, 0);
+
+  list_actors(ws, '', { depth : 'all' }, function(message) {
+    var a, actor, actors, d, z;
+
+    var update_place   = function() { perform_actors(ws, 'place', 'set', place_info); };
+
+    var create_prowler = function() { create_device(ws, 'prowler',     '/device/indicator/text/prowl',  prowl_info);   }
+    var create_status  = function() { create_device(ws, 'statusboard', '/device/indicator/text/status', status_info);  }   
+    var create_netatmo = function() { create_device(ws, 'netatmo',     '/device/gateway/netatmo/cloud', netatmo_info); }
+    var create_nest    = function() { create_device(ws, 'nest',        '/device/gateway/nest/cloud',    nest_info);    }
+
+    if ((!message.result) && (!message.error)) return false;
+    if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
+
+    actors = message.result;
+    z = {};
+    for (actor in actors) {
+        z[actor] = true;
+
+      if ((!actors.hasOwnProperty(actor)) || (actor === 'actors')) continue;
+
+      if (actor === '/place') {
+        if (!actors[actor]['place/1']) throw new Error('actor place/1 is not present');
+        d = actors[actor]['place/1'];
+        if ((!d.info.coordinates) || (d.info.coordinates.length !== 2)) { update_place(); break }
+      }
+
+      if ((actor === '/device/indicator/text/prowl') && (prowl_info.apikey.length > 0)) {
+        for (a in actors[actor]) {
+          if (!actors[actor].hasOwnProperty(a)) continue;
+           
+          d = actors[actor][a];
+          if ((!!d.info.apikey) && (d.info.apikey.length === 40)) break;
+        }
+        if (!a) create_prowler();
+      }
+
+      if ((actor === '/device/indicator/text/status') && (status_info.directory.length > 0)) {
+        for (a in actors[actor]) if (actors[actor].hasOwnProperty(a)) break;
+        if (!a) create_status();
+      }
+
+      if ((actor === '/device/gateway/netatmo/cloud') && (netatmo_info.passphrase.length > 0)) {
+        for (a in actors[actor]) {
+          if (!actors[actor].hasOwnProperty(a)) continue;
+
+          d = actors[actor][a];
+          if ((!!d.info.username) && (!!d.info.phassphrase)) break;
+        }
+        if (!a) create_netatmo();
+      }
+
+      if ((actor === '/device/gateway/nest/cloud') && (nest_info.passphrase.length > 0)) {
+        for (a in actors[actor]) {
+          if (!actors[actor].hasOwnProperty(a)) continue;
+
+          d = actors[actor][a];
+          if ((!!d.info.username) && (!!d.info.phassphrase)) break;
+        }
+        if (!a) create_nest();
+      }
+
+// more bootstrapping goes above this line...
+    }
+
+    actors = message.result.actors;
+    for (actor in actors) {
+      if ((!actors.hasOwnProperty(actor)) || (!!z[actor])) continue;
+
+      if ((actor === '/device/indicator/text/prowl')  && (prowl_info.apikey.length > 0))       create_prowler();
+      if ((actor === '/device/indicator/text/status') && (status_info.directory.length > 0))   create_status();
+      if ((actor === '/device/gateway/netatmo/cloud') && (netatmo_info.passphrase.length > 0)) create_netatmo();
+      if ((actor === '/device/gateway/nest/cloud')    && (nest_info.passphrase.length > 0))    create_nest();
+    }
+
+    return true;
+  });
+};
+
+var rainbow = [ '#ff0000', '#ff8300', '#fff800', '#0000ff', '#00ff00', '#4b0082', '#ee82ee' ];
+var colors  = [ 'red',     'orange',  'yellow',  'blue',    'green',   'indigo',  'violet' ];
+
+var blinky = function(ws, i) {
+  var r, g, b, x;
+
+  if (i >= rainbow.length) i = 0;
+  r = parseInt(rainbow[i].substr(1, 2), 16);
+  g = parseInt(rainbow[i].substr(3, 2), 16);
+  b = parseInt(rainbow[i].substr(5, 2), 16);
+
+  console.log(colors[i] + ':' + r + ',' + g + ',' + b);
+  perform_actors(ws, 'device/lighting/blink1',     'on', { color: { model: 'rgb', rgb: { r: r, g: g, b: b }}});
+  perform_actors(ws, 'device/lighting/blinkstick', 'on', { color: { model: 'rgb', rgb: { r: r, g: g, b: b }}});
+
+  setTimeout(function() { blinky(ws, ++i); }, 15 * 1000);
+};
+
+var notice = function(tag, meta) {
+  var update = { monitor : [{ date : new Date().toISOString()
+               , level   : 'notice'
+               , tag     : tag
+               , meta    : (meta || {}) }]
+               };
+
+  document.getElementById('status').innerHTML += '<pre>' + js_beautify(JSON.stringify(update)) + '</pre><br/><br/>';
+};
+
+
+var reqno = 1;
+var callbacks = {};
+
+var add_callback = function(cb) {
+  callbacks[reqno.toString()] = cb;
+
+  return reqno++;
+};
+
+var create_activity = function(ws, name, event, task, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/activity/create/' + name
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , armed     : true
+                         , event     : event
+                         , task      : task
+                         }));
+};
+
+var create_device = function(ws, name, whatami, info, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/device/create/' + name
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , whatami   : whatami
+                         , info      : info || {}
+                         }));
+};
+
+var create_event = function(ws, name, actor, observe, parameter, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/event/create/' + name
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , actor     : actor
+                         , observe   : observe
+                         , parameter : parameter || ''
+                         }));
+};
+
+var create_group = function(ws, name, type, operand, members, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/group/create/' + name
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , type      : type    || ''
+                         , operand   : operand || ''
+                         , members   : members || []
+                         }));
+};
+
+var create_task = function(ws, name, actor, perform, parameter, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/task/create/' + name
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , actor     : actor
+                         , perform   : perform
+                         , parameter : JSON.stringify(parameter) || ''
+                         }));
+};
+
+var list_activity = function(ws, activityID, options, cb) {
+  if ((activityID !== '') && (parseInt(activityID, 10) <= 0)) throw new Error('activityID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/activity/list/' + activityID
+                         , requestID : add_callback(cb)
+                         , options   : options || {}
+                         }));
+};
+
+var list_actors = function(ws, prefix, options, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/actor/list/' + prefix
+                         , requestID : add_callback(cb)
+                         , options   : options || {}
+                         }));
+};
+
+var list_device = function(ws, deviceID, options, cb) {
+  if ((deviceID !== '') && (parseInt(deviceID, 10) <= 0)) throw new Error('deviceID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/device/list/' + deviceID
+                         , requestID : add_callback(cb)
+                         , options   : options || {}
+                         }));
+};
+
+var list_event = function(ws, eventID, options, cb) {
+  if ((eventID !== '') && (parseInt(eventID, 10) <= 0)) throw new Error('eventID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/event/list/' + eventID
+                         , requestID : add_callback(cb)
+                         , options   : options || {}
+                         }));
+};
+
+var list_group = function(ws, groupID, options, cb) {
+  if ((groupID !== '') && (parseInt(groupID, 10) <= 0)) throw new Error('groupID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/group/list/' + groupID
+                         , requestID : add_callback(cb)
+                         , options   : options || {}
+                         }));
+};
+
+var list_task = function(ws, taskID, options, cb) {
+  if ((taskID !== '') && (parseInt(taskID, 10) <= 0)) throw new Error('taskID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/task/list/' + taskID
+                         , requestID : add_callback(cb)
+                         , options   : options || {}
+                         }));
+};
+
+var perform_activity = function(ws, activityID, cb) {
+  if (parseInt(activityID, 10) <= 0) throw new Error('activityID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/activity/perform/' + activityID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+var perform_actors = function(ws, prefix, perform, parameter, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/actor/perform/' + prefix
+                         , requestID : add_callback(cb)
+                         , perform   : perform
+                         , parameter : JSON.stringify(parameter) || ''
+                         }));
+};
+
+var perform_device = function(ws, deviceID, perform, parameter, cb) {
+  if (parseInt(deviceID, 10) <= 0) throw new Error('deviceID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/group/perform/' + deviceID
+                         , requestID : add_callback(cb)
+                         , perform   : perform
+                         , parameter : JSON.stringify(parameter) || ''
+                         }));
+};
+
+var perform_group = function(ws, groupID, perform, parameter, cb) {
+  if (parseInt(groupID, 10) <= 0) throw new Error('groupID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/group/perform/' + groupID
+                         , requestID : add_callback(cb)
+                         , perform   : perform
+                         , parameter : JSON.stringify(parameter) || ''
+                         }));
+};
+
+var perform_task = function(ws, taskID, cb) {
+  if (parseInt(taskID, 10) <= 0) throw new Error('taskID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/task/perform/' + taskID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+var delete_activity = function(ws, activityID, cb) {
+  if (parseInt(activityID, 10) <= 0) throw new Error('activityID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/activity/delete/' + activityID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+var delete_device = function(ws, deviceID, cb) {
+  if (parseInt(deviceID, 10) <= 0) throw new Error('deviceID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/device/delete/' + deviceID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+var delete_event = function(ws, eventID, cb) {
+  if (parseInt(eventID, 10) <= 0) throw new Error('eventID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/event/delete/' + eventID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+var delete_group = function(ws, groupID, cb) {
+  if (parseInt(groupID, 10) <= 0) throw new Error('groupID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/group/delete/' + groupID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+var delete_task = function(ws, taskID, cb) {
+  if (parseInt(taskID, 10) <= 0) throw new Error('taskID must be positive integer');
+
+  ws.send(JSON.stringify({ path      : '/api/v1/task/delete/' + taskID
+                         , requestID : add_callback(cb)
+                         }));
+};
+
+
+var go = function(host, i) {
+  var opened;
+  var tag = 'connection #' + i + ' to ws://' + host + ':8888/manage';
+
+  notice(tag, { state: 'connecting...' });
+  opened = 0;
+  var ws = new WebSocket('ws://' + host + ':8888/manage');
+
+  ws.onopen = function(event) {
+    opened = 1;
+    notice(tag, { state: 'open' });
+
+    try { bootstrap(ws); } catch(ex) { notice(tag, { state: 'bootstrap', message: ex.message }); }
+  };
+
+  ws.onmessage = function(event) {
+    var id, message;
+
+    try {
+      message = JSON.parse(event.data);
+      id = message.requestID.toString();
+      if ((!!callbacks[id]) && ((callbacks[id])(message))) delete(callbacks[id]);
+    } catch(ex) {
+      notice(tag, { state: 'message', message: ex.message });
+    }
+    document.getElementById('status').innerHTML += '<pre>' + js_beautify(event.data) + '</pre><br/><br/>';
+  };
+
+  ws.onclose = function(event) {
+    notice(tag, { state: (opened ? 'closed' : 'error'), code : event.code, message : event.reason });
+  };
+
+  ws.onerror = function(event) {
+    notice(tag, { state: 'error', event : event });
+    try { ws.close (); } catch (ex) {}
+  };
+};
+
+var main = function() {
+  notice('start');
+  go(window.document.location.host.replace(/:.*/, ''), 1);
+};
+</script>
+</head>
+
+<body onload="main();">
+<div id='status' />
+</body>
+</html>

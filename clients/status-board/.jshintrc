@@ -1,0 +1,15 @@
+{
+	"globals": {
+		"console" : true,
+		"setTimeout" : true,
+		"clearTimeout" : true,
+		"setInterval" : true,
+		"clearInterval" : true,
+		"document" : true
+	},
+
+	"laxbreak": true,
+	"laxcomma": true,
+	"undef":  true,
+	"unused": true
+}

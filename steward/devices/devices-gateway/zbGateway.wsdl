@@ -1,0 +1,2522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.zigbee.org/zgd/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns="http://www.zigbee.org/GWGSchema"
+                  xmlns:ns1="http://schemas.xmlsoap.org/soap/encoding/" name="zgd" targetNamespace="http://www.zigbee.org/zgd/">
+	<wsdl:types>
+		<!-- GMO Functions -->
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.zigbee.org/zgd/" xmlns:Q1="http://www.w3.org/2001/XMLSchema" xmlns:Q2="http://www.zigbee.org/GWGSchema" xmlns:auto1="http://www.zigbee.org/zgd/">
+			<xsd:import schemaLocation="zbGateway.xsd" namespace="http://www.zigbee.org/GWGSchema"/>
+			<xsd:element name="GetVersion">
+				<xsd:complexType>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetVersionResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="Version" type="Q2:Version" maxOccurs="1" minOccurs="0"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Get">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="attrId" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="value" type="xsd:hexBinary"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Set">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="attrId" type="xsd:string"/>
+						<xsd:element name="value" type="xsd:hexBinary"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SetResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="CreateCallback">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Filter" type="Q2:Filter"/>
+						<xsd:element name="Action" type="Q2:Action"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="CreateCallbackResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="CallbackIdentifier" type="Q2:CallbackIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PollCallback">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="CallbackIdentifier" type="Q2:CallbackIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PollCallbackResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="AppliedDecodeSpecification" type="ns:DecodeLevel"/>
+						<xsd:element name="SendZDPResult" minOccurs="0">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="ZDPMessage" type="ns:ZDPMessage" minOccurs="0"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="SendZCLResult" minOccurs="0">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="ZCLMessage" type="ns:ZCLMessage" minOccurs="0"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="SendAPSResult">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="APSMessage" type="ns:APSMessage"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="SendInterPANResult">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="InterPANMessage" type="ns:InterPANMessage"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DeleteCallback">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="CallbackIdentifier" type="Q2:CallbackIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DeleteCallbackResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ListCallbacks">
+				<xsd:complexType>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ListCallbacksResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="CallbackIdentiferList" type="Q2:CallbackIdentifierList"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PollResults">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PollResultsResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+                        <xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+                        <xsd:element name="AppliedDecodeSpecification" type="ns:DecodeLevel"/>
+						<xsd:element name="SendZDPResult" minOccurs="0">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="ZDPMessage" type="ns:ZDPMessage" minOccurs="0"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="SendZCLResult" minOccurs="0">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="ZCLMessage" type="ns:ZCLMessage" minOccurs="0"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="SendAPSResult">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="APSMessage" type="ns:APSMessage"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="SendInterPANResult">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="Status" type="ns:unsigned32Bit"/>
+									<xsd:element name="InterPANMessage" type="ns:InterPANMessage"/>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="UpdateTimeout">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier"/>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="UpdateTimeoutResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartNodeDiscovery">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="CallbackDestination" type="xsd:string"/>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="ReportOnExistingNodes" type="xsd:boolean" minOccurs="0"/>
+						<xsd:element name="ReportAnnouncements" type="xsd:boolean" minOccurs="0"/>
+						<xsd:element name="ReportLeave" type="xsd:boolean" minOccurs="0"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartNodeDiscoveryResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NodeDiscoveryEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+						<xsd:element name="Address" type="ns:Address"/>
+						<xsd:element name="NodeInfo" minOccurs="1" type="ns:WSNNode"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NodeDiscoveryEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NodeLeaveEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+						<xsd:element name="Address" type="ns:Address"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NodeLeaveEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ReadNodeCache">
+				<xsd:complexType>
+					<xsd:sequence>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ReadNodeCacheResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="NodeInformation" type="Q2:WSNNodeList"/>
+						<xsd:element name="Node" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartServiceDiscovery">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string"/>
+						<xsd:element name="AddressOfInterest" type="Q2:NetworkAddress"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartServiceDiscoveryResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ServiceDiscoveryEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+						<xsd:element name="Address" type="ns:Address"/>
+						<xsd:element name="ActiveEndpoints" type="ns:Endpoint"/>
+						<xsd:element name="SimpleDescriptors" type="ns:SimpleDescriptor" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ServiceDiscoveryEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ReadServiceCache">
+				<xsd:complexType>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ReadServiceCacheResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="ns:unsigned32Bit"/>
+						<xsd:element name="ServiceInformation" type="Q2:NodeServicesList"/>
+						<xsd:element name="Node" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartGatewayDevice">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Request" type="Q2:StartupAttributeInfo"/>
+						<xsd:element name="Timeout" type="ns:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartGatewayDeviceResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="NWKStatus" type="Q2:unsigned8Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartGatewayDeviceEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="NWKStatus" type="Q2:unsigned8Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartGatewayDeviceEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureStartupAttributeSet">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="StartupAttrInfo" type="ns:StartupAttributeInfo"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureStartupAttributeSetResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ReadStartupAttributeSet">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="StartAttrSetIndex" type="ns:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ReadStartupAttributeSetResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="StartupAttributeInfo" type="ns:StartupAttributeInfo" minOccurs="0"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="CreateAliasAddress">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Alias" type="xsd:string"/>
+						<xsd:element name="ExtendedAddress" type="ns:IeeeAddress"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="CreateAliasAddressResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+					</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DeleteAliasAddress">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Alias" type="ns:AliasAddress"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DeleteAliasAddressResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+					</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ListAddresses">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Address" type="ns:Address"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ListAddressesResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NumOfAddr" type="ns:unsigned32Bit"/>
+						<xsd:element name="AddrList" type="ns:Address" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<!-- ZDP Functions -->
+			<xsd:element name="SendZDPCommand">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="ns:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="Command" type="Q2:ZDPCommand"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendZDPCommandResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0">
+						</xsd:element>
+						<xsd:element name="Message" type="Q2:ZDPMessage">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyZDPEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="Message" type="ns:ZDPMessage"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyZDPEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<!-- ZCL Functions -->
+			<xsd:element name="SendZCLCommand">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="Command" type="Q2:ZCLCommand"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendZCLCommandResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="Message" type="Q2:ZCLMessage"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyZCLEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Message" type="Q2:ZCLMessage"/>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyZCLEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<!-- Application Support Sub Layer -->
+			<xsd:element name="ConfigureNodeDescriptor">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="NodeDescriptor" type="Q2:NodeDescriptor"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureNodeDescriptorResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetNodeDescriptor">
+				<xsd:complexType>
+					<xsd:sequence>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetNodeDescriptorResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="NodeDescriptor" type="Q2:NodeDescriptor"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetNodePowerDescriptor">
+				<xsd:complexType>
+					<xsd:sequence>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetNodePowerDescriptorResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="PowerDescriptor" type="Q2:PowerDescriptor"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureUserDescriptor">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="UserDescriptor" type="Q2:UserDescriptor"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureUserDescriptorResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetUserDescriptor">
+				<xsd:complexType>
+					<xsd:sequence>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetUserDescriptorResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="UserDescriptor" type="Q2:UserDescriptor"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureEndpoint">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="SimpleDescriptor" type="Q2:SimpleDescriptor"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConfigureEndpointResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ClearEndpoint">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Endpoint" type="Q2:Endpoint"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ClearEndpointResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendAPSMessage">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Request" type="Q2:APSMessage" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendAPSMessageResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="ConfirmStatus" type="Q2:unsigned8Bit"/>
+						<xsd:element name="TxTime" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifySendAPSMessageEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0"/>
+						<xsd:element name="ConfirmStatus" type="Q2:unsigned8Bit"/>
+						<xsd:element name="TxTime" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifySendAPSMessageEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyAPSMessageEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Message" type="Q2:APSMessageEvent"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyAPSMessageEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="AddGroup">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Group" type="Q2:Group"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="AddGroupResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="RemoveGroup">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Group" type="Q2:Group"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="RemoveGroupResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="RemoveAllGroups">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Endpoint" type="Q2:Endpoint"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="RemoveAllGroupsResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetGroupList">
+				<xsd:complexType>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetGroupListResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="GroupList" type="Q2:GroupList"/>
+						<xsd:element name="GroupCount" type="xsd:unsignedInt"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetBindingList">
+				<xsd:complexType>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetBindingListResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="BindingList" type="Q2:BindingList"/>
+						<xsd:element name="BindingCount" type="xsd:unsignedInt"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<!-- InterPAN Interface -->
+			<xsd:element name="SendInterPANMessage">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="ns:Timeout">
+						</xsd:element>
+						<xsd:element name="CallbackDestination" type="xsd:string" minOccurs="0">
+						</xsd:element>
+						<xsd:element name="Message" type="ns:InterPANMessage"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendInterPANMessageResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="ConfirmStatus" type="xsd:unsignedByte" minOccurs="0">
+						</xsd:element>
+						<xsd:element name="ASDUHandle" type="xsd:unsignedByte"/>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyInterPANMessageEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Message" type="ns:InterPANMessage"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyInterPANMessageEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<!-- Network Functions -->
+			<xsd:element name="FormNetwork">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="NetworkConfiguration" type="Q2:NetworkConfiguration">
+						</xsd:element>
+						<xsd:element name="Timeout" type="ns:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="FormNetworkResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode" maxOccurs="1" minOccurs="0">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="FormNetworkEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode" maxOccurs="1" minOccurs="0">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="FormNetworkEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartRouter">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallBackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="NetworkConfiguration" type="Q2:NetworkConfiguration">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartRouterResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartRouterEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="ns:RequestIdentifier"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="StartRouterEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Join">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="ns:Timeout">
+						</xsd:element>
+						<xsd:element name="Options" type="ns:JoinConfiguration"/>
+						<xsd:element name="CallbackDestination" type="xsd:string"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="JoinResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="JoinEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="JoinEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Leave">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="DeviceAddress" type="ns:Address">
+						</xsd:element>
+						<xsd:element name="RemoveChildren" type="xsd:boolean">
+						</xsd:element>
+						<xsd:element name="Rejoin" type="xsd:boolean">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="LeaveResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="LeaveEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="LeaveEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DiscoverNetworks">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="ScanChannels" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="ScanDuration" type="xsd:string">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DiscoverNetworksResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="NetworkDescriptors" type="Q2:NetworkDescriptorList">
+						</xsd:element>
+						<xsd:element name="NetworkCount" type="xsd:unsignedInt"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DiscoverNetworksEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="NetworkDescriptors" type="Q2:NetworkDescriptorList">
+						</xsd:element>
+						<xsd:element name="NetworkCount" type="xsd:unsignedInt"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="DiscoverNetworksEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Reset">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="WarmStart" type="xsd:boolean">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ResetResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ResetEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ResetEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformEnergyScan">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="ScanChannels" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="ScanDuration" type="Q2:unsigned8Bit">
+						</xsd:element>
+						</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformEnergyScanResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="ScanChannels" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="EnergyDetectedList" type="ns:EnergyScanResult" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformEnergyScanEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="ScanChannels" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="EnergyDetectedList" type="ns:EnergyScanResult" minOccurs="0" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformEnergyScanEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NetworkStatusEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+						<xsd:element name="NetworkAddr" type="ns:NetworkAddress"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NetworkStatusEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetNetworkStatus">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="NetworkAddr" type="ns:Address"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="GetNetworkStatusResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit"/>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier"/>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformRouteDiscovery">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="Q2:Timeout"/>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="Request" type="Q2:RouteDiscoveryInfo">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformRouteDiscoveryResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="PerformRouteDiscoveryEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier">
+						</xsd:element>
+						<xsd:element name="NWKStatus" type="Q2:NetworkStatusCode">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="PerformRouteDiscoveryEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendNWKCommand">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Timeout" type="ns:Timeout">
+						</xsd:element>
+						<xsd:element name="CallbackDestination" type="xsd:string">
+						</xsd:element>
+						<xsd:element name="Message" type="ns:NWKMessageEvent">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="SendNWKCommandResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0">
+						</xsd:element>
+						<xsd:element name="Message" type="ns:NWKMessageResult">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyNWKMessageEvent">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+						<xsd:element name="RequestIdentifier" type="Q2:RequestIdentifier" maxOccurs="1" minOccurs="0">
+					</xsd:element>
+						<xsd:element name="Message" type="ns:NWKMessageEvent"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NotifyNWKMessageEventResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Status" type="Q2:unsigned32Bit">
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:schema>
+	</wsdl:types>
+	<!-- End of Type Declaration -->
+	<!-- Start of Message Declaration -->
+	<wsdl:message name="CreateCallbackRequest">
+		<wsdl:part name="parameters" element="tns:CreateCallback"/>
+	</wsdl:message>
+	<wsdl:message name="CreateCallbackResponse">
+		<wsdl:part name="parameters" element="tns:CreateCallbackResponse"/>
+	</wsdl:message>
+	<wsdl:message name="SendZDPCommandRequest">
+		<wsdl:part name="parameters" element="tns:SendZDPCommand"/>
+	</wsdl:message>
+	<wsdl:message name="SendZDPCommandResponse">
+		<wsdl:part name="parameters" element="tns:SendZDPCommandResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyZDPEventRequest">
+		<wsdl:part name="parameters" element="tns:NotifyZDPEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyZDPEventResponse">
+		<wsdl:part name="parameters" element="tns:NotifyZDPEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetVersionRequest">
+		<wsdl:part name="parameters" element="tns:GetVersion"/>
+	</wsdl:message>
+	<wsdl:message name="GetVersionResponse">
+		<wsdl:part name="parameters" element="tns:GetVersionResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetRequest">
+		<wsdl:part name="parameters" element="tns:Get"/>
+	</wsdl:message>
+	<wsdl:message name="GetResponse">
+		<wsdl:part name="parameters" element="tns:GetResponse"/>
+	</wsdl:message>
+	<wsdl:message name="SetRequest">
+		<wsdl:part name="parameters" element="tns:Set"/>
+	</wsdl:message>
+	<wsdl:message name="SetResponse">
+		<wsdl:part name="parameters" element="tns:SetResponse"/>
+	</wsdl:message>
+	<wsdl:message name="DeleteCallbackRequest">
+		<wsdl:part name="parameters" element="tns:DeleteCallback"/>
+	</wsdl:message>
+	<wsdl:message name="DeleteCallbackResponse">
+		<wsdl:part name="parameters" element="tns:DeleteCallbackResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ListCallbacksRequest">
+		<wsdl:part name="parameters" element="tns:ListCallbacks"/>
+	</wsdl:message>
+	<wsdl:message name="ListCallbacksResponse">
+		<wsdl:part name="parameters" element="tns:ListCallbacksResponse"/>
+	</wsdl:message>
+	<wsdl:message name="UpdateTimeoutRequest">
+		<wsdl:part name="parameters" element="tns:UpdateTimeout"/>
+	</wsdl:message>
+	<wsdl:message name="UpdateTimeoutResponse">
+		<wsdl:part name="parameters" element="tns:UpdateTimeoutResponse"/>
+	</wsdl:message>
+	<wsdl:message name="PollCallbackRequest">
+		<wsdl:part name="parameters" element="tns:PollCallback"/>
+	</wsdl:message>
+	<wsdl:message name="PollCallbackResponse">
+		<wsdl:part name="parameters" element="tns:PollCallbackResponse"/>
+	</wsdl:message>
+	<wsdl:message name="StartNodeDiscoveryRequest">
+		<wsdl:part name="parameters" element="tns:StartNodeDiscovery"/>
+	</wsdl:message>
+	<wsdl:message name="StartNodeDiscoveryResponse">
+		<wsdl:part name="parameters" element="tns:StartNodeDiscoveryResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ReadNodeCacheRequest">
+		<wsdl:part name="parameters" element="tns:ReadNodeCache"/>
+	</wsdl:message>
+	<wsdl:message name="ReadNodeCacheResponse">
+		<wsdl:part name="parameters" element="tns:ReadNodeCacheResponse"/>
+	</wsdl:message>
+	<wsdl:message name="StartServiceDiscoveryRequest">
+		<wsdl:part name="parameters" element="tns:StartServiceDiscovery"/>
+	</wsdl:message>
+	<wsdl:message name="StartServiceDiscoveryResponse">
+		<wsdl:part name="parameters" element="tns:StartServiceDiscoveryResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ReadServiceCacheRequest">
+		<wsdl:part name="parameters" element="tns:ReadServiceCache"/>
+	</wsdl:message>
+	<wsdl:message name="ReadServiceCacheResponse">
+		<wsdl:part name="parameters" element="tns:ReadServiceCacheResponse"/>
+	</wsdl:message>
+	<wsdl:message name="StartGatewayDeviceRequest">
+		<wsdl:part name="parameters" element="tns:StartGatewayDevice"/>
+	</wsdl:message>
+	<wsdl:message name="StartGatewayDeviceResponse">
+		<wsdl:part name="parameters" element="tns:StartGatewayDeviceResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureStartupAttributeSetRequest">
+		<wsdl:part name="parameters" element="tns:ConfigureStartupAttributeSet"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureStartupAttributeSetResponse">
+		<wsdl:part name="parameters" element="tns:ConfigureStartupAttributeSetResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ReadStartupAttributeSetRequest">
+		<wsdl:part name="parameters" element="tns:ReadStartupAttributeSet"/>
+	</wsdl:message>
+	<wsdl:message name="ReadStartupAttributeSetResponse">
+		<wsdl:part name="parameters" element="tns:ReadStartupAttributeSetResponse"/>
+	</wsdl:message>
+	<wsdl:message name="SendZCLCommandRequest">
+		<wsdl:part name="parameters" element="tns:SendZCLCommand"/>
+	</wsdl:message>
+	<wsdl:message name="SendZCLCommandResponse">
+		<wsdl:part name="parameters" element="tns:SendZCLCommandResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyZCLEventRequest">
+		<wsdl:part name="parameters" element="tns:NotifyZCLEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyZCLEventResponse">
+		<wsdl:part name="parameters" element="tns:NotifyZCLEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureNodeDescriptorRequest">
+		<wsdl:part name="parameters" element="tns:ConfigureNodeDescriptor"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureNodeDescriptorResponse">
+		<wsdl:part name="parameters" element="tns:ConfigureNodeDescriptorResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureUserDescriptorRequest">
+		<wsdl:part name="parameters" element="tns:ConfigureUserDescriptor"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureUserDescriptorResponse">
+		<wsdl:part name="parameters" element="tns:ConfigureUserDescriptorResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureEndpointRequest">
+		<wsdl:part name="parameters" element="tns:ConfigureEndpoint"/>
+	</wsdl:message>
+	<wsdl:message name="ConfigureEndpointResponse">
+		<wsdl:part name="parameters" element="tns:ConfigureEndpointResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ClearEndpointRequest">
+		<wsdl:part name="parameters" element="tns:ClearEndpoint"/>
+	</wsdl:message>
+	<wsdl:message name="ClearEndpointResponse">
+		<wsdl:part name="parameters" element="tns:ClearEndpointResponse"/>
+	</wsdl:message>
+	<wsdl:message name="SendAPSMessageRequest">
+		<wsdl:part name="parameters" element="tns:SendAPSMessage"/>
+	</wsdl:message>
+	<wsdl:message name="SendAPSMessageResponse">
+		<wsdl:part name="parameters" element="tns:SendAPSMessageResponse"/>
+	</wsdl:message>
+	<wsdl:message name="AddGroupRequest">
+		<wsdl:part name="parameters" element="tns:AddGroup"/>
+	</wsdl:message>
+	<wsdl:message name="AddGroupResponse">
+		<wsdl:part name="parameters" element="tns:AddGroupResponse"/>
+	</wsdl:message>
+	<wsdl:message name="RemoveGroupRequest">
+		<wsdl:part name="parameters" element="tns:RemoveGroup"/>
+	</wsdl:message>
+	<wsdl:message name="RemoveGroupResponse">
+		<wsdl:part name="parameters" element="tns:RemoveGroupResponse"/>
+	</wsdl:message>
+	<wsdl:message name="RemoveAllGroupsRequest">
+		<wsdl:part name="parameters" element="tns:RemoveAllGroups"/>
+	</wsdl:message>
+	<wsdl:message name="RemoveAllGroupsResponse">
+		<wsdl:part name="parameters" element="tns:RemoveAllGroupsResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetGroupListRequest">
+		<wsdl:part name="parameters" element="tns:GetGroupList"/>
+	</wsdl:message>
+	<wsdl:message name="GetGroupListResponse">
+		<wsdl:part name="parameters" element="tns:GetGroupListResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetBindingListRequest">
+		<wsdl:part name="parameters" element="tns:GetBindingList"/>
+	</wsdl:message>
+	<wsdl:message name="GetBindingListResponse">
+		<wsdl:part name="parameters" element="tns:GetBindingListResponse"/>
+	</wsdl:message>
+	<wsdl:message name="FormNetworkRequest">
+		<wsdl:part name="parameters" element="tns:FormNetwork"/>
+	</wsdl:message>
+	<wsdl:message name="FormNetworkResponse">
+		<wsdl:part name="parameters" element="tns:FormNetworkResponse"/>
+	</wsdl:message>
+	<wsdl:message name="StartRouterRequest">
+		<wsdl:part name="parameters" element="tns:StartRouter"/>
+	</wsdl:message>
+	<wsdl:message name="StartRouterResponse">
+		<wsdl:part name="parameters" element="tns:StartRouterResponse"/>
+	</wsdl:message>
+	<wsdl:message name="JoinRequest">
+		<wsdl:part name="parameters" element="tns:Join"/>
+	</wsdl:message>
+	<wsdl:message name="JoinResponse">
+		<wsdl:part name="parameters" element="tns:JoinResponse"/>
+	</wsdl:message>
+	<wsdl:message name="LeaveRequest">
+		<wsdl:part name="parameters" element="tns:Leave"/>
+	</wsdl:message>
+	<wsdl:message name="LeaveResponse">
+		<wsdl:part name="parameters" element="tns:LeaveResponse"/>
+	</wsdl:message>
+	<wsdl:message name="DiscoverNetworksRequest">
+		<wsdl:part name="parameters" element="tns:DiscoverNetworks"/>
+	</wsdl:message>
+	<wsdl:message name="DiscoverNetworksResponse">
+		<wsdl:part name="parameters" element="tns:DiscoverNetworksResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ResetRequest">
+		<wsdl:part name="parameters" element="tns:Reset"/>
+	</wsdl:message>
+	<wsdl:message name="ResetResponse">
+		<wsdl:part name="parameters" element="tns:ResetResponse"/>
+	</wsdl:message>
+	<wsdl:message name="PerformEnergyScanRequest">
+		<wsdl:part name="parameters" element="tns:PerformEnergyScan"/>
+	</wsdl:message>
+	<wsdl:message name="PerformEnergyScanResponse">
+		<wsdl:part name="parameters" element="tns:PerformEnergyScanResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetNetworkStatusRequest">
+		<wsdl:part name="parameters" element="tns:GetNetworkStatus"/>
+	</wsdl:message>
+	<wsdl:message name="GetNetworkStatusResponse">
+		<wsdl:part name="parameters" element="tns:GetNetworkStatusResponse"/>
+	</wsdl:message>
+	<wsdl:message name="PerformRouteDiscoveryRequest">
+		<wsdl:part name="parameters" element="tns:PerformRouteDiscovery"/>
+	</wsdl:message>
+	<wsdl:message name="PerformRouteDiscoveryResponse">
+		<wsdl:part name="parameters" element="tns:PerformRouteDiscoveryResponse"/>
+	</wsdl:message>
+	<wsdl:message name="FormNetworkEventRequest">
+		<wsdl:part name="parameters" element="tns:FormNetworkEvent"/>
+	</wsdl:message>
+	<wsdl:message name="FormNetworkEventResponse">
+		<wsdl:part name="parameters" element="tns:FormNetworkEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="JoinEventRequest">
+		<wsdl:part name="parameters" element="tns:JoinEvent"/>
+	</wsdl:message>
+	<wsdl:message name="JoinEventResponse">
+		<wsdl:part name="parameters" element="tns:JoinEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="DiscoverNetworksEventRequest">
+		<wsdl:part name="parameters" element="tns:DiscoverNetworksEvent"/>
+	</wsdl:message>
+	<wsdl:message name="DiscoverNetworksEventResponse">
+		<wsdl:part name="parameters" element="tns:DiscoverNetworksEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="PerformEnergyScanEventRequest">
+		<wsdl:part name="parameters" element="tns:PerformEnergyScanEvent"/>
+	</wsdl:message>
+	<wsdl:message name="PerformEnergyScanEventResponse">
+		<wsdl:part name="parameters" element="tns:PerformEnergyScanEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NetworkStatusEventRequest">
+		<wsdl:part name="parameters" element="tns:NetworkStatusEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NetworkStatusEventResponse">
+		<wsdl:part name="parameters" element="tns:NetworkStatusEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="PerformRouteDiscoveryEventRequest">
+		<wsdl:part name="parameters" element="tns:PerformRouteDiscoveryEvent"/>
+	</wsdl:message>
+	<wsdl:message name="PerformRouteDiscoveryEventResponse">
+		<wsdl:part name="parameters" element="tns:PerformRouteDiscoveryEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetNodeDescriptorRequest">
+		<wsdl:part name="parameters" element="tns:GetNodeDescriptor"/>
+	</wsdl:message>
+	<wsdl:message name="GetNodeDescriptorResponse">
+		<wsdl:part name="parameters" element="tns:GetNodeDescriptorResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetNodePowerDescriptorRequest">
+		<wsdl:part name="parameters" element="tns:GetNodePowerDescriptor"/>
+	</wsdl:message>
+	<wsdl:message name="GetNodePowerDescriptorResponse">
+		<wsdl:part name="parameters" element="tns:GetNodePowerDescriptorResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetUserDescriptorRequest">
+		<wsdl:part name="parameters" element="tns:GetUserDescriptor"/>
+	</wsdl:message>
+	<wsdl:message name="GetUserDescriptorResponse">
+		<wsdl:part name="parameters" element="tns:GetUserDescriptorResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NotifySendAPSMessageEventRequest">
+		<wsdl:part name="parameters" element="tns:NotifySendAPSMessageEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NotifySendAPSMessageEventResponse">
+		<wsdl:part name="parameters" element="tns:NotifySendAPSMessageEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyAPSMessageEventRequest">
+		<wsdl:part name="parameters" element="tns:NotifyAPSMessageEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyAPSMessageEventResponse">
+		<wsdl:part name="parameters" element="tns:NotifyAPSMessageEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="StartRouterEventRequest">
+		<wsdl:part name="parameters" element="tns:StartRouterEvent"/>
+	</wsdl:message>
+	<wsdl:message name="StartRouterEventResponse">
+		<wsdl:part name="parameters" element="tns:StartRouterEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="LeaveEventRequest">
+		<wsdl:part name="parameters" element="tns:LeaveEvent"/>
+	</wsdl:message>
+	<wsdl:message name="LeaveEventResponse">
+		<wsdl:part name="parameters" element="tns:LeaveEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ResetEventRequest">
+		<wsdl:part name="parameters" element="tns:ResetEvent"/>
+	</wsdl:message>
+	<wsdl:message name="ResetEventResponse">
+		<wsdl:part name="parameters" element="tns:ResetEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyNWKMessageEventRequest">
+		<wsdl:part name="parameters" element="tns:NotifyNWKMessageEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyNWKMessageEventResponse">
+		<wsdl:part name="parameters" element="tns:NotifyNWKMessageEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="SendNWKCommandRequest">
+		<wsdl:part name="parameters" element="tns:SendNWKCommand"/>
+	</wsdl:message>
+	<wsdl:message name="SendNWKCommandResponse">
+		<wsdl:part name="parameters" element="tns:SendNWKCommandResponse"/>
+	</wsdl:message>
+	<wsdl:message name="StartGatewayDeviceEventRequest">
+		<wsdl:part name="parameters" element="tns:StartGatewayDeviceEvent"/>
+	</wsdl:message>
+	<wsdl:message name="StartGatewayDeviceEventResponse">
+		<wsdl:part name="parameters" element="tns:StartGatewayDeviceEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="PollResultsRequest">
+		<wsdl:part name="parameters" element="tns:PollResults">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="PollResultsResponse">
+		<wsdl:part name="parameters" element="tns:PollResultsResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NodeDiscoveryEventRequest">
+		<wsdl:part name="parameters" element="tns:NodeDiscoveryEvent">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="NodeDiscoveryEventResponse">
+		<wsdl:part name="parameters" element="tns:NodeDiscoveryEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NodeLeaveEventRequest">
+		<wsdl:part name="parameters" element="tns:NodeLeaveEvent">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="NodeLeaveEventResponse">
+		<wsdl:part name="parameters" element="tns:NodeLeaveEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ServiceDiscoveryEventRequest">
+		<wsdl:part name="parameters" element="tns:ServiceDiscoveryEvent">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="ServiceDiscoveryEventResponse">
+		<wsdl:part name="parameters" element="tns:ServiceDiscoveryEventResponse"/>
+	</wsdl:message>
+	<wsdl:message name="CreateAliasAddressRequest">
+		<wsdl:part name="parameters" element="tns:CreateAliasAddress">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="CreateAliasAddressResponse">
+		<wsdl:part name="parameters" element="tns:CreateAliasAddressResponse"/>
+	</wsdl:message>
+	<wsdl:message name="DeleteAliasAddressRequest">
+		<wsdl:part name="parameters" element="tns:DeleteAliasAddress">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="DeleteAliasAddressResponse">
+		<wsdl:part name="parameters" element="tns:DeleteAliasAddressResponse"/>
+	</wsdl:message>
+	<wsdl:message name="ListAddressesRequest">
+		<wsdl:part name="parameters" element="tns:ListAddresses">
+		</wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="ListAddressesResponse">
+		<wsdl:part name="parameters" element="tns:ListAddressesResponse"/>
+	</wsdl:message>
+	<!-- InterPAN Message Declaration -->
+	<wsdl:message name="SendInterPANMessageRequest">
+		<wsdl:part name="parameters" element="tns:SendInterPANMessage"/>
+	</wsdl:message>
+	<wsdl:message name="SendInterPANMessageResponse">
+		<wsdl:part name="parameters" element="tns:SendInterPANMessageResponse"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyInterPANMessageEventRequest">
+		<wsdl:part name="parameters" element="tns:NotifyInterPANMessageEvent"/>
+	</wsdl:message>
+	<wsdl:message name="NotifyInterPANMessageEventResponse">
+		<wsdl:part name="parameters" element="tns:NotifyInterPANMessageEventResponse"/>
+	</wsdl:message>
+	<!-- End of Message Declaration -->
+	<wsdl:portType name="gmo">
+		<wsdl:operation name="GetVersion">
+			<wsdl:input message="tns:GetVersionRequest"/>
+			<wsdl:output message="tns:GetVersionResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="CreateCallback">
+			<wsdl:input message="tns:CreateCallbackRequest"/>
+			<wsdl:output message="tns:CreateCallbackResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="Get">
+			<wsdl:input message="tns:GetRequest"/>
+			<wsdl:output message="tns:GetResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="Set">
+			<wsdl:input message="tns:SetRequest"/>
+			<wsdl:output message="tns:SetResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="DeleteCallback">
+			<wsdl:input message="tns:DeleteCallbackRequest"/>
+			<wsdl:output message="tns:DeleteCallbackResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ListCallbacks">
+			<wsdl:input message="tns:ListCallbacksRequest"/>
+			<wsdl:output message="tns:ListCallbacksResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateTimeout">
+			<wsdl:input message="tns:UpdateTimeoutRequest"/>
+			<wsdl:output message="tns:UpdateTimeoutResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="PollCallback">
+			<wsdl:input message="tns:PollCallbackRequest"/>
+			<wsdl:output message="tns:PollCallbackResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="StartNodeDiscovery">
+			<wsdl:input message="tns:StartNodeDiscoveryRequest"/>
+			<wsdl:output message="tns:StartNodeDiscoveryResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ReadNodeCache">
+			<wsdl:input message="tns:ReadNodeCacheRequest"/>
+			<wsdl:output message="tns:ReadNodeCacheResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="StartServiceDiscovery">
+			<wsdl:input message="tns:StartServiceDiscoveryRequest"/>
+			<wsdl:output message="tns:StartServiceDiscoveryResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ReadServiceCache">
+			<wsdl:input message="tns:ReadServiceCacheRequest"/>
+			<wsdl:output message="tns:ReadServiceCacheResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="StartGatewayDevice">
+			<wsdl:input message="tns:StartGatewayDeviceRequest"/>
+			<wsdl:output message="tns:StartGatewayDeviceResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConfigureStartupAttributeSet">
+			<wsdl:input message="tns:ConfigureStartupAttributeSetRequest"/>
+			<wsdl:output message="tns:ConfigureStartupAttributeSetResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ReadStartupAttributeSet">
+			<wsdl:input message="tns:ReadStartupAttributeSetRequest"/>
+			<wsdl:output message="tns:ReadStartupAttributeSetResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="PollResults">
+			<wsdl:input message="tns:PollResultsRequest"/>
+			<wsdl:output message="tns:PollResultsResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="CreateAliasAddress">
+			<wsdl:input message="tns:CreateAliasAddressRequest"/>
+			<wsdl:output message="tns:CreateAliasAddressResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="DeleteAliasAddress">
+			<wsdl:input message="tns:DeleteAliasAddressRequest"/>
+			<wsdl:output message="tns:DeleteAliasAddressResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ListAddresses">
+			<wsdl:input message="tns:ListAddressesRequest"/>
+			<wsdl:output message="tns:ListAddressesResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="zdp">
+		<wsdl:operation name="SendZDPCommand">
+			<wsdl:input message="tns:SendZDPCommandRequest"/>
+			<wsdl:output message="tns:SendZDPCommandResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="zdpEvent">
+		<wsdl:operation name="NotifyZDPEvent">
+			<wsdl:input message="tns:NotifyZDPEventRequest"/>
+			<wsdl:output message="tns:NotifyZDPEventResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="zcl">
+		<wsdl:operation name="SendZCLCommand">
+			<wsdl:input message="tns:SendZCLCommandRequest"/>
+			<wsdl:output message="tns:SendZCLCommandResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="zclEvent">
+		<wsdl:operation name="NotifyZCLEvent">
+			<wsdl:input message="tns:NotifyZCLEventRequest"/>
+			<wsdl:output message="tns:NotifyZCLEventResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="aps">
+		<wsdl:operation name="ConfigureNodeDescriptor">
+			<wsdl:input message="tns:ConfigureNodeDescriptorRequest"/>
+			<wsdl:output message="tns:ConfigureNodeDescriptorResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConfigureUserDescriptor">
+			<wsdl:input message="tns:ConfigureUserDescriptorRequest"/>
+			<wsdl:output message="tns:ConfigureUserDescriptorResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ConfigureEndpoint">
+			<wsdl:input message="tns:ConfigureEndpointRequest"/>
+			<wsdl:output message="tns:ConfigureEndpointResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ClearEndpoint">
+			<wsdl:input message="tns:ClearEndpointRequest"/>
+			<wsdl:output message="tns:ClearEndpointResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="SendAPSMessage">
+			<wsdl:input message="tns:SendAPSMessageRequest"/>
+			<wsdl:output message="tns:SendAPSMessageResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="AddGroup">
+			<wsdl:input message="tns:AddGroupRequest"/>
+			<wsdl:output message="tns:AddGroupResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="RemoveGroup">
+			<wsdl:input message="tns:RemoveGroupRequest"/>
+			<wsdl:output message="tns:RemoveGroupResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="RemoveAllGroups">
+			<wsdl:input message="tns:RemoveAllGroupsRequest"/>
+			<wsdl:output message="tns:RemoveAllGroupsResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetGroupList">
+			<wsdl:input message="tns:GetGroupListRequest"/>
+			<wsdl:output message="tns:GetGroupListResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetBindingList">
+			<wsdl:input message="tns:GetBindingListRequest"/>
+			<wsdl:output message="tns:GetBindingListResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetNodeDescriptor">
+			<wsdl:input message="tns:GetNodeDescriptorRequest"/>
+			<wsdl:output message="tns:GetNodeDescriptorResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetNodePowerDescriptor">
+			<wsdl:input message="tns:GetNodePowerDescriptorRequest"/>
+			<wsdl:output message="tns:GetNodePowerDescriptorResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetUserDescriptor">
+			<wsdl:input message="tns:GetUserDescriptorRequest"/>
+			<wsdl:output message="tns:GetUserDescriptorResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="apsEvent">
+		<wsdl:operation name="NotifyAPSMessageEvent">
+			<wsdl:input message="tns:NotifyAPSMessageEventRequest"/>
+			<wsdl:output message="tns:NotifyAPSMessageEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="NotifySendAPSMessageEvent">
+			<wsdl:input message="tns:NotifySendAPSMessageEventRequest"/>
+			<wsdl:output message="tns:NotifySendAPSMessageEventResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="nwk">
+		<wsdl:operation name="FormNetwork">
+			<wsdl:input message="tns:FormNetworkRequest"/>
+			<wsdl:output message="tns:FormNetworkResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="StartRouter">
+			<wsdl:input message="tns:StartRouterRequest"/>
+			<wsdl:output message="tns:StartRouterResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="Join">
+			<wsdl:input message="tns:JoinRequest"/>
+			<wsdl:output message="tns:JoinResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="Leave">
+			<wsdl:input message="tns:LeaveRequest"/>
+			<wsdl:output message="tns:LeaveResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="DiscoverNetworks">
+			<wsdl:input message="tns:DiscoverNetworksRequest"/>
+			<wsdl:output message="tns:DiscoverNetworksResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="Reset">
+			<wsdl:input message="tns:ResetRequest"/>
+			<wsdl:output message="tns:ResetResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="PerformEnergyScan">
+			<wsdl:input message="tns:PerformEnergyScanRequest"/>
+			<wsdl:output message="tns:PerformEnergyScanResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetNetworkStatus">
+			<wsdl:input message="tns:GetNetworkStatusRequest"/>
+			<wsdl:output message="tns:GetNetworkStatusResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="PerformRouteDiscovery">
+			<wsdl:input message="tns:PerformRouteDiscoveryRequest"/>
+			<wsdl:output message="tns:PerformRouteDiscoveryResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="SendNWKCommand">
+			<wsdl:input message="tns:SendNWKCommandRequest"/>
+			<wsdl:output message="tns:SendNWKCommandResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="nwkEvent">
+		<wsdl:operation name="FormNetworkEvent">
+			<wsdl:input message="tns:FormNetworkEventRequest"/>
+			<wsdl:output message="tns:FormNetworkEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="JoinEvent">
+			<wsdl:input message="tns:JoinEventRequest"/>
+			<wsdl:output message="tns:JoinEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="DiscoverNetworksEvent">
+			<wsdl:input message="tns:DiscoverNetworksEventRequest"/>
+			<wsdl:output message="tns:DiscoverNetworksEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="PerformEnergyScanEvent">
+			<wsdl:input message="tns:PerformEnergyScanEventRequest"/>
+			<wsdl:output message="tns:PerformEnergyScanEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="NetworkStatusEvent">
+			<wsdl:input message="tns:NetworkStatusEventRequest"/>
+			<wsdl:output message="tns:NetworkStatusEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="PerformRouteDiscoveryEvent">
+			<wsdl:input message="tns:PerformRouteDiscoveryEventRequest"/>
+			<wsdl:output message="tns:PerformRouteDiscoveryEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="StartRouterEvent">
+			<wsdl:input message="tns:StartRouterEventRequest"/>
+			<wsdl:output message="tns:StartRouterEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="LeaveEvent">
+			<wsdl:input message="tns:LeaveEventRequest"/>
+			<wsdl:output message="tns:LeaveEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ResetEvent">
+			<wsdl:input message="tns:ResetEventRequest"/>
+			<wsdl:output message="tns:ResetEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="NotifyNWKMessageEvent">
+			<wsdl:input message="tns:NotifyNWKMessageEventRequest"/>
+			<wsdl:output message="tns:NotifyNWKMessageEventResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="gmoEvent">
+		<wsdl:operation name="StartGatewayDeviceEvent">
+			<wsdl:input message="tns:StartGatewayDeviceEventRequest"/>
+			<wsdl:output message="tns:StartGatewayDeviceEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="NodeDiscoveryEvent">
+			<wsdl:input message="tns:NodeDiscoveryEventRequest"/>
+			<wsdl:output message="tns:NodeDiscoveryEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="NodeLeaveEvent">
+			<wsdl:input message="tns:NodeLeaveEventRequest"/>
+			<wsdl:output message="tns:NodeLeaveEventResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="ServiceDiscoveryEvent">
+			<wsdl:input message="tns:ServiceDiscoveryEventRequest"/>
+			<wsdl:output message="tns:ServiceDiscoveryEventResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="interPAN">
+		<wsdl:operation name="SendInterPANMessage">
+			<wsdl:input message="tns:SendInterPANMessageRequest"/>
+			<wsdl:output message="tns:SendInterPANMessageResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="interPANEvent">
+		<wsdl:operation name="NotifyInterPANMessageEvent">
+			<wsdl:input message="tns:NotifyInterPANMessageEventRequest"/>
+			<wsdl:output message="tns:NotifyInterPANMessageEventResponse"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<!-- End of Port Type -->
+	<wsdl:binding name="ZDP" type="tns:zdp">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SendZDPCommand">
+			<soap:operation soapAction="http://www.zigbee.org/"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="ZDPEvent" type="tns:zdpEvent">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="NotifyZDPEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NotifyZDPEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="ZCLEvent" type="tns:zclEvent">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="NotifyZCLEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NotifyZCLEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="APSEvent" type="tns:apsEvent">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="NotifyAPSMessageEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NotifyAPSMessageEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="NotifySendAPSMessageEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NotifySendAPSMessageEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="NWKEvent" type="tns:nwkEvent">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="FormNetworkEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/FormNetworkEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="StartRouterEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/StartRouterEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ResetEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ResetEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="LeaveEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/LeaveEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="JoinEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/JoinEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="NotifyNWKMessageEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NotifyNWKMessageEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="DiscoverNetworksEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/DiscoverNetworksEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="PerformEnergyScanEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/PerformEnergyScanEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="NetworkStatusEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NetworkStatusEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="PerformRouteDiscoveryEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/PerformRouteDiscoveryEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="ZCL" type="tns:zcl">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SendZCLCommand">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/SendZCLCommand"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="APS" type="tns:aps">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="ConfigureNodeDescriptor">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ConfigureNodeDescriptor"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConfigureUserDescriptor">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ConfigureUserDescriptor"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConfigureEndpoint">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ConfigureEndpoint"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ClearEndpoint">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ClearEndpoint"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="SendAPSMessage">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/SendAPSMessage"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="AddGroup">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/AddGroup"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="RemoveGroup">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/RemoveGroup"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="RemoveAllGroups">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/RemoveAllGroups"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="GetGroupList">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetGroupList"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="GetBindingList">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetBindingList"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="GetNodeDescriptor">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetNodeDescriptor"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="GetNodePowerDescriptor">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetNodePowerDescriptor"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="GetUserDescriptor">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetUserDescriptor"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="NWK" type="tns:nwk">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SendNWKCommand">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/SendNWKCommand"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="FormNetwork">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/FormNetwork"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="StartRouter">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/StartRouter"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="Join">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/Join"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="Leave">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/Leave"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="DiscoverNetworks">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/DiscoverNetworks"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="Reset">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/Reset"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="PerformEnergyScan">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/PerformEnergyScan"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="GetNetworkStatus">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetNetworkStatus"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="PerformRouteDiscovery">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/PerformRouteDiscovery"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="GMO" type="tns:gmo">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="GetVersion">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/GetVersion"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="CreateCallback">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/CreateCallback"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="Get">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/Get"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="Set">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/Set"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="DeleteCallback">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/DeleteCallback"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ListCallbacks">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ListCallbacks"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateTimeout">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/UpdateTimeout"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="PollCallback">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/PollCallback"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="StartNodeDiscovery">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/StartNodeDiscovery"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ReadNodeCache">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ReadNodeCache"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="StartServiceDiscovery">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/StartServiceDiscovery"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ReadServiceCache">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ReadServiceCache"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="StartGatewayDevice">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/StartGatewayDevice"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="PollResults">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/PollResults"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ConfigureStartupAttributeSet">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ConfigureStartupAttributeSet"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ReadStartupAttributeSet">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ReadStartupAttributeSet"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="CreateAliasAddress">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/CreateAliasAddress"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="DeleteAliasAddress">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/DeleteAliasAddress"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ListAddresses">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ListAddresses"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="GMOEvent" type="tns:gmoEvent">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="StartGatewayDeviceEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/StartGatewayDeviceEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="NodeDiscoveryEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NodeDiscoveryEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="NodeLeaveEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NodeLeaveEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ServiceDiscoveryEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/ServiceDiscoveryEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="INTERPAN" type="tns:interPAN">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="SendInterPANMessage">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/SendInterPANMessage"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="INTERPANEvent" type="tns:interPANEvent">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+		<wsdl:operation name="NotifyInterPANMessageEvent">
+			<soap:operation soapAction="http://www.zigbee.org/zgd/NotifyInterPANMessageEvent"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="ZGDService">
+		<wsdl:port name="gmo" binding="tns:GMO">
+			<soap:address location="http://www.zigbee.org/"/>
+		</wsdl:port>
+		<wsdl:port name="zdp" binding="tns:ZDP">
+			<soap:address location="http://www.zigbee.org"/>
+		</wsdl:port>
+		<wsdl:port name="zcl" binding="tns:ZCL">
+			<soap:address location="http://www.zigbee.org"/>
+		</wsdl:port>
+		<wsdl:port name="aps" binding="tns:APS">
+			<soap:address location="http://www.zigbee.org"/>
+		</wsdl:port>
+		<wsdl:port name="nwk" binding="tns:NWK">
+			<soap:address location="http://www.zigbee.org"/>
+		</wsdl:port>
+		<wsdl:port name="interPAN" binding="tns:INTERPAN">
+			<soap:address location="http://www.zigbee.org"/>
+		</wsdl:port>
+	</wsdl:service>
+	<wsdl:service name="IPHAService">
+		<wsdl:port name="zdpEvent" binding="tns:ZDPEvent">
+			<soap:address location="http://www.zigbee.org/"/>
+		</wsdl:port>
+		<wsdl:port name="zclEvent" binding="tns:ZCLEvent">
+			<soap:address location="http://www.zigbee.org"/>
+		</wsdl:port>
+		<wsdl:port name="apsEvent" binding="tns:APSEvent">
+			<soap:address location="http://www.zigbee.org/"/>
+		</wsdl:port>
+		<wsdl:port name="nwkEvent" binding="tns:NWKEvent">
+			<soap:address location="http://www.zigbee.org/"/>
+		</wsdl:port>
+		<wsdl:port name="gmoEvent" binding="tns:GMOEvent">
+			<soap:address location="http://www.zigbee.org/"/>
+		</wsdl:port>
+        <wsdl:port name="interPANEvent" binding="tns:INTERPANEvent">
+		    <soap:address location="http://www.zigbee.org/"/>
+        </wsdl:port>
+      </wsdl:service>
+</wsdl:definitions>

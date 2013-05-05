@@ -1,0 +1,1112 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.zigbee.org/GWGSchema"
+	xmlns:tns="http://www.zigbee.org/GWGSchema"
+	elementFormDefault="qualified">
+
+	<!-- General purpose types -->
+	<simpleType name="unsignedNibble">
+		<restriction base="unsignedByte">
+			<minInclusive value="0" />
+			<maxInclusive value="15" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="unsigned16Bit">
+		<restriction base="unsignedShort"></restriction>
+	</simpleType>
+
+	<simpleType name="unsigned32Bit">
+		<restriction base="unsignedInt"></restriction>
+	</simpleType>
+
+	<simpleType name="unsigned64Bit">
+		<restriction base="unsignedLong"></restriction>
+	</simpleType>
+
+	<simpleType name="unsigned128Bit">
+		<restriction base="hexBinary">
+			<length value="16" />
+		</restriction>
+	</simpleType>
+
+	<!-- ZigBee specific types -->
+	<simpleType name="IeeeAddress">
+		<restriction base="tns:unsigned64Bit" />
+	</simpleType>
+
+	<simpleType name="NetworkAddress">
+		<restriction base="tns:unsigned16Bit" />
+	</simpleType>
+
+	<simpleType name="AliasAddress">
+		<restriction base="string" />
+	</simpleType>
+
+	<complexType name="Address">
+		<sequence>
+			<element name="NetworkAddress" type="tns:NetworkAddress"
+				maxOccurs="1" minOccurs="0">
+			</element>
+			<element name="IeeeAddress" type="tns:IeeeAddress"
+				maxOccurs="1" minOccurs="0">
+			</element>
+			<element name="AliasAddress" type="tns:AliasAddress"
+				maxOccurs="1" minOccurs="0">
+			</element>
+		</sequence>
+	</complexType>
+
+	<simpleType name="Endpoint">
+		<restriction base="unsignedByte" />
+	</simpleType>
+
+	<simpleType name="ClusterIdentifier">
+		<restriction base="tns:unsigned16Bit" />
+	</simpleType>
+
+	<simpleType name="ClusterGroup">
+		<restriction base="string" />
+	</simpleType>
+
+	<simpleType name="ProfileIdentifier">
+		<restriction base="tns:unsigned16Bit" />
+	</simpleType>
+
+	<simpleType name="DeviceIdentifier">
+		<restriction base="tns:unsigned16Bit" />
+	</simpleType>
+
+	<simpleType name="CommandIdentifier">
+		<restriction base="tns:unsigned16Bit" />
+	</simpleType>
+
+	<complexType name="Group">
+		<sequence>
+			<element name="GroupAddress" type="tns:unsigned16Bit"
+				minOccurs="1" maxOccurs="1" />
+			<element name="Endpoint" type="tns:Endpoint" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="GroupList">
+		<sequence>
+			<element name="Group" type="tns:Group" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Device">
+		<sequence>
+			<element name="Address" type="tns:IeeeAddress" minOccurs="1"
+				maxOccurs="1" />
+			<element name="Endpoint" type="tns:Endpoint" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="NetworkStatusCode">
+		<sequence>
+			<element name="Status" type="unsignedInt" minOccurs="1"
+				maxOccurs="1" />
+			<element name="NetworkStatusCode" type="unsignedInt"
+				minOccurs="0" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="LogicalType">
+		<restriction base="string">
+			<enumeration value="Current" />
+			<enumeration value="Coordinator" />
+			<enumeration value="Router" />
+			<enumeration value="EndDevice" />
+		</restriction>
+	</simpleType>
+
+    <simpleType name="KeyType">
+      	<restriction base="string">
+      		<enumeration value="Standard"/>
+      		<enumeration value="HighSecurity"/>
+      	</restriction>
+    </simpleType>
+
+	<complexType name="MACCapability">
+		<sequence>
+			<element name="AlternatePanCoordinator" type="boolean" />
+			<element name="DeviceIsFFD" type="boolean" />
+			<element name="MainsPowered" type="boolean" />
+			<element name="ReceiverOnWhenIdle" type="boolean" />
+			<element name="SecuritySupported" type="boolean" />
+			<element name="AllocateAddress" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ServerMask">
+		<sequence>
+			<element name="PrimaryTrustCenter" type="boolean" />
+			<element name="BackupTrustCenter" type="boolean" />
+			<element name="PrimaryBindingTableCache" type="boolean" />
+			<element name="BackupBindingTableCache" type="boolean" />
+			<element name="PrimaryDiscoveryCache" type="boolean" />
+			<element name="BackupDiscoveryCache" type="boolean" />
+			<element name="NetworkManager" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DescriptorCapability">
+		<sequence>
+			<element name="ExtendedActiveEndpointListAvailable"
+				type="boolean" />
+			<element name="ExtendedSimpleDescriptorListAvailable"
+				type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="PowerSources">
+		<sequence>
+			<element name="ConstantMains" type="boolean" />
+			<element name="RechargeableBattery" type="boolean" />
+			<element name="DisposableBattery" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="LanguageAndCharacterSet">
+		<sequence>
+			<element name="LanguageCode" type="string" />
+			<element name="CharacterSet" type="string" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="RPCProtocol">
+		<restriction base="string">
+			<enumeration value="GRIP" />
+			<enumeration value="SOAP" />
+			<enumeration value="REST" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="Level">
+		<restriction base="string">
+			<enumeration value="MACLevel" />
+			<enumeration value="NWKLevel" />
+			<enumeration value="APSLevel" />
+			<enumeration value="INTRPLevel" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="Filter">
+		<sequence>
+			<element name="LevelSpecification" minOccurs="1"
+				maxOccurs="1">
+				<complexType>
+					<sequence>
+						<element name="Level" type="tns:Level"
+							minOccurs="1" maxOccurs="unbounded" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="AddressSpecification" minOccurs="0"
+				maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="NWKSourceAddress"
+							type="tns:Address" minOccurs="0" maxOccurs="1" />
+						<element name="APSSourceEndpoint"
+							type="tns:Endpoint" minOccurs="0" maxOccurs="1" />
+						<element name="APSDestinationEndpoint"
+							type="tns:Endpoint" minOccurs="0" maxOccurs="1" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="MessageSpecification" minOccurs="0"
+				maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="APSClusterIdentifier"
+							type="tns:ClusterIdentifier" minOccurs="0" maxOccurs="1" />
+						<element name="APSClusterGroup"
+							type="tns:ClusterGroup" minOccurs="0" maxOccurs="1" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="Buffer">
+		<sequence />
+	</complexType>
+
+	<simpleType name="DecodeLevel">
+		<restriction base="string">
+			<enumeration value="DecodeMAC" />
+			<enumeration value="DecodeNWK" />
+			<enumeration value="DecodeInterPAN" />
+			<enumeration value="DecodeAPS" />
+			<enumeration value="DecodeZCL" />
+			<enumeration value="DecodeZDP" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="Action">
+		<sequence>
+			<element name="DecodeSpecification" minOccurs="1"
+				maxOccurs="1">
+				<complexType>
+					<sequence>
+						<element name="DecodeLevel"
+							type="tns:DecodeLevel" minOccurs="1" maxOccurs="unbounded" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="ForwardingSpecification" type="string" minOccurs="1"
+				maxOccurs="1"/>
+
+		</sequence>
+	</complexType>
+
+	<complexType name="TxOptions">
+		<sequence>
+			<element name="SecurityEnabled" type="boolean" />
+			<element name="UseNetworkKey" type="boolean" />
+			<element name="Acknowledged" type="boolean" />
+			<element name="PermitFragmentation" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="SecurityStatus">
+		<restriction base="string">
+			<enumeration value="Unsecured" />
+			<enumeration value="SecuredNwkKey" />
+			<enumeration value="SecuredLinkKey" />
+		</restriction>
+	</simpleType>
+
+	<!-- Gateway Management Profile (GMP) -->
+	<complexType name="Version">
+		<sequence>
+			<element name="VersionIdentifier" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="FeatureSetIdentifier" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="RPCProtocol" type="tns:RPCProtocol"
+				minOccurs="1" maxOccurs="unbounded">
+			</element>
+			<element name="ManufacturerVersion" type="string"
+				minOccurs="1" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Callback">
+		<sequence>
+			<element name="Filter" type="tns:Filter" minOccurs="0"
+				maxOccurs="1" />
+
+			<element name="Buffer" type="tns:Buffer" minOccurs="0"
+				maxOccurs="1" />
+
+			<element name="Action" type="tns:Action" minOccurs="0"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+	<complexType name="CallbackIdentifierList">
+		<sequence>
+			<element name="CallbackIdentifier"
+				type="tns:CallbackIdentifier" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="Aliases">
+		<sequence>
+			<element name="Alias"
+					 type="tns:Address" minOccurs="0" maxOccurs="unbounded"/>
+			<element name="NumberOfAlias"
+                     type="unsignedInt" minOccurs="0" maxOccurs="1"/>		 
+		</sequence>
+	</complexType>
+
+	<complexType name="ZDPCommand">
+		<sequence>
+			<element name="Destination" type="tns:Address"
+				minOccurs="1" maxOccurs="1" />
+			<element name="TxOptions" type="tns:TxOptions" minOccurs="0"
+				maxOccurs="1" />
+			<element name="Radius" type="unsignedByte" minOccurs="0"
+				maxOccurs="1" />
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="1" maxOccurs="1" />
+			<element name="Command" type="hexBinary" minOccurs="1"
+				maxOccurs="1" />
+			<element name="DestinationAddrMode" type="unsignedInt" 
+			        minOccurs="1"  maxOccurs="1"/>
+ 		</sequence>
+	</complexType>
+
+	<complexType name="ZDPMessage">
+		<sequence>
+			<element name="SourceAddress" type="tns:Address"
+			         minOccurs="0" maxOccurs="1" />
+			<element name="SourceAddressMode" type="unsignedInt"/>
+ 			<element name="SecurityStatus" type="tns:SecurityStatus"
+				minOccurs="0" maxOccurs="1" />
+			<element name="LinkQuality" type="unsignedByte"
+				minOccurs="0" maxOccurs="1" />
+			<element name="RxTime" type="tns:unsigned32Bit"
+				minOccurs="0" maxOccurs="1" />
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="0" maxOccurs="1" />
+			<element name="Command" type="hexBinary" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ZCLCommand">
+		<sequence>
+		        <element name="DestinationAddressMode" type="unsignedInt"/>
+ 			<element name="DestinationAddress" type="tns:Address"
+				minOccurs="0" maxOccurs="1" />
+			<element name="DestinationEndpoint" type="tns:Endpoint"
+				minOccurs="0" maxOccurs="1" />
+			<element name="ProfileID" type="tns:ProfileIdentifier"
+				minOccurs="0" maxOccurs="1" />
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="1" maxOccurs="1" />
+			<element name="SourceEndpoint" type="tns:Endpoint"
+				minOccurs="0" maxOccurs="1" />
+			<element name="TxOptions" type="tns:TxOptions" minOccurs="1"
+				maxOccurs="1" />
+			<element name="Radius" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+            <element name="ZCLPayload" type="hexBinary"
+                minOccurs="1" maxOccurs="1" />
+            <element name="ZCLHeader" type="hexBinary" minOccurs="1"
+                maxOccurs="1" />
+	</sequence>
+    </complexType>
+    <complexType name="ZCLCommandResult">
+        <sequence>
+            <element name="SourceEndpoint" type="tns:Endpoint"
+                minOccurs="1" maxOccurs="1" />
+            <element name="CommandID" type="tns:CommandIdentifier"
+                minOccurs="1" maxOccurs="1" />
+	</sequence>
+    </complexType>
+
+	<complexType name="ZCLMessage">
+		<sequence>
+			<element name="RxTime" type="tns:unsigned32Bit"
+				minOccurs="1" maxOccurs="1" />
+			<element name="DestinationEndpoint" type="tns:Endpoint"
+				minOccurs="1" maxOccurs="1" />
+			<element name="SourceAddress" type="tns:Address"
+				minOccurs="0" maxOccurs="1" />
+			<element name="SourceEndpoint" type="tns:Endpoint"
+				minOccurs="0" maxOccurs="1" />
+			<element name="ProfileID" type="tns:ProfileIdentifier"
+				minOccurs="0" maxOccurs="1" />
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="1" maxOccurs="1" />
+			<element name="ZCLPayload" type="hexBinary" minOccurs="1"
+			         maxOccurs="1" />
+			<element name="APSStatus" type="tns:unsigned32Bit"/>
+			<element name="SourceAddressMode" type="unsignedInt"/>
+			<element name="ZCLHeader" type="hexBinary" minOccurs="1"
+			         maxOccurs="1" />    
+                
+		</sequence>
+	</complexType>
+
+	<complexType name="APSMessage">
+		<sequence>
+		        <element name="DestinationAddressMode" type="unsignedInt"/>
+			<element name="DestinationAddress" 
+			         type="tns:Address"
+				 minOccurs="1" maxOccurs="1" />
+			<element name="DestinationEndpoint" type="tns:Endpoint"
+				minOccurs="1" maxOccurs="1" />
+			<element name="SourceEndpoint" type="tns:Endpoint"
+				minOccurs="1" maxOccurs="1" />
+			<element name="ProfileID"
+				 type="tns:ProfileIdentifier"
+				 minOccurs="0" maxOccurs="1"/>
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="1" maxOccurs="1" />
+			<element name="Data" type="hexBinary" minOccurs="1"
+				maxOccurs="1" />
+			<element name="TxOptions" type="tns:TxOptions" minOccurs="1"
+				maxOccurs="1" />
+			<element name="Radius" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+	<complexType name="APSMessageResult">
+		<sequence>
+			<element name="ConfirmStatus" type="unsignedShort"
+				minOccurs="1" maxOccurs="1" />
+			<element name="TxTime" type="tns:unsigned32Bit"
+				minOccurs="1" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="APSMessageEvent">
+	<sequence>
+	        <element name="DestinationAddressMode" type="unsignedInt"/>
+ 		<element name="DestinationAddress" type="tns:Address"
+				 minOccurs="1" maxOccurs="1"/>
+		<element name="DestinationEndpoint"
+				 type="tns:Endpoint"
+				 minOccurs="1" maxOccurs="1"/>
+		<element name="SourceAddress" type="tns:Address"
+				 minOccurs="1" maxOccurs="1"/>
+		<element name="SourceAddressMode" type="unsignedInt"
+				minOccurs="0" maxOccurs="1" />
+		<element name="SourceEndpoint"
+				 type="tns:Endpoint"
+				 minOccurs="1" maxOccurs="1"/>
+		<element name="ProfileID"
+				 type="tns:ProfileIdentifier"
+				 minOccurs="0" maxOccurs="1"/>
+		<element name="ClusterID"
+				 type="tns:ClusterIdentifier"
+				 minOccurs="1" maxOccurs="1"/>
+	    <element name="Data"
+             	 type="hexBinary"
+         		 minOccurs="1" maxOccurs="1"/>
+	    <element name="APSStatus"
+             	 type="unsignedShort"
+         		 minOccurs="1" maxOccurs="1"/>         		 
+		<element name="SecurityStatus"
+				 type="tns:SecurityStatus"
+				 minOccurs="0" maxOccurs="1"/>
+		<element name="LinkQuality"
+				 type="unsignedByte"
+				 minOccurs="0" maxOccurs="1"/>
+		<element name="RxTime"
+				 type="tns:unsigned32Bit"
+				 minOccurs="0" maxOccurs="1"/>
+	</sequence>
+	</complexType>
+
+	<complexType name="InterPANMessage">
+		<sequence>
+			<element name="SrcAddressMode"
+					 type="unsignedInt"
+				 	 minOccurs="1" maxOccurs="1" />
+			<element name="SrcAddress" type="tns:Address"/>
+			<element name="DstAddressMode"
+					 type="unsignedInt"
+				 	 minOccurs="1" maxOccurs="1" />
+			<element name="DestinationAddress" 
+			         type="tns:Address"
+				 	 minOccurs="1" maxOccurs="1" />
+			<element name="DestPANID" 
+			         type="tns:unsigned16Bit"
+				 	 minOccurs="1" maxOccurs="1" />
+			<element name="ProfileID"
+				 type="tns:ProfileIdentifier"
+				 minOccurs="0" maxOccurs="1"/>
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="1" maxOccurs="1" />
+			<element name="ASDULength" type="unsignedInt"/>
+			<element name="ASDU" type="hexBinary" minOccurs="1"
+				maxOccurs="1" />
+			<element name="ASDUHandle" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+	<complexType name="InterPANMessageResult">
+		<sequence>
+			<element name="ASDUHandle" type="unsignedByte"
+				minOccurs="0" maxOccurs="1" />
+			<element name="ConfirmStatus" type="unsignedByte"
+				minOccurs="0" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="InterPANMessageEvent">
+	<sequence>
+		<element name="CallbackIdentifier" type="tns:CallbackIdentifier"
+				minOccurs="0" maxOccurs="1" />
+		<element name="SrcAddressMode"
+				 type="unsignedInt"
+			 	 minOccurs="1" maxOccurs="1" />
+		<element name="SrcAddress"
+				 type="tns:Address"
+			 	 minOccurs="1" maxOccurs="1" />
+		<element name="DstAddressMode"
+				 type="unsignedInt"
+			 	 minOccurs="1" maxOccurs="1" />
+		<element name="DstAddress"
+				 type="tns:Address"
+				 minOccurs="1" maxOccurs="1"/>
+		<element name="SrcPANID" 
+		         type="tns:unsigned16Bit"
+			 	 minOccurs="1" maxOccurs="1" />
+		<element name="DstPANID" 
+		         type="tns:unsigned16Bit"
+			 	 minOccurs="1" maxOccurs="1" />
+		<element name="ProfileID"
+				 type="tns:ProfileIdentifier"
+				 minOccurs="0" maxOccurs="1"/>
+		<element name="ClusterID"
+				 type="tns:ClusterIdentifier"
+				 minOccurs="1" maxOccurs="1"/>
+		<element name="ASDULength" type="unsignedInt"/>
+		<element name="ASDU"
+             		 type="hexBinary"
+         		 minOccurs="1" maxOccurs="1"/>
+		<element name="LinkQuality"
+				 type="unsignedByte"
+				 minOccurs="0" maxOccurs="1"/>
+	</sequence>
+	</complexType>
+
+	<complexType name="NWKMessage">
+		<sequence>
+			<element name="DstAddressMode" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="Destination" type="tns:Address"
+				minOccurs="1" maxOccurs="1" />
+			<element name="Nsdu" type="hexBinary" minOccurs="1"
+				maxOccurs="1" />
+			<element name="NsduHandle" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+			<element name="Radius" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+			<element name="NonmemberRadius" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="DiscoverRoute" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="SecurityEnable" type="boolean" minOccurs="1"
+				maxOccurs="1" />
+			<element name="NsduLength" type="unsignedInt"/>
+ 		</sequence>
+	</complexType>
+	<complexType name="NWKMessageResult">
+		<sequence>
+		         <element name="NWKStatus" type="unsignedShort" minOccurs="1"
+			         maxOccurs="1" />
+ 			<element name="NsduHandle" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+			<element name="TxTime" type="tns:unsigned32Bit"
+				minOccurs="1" maxOccurs="1" />
+		</sequence>
+	</complexType>
+	<complexType name="NWKMessageEvent">
+		<sequence>
+			<element name="DstAddrMode" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="DstAddr" type="tns:NetworkAddress"
+				minOccurs="1" maxOccurs="1" />
+			<element name="SrcAddr" type="tns:NetworkAddress"
+				minOccurs="1" maxOccurs="1" />
+			<element name="Nsdu" type="hexBinary" minOccurs="1"
+				maxOccurs="1" />
+			<element name="LinkQuality" type="unsignedByte"
+				minOccurs="0" maxOccurs="1" />
+			<element name="RxTime" type="tns:unsigned32Bit"
+				minOccurs="0" maxOccurs="1" />
+			<element name="SecurityUse" type="boolean" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="MACMessage"></complexType>
+
+	<complexType name="Message">
+		<sequence>
+			<element name="ZCLMessage" type="tns:ZCLMessage"></element>
+			<element name="ZDPMessage" type="tns:ZDPMessage"></element>
+			<element name="APSMessage" type="tns:APSMessageEvent"></element>
+			<element name="NWKMessage" type="tns:NWKMessageEvent"></element>
+			<element name="InterPANMessage" type="tns:InterPANMessageEvent"></element>
+			<element name="MACMessage" type="tns:MACMessage"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="SonNode">
+		<attribute name="ShortAddr" type="tns:NetworkAddress" />
+	</complexType>
+	<complexType name="AssociatedDevices">
+		<sequence>
+			<element name="SonNode" type="tns:SonNode" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+		<attribute name="TotalNumber" type="unsignedShort" />
+	</complexType>
+
+	<complexType name="WSNNode">
+		<sequence>
+			<element name="AliasAddress"
+				type="tns:AliasAddress" minOccurs="0" maxOccurs="1" />
+
+			<element name="ParentNodeShortAddress" type="unsignedShort"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="ParentNodeFullAddress"
+				type="tns:unsigned64Bit" minOccurs="0" maxOccurs="1" />
+                        <element name="StartIndex" type="unsignedInt"/>
+			<element name="AssociatedDevices"
+				type="tns:AssociatedDevices" minOccurs="0" maxOccurs="unbounded" />
+
+			<element name="CapabilityInformation"
+				type="tns:MACCapability" minOccurs="0" maxOccurs="1" />
+
+		</sequence>
+		<attribute name="ExtendedAddress" type="tns:IeeeAddress" />
+		<attribute name="ShortAddress" type="tns:NetworkAddress" />
+	</complexType>
+
+	<complexType name="WSNNodeList">
+		<sequence>
+			<element name="WSNNode" type="tns:WSNNode" minOccurs="1"
+				maxOccurs="unbounded">
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="NodeServices">
+		<sequence>
+			<element name="Address" type="tns:Address"
+				minOccurs="1" maxOccurs="1" />
+			<element name="ActiveEndpoints" minOccurs="0"
+				maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="EndPoint" type="tns:Endpoint"
+							minOccurs="1" maxOccurs="1" />
+						<element name="SimpleDescriptor"
+							type="tns:SimpleDescriptor" minOccurs="0" maxOccurs="1" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="NodeServicesList">
+		<sequence>
+			<element name="NodeServices" type="tns:NodeServices"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+  	<complexType name="StartupAttributeInfo">
+  	<sequence>
+  		<element name="StartupAttributeSetIndex"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="DeviceType"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:LogicalType"/>
+  		<element name="ProtocolVersion"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="StackProfile"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="ChannelMask"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned32Bit"/>
+  		<element name="ExtendedPANId"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:IeeeAddress"/>
+  		<element name="PANId"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned16Bit"/>
+  		<element name="ShortAddress"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:NetworkAddress"/>
+  		<element name="TrustCenterAddress"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:IeeeAddress"/>
+  		<element name="TrustCenterMasterKey"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned128Bit"/>
+  		<element name="NetworkKey"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned128Bit"/>
+  		<element name="UseInsecureJoin"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="boolean"/>
+  		<element name="PreconfiguredLinkKey"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned128Bit"/>
+  		<element name="NetworkKeySeqNum"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="NetworkKeyType"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:KeyType"/>
+  		<element name="NetworkManagerAddress"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:NetworkAddress"/>
+  		<element name="StartupControl"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="ScanAttempts"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="TimeBetweenScans"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned16Bit"/>
+  		<element name="RejoinInterval"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned16Bit"/>
+  		<element name="maxRejoinInterval"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned16Bit"/>		 
+  		<element name="IndirectPollRate"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="tns:unsigned16Bit"/>
+  		<element name="ParentRetryThreshold"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="ConcentratorFlag"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="boolean"/>
+  		<element name="ConcentratorRadius"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+  		<element name="ConcentratorDiscoveryTime"
+  				 minOccurs="0" maxOccurs="1"
+  				 type="unsignedByte"/>
+
+  	</sequence>
+  	</complexType>
+
+	<!-- Application Support Sub-Layer -->
+	<complexType name="NodeDescriptor">
+		<sequence>
+			<element name="LogicalType" minOccurs="0" maxOccurs="1"
+				type="tns:LogicalType" />
+
+			<element name="ComplexDescriptorAvailable" type="boolean"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="UserDescriptorAvailable" type="boolean"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="FrequencyBand" minOccurs="0" maxOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="868MHz" />
+						<enumeration value="900MHz" />
+						<enumeration value="2400MHz" />
+					</restriction>
+				</simpleType>
+			</element>
+
+			<element name="MACCapabilityFlag" type="tns:MACCapability"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="ManufacturerCode" type="tns:unsigned16Bit"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="MaximumBufferSize" minOccurs="0"
+				maxOccurs="1">
+				<simpleType>
+					<restriction base="unsignedByte">
+						<minInclusive value="0" />
+						<maxInclusive value="127" />
+					</restriction>
+				</simpleType>
+			</element>
+
+			<element name="MaximumIncomingTransferSize" minOccurs="0"
+				maxOccurs="1">
+				<simpleType>
+					<restriction base="unsignedShort">
+						<minInclusive value="0" />
+						<maxInclusive value="32767" />
+					</restriction>
+				</simpleType>
+			</element>
+
+			<element name="ServerMask" type="tns:ServerMask"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="MaximumOutgoingTransferSize" minOccurs="0"
+				maxOccurs="1">
+				<simpleType>
+					<restriction base="unsignedShort">
+						<minInclusive value="0" />
+						<maxInclusive value="32767" />
+					</restriction>
+				</simpleType>
+			</element>
+
+			<element name="DescriptorCapabilityField"
+				type="tns:DescriptorCapability" minOccurs="0" maxOccurs="1" />
+
+		</sequence>
+	</complexType>
+
+	<complexType name="PowerDescriptor">
+		<sequence>
+			<element name="CurrentPowerMode" minOccurs="0"
+				maxOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="Synchronized" />
+						<enumeration value="Periodic" />
+						<enumeration value="Stimulated" />
+					</restriction>
+				</simpleType>
+			</element>
+
+			<element name="AvailablePowerSources"
+				type="tns:PowerSources" minOccurs="0" maxOccurs="1" />
+
+			<element name="CurrentPowerSources" type="tns:PowerSources"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="CurrentPowerSourceLevel" minOccurs="0"
+				maxOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<enumeration value="Critical" />
+						<enumeration value="33Percent" />
+						<enumeration value="66Percent" />
+						<enumeration value="100Percent" />
+					</restriction>
+				</simpleType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="UserDescriptor">
+		<sequence>
+			<element name="Description" minOccurs="1" maxOccurs="1">
+				<simpleType>
+					<restriction base="string">
+						<maxLength value="16" />
+					</restriction>
+				</simpleType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="SimpleDescriptor">
+		<sequence>
+			<element name="EndPoint" minOccurs="0" maxOccurs="1">
+				<simpleType>
+					<restriction base="unsignedByte">
+						<minInclusive value="1" />
+						<maxInclusive value="255" />
+					</restriction>
+				</simpleType>
+			</element>
+
+			<element name="ApplicationProfileIdentifier"
+				type="tns:ProfileIdentifier" minOccurs="0" maxOccurs="1" />
+
+			<element name="ApplicationDeviceIdentifier"
+				type="tns:DeviceIdentifier" minOccurs="0" maxOccurs="1" />
+
+			<element name="ApplicationDeviceVersion"
+				type="tns:unsignedNibble" minOccurs="0" maxOccurs="1" />
+
+			<element name="ApplicationInputCluster"
+				type="tns:ClusterIdentifier" minOccurs="0" maxOccurs="unbounded" />
+
+			<element name="ApplicationOutputCluster"
+				type="tns:ClusterIdentifier" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Binding">
+		<sequence>
+			<element name="SourceIEEEAddress" type="tns:IeeeAddress"
+				minOccurs="1" maxOccurs="1" />
+			<element name="SourceEndpoint" type="tns:Endpoint"
+				minOccurs="1" maxOccurs="1" />
+			<element name="ClusterID" type="tns:ClusterIdentifier"
+				minOccurs="1" maxOccurs="1" />
+			<element name="GroupDestination" type="tns:NetworkAddress"
+				minOccurs="0" maxOccurs="unbounded" />
+			<element name="DeviceDestination" type="tns:Device"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="BindingList">
+		<sequence>
+			<element name="Binding" type="tns:Binding" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<!-- Network Layer -->
+	<complexType name="NetworkConfiguration">
+		<sequence>
+			<element name="ScanChannels" type="tns:unsigned32Bit"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="ScanDuration" type="unsignedByte"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="BeaconOrder" type="tns:unsignedNibble"
+				minOccurs="1" maxOccurs="1" />
+
+			<element name="SuperFrameOrder" type="tns:unsignedNibble"
+				minOccurs="1" maxOccurs="1" />
+
+			<element name="BatteryLifeExtension" type="boolean"
+				minOccurs="1" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="JoinConfiguration">
+		<sequence>
+			<element name="ExtendedPanId" type="tns:unsigned64Bit"
+				minOccurs="1" maxOccurs="1" />
+
+			<element name="RejoinNetwork" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+
+			<element name="ScanChannel" type="tns:unsigned32Bit"
+				minOccurs="1" maxOccurs="1" />
+
+			<element name="ScanDuration" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+
+			<element name="CapabilityInformation"
+				type="tns:MACCapability" minOccurs="1" maxOccurs="1" />
+
+			<element name="SecurityEnable" type="boolean" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ResetInfo">
+		<sequence>
+			<element name="WarmStart" type="boolean" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="NetworkDescriptor">
+		<sequence>
+			<element name="ExtendedPanId" minOccurs="0" maxOccurs="1"
+				type="tns:unsigned64Bit" />
+
+			<element name="LogicalChannel" type="tns:unsigned16Bit"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="StackProfile" type="tns:unsignedNibble"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="ZigBeeVersion" type="tns:unsignedNibble"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="BeaconOrder" type="tns:unsignedNibble"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="SuperFrameOrder" type="tns:unsignedNibble"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="PermitJoining" type="boolean" minOccurs="0"
+				maxOccurs="1" />
+
+			<element name="RouterCapacity" type="boolean" minOccurs="0"
+				maxOccurs="1" />
+
+			<element name="EndDeviceCapacity" type="boolean"
+				minOccurs="0" maxOccurs="1" />
+
+			<element name="NWKRootURI" type="anyURI" minOccurs="0"
+				maxOccurs="1">
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="NetworkDescriptorList">
+		<sequence>
+			<element name="NetworkDescriptor"
+				type="tns:NetworkDescriptor" />
+		</sequence>
+	</complexType>
+
+	<complexType name="EnergyScanResult">
+		<sequence>
+			<element name="ScannedChannel" minOccurs="0"
+				maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="Channel" type="unsignedByte"
+							minOccurs="1" maxOccurs="1" />
+						<element name="Energy" type="unsignedByte"
+							minOccurs="1" maxOccurs="1" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="RouteDiscoveryInfo">
+		<sequence>
+			<element name="DstIsMulticast" type="boolean" minOccurs="0"
+				maxOccurs="1">
+			</element>
+			<element name="DstAddr" type="tns:Address" minOccurs="0"
+				maxOccurs="1">
+			</element>
+			<element name="Radius" type="unsignedByte" minOccurs="1"
+				maxOccurs="1" />
+			<element name="NoRouteCache" type="boolean" minOccurs="0"
+				maxOccurs="1" />
+			<element name="DstAddrMode" type="unsignedByte" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<!-- Types to be verified -->
+
+
+	<complexType name="JoiningInfo">
+		<sequence>
+			<element name="PermitDuration" type="unsignedByte"
+				minOccurs="1" maxOccurs="1" />
+			<element name="TCSignificance" type="boolean" minOccurs="1"
+				maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="unsigned8Bit">
+		<restriction base="unsignedByte"></restriction>
+	</simpleType>
+
+
+	<simpleType name="ForwardScheme">
+		<restriction base="string">
+			<enumeration value="POLLED"></enumeration>
+			<enumeration value="GRIP"></enumeration>
+			<enumeration value="SOAP"></enumeration>
+			<enumeration value="REST"></enumeration>
+		</restriction>
+	</simpleType>
+
+	<simpleType name="CallbackIdentifier">
+		<restriction base="tns:unsigned32Bit"></restriction>
+	</simpleType>
+
+	<simpleType name="Timeout">
+		<restriction base="tns:unsigned32Bit"></restriction>
+	</simpleType>
+
+	<complexType name="PolledMessage">
+		<sequence>
+			<element name="AppliedDecodeSpecification" type="string"></element>
+			<element name="Message" type="tns:Message"></element>
+		</sequence>
+	</complexType>
+
+	<simpleType name="RequestIdentifier">
+		<restriction base="hexBinary">
+			<minLength value="4"></minLength>
+		</restriction>
+	</simpleType>
+
+	<simpleType name="PanId">
+		<restriction base="tns:unsigned16Bit"></restriction>
+	</simpleType>
+</schema>
