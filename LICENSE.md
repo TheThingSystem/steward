@@ -1,6 +1,6 @@
 # LICENSE
 
-placeholder until we've made a final decision on the license.
+*Placeholder until we've made a final decision on the license.*
 
 [MIT](http://en.wikipedia.org/wiki/MIT_License) license. Freely have you received, freely give.
 
