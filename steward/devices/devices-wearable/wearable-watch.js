@@ -81,7 +81,7 @@ Watch.prototype.perform = function(self, taskID, perform, parameter) {
     e.write(new Buffer([ level ]));
     setTimeout(function() { e.write(new Buffer([ 0x00 ])); }, 2000);
     steward.performed(taskID);
-  } catch(ex) {}
+  } catch(ex) { logger.error('device/' + self.deviceID, { event: 'perform', diagnostic: ex.message }); }
 
   return true;
 };

@@ -156,7 +156,7 @@ WeMo_Switch.prototype.notify = function(self, headers, content) {
     }
 
     self.observe(self, (!!data['e:propertyset']) ? data['e:propertyset']['e:property'] : []);
-  }); } catch(ex) {}
+  }); } catch(ex) { self.logger.error('device/' + self.deviceID, { event: 'notify', diagnostic: ex.message }); }  
 };
 
 WeMo_Switch.prototype.observe = function(self, results) {

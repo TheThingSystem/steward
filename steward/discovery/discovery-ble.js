@@ -114,7 +114,7 @@ exports.start = function() {
     });
   });
 
-  try { noble.startScanning(); } catch(ex) {}
+  try { noble.startScanning(); } catch(ex) { logger.warning ('BLE unable to start scanning', { diagnostic: ex.message }); }
 };
 
 var uuidmap = {
