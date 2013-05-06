@@ -101,10 +101,22 @@ var listen = function(addr, portno) {/* jshint multistr: true */
             if (err) {
               logger.error('discovery', { event: 'parser.parseString', content: content, exception: err });
               return;
+            } else if (!data) data = { root: {} };
+            if (!data.root.device) {
+              data.root.device = [ { friendlyName     : [ '' ]
+                                   , manufacturer     : [ '' ]
+                                   , modelName        : [ '' ]
+                                   , modelDescription : [ '' ]
+                                   , UDN              : [ '' ]
+                                   }
+                                 ];
+            }
+            if (!data.root.device[0].serialNumber) {
+              data.root.device[0].serialNumber = (!!data.root.device[0].serialNum) ? data.root.device[0].serialNum : [ '' ];
             }
 
             info.device = {
-                url          : data.root.URLBase ? data.root.URLBase[0] : o.protocol + '//' + o.host + '/'
+                url          : (!!data.root.URLBase) ? data.root.URLBase[0] : o.protocol + '//' + o.host + '/'
               , name         : data.root.device[0].friendlyName[0]
               , manufacturer : data.root.device[0].manufacturer[0]
               , model        : {
@@ -126,7 +138,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
 
             logger.info('UPnP ' + info.device.name, { url: info.url });
             devices.discover(info);
-          }); } catch(ex) {}
+      }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message }); }
         }).on('close', function() {
           logger.error('discovery', { event: 'ssdp', diagnostic: info.ssdp.LOCATION + ' => premature EOF' });
         });
@@ -250,7 +262,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
         var faults, i, results, s;
 
         if (err) {
-          logger.error(tag, { event: 'xml2js.Parser', diagnostic: 'parseString', content: content, exception: err });
+          logger.error(tag, { event: 'parser.parseString', content: content, exception: err });
           data = {};
         } else if (!data) data = {};
 
@@ -263,7 +275,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
         }
 
         cb(null, 'end', response, { results: results, faults: faults });
-      }); } catch(ex) {}
+      }); } catch(ex) { logger.error(tag, { event: 'UPnP parse', diagnostic: ex.message }); }
     }).on('close', function() {
       logger.warning(tag, { event: 'http', diagnostic: 'premature eof' });
       cb(null, 'close', response);
