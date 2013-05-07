@@ -17,7 +17,7 @@ var route = function(ws, tag) {
 
     message = null;
     try { message = JSON.parse(data); } catch (ex) {
-      manage.loser(ws, tag, { event: 'data', diagnostic: 'parse error', exception: ex });
+      manage.loser(ws, tag, { event: 'data', diagnostic: ex.message });
     }
     if (!message) { return; }
     if (!message.path) {

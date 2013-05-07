@@ -62,7 +62,7 @@ var create = function(logger, ws, api, message, tag) {
 
     if (err) {
       delete(events[uuid]);
-      logger.error(tag, { event: 'sql', diagnostic: 'INSERT events.eventUID for ' + uuid, exception: err });
+      logger.error(tag, { event: 'INSERT events.eventUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
       try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
       return;
@@ -216,7 +216,7 @@ var remove = function(logger, ws, api, message, tag) {
 
   db.run('DELETE FROM events WHERE eventID=$eventID', { $eventID: eventID }, function(err) {
     if (err) {
-      logger.error(tag, { event: 'sql', diagnostic: 'DELETE event.eventID for ' + eventID, exception: err });
+      logger.error(tag, { event: 'DELETE event.eventID for ' + eventID, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
       events[event.eventUID] = event;
     } else {
@@ -245,7 +245,7 @@ var readyP = function() {
 
   db.all('SELECT * FROM events ORDER BY sortOrder', function(err, rows) {
     if (err) {
-      logger.error('events', { event: 'sql', diagnostic: 'SELECT events.*', exception: err });
+      logger.error('events', { event: 'SELECT events.*', diagnostic: err.message });
       loadedP = false;
       return;
     }
@@ -255,7 +255,7 @@ var readyP = function() {
 
       if (parameter.indexOf('{') === 0) {
         try { JSON.parse(parameter); } catch(ex) {
-          logger.error('event/' + event.eventID, { event: 'JSON', diagnostic: 'parse', parameter: parameter, exception: ex });
+          logger.error('event/' + event.eventID, { event: 'JSON.parse', data: parameter, diagnostic: ex.message });
         }
       }
 

@@ -80,7 +80,7 @@ Insteon.prototype.callback = function(self, messageType, message) {
 };
 
 Insteon.prototype.brightness = function(self, bri) {
-  var brightness = lighting.percentageValue(parseInt(bri, 16), 255);
+  var brightness = devices.percentageValue(parseInt(bri, 16), 255);
 
   if (brightness === 0) {
     if ((self.status === 'off') && (self.info.brightness === brightness)) return;
@@ -99,7 +99,7 @@ Insteon.prototype.brightness = function(self, bri) {
 
 
 var insteonBrightness = function(pct) {
-  return ('0' + lighting.scaledPercentage(pct, 1,  255).toString(16)).substr(-2);
+  return ('0' + devices.scaledPercentage(pct, 1,  255).toString(16)).substr(-2);
 };
 
 Insteon.prototype.perform = function(self, taskID, perform, parameter) {

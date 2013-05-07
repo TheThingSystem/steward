@@ -251,6 +251,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
 // TBD: discover
 
 exports.start = function() {
+return;
   steward.actors.device.gateway.zigbee = steward.actors.device.gateway.zigbee ||
       { $info     : { type: '/device/gateway/zigbee' } };
 
@@ -275,7 +276,7 @@ exports.start = function() {
   steward.forEachAddress(function(addr) {
     portfinder.getPort({ port: 8889 }, function(err, portno) {
       if (err) {
-        logger.error('start', { event: 'portfinder', diagnostic: 'getPort 8887', exception: err });
+        logger.error('start', { event: 'portfinder.getPort 8887', diagnostic: err.message });
         return;
       }
 

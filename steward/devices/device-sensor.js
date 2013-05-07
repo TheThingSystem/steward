@@ -23,8 +23,7 @@ var addstream = function(measureID, deviceID, value, timestamp) {
     var streamID;
 
     if (err) {
-      return logger.error('database',
-                          { event: 'sql', diagnostic: 'INSERT streams for measureID ' + measureID, exception: err });
+      return logger.error('database', { event: 'INSERT streams for measureID ' + measureID, diagnostic: err.message });
     }
 
     streamID = this.lastID;
@@ -43,9 +42,7 @@ var addvalue = function(measureID, streamID) {
     if (!err) return;
 
     logger.error('database',
-                 { event     : 'sql', diagnostic: 'INSERT readings for measureID/streamID ' + measureID + '/' + streamID
-                 , exception : err 
-                 });
+                 { event: 'INSERT readings for measureID/streamID ' + measureID + '/' + streamID , diagnostic : err.message });
   };
 };
 
@@ -78,8 +75,7 @@ exports.update = function(deviceID, params) {
 var addmeasure = function(db, measureName) {
   return function(err, row) {
     if (err) {
-      return logger.error('database',
-                          { event: 'sql', diagnostic: 'SELECT measures.measureName for ' + measureName, exception: err });
+      return logger.error('database', { event: 'SELECT measures.measureName for ' + measureName, diagnostic: err.message });
     }
 
     if (row !== undefined) {
@@ -92,8 +88,7 @@ var addmeasure = function(db, measureName) {
            + 'VALUES($measureName, $symbol, $units, $type, datetime("now") , datetime("now"))',
            { $measureName: measureName, $symbol: row.symbol, $units: row.units, $type: row.type }, function (err) {
       if (err) {
-        return logger.error('database',
-                            { event: 'sql', diagnostic: 'INSERT measures for measureName ' + measureName, exception: err });
+        return logger.error('database', { event: 'INSERT measures for measureName ' + measureName, diagnostic: err.message });
       }
 
       measures[measureName].id = this.lastID;
@@ -109,7 +104,7 @@ exports.start = function() {
   try {
     db = new sqlite3.Database(__dirname + '/../db/measurements.db');
   } catch(ex) {
-    return logger.emerg('database', { event: 'sql', diagnostic: 'create ' + __dirname + '/../db/sensors.db', exception: ex });
+    return logger.emerg('database', { event: 'create ' + __dirname + '/../db/sensors.db', diagnostic: ex.message });
   }
 
   db.serialize(function() {
@@ -131,7 +126,7 @@ exports.start = function() {
            + ')');
 
     db.get('SELECT * FROM streams', {}, function(err, row) {
-      if (err) return logger.error('database', { event: 'sql', diagnostic: 'SELECT streams.*', exception: err });
+      if (err) return logger.error('database', { event: 'SELECT streams.*', diagnostic: err.message });
 
       if (row === undefined) return;
 
@@ -142,7 +137,7 @@ exports.start = function() {
     db.run('CREATE TABLE IF NOT EXISTS readings('
            + 'readingID INTEGER PRIMARY KEY ASC, streamID INTEGER, value TEXT, timestamp TEXT'
            + ')', function(err) {
-      if (err) return logger.error('database', { event: 'sql', diagnostic: 'database initialization', exception: err });
+      if (err) return logger.error('database', { event: 'database initialization', diagnostic: err.message });
 
       exports.db = db;
       utility.acquire(logger, __dirname + '/devices-sensor', /^sensor-.*\.js/, 7, -3, ' driver');

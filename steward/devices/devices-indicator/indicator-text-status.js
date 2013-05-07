@@ -58,7 +58,7 @@ Status.prototype.report = function(self, module, data) {
 
   fs.writeFile(tmp, data, function(err) {
     if (err) {
-      logger.error('report ' + module, { event: 'write', exception: err });
+      logger.error('report ' + module, { event: 'write', diagnostic: err.message });
       fs.unlink(tmp, function(err) {/* jshint unused: false */});
       self.report[module] = false;
       return;
@@ -66,7 +66,7 @@ Status.prototype.report = function(self, module, data) {
 
     fs.rename(tmp, json, function(err) {
       if (err) {
-        logger.error('report ' + module, { event: 'rename', exception: err });
+        logger.error('report ' + module, { event: 'rename', diagnostic: err.message });
         fs.unlink(tmp, function(err) {/* jshint unused: false */});
         self.report[module] = false;
         return;

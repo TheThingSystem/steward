@@ -114,7 +114,7 @@ RoboSmart.prototype.refresh = function(self) {
 };
 
 
-var roboSmartBrightness = function(pct) { return lighting.scaledPercentage(pct, 1,  255); };
+var roboSmartBrightness = function(pct) { return devices.scaledPercentage(pct, 1,  255); };
 
 RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
   var c, params, state;

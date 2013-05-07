@@ -97,7 +97,7 @@ exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
     var file, i;
 
     if (err) {
-      log.error('readdir', { exception: err });
+      log.error('readdir', { diagnostic: err.message });
       return;
     }
 

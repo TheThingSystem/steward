@@ -85,7 +85,7 @@ exports.discover = function(info, callback) {
 
   db.get('SELECT deviceID FROM devices WHERE deviceUID=$deviceUID', { $deviceUID: deviceUID }, function(err, row) {
     if (err) {
-      logger.error('devices', { event: 'sql', diagnostic: 'SELECT device.deviceUID for ' + deviceUID, exception: err });
+      logger.error('devices', { event: 'SELECT device.deviceUID for ' + deviceUID, diagnostic: err.message });
     } else if (row !== undefined) {
       if (!!callback) callback(null, null);
 
@@ -101,7 +101,7 @@ exports.discover = function(info, callback) {
       var deviceID;
 
       if (err) {
-        logger.error('devices', { event: 'sql', diagnostic: 'INSERT device.deviceUID for ' + deviceUID, exception: err });
+        logger.error('devices', { event: 'INSERT device.deviceUID for ' + deviceUID, diagnostic: err.message });
         if (!!callback) callback(err, null);
         return;
       }
@@ -152,7 +152,7 @@ Device.prototype.getName = function() {
   db.get('SELECT deviceName FROM devices WHERE deviceID=$deviceID',
          { $deviceID : self.deviceID }, function(err, row) {
     if (err) {
-      logger.error('devices', { event: 'sql', diagnostic: 'SELECT device.deviceName for ' + self.deviceID, exception: err });
+      logger.error('devices', { event: 'SELECT device.deviceName for ' + self.deviceID, diagnostic: err.message });
       return;
     }
     if (row !== undefined) {
@@ -171,7 +171,7 @@ Device.prototype.setName = function(deviceName) {
   db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',
          { $deviceName: deviceName, $deviceID : self.deviceID }, function(err) {
     if (err) {
-      logger.error('devices', { event: 'sql', diagnostic: 'UPDATE device.deviceName for ' + self.deviceID, exception: err });
+      logger.error('devices', { event: 'UPDATE device.deviceName for ' + self.deviceID, diagnostic: err.message });
     } else {
       self.name = deviceName;
       self.changed();
@@ -192,7 +192,7 @@ Device.prototype.setInfo = function() {
   db.run('UPDATE deviceProps SET value=$value WHERE deviceID=$deviceID AND deviceProps.key="info"',
          { $value: JSON.stringify(info), $deviceID : self.deviceID }, function(err) {
     if (err) {
-      logger.error('devices', { event: 'sql', diagnostic: 'UPDATE deviceProps.value for ' + self.deviceID, exception: err });
+      logger.error('devices', { event: 'UPDATE deviceProps.value for ' + self.deviceID, diagnostic: err.message });
     } else self.changed();
   });
 
@@ -265,4 +265,32 @@ exports.rainbow =
 , warning:   { color: 'blue',   rgb: '#0000ff' }
 , normal:    { color: 'green',  rgb: '#00ff00' }
 , excellent: { color: 'indigo', rgb: '#4b0082' }
+};
+
+
+var boundedValue = exports.boundedValue = function(value, lower, upper) {
+  return ((isNaN(value) || (value < lower)) ? lower : (upper < value) ? upper : value);
+};
+
+
+exports.percentageValue = function(value, maximum) {
+  return Math.floor((boundedValue(value, 0, maximum) * 100) / maximum);
+};
+
+
+exports.scaledPercentage = function(percentage, minimum, maximum) {
+  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * maximum) / 100), minimum, maximum);
+};
+
+
+exports.degreesValue = function(value, maximum) {
+  return Math.floor((boundedValue(value, 0, maximum) * 360) / maximum);
+};
+
+
+exports.scaledDegrees = function(degrees, maximum) {
+  while (degrees <    0) degrees += 360;
+  while (degrees >= 360) degrees -= 360;
+
+  return boundedValue(Math.round((degrees * maximum) / 360), 0, maximum);
 };

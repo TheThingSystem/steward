@@ -186,10 +186,7 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
   switch (observe) {
     case 'cron':
       parser.parseExpression(parameter, function(err, interval) {
-        if (err) {
-          steward.report(eventID, { message: 'parserExpression failed', exception: err });
-          return;
-        }
+        if (err) return steward.report(eventID, { event: 'parser.parserExpression', diagnostic: err.message });
 
         next = interval.next().getTime();
         events[eventID] = { interval: interval, next: next, observe: observe, parameter: parameter };
@@ -420,14 +417,12 @@ var readyP = function() {
 
   db = database.db;
   db.get('SELECT value from deviceProps where deviceID=0', function(err, row) {
-    if (err) {
-      logger.error('place/1', { event: 'sql', diagnostic: 'SELECT deviceProps.value for deviceID=0', exception: err });
-    } else if (row !== undefined) {
+    if (err) logger.error('place/1', { event: 'SELECT deviceProps.value for deviceID=0', diagnostic: err.message });
+    else if (row !== undefined) {
       params = null;
       try { params = JSON.parse(row.value); } catch(ex) {
         params = null;
-        logger.error('place/1',
-                     { event: 'sql', diagnostic: 'SELECT deviceProps.value for deviceID=0', result: row.value, exception: ex });
+        logger.error('place/1', { event: 'JSON.parse', data: row.value, diagnostic: ex.message });
       }
       if (!!params) {
         new Place(JSON.parse(row.value));
@@ -438,7 +433,7 @@ var readyP = function() {
 
     db.run('INSERT INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
            { $deviceID: 0, $key: 'info', $value: '' }, function(err) {
-    if (err) logger.error('place/1', { event: 'sql', diagnostic: 'INSERT deviceProps for deviceID=0', exception: err });
+      if (err) logger.error('place/1', { event: 'INSERT deviceProps for deviceID=0', diagnostic: err.message });
     });
 
     new Place({ deviceType: '/place' });

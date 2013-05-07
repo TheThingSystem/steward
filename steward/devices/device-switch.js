@@ -23,19 +23,4 @@ var Switch = exports.Device = function() {
 util.inherits(Switch, devices.Device);
 
 
-var boundedValue = exports.boundedValue = function(value, lower, upper) {
-  return ((isNaN(value) || (value < lower)) ? lower : (upper < value) ? upper : value);
-};
-
-
-exports.percentageValue = function(value, maximum) {
-  return Math.floor((boundedValue(value, 0, maximum) * 100) / maximum);
-};
-
-
-exports.scaledPercentage = function(percentage, minimum, maximum) {
-  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * maximum) / 100), minimum, maximum);
-};
-
-
 exports.validLevel       = function(lvl) { return ((  0 <= lvl) && (lvl <= 100)); };

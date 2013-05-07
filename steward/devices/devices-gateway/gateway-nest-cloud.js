@@ -51,7 +51,7 @@ util.inherits(Cloud, require('./../device-gateway').Device);
 
 var Nest = function() {
   var p, self;
- 
+
   self = this;
   for (p in nest) if (nest.hasOwnProperty(p)) self[p] = nest[p];
   return self;
@@ -115,7 +115,7 @@ Cloud.prototype.addstation = function(self, id, station, name, data, timestamp) 
   info.device = { url                          : null
                 , name                         : name + ': ' + data.name
                 , manufacturer                 : 'Nest Labs'
-                , model        : { name        : station.type 
+                , model        : { name        : station.type
                                  , description : ''
                                  , number      : station.model_version
                                  }

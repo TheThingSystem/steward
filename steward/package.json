@@ -18,6 +18,7 @@
     , "node-hid"            : "0.2.3"
     , "node-netatmo"        : "0.0.1"
     , "node-prowl"          : "git://github.com/mrose17/node-prowl.git"
+    , "node-sonos"          : "git://github.com/mrose17/node-sonos.git"
     , "node-ssdp"           : "git://github.com/mrose17/node-ssdp.git"
     , "node-uuid"           : "1.4.0"
     , "observer"            : "1.1.0"

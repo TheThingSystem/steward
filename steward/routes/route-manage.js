@@ -20,7 +20,7 @@ var route = function(ws, tag) {
 
     message = null;
     try { message = JSON.parse(data); } catch (ex) {
-      loser(ws, tag, { event: 'data', diagnostic: 'parse error', exception: ex });
+      loser(ws, tag, { event: 'data', diagnostic: ex.message });
     }
     if (!message) { return; }
     if (!message.path) {

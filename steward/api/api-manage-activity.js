@@ -89,7 +89,7 @@ var create = function(logger, ws, api, message, tag) {
 
     if (err) {
       delete(activities[uuid]);
-      logger.error(tag, { event: 'sql', diagnostic: 'INSERT activities.activityUID for ' + uuid, exception: err });
+      logger.error(tag, { event: 'INSERT activities.activityUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
       try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
       return;
@@ -292,7 +292,7 @@ var remove = function(logger, ws, api, message, tag) {
 
   db.run('DELETE FROM activities WHERE activityID=$activityID', { $activityID: activityID }, function(err) {
     if (err) {
-      logger.error(tag, { event: 'sql', diagnostic: 'DELETE activity.activityID for ' + activityID, exception: err });
+      logger.error(tag, { event: 'DELETE activity.activityID for ' + activityID, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
       activities[activity.activityUID] = activity;
     } else {
@@ -321,7 +321,7 @@ var readyP = function() {
 
   db.all('SELECT * FROM activities ORDER BY sortOrder', function(err, rows) {
     if (err) {
-      logger.error('activities', { event: 'sql', diagnostic: 'SELECT activities.*', exception: err });
+      logger.error('activities', { event: 'SELECT activities.*', diagnostic: err.message });
       loadedP = false;
       return;
     }

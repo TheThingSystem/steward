@@ -116,7 +116,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
            , humidity    : (!!data.b) ? data.b          : null
            , co2         : (!!data.h) ? data.h          : null
            , noise       : (!!data.S) ? data.S          : null
-           , pressure    : (!!data.e) ? data.e          : null                
+           , pressure    : (!!data.e) ? data.e          : null
            };
 
   udn = 'netatmo:' + station._id;
@@ -129,7 +129,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   info.device = { url                          : null
                 , name                         : name + ': ' + station.module_name
                 , manufacturer                 : 'netatmo'
-                , model        : { name        : station.type 
+                , model        : { name        : station.type
                                  , description : ''
                                  , number      : ''
                                  }

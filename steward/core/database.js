@@ -12,7 +12,7 @@ exports.start = function() {
   try {
     db = new sqlite3.Database(__dirname + '/../db/database.db');
   } catch(ex) {
-    return logger.emerg('database', { event: 'sql', diagnostic: 'create ' + __dirname + '/../db/database.db', exception: ex });
+    return logger.emerg('database', { event: 'create ' + __dirname + '/../db/database.db', diagnostic: ex.message });
   }
 
 
@@ -139,7 +139,7 @@ exports.start = function() {
            + 'DELETE FROM activities WHERE eventType="group" AND eventID=OLD.groupID; '
            + 'DELETE FROM activities WHERE taskType="group"  AND taskID=OLD.groupID; '
            + 'END', function(err) {
-      if (err) return logger.error('database', { event: 'sql', diagnostic: 'database initialization', exception: err });
+      if (err) return logger.error('database', { event: 'database initialization', diagnostic: err.message });
 
       exports.db = db;
       require('./device').start();

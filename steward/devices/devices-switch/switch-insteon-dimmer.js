@@ -82,7 +82,7 @@ Insteon.prototype.callback = function(self, messageType, message) {
 };
 
 Insteon.prototype.level = function(self, lvl) {
-  var level = plug.percentageValue(parseInt(lvl, 16), 255);
+  var level = devices.percentageValue(parseInt(lvl, 16), 255);
 
   if (level === 0) {
     if ((self.status === 'off') && (self.info.level === level)) return;
@@ -101,7 +101,7 @@ Insteon.prototype.level = function(self, lvl) {
 
 
 var insteonLevel = function(pct) {
-  return ('0' + plug.scaledPercentage(pct, 1,  255).toString(16)).substr(-2);
+  return ('0' + devices.scaledPercentage(pct, 1,  255).toString(16)).substr(-2);
 };
 
 Insteon.prototype.perform = function(self, taskID, perform, parameter) {

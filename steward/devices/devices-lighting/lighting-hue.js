@@ -49,8 +49,7 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
   db.get('SELECT value FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
                { $deviceID: self.deviceID, $key: 'username' }, function(err, row) {
     if (err) {
-      logger.error('device/' + self.deviceID,
-                   { event: 'sql', diagnostic: 'SELECT username for ' + self.deviceID, exception: err });
+      logger.error('device/' + self.deviceID, { event: 'SELECT username for ' + self.deviceID, diagnostic: err.message });
       return;
     }
     if (row !== undefined) {
@@ -337,7 +336,7 @@ Hue.prototype.unpair = function(self) {
     self.waitingP = false;
     db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
                    { $deviceID: self.deviceID, $key: 'username' }, function(err) {
-      if (err) logger.error('device/' + self.deviceID, { event: 'sql', diagnostic: 'DELETE username', exception: err });
+      if (err) logger.error('device/' + self.deviceID, { event: 'DELETE username', diagnostic: err.message });
     });
     self.changed();
     self.ping(self);
@@ -364,7 +363,7 @@ Hue.prototype.refresh = function(self) {
       self.waitingP = false;
       db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
              { $deviceID: self.deviceID, $key: 'username' }, function(err) {
-        if (err) logger.error('device/' + self.deviceID, { event: 'sql', diagnostic: 'DELETE username', exception: err });
+        if (err) logger.error('device/' + self.deviceID, { event: 'DELETE username', diagnostic: err.message });
       });
       self.changed();
       return self.ping(self);
@@ -376,7 +375,7 @@ Hue.prototype.refresh = function(self) {
     db.run('UPDATE devices SET deviceName=$deviceName, deviceIP=$deviceIP, deviceMAC=$deviceMAC WHERE deviceID=$deviceID',
            { $deviceName: results.name, $deviceIP: results.ipaddress, $deviceMAC: results.mac, $deviceID: self.deviceID },
            function(err) {
-      if (err) logger.error('device/' + self.deviceID, { event: 'sql', diagnostic: 'REPLACE name/address', exception: err });
+      if (err) logger.error('device/' + self.deviceID, { event: 'REPLACE name/address', diagnostic: err.message });
     });
   });
 
@@ -427,8 +426,7 @@ Hue.prototype.addlight = function(self, id, props) {
     var prop;
 
     if (err) {
-      logger.error('device/' + self.deviceID,
-                   { event: 'sql', diagnostic: 'SELECT device.deviceUID for light ' + id, exception: err });
+      logger.error('device/' + self.deviceID, { event: 'SELECT device.deviceUID for light ' + id, diagnostic: err.message });
       return;
     }
 
@@ -449,8 +447,7 @@ Hue.prototype.addlight = function(self, id, props) {
       var lightID;
 
       if (err) {
-        logger.error('device/' + self.deviceID,
-                     { event: 'sql', diagnostic: 'INSERT device.deviceUID for light ' + id, exception: err });
+        logger.error('device/' + self.deviceID, { event: 'INSERT device.deviceUID for light ' + id, diagnostic: err.message });
         return;
       }
 
@@ -491,8 +488,7 @@ Hue.prototype.refresh2 = function(self, id, oops) {
       var prev, prop, props;
 
       if (err) {
-        logger.error('device/' + self.deviceID,
-                     { event: 'sql', diagnostic: 'REPLACE type/name for light ' + id, exception: err });
+        logger.error('device/' + self.deviceID, { event: 'REPLACE type/name for light ' + id, diagnostic: err.message });
         return;
       }
 
@@ -533,11 +529,11 @@ Hue.prototype.refresh2 = function(self, id, oops) {
 };
 
 
-var percentageU8 = function(u8)  { return lighting.percentageValue (u8,      254); };
-var scaledU8     = function(pct) { return lighting.scaledPercentage(pct, 0,  254); };
-var degreesU16   = function(u16) { return lighting.degreesValue    (u16,   65535); };
-var scaledU16    = function(deg) { return lighting.scaledDegrees   (deg,   65535); };
-var temperature  = function(ct)  { return lighting.boundedValue    (ct, 154, 500); };
+var percentageU8 = function(u8)  { return devices.percentageValue (u8,      254); };
+var scaledU8     = function(pct) { return devices.scaledPercentage(pct, 0,  254); };
+var degreesU16   = function(u16) { return devices.degreesValue    (u16,   65535); };
+var scaledU16    = function(deg) { return devices.scaledDegrees   (deg,   65535); };
+var temperature  = function(ct)  { return devices.boundedValue    (ct, 154, 500); };
 
 var percentageBri = function(bri) { return percentageU8(bri); };
 var hueBrightness = function(bri) { return scaledU8(bri);     };
@@ -601,7 +597,7 @@ Hue.prototype.roundtrip = function(self, tag, params) {
       var errors, i, results;
 
       try { results = JSON.parse(content); } catch(ex) {
-        logger.error(tag, { event: 'JSON', diagnostic: 'parse', content: content, exception: ex });
+        logger.error(tag, { event: 'JSON', data: content, diagnostic: ex.message });
         results = [];
       }
 
@@ -624,7 +620,7 @@ Hue.prototype.roundtrip = function(self, tag, params) {
       self.inflight--;
     });
   }).on('error', function(err) {
-    logger.error(tag, { event: 'http', diagnostic: options.protocol + '//' + options.host + options.pathname, exception: err });
+    logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'unknown' });
     self.inflight--;
   }).end(body);
@@ -728,7 +724,7 @@ var scan = function() {
       if (response.statusCode !== 200) logger.warning('nUPnP', { event: 'http', code: response.statusCode, body: content });
 
       try { results = JSON.parse(content); } catch(ex) {
-        logger.error('nUPnP', { event: 'JSON', diagnostic: 'parse', content: content, exception: ex });
+        logger.error('nUPnP', { event: 'JSON', data: content, diagnostic: ex.message });
         results = [];
       }
 
@@ -764,8 +760,7 @@ var scan = function() {
       logger.warning('nUPnP', { event: 'http', diagnostic: 'premature eof' });
     });
   }).on('error', function(err) {
-    logger.error('nUPnP',
-                 { event: 'http', diagnostic: options.protocol + '//' + options.host + options.pathname, exception: err });
+    logger.error('nUPnP', { event: 'http', options: options, diagnostic: err.message });
   }).end();
 };
 

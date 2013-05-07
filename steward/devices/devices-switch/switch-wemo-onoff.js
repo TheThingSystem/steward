@@ -54,7 +54,7 @@ WeMo_Switch.prototype.jumpstart = function(self) {
     self.logger.debug('subscribe: ' + state + ' code ' + response.statusCode,
                       { err: stringify(err), headers: stringify(response.headers) });
     if (err) {
-      self.logger.info('device/' + self.deviceID, { event: 'subscribe', exception: err });
+      self.logger.info('device/' + self.deviceID, { event: 'subscribe', diagnostic: err.message });
       setTimeout(function() { self.jumpstart(self); }, secs * 30 * 1000);
       return;
     }
@@ -150,13 +150,12 @@ WeMo_Switch.prototype.notify = function(self, headers, content) {
 
   try { parser.parseString(content, function(err, data) {
     if (err) {
-      self.logger.error('device/' + self.deviceID,
-                        { event: 'xml2js.Parser', diagnostic: 'parseString', content: content, exception: err });
+      self.logger.error('device/' + self.deviceID, { event: 'xml2js.Parser', content: content, diagnostic: err.message });
       return;
     }
 
     self.observe(self, (!!data['e:propertyset']) ? data['e:propertyset']['e:property'] : []);
-  }); } catch(ex) { self.logger.error('device/' + self.deviceID, { event: 'notify', diagnostic: ex.message }); }  
+  }); } catch(ex) { self.logger.error('device/' + self.deviceID, { event: 'notify', diagnostic: ex.message }); }
 };
 
 WeMo_Switch.prototype.observe = function(self, results) {

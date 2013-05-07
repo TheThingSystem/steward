@@ -99,7 +99,7 @@ var create = function(logger, ws, api, message, tag) {
 
     var addmember = function(err) {
       if (err) {
-        logger.error(tag, { event: 'sql', diagnostic: 'INSERT member.groupID for ' + groupID, exception: err });
+        logger.error(tag, { event: 'INSERT members.groupID for ' + groupID, diagnostic: err.message });
         results.error = { permanent: false, diagnostic: 'internal error' };
       }
       if (--cnt <= 0) try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
@@ -107,7 +107,7 @@ var create = function(logger, ws, api, message, tag) {
 
     if (err) {
       delete(groups[uuid]);
-      logger.error(tag, { event: 'sql', diagnostic: 'INSERT groups.groupUID for ' + uuid, exception: err });
+      logger.error(tag, { event: 'INSERT groups.groupUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
       try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
       return;
@@ -383,7 +383,7 @@ var remove = function(logger, ws, api, message, tag) {
 
   db.run('DELETE FROM groups WHERE groupID=$groupID', { $groupID: groupID }, function(err) {
     if (err) {
-      logger.error(tag, { event: 'sql', diagnostic: 'DELETE group.groupID for ' + groupID, exception: err });
+      logger.error(tag, { event: 'DELETE group.groupID for ' + groupID, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
       groups[group.groupUID] = group;
     } else {
@@ -412,7 +412,7 @@ var readyP = function() {
 
   db.all('SELECT * FROM groups ORDER BY sortOrder', function(err, rows) {
     if (err) {
-      logger.error('groups', { event: 'sql', diagnostic: 'SELECT groups.*', exception: err });
+      logger.error('groups', { event: 'SELECT groups.*', diagnostic: err.message });
       loadedP = false;
       return;
     }
@@ -432,7 +432,7 @@ var readyP = function() {
              { $groupID: group.groupID }, function(err, members) {
         if (err) {
           logger.error('group/' + group.groupID,
-                       { event: 'sql', diagnostic: 'SELECT member.* for group ' + group.groupID, exception: err });
+                       { event: 'SELECT members.* for groupID ' + group.groupID, diagnostic: err.message });
           loadedP = false;
           return;
         }

@@ -15,34 +15,6 @@ exports.start = function() {
 };
 
 
-var boundedValue = exports.boundedValue = function(value, lower, upper) {
-  return ((isNaN(value) || (value < lower)) ? lower : (upper < value) ? upper : value);
-};
-
-
-exports.percentageValue = function(value, maximum) {
-  return Math.floor((boundedValue(value, 0, maximum) * 100) / maximum);
-};
-
-
-exports.scaledPercentage = function(percentage, minimum, maximum) {
-  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * maximum) / 100), minimum, maximum);
-};
-
-
-exports.degreesValue = function(value, maximum) {
-  return Math.floor((boundedValue(value, 0, maximum) * 360) / maximum);
-};
-
-
-exports.scaledDegrees = function(degrees, maximum) {
-  while (degrees <    0) degrees += 360;
-  while (degrees >= 360) degrees -= 360;
-
-  return boundedValue(Math.round((degrees * maximum) / 360), 0, maximum);
-};
-
-
 exports.validBrightness  = function(bri) { return ((  0 <= bri) && (bri <= 100)); };
 exports.validHue         = function(hue) { return ((  0 <= hue) && (hue <  360)); };
 exports.validSaturation  = function(sat) { return ((  0 <= sat) && (sat <= 100)); };

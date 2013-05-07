@@ -27,7 +27,7 @@ exports.start = function() {
                   };
 
     if (err) {
-      logger.error('server', { event: 'portfinder', diagnostic: 'getPort 8888', exception: err });
+      logger.error('server', { event: 'portfinder.getPort 8888', diagnostic: err.message });
       return;
     }
 
@@ -53,7 +53,7 @@ exports.start = function() {
 
       (routes[pathname].route)(ws, tag);
     }).on('error', function(err) {
-      logger.error('server', { event: 'ws', diagnostic: 'error', exception: err });
+      logger.error('server', { event: 'ws.error', diagnostic: err.message });
     })._server;
     server.removeAllListeners('request');
     server.on('request', function(request, response) {
@@ -74,7 +74,7 @@ exports.start = function() {
         return;
       }
 
-      pathname = __dirname + '/sandbox/' + pathname.slice(1);
+      pathname = __dirname + '/../sandbox/' + pathname.slice(1);
 
       ct = mime.lookup(pathname);
 
@@ -89,7 +89,7 @@ exports.start = function() {
             code = 404;
             diagnostic = err.message + '\n';
           }
-          logger.info(tag, { code: code, exception: err });
+          logger.info(tag, { code: code, diagnostic: err.message });
           response.writeHead(code, { 'Content-Type': 'text/plain' });
           response.end(diagnostic);
           return;
@@ -103,14 +103,12 @@ exports.start = function() {
 
     var uuid = require('./steward').uuid;
     mdns.createAdvertisement(mdns.tcp('wss'), portno, { name: 'steward', txtRecord: { uuid : uuid } })
-        .on('error', function(err) { logger.error('mdns', { event: 'mdns'
-                                                          , diagnostic: 'createAdvertisement steward wss ' + portno
-                                                          , exception: err }); })
+        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward wss ' + portno
+                                                          , diagnostic : err.message }); })
         .start();
     mdns.createAdvertisement(mdns.tcp('http'), portno, { name: 'steward', txtRecord : { uuid: uuid } })
-        .on('error', function(err) { logger.error('mdns', { event: 'mdns'
-                                                          , diagnostic: 'createAdvertisement steward http ' + portno
-                                                          , exception: err }); })
+        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward http ' + portno
+                                                          , diagnostic : err.message }); })
         .start();
 
     logger.notice('listening on wss://0.0.0.0:' + portno);

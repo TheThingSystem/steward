@@ -193,13 +193,13 @@ var readyP = function() {
          + 'WHERE devices.deviceID>0 AND devices.deviceID=deviceProps.deviceID AND deviceProps.key="info"',
          function(err, rows) {
     if (err) {
-      logger.error('devices', { event: 'sql', diagnostic: 'SELECT devices.deviceUID, deviceProps.value', exception: err });
+      logger.error('devices', { event: 'SELECT devices.deviceUID, deviceProps.value', diagnostic: err.message });
       loadedP = false;
       return;
     }
     rows.forEach(function(row) {
       try { devices.discover(JSON.parse(row.value)); } catch (ex) {
-        logger.error('device/' + row.deviceID, { event: 'discover', exception: ex });
+        logger.error('device/' + row.deviceID, { event: 'JSON.parse', data: row.value, diagnostic: ex.message });
       }
     });
 

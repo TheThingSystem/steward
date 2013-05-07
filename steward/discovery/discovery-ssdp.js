@@ -47,7 +47,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
   fs.unlink(filename);
   fs.writeFile(filename, data, { encoding: 'utf8', mode: parseInt(0644, 8), flag: 'w' }, function(err) {
     if (err) {
-      logger.error('discovery', { event: 'fs.writefile', exception: err });
+      logger.error('discovery', { event: 'fs.writefile', diagnostic: err.message });
       fs.unlink(filename);
     }
   });
@@ -97,9 +97,9 @@ var listen = function(addr, portno) {/* jshint multistr: true */
         }).on('end', function() {
           var parser = new xml2js.Parser();
 
-          try {  parser.parseString(content, function(err, data) {
+          try { parser.parseString(content, function(err, data) {
             if (err) {
-              logger.error('discovery', { event: 'parser.parseString', content: content, exception: err });
+              logger.error('discovery', { event: 'parser.parseString', content: content, diagnostic: err.message });
               return;
             } else if (!data) data = { root: {} };
             if (!data.root.device) {
@@ -143,7 +143,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
           logger.error('discovery', { event: 'ssdp', diagnostic: info.ssdp.LOCATION + ' => premature EOF' });
         });
       }).on('error', function(err) {
-        logger.error('http', { event: 'http', diagnostic: 'get', options: o, exception: err });
+        logger.error('http', { event: 'http.get', options: o, diagnostic: err.message });
       });
     }
   }).search('ssdp:all');
@@ -152,7 +152,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
 
   portfinder.getPort({ port: 8887 }, function(err, portno) {
     if (err) {
-      logger.error('start', { event: 'portfinder', diagnostic: 'getPort 8887', exception: err });
+      logger.error('start', { event: 'portfinder.getPort 8887', diagnostic: err.message });
       return;
     }
 
@@ -217,7 +217,7 @@ exports.upnp_subscribe = function(tag, baseurl, sid, path, cb) {
       cb(null, 'close', response);
     });
   }).on('error', function(err) {
-    logger.error(tag, { event: 'http', diagnostic: options.protocol + '//' + options.host + options.pathname, exception: err });
+    logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'unknown' });
   }).end();
 };
@@ -262,7 +262,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
         var faults, i, results, s;
 
         if (err) {
-          logger.error(tag, { event: 'parser.parseString', content: content, exception: err });
+          logger.error(tag, { event: 'parser.parseString', content: content, diagnostic: err.message });
           data = {};
         } else if (!data) data = {};
 
@@ -281,7 +281,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
       cb(null, 'close', response);
     });
   }).on('error', function(err) {
-    logger.error(tag, { event: 'http', diagnostic: options.protocol + '//' + options.host + options.pathname, exception: err });
+    logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'unknown' });
   }).end(body);
 };
@@ -295,7 +295,7 @@ exports.start = function(portno) {
   }).on('serviceChanged', function(service) {
     logger.debug('changed', { service: stringify(service) });
   }).on('error', function(err) {
-    logger.error('discovery', { event: 'mdns', exception: err });
+    logger.error('discovery', { event: 'mdns', diagnostic: err.message });
   }).start();
 
   SSDP.SSDP_LOGGER = logger;

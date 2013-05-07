@@ -183,7 +183,7 @@ var perform = function(logger, ws, api, message, tag) {
 
     actor = actors[who.split('/')[0]];
     if (!actor) {
-      results.actors[who] = { status: 'failure',  permanent: true, diagnostic: 'internal error' };
+      results.actors[who] = { status: 'failure', permanent: true, diagnostic: 'internal error' };
       continue;
     }
     entity = actor.$lookup(who.split('/')[1].toString());
