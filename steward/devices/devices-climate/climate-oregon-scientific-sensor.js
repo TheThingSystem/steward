@@ -56,7 +56,7 @@ Sensor.prototype.update = function(self, params) {
 };
 
 exports.start = function() {
-  steward.actors.device.climate['oregon-scientific'] = steward.actors.device.climate.oregonscientific ||
+  steward.actors.device.climate['oregon-scientific'] = steward.actors.device.climate['oregon-scientific'] ||
       { $info     : { type: '/device/climate/oregon-scientific' } };
 
   steward.actors.device.climate['oregon-scientific'].sensor =
