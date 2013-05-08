@@ -162,6 +162,7 @@ var blinky = function(ws, i) {
   setTimeout(function() { blinky(ws, ++i); }, 15 * 1000);
 };
 
+
 var notice = function(tag, meta) {
   var update = { monitor : [{ date : new Date().toISOString()
                , level   : 'notice'

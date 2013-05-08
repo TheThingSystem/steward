@@ -40,6 +40,7 @@ _status:_ under development.
 ### robosmart/led - http://www.smarthome-labs.com
 
 ## /device/media
+### sonos/audio - http://www.sonos.com/system
 
 ## /device/motive
 

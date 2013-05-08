@@ -769,7 +769,7 @@ var scan = function() {
 // PUT /api/.../groups/0/action
 //   { on : true/false }
 
-// TBD: discovera
+// TBD: discovery
 // PUT /api/.../lights
 // (no body)
 // -> [ { success: { "/lights" : " ..." } } ]

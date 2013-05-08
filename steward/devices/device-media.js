@@ -21,3 +21,7 @@ var Media = exports.Device = function() {
   self.whatami = '/device/media';
 };
 util.inherits(Media, devices.Device);
+
+
+exports.validPosition = function(pos)  { return ((  0 <= pos)                ); };
+exports.validVolume   = function(vol)  { return ((  0 <= vol) && (vol <= 100)); };
