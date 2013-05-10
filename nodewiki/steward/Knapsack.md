@@ -17,6 +17,10 @@ The philosophy is that you should just plug the thing in, and the steward should
 ### nest/control - http://nest.com
 ### netatmo/sensor - http://www.netatmo.com
 ### oregon-scientific/sensor - http://www.oregonscientificstore.com
+    * THGR122NX: Wireless Temperature and Humidity Sensor
+    * THGN123N: Remote Thermo-Hygrometer Sensor
+    * THN132: Wireless Remote Temperature Sensor
+    * THGN132ES:Solar Thermo-Hygrometer Sensor
 
 ## /device/fixed
 

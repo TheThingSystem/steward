@@ -375,7 +375,7 @@ exports.start = function() {
                     , observe    : [ 'cron', 'solar' ]
                     , perform    : [ ]
                     , properties : { name        : true
-                                   , status      : [ 'indigo', 'green', 'blue', 'yellow', 'red' ]
+                                   , status      : [ 'green', 'blue', 'indigo', 'red' ]
                                    , physical    : true
                                    , coordinates : 'latlng'
                                    , solar       : [ 'dawn'

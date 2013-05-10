@@ -43,16 +43,11 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
     logger.info('device/' + self.deviceID,  { event: 'elec2',     params: evt });
   }).on('security1',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'security1', params: evt });
-  }).on('temp1',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'temp1',     params: evt });
-  }).on('temp2',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'temp2',     params: evt });
-  }).on('temp3',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'temp3',     params: evt });
-  }).on('temp4',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'temp4',     params: evt });
-  }).on('temp5',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'temp5',     params: evt });
+  }).on('temp1',  function(evt) { self.tempX(self, evt);
+  }).on('temp2',  function(evt) { self.tempX(self, evt);
+  }).on('temp3',  function(evt) { self.tempX(self, evt);
+  }).on('temp4',  function(evt) { self.tempX(self, evt);
+  }).on('temp5',  function(evt) { self.tempX(self, evt);
   }).on('th1',  function(evt) { self.thX(self, evt);
   }).on('th2',  function(evt) { self.thX(self, evt);
   }).on('th3',  function(evt) { self.thX(self, evt);
@@ -74,7 +69,7 @@ util.inherits(Gateway, require('./../device-gateway').Device);
 
 
 Gateway.prototype.thX = function(self, evt) {
-  var info, params, sensor, udn;
+  var info, name, params, sensor, udn;
 
   params = { lastSample  : new Date().getTime()
            , temperature : (!!evt.temperature) ? evt.temperature : null
@@ -87,11 +82,13 @@ Gateway.prototype.thX = function(self, evt) {
     return sensor.update(sensor, params);
   }
 
+  name = (!!evt.humidity) ? 'Thermo-Hygro Sensor' : 'Temperature Sensor'
+
   info =  { source: self.deviceID, gateway: self, params: params };
   info.device = { url                          : null
-                , name                         : 'Thermo-Hygro Sensor #' + evt.id
+                , name                         : name + ' #' + evt.id
                 , manufacturer                 : 'Oregon Scientific'
-                , model        : { name        : 'Thermo-Hygro Sensor'
+                , model        : { name        : name
                                  , description : ''
                                  , number      : evt.subtype
                                  }
@@ -106,7 +103,7 @@ Gateway.prototype.thX = function(self, evt) {
   logger.info(info.device.name, { id: info.device.unit.serial,  params: params });
   devices.discover(info);
 };
-
+Gateway.prototype.tempX = Gateway.prototype.thX;
 
 var scan = function() {
   rfxcom.devices(function(err, results) {

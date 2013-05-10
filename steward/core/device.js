@@ -261,10 +261,10 @@ exports.validate_perform = function(perform, parameter) {
 
 exports.rainbow =
 { error:     { color: 'red',    rgb: '#ff0000' }
-, attention: { color: 'yellow', rgb: '#fff800' }
+, attention: { color: 'indigo', rgb: '#4b0082' }
 , warning:   { color: 'blue',   rgb: '#0000ff' }
 , normal:    { color: 'green',  rgb: '#00ff00' }
-, excellent: { color: 'indigo', rgb: '#4b0082' }
+
 };
 
 

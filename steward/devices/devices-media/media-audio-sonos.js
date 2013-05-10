@@ -259,8 +259,8 @@ Sonos_Audio.prototype.refresh = function(self) {
     }
   });
 
-  self.sonos.currentVolume(function(err, volume) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'currentVolume', diagnostic: err.message });
+  self.sonos.getVolume(function(err, volume) {
+    if (err) return logger.error('device/' + self.deviceID, { event: 'getVolume', diagnostic: err.message });
 
     if (volume !== undefined) {
       self.info.volume = volume;
@@ -268,11 +268,11 @@ Sonos_Audio.prototype.refresh = function(self) {
     }
   });
 
-  self.sonos.currentMuted(function(err, muted) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'currentMuted', diagnostic: err.message });
+  self.sonos.getMuted(function(err, muted) {
+    if (err) return logger.error('device/' + self.deviceID, { event: 'getMuted', diagnostic: err.message });
 
     if (muted !== undefined) {
-      self.info.muted = muted;
+      self.info.muted = muted ? 'on' : 'off';
       self.changed();
     }
   });

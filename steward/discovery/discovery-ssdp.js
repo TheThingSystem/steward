@@ -176,7 +176,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
       });
     }).on('listening', function() {
       listening = 'http://' + addr + ':' + portno;
-      logger.notice('UPnP listening on ' + listening);
+      logger.info('UPnP listening on ' + listening);
     }).listen(portno, addr);
   });
 };
