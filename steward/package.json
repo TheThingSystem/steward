@@ -16,7 +16,7 @@
     , "noble"               : "0.0.4"
     , "node-blink1"         : "0.0.3"
     , "node-hid"            : "0.2.3"
-    , "node-netatmo"        : "0.0.1"
+    , "node-netatmo"        : "git://github.com/mrose17/node-netatmo.git"
     , "node-prowl"          : "git://github.com/mrose17/node-prowl.git"
     , "node-ssdp"           : "git://github.com/mrose17/node-ssdp.git"
     , "node-uuid"           : "1.4.0"

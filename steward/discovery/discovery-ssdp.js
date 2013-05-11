@@ -36,7 +36,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     <deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>\
     <friendlyName>steward</friendlyName>\
     <manufacturer>The Thing System, Inc.</manufacturer>\
-    <manufacturerURL>http://TBD</manufacturerURL>\
+    <manufacturerURL>http://thingsystem.com/</manufacturerURL>\
     <modelDescription>the steward</modelDescription>\
     <modelName>steward/1.0 node.js</modelName>\
     <UDN>uuid:' + steward.uuid + '</UDN>\
