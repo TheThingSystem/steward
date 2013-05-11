@@ -50,9 +50,10 @@ Sensor.prototype.update = function(self, params) {
     self.info[param] = params[param];
     updateP = true;
   }
-  if (updateP) self.changed();
-
-  sensor.update(self.deviceID, params);
+  if (updateP) {
+    self.changed();
+    sensor.update(self.deviceID, params);
+  }
 };
 
 exports.start = function() {

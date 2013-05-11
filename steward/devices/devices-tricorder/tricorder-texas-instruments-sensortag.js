@@ -1,5 +1,5 @@
 // +++ under development
-// BLE: http://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.immediate_alert.xml
+// http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
 
 var util        = require('util')
   , devices     = require('./../../core/device')

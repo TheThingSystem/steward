@@ -1,8 +1,8 @@
 **THIS IS FOR REVIEW, NOT YET IMPLEMENTATED (BUT SOON)**
 
-# The _Native Thing_ Protocol
+# The _Simple Thing_ Protocol
 For those things that are third-party programmable but lack an effective interface for steward management,
-the _Native Thing_ protocol provides a mechanism for adding steward management.
+the _Simple Thing_ protocol provides a mechanism for adding steward management.
 
 ## Operations
 
@@ -22,7 +22,7 @@ The basics:
 
   1. _Intermediate_ responses (containing only a _requestID_ parameter) indicating that the peer has received the message,
       but that processing may take a while.
-  **(Note that version 1 of the _Native Thing_ protocol does not use intermediate responses.)**
+  __(Note that version 1 of the _Simple Thing_ protocol does not use intermediate responses.)__
 
   2. _Error_ responses (containing a _requestID_ and _error_ parameter) indicating whether the failure is permanent and
      containing a textual diagnostic.
@@ -30,7 +30,7 @@ The basics:
   3. _Simple result_ responses (containing a _requestID_ and _result_ parameter) indicating success and optionally containing
      additional information.
 
-  4. _Detailed result_ responses (containing a _requestID_ parameter and one of a _things_, _events_, or _tasks_ parameter,
+  4. _Detailed result_ responses (containing a _requestID_ parameter and one of a _things_, _events_, or _tasks_ parameter)
      indicating the success or failure of each action in the request.
 
 
@@ -85,7 +85,7 @@ A detailed result:
 ## Session Establishment
 
 When an implementation detects a steward advertisement via multicast DNS,
-it establishes a WebSockets connection to the steward:
+it establishes a WebSockets connection to the '/native' resources on the steward:
 
     wss://IP:PORT/native
 
@@ -118,7 +118,7 @@ The implementation must now issue the _hello_ message using that passcode.
 
 ### Implementation authenticates with steward
 
-When the implementation has a _uuid/passCode__ pairing,
+When the implementation has a _uuid/passCode_ pairing,
 the _hello_ message is sent to the steward:
 
     { path              : '/api/v1/hello'
@@ -154,7 +154,7 @@ __Note that requests may be originated both by the implementation and the stewar
 State is maintained over the duration of a session.
 If the underlying connection is broken,
 then any mappings of _thingIDs_, _eventIDs_, and _taskIDs_ should be deleted by both peers.
-**(Note that in version 1 of the _Native Thing Protocol__,
+**(Note that in version 1 of the _Simple Thing_ protocol,
 _taskID_ values have no significance outside of a single message exchange.)**
 
 ### Define Prototypes
@@ -172,7 +172,7 @@ The _prototype_ message is sent by the implementation to the steward to define o
         , perform       : [ 'p1', 'p2', ..., 'pN' ]
         , properties    :
           { name        : true
-            status      : [ 's1', 's2', ..., 'sN' ]
+          , status      : [ 's1', 's2', ..., 'sN' ]
 
             // other properties go here...
           }
@@ -194,6 +194,8 @@ either a detailed result or error response is returned:
       { '/device/A/B/C' :
         { status        : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -207,6 +209,8 @@ or
           , diagnostic  : 'missing properties parameter'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -217,7 +221,7 @@ The _register_ message is sent by the implementation to the steward to register 
     { path              : '/api/v1/register'
     , requestID         : 4
     , things            :
-      { 'UDN1'          :
+      { 't1'            :
         { prototype     : '/device/A/B/C' :
         , name          : '...'
         , status        : '...'
@@ -231,7 +235,7 @@ The _register_ message is sent by the implementation to the steward to register 
             }
           , unit        :
             { serial    : '...'
-              udn       : 'UDN1'
+              udn       : 'UID'
             }
           }
         , updated       : timestamp
@@ -245,6 +249,15 @@ The _register_ message is sent by the implementation to the steward to register 
       }
     }
 
+__READ CAREFULLY:__
+It is imperative that the choice of the _udn_ parameter be both globally-unique and specific to the thing being registered.
+For example,
+if the thing is a PTZ mount for a mobile device,
+the _udn_ parameter must uniquely identify the PTZ mount,
+regardless of whatever mobile device is providing the implementation.
+(Think of the _udn_ parameter as the MAC address, and not the IP address, of the thing:
+the IP address of a thing may change, but it's MAC address never will.)
+
 When the steward receives the _register_ message,
 either a detailed result or error response is returned.
 If a result response is returned, it contains a _thingID_ value for each thing,
@@ -252,10 +265,12 @@ e.g.,
 
     { requestID         : 4
     , things            :
-      { 'UDN1'          :
+      { 't1'            :
         { 'status'      : 'success'
           'thingID'     : 'thingID1'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -263,12 +278,14 @@ or
 
     { requestID         : 4
     , things            :
-      { 'UDN1'          :
+      { 't1'          :
         { error         :
           { permanent   : true
           , diagnostic  : 'UDN is already registered'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -302,6 +319,8 @@ either a detailed result or error response is returned:
       { 'thingID2'      :
         { 'status'      : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -315,11 +334,13 @@ or
           , diagnostic  : 'no such thingID'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
 ### Observe and Report Events
-The _observe_ message is sent by the steward to the ipmlementation to ask it to observe one or more events:
+The _observe_ message is sent by the steward to the implementation to ask it to observe one or more events:
 
     { path              : '/api/v1/observe'
     , requestID         : 6
@@ -345,6 +366,8 @@ either a detailed result or error response is returned:
       { 'eventID1'      :
         { 'status'      : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -358,6 +381,8 @@ or
           , diagnostic  : 'invalid parameter value for event observation'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -386,6 +411,8 @@ and the steward responds with either a detailed result or error response:
       { 'eventID1'      :
         { status        : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -399,6 +426,8 @@ or
           , diagnostic  : 'invalid eventID'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -413,16 +442,20 @@ If the implementation is no longer able to observe an event:
           permanent     : true
           diagnostic    : '...'
         }
+
+        // other results, if any, go here...
       }
     }
 
-and the steward responds with either a result response:
+and the steward responds with a detailed result response:
 
     { requestID         : 8
     , events            :
       { 'eventID1'      :
         { status        : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -445,6 +478,8 @@ and the implementation responds with either a detailed result or error response:
       { 'eventID1'      :
         { status        : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -458,11 +493,13 @@ or
           , diagnostic  : 'database busy, please retry...'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
 ### Perform Tasks
-The _perform_ message is sent by the steward to the ipmlementation to ask it to observe one or more tasks:
+The _perform_ message is sent by the steward to the implementation to ask it to observe one or more tasks:
 
     { path              : '/api/v1/perform'
     , requestID         : 10
@@ -478,7 +515,7 @@ The _perform_ message is sent by the steward to the ipmlementation to ask it to 
       }
     }
 
-When the implementation receives the _observe_ message,
+When the implementation receives the _perform_ message,
 if the _testOnly parameter is true,
 then the implementation evaluates the performance parameters, and
 either a detailed result or error response is returned:
@@ -488,6 +525,8 @@ either a detailed result or error response is returned:
       { 'taskID1'       :
         { 'status'      : 'success'
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -501,6 +540,8 @@ or
           , diagnostic  : 'invalid parameter value for task performance'
           }
         }
+
+        // other results, if any, go here...
       }
     }
 
@@ -513,6 +554,6 @@ Security is based on these assumptions:
 
 * An authorized person is responsible for pairing the implementation to the steward.
 
-* Both the steward and the implementation keep the _uuid/passCode__ pairing secure.
+* Both the steward and the implementation keep the _uuid/passCode_ pairing secure.
 
 * The crytographic algorithms used for the secure WebSockets connection are, in fact, secure.

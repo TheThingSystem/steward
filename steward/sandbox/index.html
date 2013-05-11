@@ -197,6 +197,20 @@ var time_ago = function(time, agoP) {
   return time;
 }
 
+// http://phpjs.org/functions/strip_tags/
+var strip_tags = function(input, allowed) {
+  input = input ? input.toString() : '';
+
+  // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+  allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
+
+  var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+
+  return input.replace(tags, function ($0, $1) {
+    return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
+  });
+}
+
 // from winston's common.js
 var serialize = function (obj, key) {
   if (obj === null) {
@@ -210,7 +224,7 @@ var serialize = function (obj, key) {
   } else if (obj === true) obj = 'true';
 
   if (typeof obj !== 'object') {
-    return key ? key + '=' + obj : obj;
+    return key ? (key + '=' + strip_tags(obj)) : strip_tags(obj);
   }
 
   var msg = '',

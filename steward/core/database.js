@@ -15,7 +15,6 @@ exports.start = function() {
     return logger.emerg('database', { event: 'create ' + __dirname + '/../db/database.db', diagnostic: ex.message });
   }
 
-
   db.serialize(function() {
     db.run('CREATE TABLE IF NOT EXISTS devices('
            + 'deviceID INTEGER PRIMARY KEY ASC, deviceUID TEXT, deviceType TEXT, parentID INTEGER, childID INTEGER, '

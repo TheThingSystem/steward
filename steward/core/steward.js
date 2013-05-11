@@ -417,7 +417,7 @@ exports.start = function() {
 
   for (ifname in ifaces) if ((ifaces.hasOwnProperty(ifname)) && (util.isArray(ifaces[ifname]))) delete(ifaces[ifname]);
 
-  exports.status.logs = { reporter : function(logger, ws) { ws.send(JSON.stringify(utility.signals)); } };
+  exports.status.logs = { reporter: function(logger, ws) { ws.send(JSON.stringify(utility.signals)); } };
 
   setTimeout(exports.start, 10);
 };

@@ -82,7 +82,7 @@ Gateway.prototype.thX = function(self, evt) {
     return sensor.update(sensor, params);
   }
 
-  name = (!!evt.humidity) ? 'Thermo-Hygro Sensor' : 'Temperature Sensor'
+  name = (!!evt.humidity) ? 'Thermo-Hygro Sensor' : 'Temperature Sensor';
 
   info =  { source: self.deviceID, gateway: self, params: params };
   info.device = { url                          : null

@@ -15,12 +15,18 @@ The philosophy is that you should just plug the thing in, and the steward should
 
 ## /device/climate
 ### nest/control - http://nest.com
+Currently monitoring only, no control.
 ### netatmo/sensor - http://www.netatmo.com
 ### oregon-scientific/sensor - http://www.oregonscientificstore.com
-    * THGR122NX: Wireless Temperature and Humidity Sensor
-    * THGN123N: Remote Thermo-Hygrometer Sensor
-    * THN132: Wireless Remote Temperature Sensor
-    * THGN132ES:Solar Thermo-Hygrometer Sensor
+These require the RFXrec433 gateway:
+
+* THGR122NX: Wireless Temperature and Humidity Sensor
+
+* THGN123N: Remote Thermo-Hygrometer Sensor
+
+* THN132: Wireless Remote Temperature Sensor
+
+* THGN132ES:Solar Thermo-Hygrometer Sensor
 
 ## /device/fixed
 
@@ -30,7 +36,7 @@ The philosophy is that you should just plug the thing in, and the steward should
 ### netatmo/cloud - http://www.netatmo.com
 ### rfxrec433/usb - http://www.rfxcom.com/store/Receivers/12113
 ### zigbee/gmo - http://www.exegin.com/hardware/q53app.php
-_status:_ under development.
+Under development.
 
 ## /device/indicator
 ### text/prowl - http://www.prowlapp.com
@@ -54,8 +60,6 @@ _status:_ under development.
 ### fob - http://www.hippih.com/hipkey
 
 ## /device/sensor
-### insteon/leak - http://www.insteon.com/2852-222-leak-sensor.html
-_status:_ under development.
 ### wemo/motion - http://www.belkin.com/us/wemo-motion
 
 ## /device/switch

@@ -1,6 +1,6 @@
 var fs          = require('fs')
   , http        = require('http')
-  , mdns        = require('mdns')
+//, mdns        = require('mdns')
   , portfinder  = require('portfinder')
   , SSDP        = require('node-ssdp')
   , stringify   = require('json-stringify-safe')
@@ -35,10 +35,10 @@ var listen = function(addr, portno) {/* jshint multistr: true */
   <device>\
     <deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>\
     <friendlyName>steward</friendlyName>\
-    <manufacturer>TBD</manufacturer>\
-    <manufacturerURL>TBD</manufacturerURL>\
-    <modelDescription>TBD</modelDescription>\
-    <modelName>TBD</modelName>\
+    <manufacturer>The Thing System, Inc.</manufacturer>\
+    <manufacturerURL>http://TBD</manufacturerURL>\
+    <modelDescription>the steward</modelDescription>\
+    <modelName>steward/1.0 node.js</modelName>\
     <UDN>uuid:' + steward.uuid + '</UDN>\
     <serviceList></serviceList>\
     <presentationURL></presentationURL>\
@@ -288,6 +288,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
 
 
 exports.start = function(portno) {
+/* NO LONGER USED
   mdns.browseThemAll().on('serviceUp', function(service) {
     logger.debug('up', { service: stringify(service) });
   }).on('serviceDown', function(service) {
@@ -297,6 +298,7 @@ exports.start = function(portno) {
   }).on('error', function(err) {
     logger.error('discovery', { event: 'mdns', diagnostic: err.message });
   }).start();
+ */
 
   SSDP.SSDP_LOGGER = logger;
 
