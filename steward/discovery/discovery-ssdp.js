@@ -44,12 +44,13 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     <presentationURL></presentationURL>\
   </device>\
 </root>';
-  fs.unlink(filename);
-  fs.writeFile(filename, data, { encoding: 'utf8', mode: parseInt(0644, 8), flag: 'w' }, function(err) {
-    if (err) {
-      logger.error('discovery', { event: 'fs.writefile', diagnostic: err.message });
-      fs.unlink(filename);
-    }
+  fs.unlink(filename, function(err) {
+    fs.writeFile(filename, data, { encoding: 'utf8', mode: parseInt(0644, 8), flag: 'w' }, function(err) {
+      if (err) {
+        logger.error('discovery', { event: 'fs.writefile', diagnostic: err.message });
+        fs.unlink(filename);
+      }
+    });
   });
 
   ssdp.server(addr, portno);
