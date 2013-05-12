@@ -31,6 +31,7 @@ exports.start = function() {
   broker.create('beacon-egress');
   broker.create('actors');
   broker.create('discovery');
+  broker.create('readings');
   broker.create('status');
 };
 

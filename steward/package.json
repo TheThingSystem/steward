@@ -6,6 +6,7 @@
   , "dependencies"   : {
       "MD5"                 : "1.0.3"
     , "blinkstick"          : "0.1.0"
+    , "cosm"                : "git://github.com/mrose17/node-cosm.git"
     , "cron-parser"         : "0.2.2"
     , "geocoder"            : "0.1.0"
     , "koubachi"            : "0.0.2"

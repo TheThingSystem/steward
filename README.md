@@ -17,17 +17,23 @@ PRIOR TO ALPHA RELEASE
 
 1. initial documentation
 
-    1.1. complete (MTR)
+    1.1. ~4 files to go (MTR)
 
     1.2. review (AA)
 
-2. device implementations MTR)
+2. device implementations (MTR)
 
-    2.1. sonos
+    2.1. swivl ptz
 
     2.2. appleTV
 
-3. define "native thing" protocol (MTR)
+    2.3. TI sensortag (AA)
+
+    2.4. nest control
+
+    2.5. romo
+
+    2.6. galileo
 
 4. device/group tags (MTR)
 
@@ -35,31 +41,17 @@ PRIOR TO ALPHA RELEASE
 
 6. steward "user assistance" queue
 
-7. device implementations
-
-    7.1. TI sensortag (AA)
-
-    7.2. swivl ptz
-
-    7.3. nest control
-
-    7.4. romo
-
-    7.5. galileo
-
 8. gateway implementations
 
     8.1. complete zigbee gateway
 
     8.2. implement z-wave gateway
 
-9. measurement samples
+9. measurement samples (MTR)
 
-    9.1. API to access historical data (MTR)
+    9.1. API to access historical data
 
     9.2 json dump using API
-
-    9.3 cosm upload using API
 
 10. clients
 

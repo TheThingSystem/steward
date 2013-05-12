@@ -54,6 +54,8 @@ and perform tasks.
 
 * _discovery_: all UPnP-based actors subscribe to this mailbox to receive notifications.
 
+* _readings_: any indicator/cosm actors subscribe to this mailbox to receive sensor readings.
+
 * _status_: any indicator/status actors subscribe to this mailbox to receive aggregate state information from the steward.
 
 As with any pubsub service,

@@ -4,6 +4,10 @@
 
 ## Minimal Friction
 
-## A System of System
+discovery
+
+your data: nest, netatmo, cosm, statusboard
+
+## A System of Systems
 
 ## The System of Things

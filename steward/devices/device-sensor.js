@@ -3,6 +3,7 @@ var sqlite3     = require('sqlite3').verbose()
   , devices     = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -61,6 +62,18 @@ exports.update = function(deviceID, params) {
       exports.db.run('INSERT INTO readings(streamID, value, timestamp)' + 'VALUES($streamID, $value, $timestamp)',
                      { $streamID : streamID, $value: params[measureName], $timestamp: params.lastSample },
                      addvalue(measureID, streamID));
+
+      if (broker.has('readings')) {
+        broker.publish('readings', deviceID, { streamID  : streamID.toString()
+                                             , measure   : { name   : measureName
+                                                           , type   : measures[measureName].type
+                                                           , label  : measures[measureName].units
+                                                           , symbol : measures[measureName].symbol
+                                                           }
+                                             , value     : params[measureName]
+                                             , timestamp : params.lastSample
+                                             });
+      }
       continue;
     }
 
