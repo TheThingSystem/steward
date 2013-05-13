@@ -253,7 +253,7 @@ Sonos_Audio.prototype.refresh = function(self) {
   self.sonos.currentTrack(function(err, track) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'currentTrack', diagnostic: err.message });
 
-    if (track !== undefined) {      
+    if (track !== undefined) {
       self.info.track = track;
       self.changed();
     }

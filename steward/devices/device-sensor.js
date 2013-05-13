@@ -19,10 +19,11 @@ var measures   = { temperature : { symbol: 'C',   units: 'celsius',    type: 'de
 var streams    = {};
 
 
-var addstream = function(measureID, deviceID, value, timestamp) {
+var addstream = function(measureName, deviceID, value, timestamp) {
   return function(err) {
-    var streamID;
+    var measureID, streamID;
 
+    measureID = measures[measureName].id;
     if (err) {
       return logger.error('database', { event: 'INSERT streams for measureID ' + measureID, diagnostic: err.message });
     }
@@ -31,10 +32,22 @@ var addstream = function(measureID, deviceID, value, timestamp) {
     if (!streams[measureID]) streams[measureID] = {};
     streams[measureID][deviceID] = streamID;
 
-    exports.db.run('INSERT INTO readings(streamID, value, timestamp)' + 'VALUES($streamID, $value, $timestamp)',
+    exports.db.run('INSERT INTO readings(streamID, value, timestamp) VALUES($streamID, $value, $timestamp)',
                    { $streamID : streamID, $value: value, $timestamp: timestamp },
-                   addvalue(measureID, streamID));
+                   addvalue(measures[measureName].id, streamID));
 
+
+    if (broker.has('readings')) {
+      broker.publish('readings', deviceID, { streamID  : streamID.toString()
+                                           , measure   : { name   : measureName
+                                                         , type   : measures[measureName].type
+                                                         , label  : measures[measureName].units
+                                                         , symbol : measures[measureName].symbol
+                                                         }
+                                           , value     : value
+                                           , timestamp : timestamp
+                                           });
+      }
   };
 };
 
@@ -59,7 +72,7 @@ exports.update = function(deviceID, params) {
     if ((!!streams[measureID]) && (!!streams[measureID][deviceID])) {
       streamID = streams[measureID][deviceID];
 
-      exports.db.run('INSERT INTO readings(streamID, value, timestamp)' + 'VALUES($streamID, $value, $timestamp)',
+      exports.db.run('INSERT INTO readings(streamID, value, timestamp) VALUES($streamID, $value, $timestamp)',
                      { $streamID : streamID, $value: params[measureName], $timestamp: params.lastSample },
                      addvalue(measureID, streamID));
 
@@ -79,7 +92,7 @@ exports.update = function(deviceID, params) {
 
     exports.db.run('INSERT INTO streams(measureID, deviceID, created) VALUES($measureID, $deviceID, datetime("now"))',
                    { $measureID: measureID, $deviceID: deviceID },
-                   addstream(measureID, deviceID, params[measureName], params.lastSample));
+                   addstream(measureName, deviceID, params[measureName], params.lastSample));
   }
 
   return true;
@@ -138,13 +151,13 @@ exports.start = function() {
            + 'streamID INTEGER PRIMARY KEY ASC, measureID INTEGER, deviceID INTEGER, created CURRENT_TIMESTAMP'
            + ')');
 
-    db.get('SELECT * FROM streams', {}, function(err, row) {
+    db.all('SELECT * FROM streams', {}, function(err, rows) {
       if (err) return logger.error('database', { event: 'SELECT streams.*', diagnostic: err.message });
 
-      if (row === undefined) return;
-
-      if (!streams[row.measureID]) streams[row.measureID] = {};
-      streams[row.measureID][row.deviceID] = row.streamID;
+      rows.forEach(function(stream) {
+        if (!streams[stream.measureID]) streams[stream.measureID] = {};
+        streams[stream.measureID][stream.deviceID] = stream.streamID;
+      });
     });
 
     db.run('CREATE TABLE IF NOT EXISTS readings('
