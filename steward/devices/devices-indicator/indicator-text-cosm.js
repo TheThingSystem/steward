@@ -146,7 +146,11 @@ Cosm.prototype.update = function(self, deviceID, point) {
   if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
   if (self.datastreams[point.streamID]) {
-    return self.datastreams[point.streamID].addPoint(point.value, new Date(point.timestamp));
+    return self.datastreams[point.streamID].addPoint(point.value, new Date(point.timestamp), function(err, response, body) {
+      /* jshint unused: false */
+
+      if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addPoint', diagnostic: err.message });
+    });
   }
 
   actor = steward.actors.device;
@@ -162,10 +166,14 @@ Cosm.prototype.update = function(self, deviceID, point) {
                       , tags   : tags
                       , unit   : { type: point.measure.type, label: point.measure.label, symbol: point.measure.symbol }
                       }, function(err, body) {/* jshint unused: false */
-    if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addstream', diagnostic: err.message });
+    if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addStream', diagnostic: err.message });
 
     self.datastreams[point.streamID] = new cosm.Datastream(self.cosm, self.feed, { id : point.streamID });
-    self.datastreams[point.streamID].addPoint(point.value, new Date(point.timestamp));
+    self.datastreams[point.streamID].addPoint(point.value, new Date(point.timestamp), function(err, response, body) {
+      /* jshint unused: false */
+
+      if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addPoint', diagnostic: err.message });
+    });
   });
 };
 
