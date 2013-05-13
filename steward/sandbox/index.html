@@ -264,7 +264,10 @@ var serialize_array = function(a) {
   var i, result, sep;
 
   a = a || [];
-  if ((typeof a === 'string') && (!isNaN((result = new Date(a)).getTime()))) return time_ago(result, true);
+  if (typeof a === 'string') { // 2012-12-31
+    if (parseInt(a, 10) < 1356940800000) return serialize(a);
+    if (!isNaN((result = new Date(a)).getTime())) return time_ago(result, true);
+  }
   if (!Array.isArray(a)) return serialize(a);
 
   sep = '';
