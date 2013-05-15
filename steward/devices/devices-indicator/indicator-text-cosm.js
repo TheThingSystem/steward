@@ -247,7 +247,12 @@ exports.start = function() {
                     , properties : { name         : true
                                    , status       : [ 'waiting', 'ready', 'error' ]
                                    , apikey       : true
-                                   , measurements : []
+                                   , measurements : { temperature : 'celsius'
+                                                    , humidity    : 'percentage'
+                                                    , co2         : 'ppm'
+                                                    , noise       : 'decibels'
+                                                    , pressure    : 'millibars'
+                                                    }
                                    , sensors      : []
                                    , private      : [ 'on', 'off' ]
                                    }

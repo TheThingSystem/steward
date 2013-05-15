@@ -106,6 +106,10 @@ Properties are expressed in a consistent set of units:
 * _s8_            - [-127 .. 128]
 * _fraction_      - [0 .. 1]
 * _timestamp_     - 2013-03-28T15:52:49.680Z
+* _celsius_
+* _ppm_
+* _decibels_
+* _millibars_
 
 or as an entry from a fixed set of keywords.
 
