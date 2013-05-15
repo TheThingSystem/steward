@@ -369,7 +369,7 @@ var proplist = function(id, activity) {
                , armed    : activity.armed
                , event    : activity.event
                , task     : activity.task
-               , lastTime : activity.lastTime
+               , lastTime : new Date(activity.lastTime)
                };
 
   if (!!id) {

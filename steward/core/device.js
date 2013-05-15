@@ -136,13 +136,14 @@ Device.prototype.proplist = function() {
   info = utility.clone(!!self.info ? self.info : {});
   delete(info.name);
   if (!!self.elide) for (i = 0; i < self.elide.length; i++) if (!!info[self.elide[i]]) info[self.elide[i]] = '********';
+  if (!!info.lastSample) info.lastSample = new Date(info.lastSample);
 
   return { whatami   : self.whatami
          , whoami    : 'device/' + self.deviceID
          , name      : !!self.name ? self.name : ''
          , status    : self.status
          , info      : info
-         , updated   : !!self.updated ? self.updated : null
+         , updated   : !!self.updated ? new Date(self.updated) : null
          };
 };
 

@@ -1,7 +1,7 @@
 # git config --global core.excludesfile ./.gitignore
 
 node_modules
-.json
+*.json
 
 .DS_Store
 .AppleDouble

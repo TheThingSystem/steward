@@ -1,3 +1,157 @@
+// returns an array with the most interesting devices
+
+var ambient = 'white';
+
+var thePlace = function(message) {
+  var entry, id, result;
+
+  result = message.result;
+  if (!result) return null;
+
+  for (id in result['/place']) if (result['/place'].hasOwnProperty(id)) break;
+  entry = result['/place'][id];
+  if (!entry) return null;
+
+  ambient = d3.kelvin.solar[entry.info.solar] || 'white';
+
+  return entry;
+};
+
+var mostDevices = function(message) {
+  var actor, devices, id, path, result;
+
+  result = message.result;
+  if (!result) return null;
+
+  devices = [];
+  for (id in result) {
+    if ((!result.hasOwnProperty(id)) || (id === 'actor')) continue;
+
+    path = id.split('/');
+    if ((path[1] !== 'device') || (path[2] === 'gateway') || (path[2] === 'indicator')) continue;
+
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) devices.push(result[id][actor]);
+  }
+
+  return devices;
+};
+
+
+// returns an object with members named by tag (e.g., "living room'), each member is an array
+
+var allTags = function(message) {
+  var actor, device, devices, i, id, path, result, tag, tags;
+
+  result = message.result;
+  if (!result) return null;
+
+  id = '/group';
+  if (!result[id]) return {};
+
+  devices = {};
+  for (id in result) {
+    if ((!result.hasOwnProperty(id)) || (id === 'actor')) continue;
+
+    path = id.split('/');
+    if (path[1] !== 'device') continue;
+
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) devices[actor] = result[id][actor];
+  }
+
+  tags = {};
+  for (actor in result[id]) {
+    if (!result[id].hasOwnProperty(actor)) continue;
+    tag = result[id][actor];
+
+    tags[tag.name] = [];
+    for (i = 0; i < tag.members.length; i++) {
+      device = devices[tag.members[i]];
+      if (!!device) tags[tag.name].push(device);
+    }
+    if (tags[tag.name].length < 1) delete(tags[tag.name]);
+  }
+
+  return tags;
+};
+
+
+// returns an object with members named by device category (e.g., 'lighting'), each member is an array
+
+var allCategories = function(message) {
+  var actor, categories, category, id, path, result;
+
+  result = message.result;
+  if (!result) return null;
+
+  categories = {};
+  for (id in result) {
+    if ((!result.hasOwnProperty(id)) || (id === 'actor')) continue;
+
+    path = id.split('/');
+    if (path[1] !== 'device') continue;
+
+    category = path[2];
+    if (!categories[category]) categories[category] = [];
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) categories[category].push(result[id][actor]);
+  }
+
+  return categories;
+};
+
+
+// returns the status color associated with a device
+
+var statusColor = function(entry) {
+  var color;
+
+  if (!!entry.info.color) {
+    if (entry.status === 'off') return ambient;
+    if (entry.status === 'on') {
+      color = entry.info.color;
+      switch (color.model) {
+        case 'temperature': return d3.mired.rgb(color.temperature);
+        case 'cie1931':     return d3.cie1931.rgb(color.cie1931.x ,color.cie1931.y);
+        case 'hue':         return d3.hsl(color.hue, color.saturation / 100, entry.info.brightness / 100).rgb();
+        case 'rgb':         return d3.rgb(color.rgb.r, color.rgb.g, color.rgb.b);
+        default:            break;
+      }
+    }
+  }
+
+  switch(entry.status) {
+    case 'idle':
+    case 'on':
+    case 'paused':
+    case 'playing':
+    case 'present':
+    case 'quiet':
+    case 'ready':
+    case 'green':
+      return 'green';
+
+    case 'busy':
+    case 'motion':
+    case 'off':
+    case 'recent':
+    case 'blue':
+      return 'blue';
+
+    case 'waiting':
+    case 'indigo':
+      return 'indigo';
+
+    case 'absent':
+    case 'error':
+    case 'reset':
+    case 'red':
+      return 'red';
+
+    default:
+      return 'black';
+  }
+};
+
+
 var onactors = function(message) {
   var actor, ambient, child, color, colour, depth, entity, entry, i, id, j, json, loopP, name, parent, path, result, size, tail;
 

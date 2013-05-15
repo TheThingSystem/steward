@@ -140,7 +140,7 @@ three properties must be present in all devices:
 
     * _green_, _blue_, _indigo_, or _red_ - for reporting steward health
 
-* _lastUpdated_ - a timestamp
+* _updated_ - a timestamp
 
 ### Climate
 These are devices that monitor or control the "breathable environment".
@@ -169,12 +169,12 @@ In addition, depending on the capabilities of the device, additional properties 
 
 * _pressure_ - in millibars
 
-Please note that the _lastUpdated_ and _lastSample_ properties report different things:
+Please note that the _updated_ and _lastSample_ properties report different things:
 _lastSample_ indicates when the climate properties where last measured,
-whilst _lastUpdated_ indicates the last change in state for the device
-(i.e., it is possible for _lastUpdated_ to change regardless of whether _lastSample_ changes;
+whilst _updated_ indicates the last change in state for the device
+(i.e., it is possible for _updated_ to change regardless of whether _lastSample_ changes;
 however, whenever _lastSample_ changes to reflect a more recent measurement,
-_lastUpdated_ will also change to the current time).
+_updated_ will also change to the current time).
 
 ### Fixed
 These are devices that are fixed position, but rotatable in some sense.

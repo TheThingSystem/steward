@@ -150,7 +150,6 @@ var Place = exports.Place = function(info) {
     i = 0;
     for (eventID in events) if (events.hasOwnProperty(eventID)) i++;
     self.info.monitoring = (i > 0) ? ('monitoring ' + i + ' intervals, next interval ' + utility.relativity(nextick)) : 'idle';
-    self.info.lastupdated = devices.lastupdated;
     info = utility.clone(self.info);
     delete(info.name);
 
@@ -160,7 +159,7 @@ var Place = exports.Place = function(info) {
 // TBD: dynamically calculate status, one of the colors in devices.rainbow
            , status  : 'green'
            , info    : info
-           , updated : self.changed
+           , updated : new Date(devices.lastupdated)
            };
   };
 
