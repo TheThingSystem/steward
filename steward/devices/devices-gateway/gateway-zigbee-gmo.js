@@ -26,7 +26,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.status = 'connected';
+  self.status = 'ready';
   self.client = info.client;
   self.neighbors = {};
 
@@ -260,7 +260,7 @@ return;
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name   : true
-                                   , status : [ 'connected', 'waiting', 'reset' ]
+                                   , status : [ 'ready' ]
                                    }
                     }
       , $validate : { perform    : devices.validate_perform

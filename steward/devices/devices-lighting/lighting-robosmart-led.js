@@ -19,7 +19,7 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.status = 'unknown';
+  self.status = 'waiting';
   self.peripheral = info.peripheral;
   self.ble = info.ble;
   self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }} };
@@ -31,7 +31,7 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
-    setTimeout(function() { self.status = 'unknown'; self.changed(); self.peripheral.connect(); }, 1 * 1000);
+    setTimeout(function() { self.status = 'waiting'; self.changed(); self.peripheral.connect(); }, 1 * 1000);
   });
   self.peripheral.on('rssiUpdate', function(rssi) {
     self.info.rssi = rssi;
@@ -55,7 +55,7 @@ util.inherits(RoboSmart, lighting.Device);
 
 
 RoboSmart.prototype.heartbeat = function(self) {
-  if (self.status !== 'unknown') self.refresh(self); else self.peripheral.connect();
+  if (self.status !== 'waiting') self.refresh(self); else self.peripheral.connect();
 };
 
 RoboSmart.prototype.refresh = function(self) {
@@ -189,7 +189,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
-                                   , status     : [ 'unknown', 'on', 'off' ]
+                                   , status     : [ 'waiting', 'on', 'off' ]
                                    , brightness : 'percentage'
                                    , rssi       : 's8'
                                    }

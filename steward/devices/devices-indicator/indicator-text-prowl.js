@@ -155,7 +155,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'growl' ]
                     , properties : { name     : true
-                                   , status   : [ 'unknown', 'ready', 'error' ]
+                                   , status   : [ 'ready', 'error' ]
                                    , appname  : true
                                    , apikey   : true
                                    , prefix   : true

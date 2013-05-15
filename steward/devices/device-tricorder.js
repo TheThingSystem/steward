@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('sensor');
 exports.start = function() {
   steward.actors.device.tricorder = { $info: { type: '/device/tricorder' }};
 
-  utility.acquire(logger, __dirname + '/devices-tricorder', /^tricorder-.*\.js/, 8, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-tricorder', /^tricorder-.*\.js/, 10, -3, ' driver');
 };
 
 

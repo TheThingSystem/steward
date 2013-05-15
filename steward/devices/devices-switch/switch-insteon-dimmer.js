@@ -21,7 +21,7 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.status = 'unknown';
+  self.status = 'waiting';
   self.gateway = info.gateway;
   self.insteon = info.device.unit.serial;
   self.info = {};
@@ -162,7 +162,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
-                                   , status     : [ 'unknown', 'on', 'off' ]
+                                   , status     : [ 'waiting', 'on', 'off' ]
                                    , level      : 'percentage'
                                    }
                     }

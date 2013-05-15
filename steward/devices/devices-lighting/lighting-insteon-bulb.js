@@ -20,7 +20,7 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.status = 'unknown';
+  self.status = 'waiting';
   self.gateway = info.gateway;
   self.insteon = info.device.unit.serial;
   self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }} };
@@ -160,7 +160,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
-                                   , status     : [ 'unknown', 'on', 'off' ]
+                                   , status     : [ 'waiting', 'on', 'off' ]
                                    , brightness : 'percentage'
                                    }
                     }

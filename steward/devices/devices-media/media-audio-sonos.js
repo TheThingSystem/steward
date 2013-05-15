@@ -108,10 +108,39 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {/* j
   param0 = null;
   switch (perform) {
     case 'set':
-      if (!params.name) return false;
-      e = 'setName';
-      self.setName(param0 = params.name);
-      break;
+      if (!!params.name) {
+        self.sonos.setName(params.name, function(err, data) {/* jshint unused: false */
+          if (err) return logger.error('device/' + self.deviceID, { event: 'setName', diagnostic: err.message });
+
+          self.setName(params.name);
+        });
+      }
+      if (!!params.mode) {
+        param0 = { normal   : 'NORMAL'
+                 , repeat   : 'REPEAT_ALL'
+                 , shuffle  : 'SHUFFLE'
+                 , shuffle1 : 'SHUFFLE_NOREPEAT'
+                 }[params.mode.toLowerCase()];
+        self.sonos.setPlayMode(param0, function(err, data) {/* jshint unused: false */
+          if (err) return logger.error('device/' + self.deviceID, { event: 'setPlayMode', diagnostic: err.message });
+        });
+      }
+      if (!!params.position) {
+        self.sonos.seek(params.position, function(err, data) {/* jshint unused: false */
+          if (err) return logger.error('device/' + self.deviceID, { event: 'seek', diagnostic: err.message });
+        });
+      }
+      if (!!params.volume) {
+        self.sonos.setVolume(params.volume, function(err, data) {/* jshint unused: false */
+          if (err) return logger.error('device/' + self.deviceID, { event: 'setVolume', diagnostic: err.message });
+        });
+      }
+      if (!!params.muted) {
+        self.sonos.setMuted(params.muted === 'on' ? '1' : '0', function(err, data) {/* jshint unused: false */
+          if (err) return logger.error('device/' + self.deviceID, { event: 'setMuted', diagnostic: err.message });
+        });
+      }
+      return true;
 
     case 'play':
       param0 = (!!params.url) && (params.url.length) ? params.url : null;
@@ -127,33 +156,6 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {/* j
     case 'next':
     case 'previous':
     case 'flush':
-      break;
-
-    case 'seek':
-      if (!params.position) return false;
-      param0 = params.position;
-      break;
-
-    case 'mode':
-      if (!params.value) return false;
-      e = 'setPlayMode';
-      param0 = { normal   : 'NORMAL'
-               , repeat   : 'REPEAT_ALL'
-               , shuffle  : 'SHUFFLE'
-               , shuffle1 : 'SHUFFLE_NOREPEAT'
-               }[params.value.toLowerCase()];
-      break;
-
-    case 'volume':
-      if (!params.level) return false;
-      e = 'setVolume';
-      param0 = params.level;
-      break;
-
-    case 'mute':
-    case 'unmute':
-      e = 'setMuted';
-      param0 = perform === 'mute' ? '1' : '0';
       break;
 
     default:
@@ -292,8 +294,12 @@ var validate_perform = function(perform, parameter) {
         result.requires.push('parameter');
         return result;
       }
-
-      if (!params.name) result.requires.push('name');
+      if ((!!params.mode) && (!({ normal: true, repeat: true, shuffle: true, shuffle1: true }[params.mode.toLowerCase()]))) {
+        result.invalid.push('mode');
+      }
+      if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
+      if ((!!params.volume) && (!media.validVolume(params.volume))) result.invalid.push('volume');
+      if ((!!params.muted) && (params.muted !== 'on') && (params.muted !== 'off')) result.invalid.push('volume');
       break;
 
     case 'play':
@@ -309,23 +315,7 @@ var validate_perform = function(perform, parameter) {
     case 'pause':
     case 'next':
     case 'previous':
-    case 'mute':
-    case 'unmute':
     case 'flush':
-      break;
-
-    case 'seek':
-      if (!params.position) result.requires.push('position');
-      else if (!media.validPosition(params.position)) result.invalid.push('position');
-      break;
-
-    case 'volume':
-      if (!params.level) result.requires.push('level');
-      else if (!media.validVolume(params.level)) result.invalid.push('level');
-      break;
-
-    case 'mode':
-      if (!params.value) result.requires.push('value');
       break;
 
     default:
@@ -342,7 +332,7 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = '/device/media/sonos/bridge';
+  self.whatami = '/device/gateway/sonos/bridge';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -374,17 +364,12 @@ exports.start = function() {
                                    , 'pause'
                                    , 'next'
                                    , 'previous'
-                                   , 'seek'
-                                   , 'mode'
-                                   , 'volume'
-                                   , 'mute'
-                                   , 'unmute'
                                    , 'flush'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused', 'busy' ]
-                                   , mode    : [ 'normal', 'repeat' , 'shuffle', 'shuffle1' ]
                                    , track   : { title: true, artist: true, album: true, albumArtURI: true }
+                                   , mode    : [ 'normal', 'repeat' , 'shuffle', 'shuffle1' ]
                                    , position: 'seconds'
                                    , volume  : 'percentage'
                                    , muted   : [ 'on', 'off' ]
@@ -394,8 +379,11 @@ exports.start = function() {
       };
   devices.makers['urn:schemas-upnp-org:device:ZonePlayer:1'] = Sonos_Audio;
 
-  steward.actors.device.media.sonos.bridge =
-      { $info     : { type       : '/device/media/sonos/bridge'
+  steward.actors.device.gateway.sonos = steward.actors.device.gateway.sonos ||
+      { $info     : { type: '/device/gateway/sonos' } };
+
+  steward.actors.device.gateway.sonos.bridge =
+      { $info     : { type       : '/device/gateway/sonos/bridge'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name    : true

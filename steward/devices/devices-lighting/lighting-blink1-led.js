@@ -21,7 +21,7 @@ var Blink1 = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.status = 'unknown';
+  self.status = 'waiting';
   self.led = info.led;
   self.info = {};
 
@@ -151,7 +151,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
-                                   , status     : [ 'on', 'off' ]
+                                   , status     : [ 'waiting', 'on', 'off' ]
                                    , color      : { model: [ { rgb         : { r: 'u8', g: 'u8', b: 'u8' } }
                                                            ]
                                                   }

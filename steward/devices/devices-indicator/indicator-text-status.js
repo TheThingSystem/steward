@@ -24,7 +24,7 @@ var Status = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.id);
   delete(self.info.device);
   delete(self.info.deviceType);
-  self.status = 'unknown';
+  self.status = 'waiting';
   fs.stat(self.info.directory, function (err, stats) {
     if (err) {
       return logger.error('device/' + self.deviceID, { event: 'fs.stat', path: self.info.directory, diagnostic: err.message });
@@ -130,7 +130,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name      : true
-                                   , status    : [ 'unknown', 'ready', 'error' ]
+                                   , status    : [ 'waiting', 'ready', 'error' ]
                                    , directory : true
                                    }
                     }

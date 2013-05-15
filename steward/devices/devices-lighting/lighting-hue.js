@@ -19,13 +19,13 @@ var logger = lighting.logger;
 var Hue = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/lighting/hue';
+  self.whatami = '/device/gateway/hue/bridge';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
   self.url = info.url;
-  self.status = 'unknown';
+  self.status = 'busy';
   self.lights = {};
   self.waitingP = false;
   self.inflight = 0;
@@ -94,7 +94,7 @@ var childprops = function(self, light) {
   child.whoami = 'device/' + child.deviceID;
 
   if (!!child.state) {
-    child.status = !child.state.reachable ? 'unreachable' :  child.state.on ? 'on' : 'off';
+    child.status = !child.state.reachable ? 'waiting' :  child.state.on ? 'on' : 'off';
     color = {};
     if (child.state.colormode === 'ct')  {
       color.model       = 'temperature';
@@ -267,7 +267,7 @@ Hue.prototype.ping = function(self) {
     else dark.push(props.name);
   }
 
-  self.status = self.waitingP ? 'waiting' : (!self.username) ? 'unpaired' : 'paired';
+  self.status = self.waitingP ? 'waiting' : (!self.username) ? 'reset' : 'ready';
   if ((!self.username) || ((bright.length === 0) && (dark.length === 0) && (unreachable.length === 0))) {
     logger.info('device/' + self.deviceID, { status: self.status });
     return;
@@ -417,9 +417,9 @@ Hue.prototype.addlight = function(self, id, props) {
     return;
   }
 
-  self.lights[id] = { whatami : '/device/lighting/hue/bulb'
+  self.lights[id] = { whatami : '/device/lighting/hue/led'
                     , name    : id.toString()
-                    , status  : 'unknown'
+                    , status  : 'busy'
                     };
   db.get('SELECT deviceID, deviceType, deviceName FROM devices WHERE deviceUID=$deviceUID',
          { $deviceUID: deviceUID }, function(err, row) {
@@ -621,7 +621,7 @@ Hue.prototype.roundtrip = function(self, tag, params) {
     });
   }).on('error', function(err) {
     logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
-    cb(err, 'error', { statusCode: 'unknown' });
+    cb(err, 'error', { statusCode: 'busy' });
     self.inflight--;
   }).end(body);
 };
@@ -780,23 +780,29 @@ var scan = function() {
 // TBD: add automatic restoration of bulbs
 
 exports.start = function() {
-  steward.actors.device.lighting.hue =
-      { $info     : { type       : '/device/lighting/hue'
+  steward.actors.device.gateway.hue = steward.actors.device.gateway.hue ||
+      { $info     : { type: '/device/gateway/hue' } };
+
+  steward.actors.device.gateway.hue.bridge =
+      { $info     : { type       : '/device/gateway/hue/bridge'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name   : true
-                                   , status : [ 'paired', 'unpaired', 'waiting', 'unknown' ]
+                                   , status : [ 'ready', 'reset', 'waiting', 'busy' ]
                                    }
                     }
       , $validate : { 'perform'  : validate_perform_hue }
       };
 
-  steward.actors.device.lighting.hue.bulb =
-      { $info     : { type       : '/device/lighting/hue/bulb'
+  steward.actors.device.lighting.hue = steward.actors.device.lighting.hue ||
+      { $info     : { type: '/device/lighting/hue' } };
+
+  steward.actors.device.lighting.hue.led =
+      { $info     : { type       : '/device/lighting/hue/led'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
-                                   , status     : [ 'unreachable', 'on', 'off' ]
+                                   , status     : [ 'waiting', 'on', 'off' ]
                                    , color      : { model: [ { temperature : { temperature: 'mireds' } }
                                                            , { hue         : { hue: 'degrees', saturation: 'percentage' } }
                                                            , { cie1931     : { x: 'fraction', y: 'fraction' } }

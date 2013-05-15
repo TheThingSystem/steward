@@ -160,7 +160,7 @@ _taskID_ values have no significance outside of a single message exchange.)**
 ### Define Prototypes
 
 In order to understand the properties which are used to describe the state of a thing,
-you __MUST__ read the section on the steward _Dictionary_ in [Activities](Activities.md).
+you __MUST__ read the section on the steward _Taxonomy_ in [Devices](Devices.md).
 
 The _prototype_ message is sent by the implementation to the steward to define one or more thing prototypes:
 

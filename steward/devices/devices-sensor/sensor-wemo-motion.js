@@ -18,7 +18,7 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.status = 'unknown';
+  self.status = 'waiting';
   self.info = { lastSample: null };
   self.sid = null;
   self.seq = 0;
@@ -53,8 +53,8 @@ WeMo_Motion.prototype.observe = function(self, results) {
   now = new Date();
 
   previous = self.status;
-  if (self.status === 'unknown') self.changed(now);
-  self.status = 'idle';
+  if (self.status === 'waiting') self.changed(now);
+  self.status = 'busy';
   if (!util.isArray(results)) return;
 
   for (i = 0; i < results.length; i++) {
@@ -94,7 +94,7 @@ exports.start = function() {
                     , observe    : [ 'motion' ]
                     , perform    : [ ]
                     , properties : { name       : true
-                                   , status     : [ 'unknown', 'idle', 'motion', 'quiet' ]
+                                   , status     : [ 'waiting', 'busy', 'motion', 'quiet' ]
                                    , lastSample : 'timestamp'
                                    }
                     }

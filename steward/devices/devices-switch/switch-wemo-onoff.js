@@ -21,7 +21,7 @@ var WeMo_Switch = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.status = 'unknown';
+  self.status = 'waiting';
   self.sid = null;
   self.seq = 0;
   self.logger = plug.logger;
@@ -164,8 +164,8 @@ WeMo_Switch.prototype.observe = function(self, results) {
   now = new Date();
 
   previous = self.status;
-  if (self.status === 'unknown') self.changed(now);
-  self.status = 'idle';
+  if (self.status === 'waiting') self.changed(now);
+  self.status = 'busy';
   if (!util.isArray(results)) return;
 
   for (i = 0; i < results.length; i++) {
@@ -209,7 +209,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name   : true
-                                   , status : [ 'unknown', 'idle', 'on', 'off' ]
+                                   , status : [ 'waiting', 'busy', 'on', 'off' ]
                                    }
                     }
       , $validate : {  perform   : validate_perform }

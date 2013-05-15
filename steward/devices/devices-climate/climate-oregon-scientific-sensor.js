@@ -65,7 +65,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name        : true
-                                   , status      : [ 'unreachable', 'ready' ]
+                                   , status      : [ 'present' ]
                                    , lastSample  : 'timestamp'
                                    , temperature : 'celsius'
                                    , humidity    : 'percentage'

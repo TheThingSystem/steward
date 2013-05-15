@@ -63,7 +63,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name        : true
-                                   , status      : [ 'unreachable', 'ready' ]
+                                   , status      : [ 'present' ]
                                    , coordinates : 'latlng'
                                    , lastSample  : 'timestamp'
                                    , temperature : 'celsius'

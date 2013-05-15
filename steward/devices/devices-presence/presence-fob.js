@@ -32,7 +32,7 @@ var Fob = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.peripheral.on('disconnect', function() {
-    self.status = 'idle';
+    self.status = 'recent';
     self.changed();
 
     logger.info('device/' + self.deviceID, { status: self.status });
@@ -115,7 +115,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'alert' ]
                     , properties : { name   : true
-                                   , status : [ 'present', 'absent', 'idle' ]
+                                   , status : [ 'present', 'absent', 'recent' ]
                                    , rssi   : 's8'
                                    , level  : [ 'none', 'mild', 'high' ]
                                    }
@@ -124,9 +124,23 @@ exports.start = function() {
       };
   devices.makers['/device/presence/fob'] = Fob;
 
+  steward.actors.device.presence.fob.inrange = steward.actors.device.presence.fob;
+  devices.makers['/device/presence/fob/inrange'] = Fob;
+
+  steward.actors.device.presence.fob.hone = steward.actors.device.presence.fob;
+  devices.makers['/device/presence/fob/hone'] = Fob;
+
   require('./../../discovery/discovery-ble').register(
-    { 'Philips'               : { '2a25' : { 'AEA1000'                : { name : 'Philips InRange'                 } } }
-    , 'GLsoft.mobi'           : { '2a24' : { 'Hone1,1'                : {                                          } } }
+    { 'Philips'               : { '2a25' : { 'AEA1000'                : { name : 'Philips InRange'
+                                                                        , type : '/device/presence/fob/inrange'
+                                                                        }
+                                           }
+                                }
+
+    , 'GLsoft.mobi'           : { '2a24' : { 'Hone1,1'                : { type : '/device/presence/fob/hone'
+                                                                        }
+                                           }
+                                }
 
 // nothing to indicate that it's a hippih hipkey, sigh!
     , 'Solid Semecs b.v'      : { }

@@ -27,7 +27,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
               , firmware   : info.device.unit.firmware
               };
 
-  self.status = 'connected';
+  self.status = 'ready';
   self.socket = info.socket;
   self.ipaddr = info.portscan.ipaddr;
   self.portno = info.portscan.portno;
@@ -70,7 +70,7 @@ Gateway.prototype.setup = function(self) {
     self.socket.on('connect', function() {
       self.socket.setTimeout(0);
 
-      self.status = 'connected';
+      self.status = 'ready';
       self.changed();
 
       self.refresh(self);
@@ -860,7 +860,7 @@ return;
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name   : true
-                                   , status : [ 'connected', 'waiting', 'reset' ]
+                                   , status : [ 'waiting', 'ready', 'reset' ]
                                    }
                     }
       , $validate : { perform    : devices.validate_perform
@@ -873,7 +873,7 @@ return;
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name   : true
-                                   , status : [ 'connected', 'waiting', 'reset' ]
+                                   , status : [ 'waiting', 'ready', 'reset' ]
                                    }
                     }
       , $validate : { perform    : devices.validate_perform

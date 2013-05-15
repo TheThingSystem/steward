@@ -32,7 +32,7 @@ var Watch = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.peripheral.on('disconnect', function() {
-    self.status = 'idle';
+    self.status = 'recent';
     self.changed();
 
     logger.info('device/' + self.deviceID, { status: self.status });
@@ -114,7 +114,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'alert' ]
                     , properties : { name   : true
-                                   , status : [ 'present', 'absent', 'idle' ]
+                                   , status : [ 'present', 'absent', 'recent' ]
                                    , rssi   : 's8'
                                    , level  : [ 'none', 'mild', 'high' ]
                                    }
@@ -123,8 +123,18 @@ exports.start = function() {
       };
   devices.makers['/device/wearable/watch'] = Watch;
 
+  steward.actors.device.wearable.watch.cookoo = steward.actors.device.wearable.watch;
+  devices.makers['/device/wearable/watch/cookoo'] = Watch;
+
+  steward.actors.device.wearable.watch.metawatch = steward.actors.device.wearable.watch;
+  devices.makers['/device/wearable/watch/metawatch'] = Watch;
+
   require('./../../discovery/discovery-ble').register(
-    { 'ConnectedDevice'       : { '2a24' : { 'COOKOO connected watch' : { type : '/device/wearable/watch'
+    { 'ConnecteDevice'        : { '2a24' : { 'COOKOO connected watch' : { type : '/device/wearable/watch/cookoo'
+                                                                        }
+                                           }
+                                }
+    , ''                      : { '2a00' : { 'MetaWatch 08'           : { type : '/device/wearable/watch/metawatch'
                                                                         }
                                            }
                                 }

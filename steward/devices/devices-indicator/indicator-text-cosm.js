@@ -26,7 +26,7 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.id);
   delete(self.info.device);
   delete(self.info.deviceType);
-  self.status = 'unknown';
+  self.status = 'waiting';
 
   self.elide = [ 'apikey' ];
 
@@ -245,7 +245,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
-                                   , status       : [ 'unknown', 'ready', 'error' ]
+                                   , status       : [ 'waiting', 'ready', 'error' ]
                                    , apikey       : true
                                    , measurements : []
                                    , sensors      : []

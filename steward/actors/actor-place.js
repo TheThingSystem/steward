@@ -158,7 +158,7 @@ var Place = exports.Place = function(info) {
            , whoami  : 'place/1'
            , name    : self.name
 // TBD: dynamically calculate status, one of the colors in devices.rainbow
-           , status  : 'normal'
+           , status  : 'green'
            , info    : info
            , updated : self.changed
            };

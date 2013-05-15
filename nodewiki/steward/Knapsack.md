@@ -55,8 +55,8 @@ Under development.
 ## /device/motive
 
 ## /device/presence
-### fob - http://gethone.com
-### fob - http://www.usa.philips.com/c/App-enhanced-accessories/for-iphone-5-4s-the-new-ipad-aea1000_00/prd/en/
+### fob/hone - http://gethone.com
+### fob/inrange - http://www.usa.philips.com/c/App-enhanced-accessories/for-iphone-5-4s-the-new-ipad-aea1000_00/prd/en/
 ### fob - http://www.hippih.com/hipkey
 
 ## /device/sensor
@@ -68,5 +68,5 @@ Under development.
 ### wemo/onoff - http://www.belkin.com/us/wemo-switch
 
 ## /device/wearable
-### watch - http://cookoowatch.com
-### watch - http://shop.metawatch.com
+### watch/cookoo - http://cookoowatch.com
+### watch/metawatch - http://shop.metawatch.com

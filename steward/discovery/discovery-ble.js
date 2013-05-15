@@ -72,15 +72,15 @@ exports.start = function() {
         return v.toString('hex');
       };
 
-      manufacturer = value('180a', '2a29');
-      modelName = value('1800', '2a00');
+      manufacturer = value('180a', '2a29') || '';
+      modelName = value('1800', '2a00') || '';
       deviceType = '/device/presence/fob';
       entry = deviceTypes[manufacturer];
       if (!!entry) {
         for (x in entry) {
           if (!entry.hasOwnProperty(x)) continue;
 
-          y = value('180a', x);
+          y = value((x !== '2a00') ? '180a' : '1800', x);
           if (!!entry[x][y]) {
             z = entry[x][y];
             if (!!z.name) modelName = z.name;
