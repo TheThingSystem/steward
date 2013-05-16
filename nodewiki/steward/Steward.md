@@ -1,6 +1,5 @@
 # The Steward
-
-Here is the logical organization of the steward:
+In terms of ASCII art:
 
 
     +-----------------------------------+------------------------------------+
@@ -46,7 +45,7 @@ the _utility_ module creates pubsub mailboxes for:
 * _beacon-ingress_: the utility module both publishes and subscribes to this mialbox to maintain a history of recent logging
 entries and then to republish the latest logging entry to _beacon-egress_.
 
-* _beacon-egress_: the console management API and any indicator/prowl actors subscribe to this mailbox to receive logging
+* _beacon-egress_: the console management API and any indicator actors subscribe to this mailbox to receive logging
 entries.
 
 * _actors_: all actors subscribe to this mailbox to receive requests to report current status information, observe events,
@@ -54,9 +53,9 @@ and perform tasks.
 
 * _discovery_: all UPnP-based actors subscribe to this mailbox to receive notifications.
 
-* _readings_: any indicator/cosm actors subscribe to this mailbox to receive sensor readings.
+* _readings_: any indicator actors subscribe to this mailbox to receive sensor readings.
 
-* _status_: any indicator/status actors subscribe to this mailbox to receive aggregate state information from the steward.
+* _status_: any indicator actors subscribe to this mailbox to receive aggregate state information from the steward.
 
 As with any pubsub service,
 these mailboxes are used when it is "inconvenient" for a publisher to enumerate the list of interested subscribers.

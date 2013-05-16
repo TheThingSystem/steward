@@ -1,17 +1,5 @@
 # The Knapsack
-The philosophy is that you should just plug the thing in, and the steward should discover it and configure it. At no time should the user ever have to enter an network address. Some things really require no assistance other than being plugged in. Otherwise, things fall into one or two categories:
-
-* Some things require pre-discovery configuration:
-
-    * One class of Wi-Fi things begin as an access point that you connect to with a browser, and then enter the Wi-Fi information for your home network.
-    * Another classes of Wi-Fi things are first plugged into a USB port on your box, a program is run to enter the Wi-Fi information for your home network.
-    * Some peripherals must be manually paired with a 
-
-* Some things require post-discovery configuration:
-
-    * One class of things require that you press a _pairing_ button before the steward is authorized.
-
-    * Another class of things require that you enter authentication information for a cloud-based service before the steward is authorized.
+Here is the current implementation status.
 
 ## /device/climate
 ### nest/control - http://nest.com
@@ -45,8 +33,10 @@ Under development.
 ## /device/lighting
 ### blink1/led - http://thingm.com/products/blink-1.html
 ### blinkstick/led - http://www.blinkstick.com
-### hue/bulb - http://www.meethue.com
+### hue/led - http://www.meethue.com
 ### insteon/led - http://www.insteon.com/bulb.html
+This requires either the Insteon hub or SmartLinc.
+
 ### robosmart/led - http://www.smarthome-labs.com
 
 ## /device/media
@@ -64,7 +54,11 @@ Under development.
 
 ## /device/switch
 ### insteon/dimmer - http://www.insteon.com/2457D2-lamplinc-dual-band.html
+This requires either the Insteon hub or SmartLinc.
+
 ### insteon/onoff - http://www.insteon.com/2456s3-appliancelinc.html
+This requires either the Insteon hub or SmartLinc.
+
 ### wemo/onoff - http://www.belkin.com/us/wemo-switch
 
 ## /device/wearable

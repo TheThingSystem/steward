@@ -300,7 +300,7 @@ var proplist = exports.proplist = function(id, event) {
                , actor     : event.actor
                , observe   : event.observe
                , parameter : event.parameter
-               , lastTime  : new Date(event.lastTime)
+               , lastTime  : event.lastTime && new Date(event.lastTime)
                };
 
   if (!!id) {

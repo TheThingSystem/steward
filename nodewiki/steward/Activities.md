@@ -31,12 +31,11 @@ Unlike the _activityID_ and _activityUID_, these are meant to be meaningful to p
 
 * A _sortOrder_ to provide an optional hint to programs when sorting activities for display.
 
-## Design Patterns
+## Taxonomy
 A **key concept** in the steward is that when a thing observes an event,
 then another thing performs an task.
 (Of course, the observation and performance may involve multiple things.)
 
-## Taxonomy
 ### Events
 ### Tasks
 ### Groups

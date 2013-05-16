@@ -1,6 +1,6 @@
 # Devices
 
-An *actor* refers to a prototype of a entity that participates in an activity. Typically, these refer to devices; however, there are two other types of actors: _groups_ which combine actors accordingly to a logical relationship (e.g., 'and' or 'first/next') and _pseudo actors_ which are software-only constructs (e.g., the *clipboard*).
+An *actor* refers to an entity that participates in an activity. Typically, these refer to devices; however, there are two other types of actors: _groups_ which combine actors accordingly to a logical relationship (e.g., 'and' or 'first/next') and _pseudo actors_ which are software-only constructs (e.g., the *place*).
 
 ## Architecture
 
@@ -12,9 +12,6 @@ There are three design patterns currently in use for device actors.
 #### Singleton Actor
 
 ## Choosing a technology to integrate
-
-If you are a developer, you may find this section interesting.
-
 There are a large number of technologies available for integration.
 The steward's architecture is agnostic with respect to the choice of communication and application protocols.
 However,
@@ -53,7 +50,7 @@ Look at each project:
 if not, you can usually get a sense of things by looking at the "main" source file.
 
  * If you are fortunate,
-a large part of the integration may already be done in node.js.
+a large part of the integration may already be done in node.js (use "npm search").
 If so, check the licensing to see if it is "MIT".
 If not, study it carefully to see whether it will work for you.
 
@@ -65,7 +62,7 @@ If you go the "off-the-shelf" route,
 please consider what is going to be easiest for others to connect to:
 
 * If there is an ethernet-connected gateway to a device, then it is best to integrate to that gateway:
-others will be able to buy use the gateway fairly easily, because attaching devices to an ethernet is fairly simple.
+others will be able to use the gateway fairly easily, because attaching devices to an ethernet is fairly simple.
 
 * Otherwise, if there is a USB stick that talks to a device, then use that:
 although USB sticks should be less expensive than devices with ethernet-connectivity,
@@ -87,7 +84,7 @@ they also tend to require more expertise to configure.
 
 
 ## Device Taxonomy
-The steward's taxonomy consists of a hierarchical system for device-types along with a flat namespace for properties.
+The steward's taxonomy consists of a hierarchical system for device types along with a flat namespace for properties.
 Although the naming for device types is hierarchical,
 based on primary function,
 a given property may appear in any device type in which "it makes sense".
@@ -128,7 +125,7 @@ three properties must be present in all devices:
 
     * _error_ - indicates something else
 
-    * _reset_ - indicates that the device has lost state and, sadly, requires intervention
+    * _reset_ - indicates that the device, sadly, requires intervention
 
     * _on_ or _off_ - for lighting and switches
 
@@ -142,6 +139,9 @@ three properties must be present in all devices:
 
 * _updated_ - a timestamp
 
+Now let's look at the twelve categories of devices.
+**(There's nothing _magical_ about this number, and it will probably drop to ten.)**
+
 ### Climate
 These are devices that monitor or control the "breathable environment".
 The naming pattern is:
@@ -149,7 +149,7 @@ The naming pattern is:
     /device/climate/XYZ/control
     /device/climate/XYZ/monitor
 
-depending on whether or not control functions are available.
+depending on whether control functions are available.
 
 At a minimum, two properties must be present:
 
@@ -238,18 +238,16 @@ The naming pattern is:
     /device/lighting/XYZ/fluorescent
     /device/lighting/XYZ/incandescent
 
-Given the range of lighting properties and color models,
-it is challenging to provide an abstract model for these devices.
+Given the range of physical properties,
+it is challenging to provide an abstraction which preserves the fidelity of the device-specific color model.
 
 The _status_ property indicates the current state of the bulb:
 
-* _status_ -_waiting_,  _on_, or _off_
+* _status_ - _waiting_,  _on_, or _off_
 
 At a minimum, two tasks must be available:
 
 * _on_ - turns the light on
-
-    * _level_ (_dimmer_ only) - an integer-value percentage of the switch's possible output
 
 * _off_ - turns the light off
 
@@ -267,18 +265,16 @@ Any of these properties may be present, which are set with the _on_ task:
 
 * _brightness_ - an integer-value percentage of the bulb's possible output
 
-With respect to the color model,
-the list above is presented starting at the least-desirable (_rgb_) to the most-desirable (_cie1931_).
-Clueful clients that manage the lighting environment should take note of which models are supported by a device and use the
-most desirable.
-
-In addition, depending on the capabilities of the device, additional properties may be present:
-
 * _transition_ - how many seconds should elapse as the bulb transitions to the new color and/or brightness
 
 * _interval_ - whether the bulb should change and remain (_solid_),
 change and return (_once_),
 or change back and forth (_flash_)
+
+With respect to the color model,
+the list above is presented starting at the least-desirable (_rgb_) to the most-desirable (_cie1931_).
+Clueful clients that manage the lighting environment should take note of which models are supported by a device and use the
+most desirable.
 
 ### Media
 These are devices that control the "media environment".

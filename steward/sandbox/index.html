@@ -318,7 +318,7 @@ var onactivities = function(message) {
     activity = activities[activityID];
 
     activityID += '<br/>' + activity.name;
-    if (activity.lastTime) activityID += '<br/>' + 'active: ' + time_ago(activity.lastTime, true).trim();
+    if (!!activity.lastTime) activityID += '<br/>' + 'active: ' + time_ago(activity.lastTime, true).trim();
 
     rows += filler;
     filler = '<tr class="filler"><td colspan="5"/></tr>';

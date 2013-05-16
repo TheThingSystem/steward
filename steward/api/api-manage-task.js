@@ -428,7 +428,7 @@ var proplist = exports.proplist = function(id, task) {
                , perform   : task.perform
                , parameter : task.parameter
                , guard     : task.guard
-               , lastTime  : new Date(task.lastTime)
+               , lastTime  : task.lastTime && new Date(task.lastTime)
                };
 
   if (!!id) {
