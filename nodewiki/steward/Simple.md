@@ -1,4 +1,4 @@
-**THIS IS FOR REVIEW, NOT YET IMPLEMENTATED (BUT SOON)**
+**THIS IS FOR REVIEW, NOT YET IMPLEMENTED (BUT SOON)**
 
 # The _Simple Thing_ Protocol
 For those things that are third-party programmable but lack an effective interface for steward management,
@@ -572,4 +572,4 @@ Security is based on these assumptions:
 
 * Both the steward and the implementation keep the _uuid/passCode_ pairing secure.
 
-* The crytographic algorithms used for the secure WebSockets connection are, in fact, secure.
+* The cryptographic algorithms used for the secure WebSockets connection are, in fact, secure.

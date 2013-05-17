@@ -114,7 +114,7 @@ In most cases, this returns a zero-length array.
 
     * info: prototype-specific state information
 
-    * updated: the time of the last change to any of the preceeding three properties
+    * updated: the time of the last change to any of the preceding three properties
 
 In addition,
 there are a small number of utility functions that can be used by device-specific drivers.

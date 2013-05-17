@@ -36,7 +36,7 @@ integration possibilities, e.g., community sites, developer forums, and so on.
 
  * Frequently Bought Together:
 
- * Customers Who Bouth This Item Also Bought:
+ * Customers Who Bought This Item Also Bought:
 
 * One of the things that is quite perplexing is the lack of technical information on technical products.
 Although many developer forums have information,
@@ -330,11 +330,11 @@ At a minimum, two properties must be present:
 
 * _status_
 
-    * _present_ - the device is currenty detected
+    * _present_ - the device is currently detected
 
     * _absent_ - the device is no longer detected
 
-    * _recent_ - the device was recently detected (to save device power, the steward does not continously probe the device)
+    * _recent_ - the device was recently detected (to save device power, the steward does not continuously probe the device)
 
 * _rssi_ - an integer-value between -127 and 128 indicating proximity
 

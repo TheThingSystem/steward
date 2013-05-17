@@ -42,7 +42,7 @@ When it boots the Pi should bring up a *sshd* server, go to your router and find
 
 In any case connect to the Pi with ssh. The username is _"pi"_ and the password is _"raspberry"_. 
 
-_Note that the "root" account is disabled by default, access to root-privilages is via sudo only._
+_Note that the "root" account is disabled by default, access to root-privileges is via sudo only._
 
 ##Expanding the Disk
 

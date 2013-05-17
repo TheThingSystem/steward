@@ -54,7 +54,7 @@ a cloud service,
 and so on.
 There's nothing wrong with using the off-site Internet infrastructure when no one's home,
 but the failure modes are much more evident.
-Further, thanks to things like the excellent 'Do Not Disturb' feature on many smartphones,
+Further, thanks to things like the excellent 'Do Not Disturb' feature on many smart phones,
 most people simply will not get that email/tweet/fax until after they wake up in the morning...
 
 And this brings us full-circle:
@@ -103,11 +103,11 @@ You also need to design, provision, and operate a cloud service to allow remote 
 Even after you go sideways on all that,
 the macguffins in the home don't interact with anything else in the home.
 
-In brief, as a maker, the market requires you spend a lot of additional resources outside of your core compentency in order to 
+In brief, as a maker, the market requires you spend a lot of additional resources outside of your core competency in order to 
 field a suboptimal solution.
 
 Further, this doesn't serve the consumer very well at all.
-The consumer now has to download a seperate app for each device in the home,
+The consumer now has to download a separate app for each device in the home,
 some apps are available only on certain smart platforms,
 and they still don't talk to each other.
 
@@ -118,7 +118,7 @@ a discerning consumer will inevitably like the LED bulbs from one ecosystem,
 the smart plugs from another ecosystem,
 and the sensors from a third ecosystem.
 
-Purveryors of HA software try to address this issue by having a single app that controls multiple ecosystems.
+Purveyors of HA software try to address this issue by having a single app that controls multiple ecosystems.
 And now, if you'll scroll back to the top of this page,
 you'll see that the current offerings aren't doing HA in any meaningful sense.
 The moral of the story is that when the market fails, it fails hard.
@@ -146,11 +146,11 @@ the steward may talk to a device through a controller (often termed a gateway),
 using whatever protocol the controller implements.
 On the other end of the spectrum,
 some devices are peripherals on smart devices,
-so the steward implements a _Simple Thing_ protocol that is also implemented on the smart device and provides a gateway into
+so the steward implements a _Simple Thing Protocol_ that is also implemented on the smart device and provides a gateway into
 the peripheral.
 
 Although the discussion thus far has focused on third-parties as implementors of "device-specific" drivers,
-the other kind of third-parties are implementators of clients.
+the other kind of third-parties are implementations of clients.
 In addition to the internal APIs in the steward,
 there are external APIs for client developers.
 The two meet in the the steward's taxonomy,
@@ -270,10 +270,10 @@ with a synchronized light show?_
 
 _A: In truth, that's really up to you._
 
-The steward's curators eat the same dogfood as everyone else.
+The steward's curators eat the same dog food as everyone else.
 Each of us runs the steward on a different kind of platform in order to experience the greatest coverage.
 
-Regardless of whether you run the steward on your unpatched Windows XP desktop or using the steward distributon on the BBB
+Regardless of whether you run the steward on your unpatched Windows XP desktop or using the steward distribution on the BBB
 platform,
 security is your responsibility.
 Of course,
@@ -303,7 +303,7 @@ In a nutshell, the steward:
 
 * provides internal APIs to third-parties may write their own device-specific drivers
 
-* implements a _Simple Thing_ protocol to manage  peripherals on smart devices
+* implements a _Simple Thing Protocol_  to manage  peripherals on smart devices
 
 * comes with a web-based UI
 

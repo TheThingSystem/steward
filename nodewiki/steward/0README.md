@@ -24,7 +24,7 @@ and [MAC address prefixes](http://en.wikipedia.org/wiki/Organizationally_Unique_
 * It will look for USB things.
 
 The steward also needs your help.
-When the stewarts starts from scratch, it doesn't know it's physical location.
+When the stewards starts from scratch, it doesn't know it's physical location.
 In order to calculate solar events such as sunrise, it needs to know it's physical coordinates.
 
 Normally, when the first client does a successful _tap_,
@@ -69,7 +69,7 @@ Edit the file to put the appropriate values in those variables and then visit
 
 in a browser. This will use the management API to set these variables in the steward.
 
-The changes will be reflcted when you look at
+The changes will be reflected when you look at
 
     http://127.0.0.1:8888/
 
