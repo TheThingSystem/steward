@@ -40,7 +40,6 @@ var logconfigs = {
     climate   : { console: { level: 'debug'  } }
   , devices   : { console: { level: 'info'   } }
   , discovery : { console: { level: 'info'   } }
-  , fixed     : { console: { level: 'debug'  } }
   , gateway   : { console: { level: 'info'   } }
   , indicator : { console: { level: 'notice' } }
   , lighting  : { console: { level: 'notice' } }

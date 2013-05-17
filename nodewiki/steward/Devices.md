@@ -176,14 +176,6 @@ whilst _updated_ indicates the last change in state for the device
 however, whenever _lastSample_ changes to reflect a more recent measurement,
 _updated_ will also change to the current time).
 
-### Fixed
-These are devices that are fixed position, but rotatable in some sense.
-The naming pattern is:
-
-    /device/fixed/XYZ/ptz
-
-**TBD**
-
 ### Gateway
 These are devices that interface to non-IP devices,
 or devices that talk to a cloud-based service to get information about a device in the home.
@@ -312,11 +304,12 @@ At a minimum, these tasks must be available:
 * _set_ - set any of these parameters: _position_, _volume_, and/or _muted_
 
 ### Motive
-These are devices that are mobile.
+These are devices that have some movement capability: either rotational or mobile.
 The naming pattern is:
 
     /device/motive/2d/XYZ
     /device/motive/3d/XYZ
+    /device/motive/ptz/XYZ
 
 **TBD**
 

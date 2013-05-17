@@ -16,17 +16,17 @@ These require the RFXrec433 gateway:
 
 * THGN132ES:Solar Thermo-Hygrometer Sensor
 
-## /device/fixed
-
 ## /device/gateway/
 ### insteon/hub - http://www.insteon.com/2242-222-insteon-hub.html
 ### insteon/smartlinc - http://www.insteon.com/2412N-smartlinc-central-controller.html
 ### netatmo/cloud - http://www.netatmo.com
 ### rfxrec433/usb - http://www.rfxcom.com/store/Receivers/12113
+### sonos/bridge - http://www.sonos.com/system
 ### zigbee/gmo - http://www.exegin.com/hardware/q53app.php
 Under development.
 
 ## /device/indicator
+### text/cosm - http://xively.com
 ### text/prowl - http://www.prowlapp.com
 ### text/status - e.g., for use with http://panic.com/statusboard/
 
