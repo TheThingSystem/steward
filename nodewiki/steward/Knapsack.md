@@ -8,7 +8,7 @@ Currently monitoring only, no control.
 ### oregon-scientific/sensor - http://www.oregonscientificstore.com
 These require the RFXrec433 gateway:
 
-* THGR122NX: Wireless Temperature and Humidity Sensor
+* THGR122NX/THGR810: Wireless Temperature and Humidity Sensor
 
 * THGN123N: Remote Thermo-Hygrometer Sensor
 
