@@ -24,7 +24,7 @@ and [MAC address prefixes](http://en.wikipedia.org/wiki/Organizationally_Unique_
 * It will look for USB things.
 
 The steward also needs your help.
-When the stewards starts from scratch, it doesn't know it's physical location.
+When the steward starts from scratch, it doesn't know it's physical location.
 In order to calculate solar events such as sunrise, it needs to know it's physical coordinates.
 
 Normally, when the first client does a successful _tap_,
