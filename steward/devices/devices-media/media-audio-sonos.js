@@ -1,4 +1,4 @@
-// SonOS speakers: http://www.sonos.com/system
+// Sonos speakers: http://www.sonos.com/system
 
 var stringify   = require('json-stringify-safe')
   , sonos       = require('sonos')
@@ -28,7 +28,6 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.status = 'unknown';
   self.sid = null;
   self.seq = 0;
 

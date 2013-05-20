@@ -407,7 +407,14 @@ exports.start = function() {
 
       logger.info('scanning ' + ifname);
       ifaces[ifname] = { addresses: ifaddrs, arp: {} };
-      try { pcap.createSession(ifname, 'arp').on('packet', listen(ifname)); break; } catch (ex) { console.log(ex); }
+      try {
+        pcap.createSession(ifname, 'arp').on('packet', listen(ifname));
+        break;
+      } catch (ex) {
+        console.log(ex);
+        if (process.getgid) console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
+        process.exit(1);
+      }
     }
 
     for (ifa = 0; ifa < ifaddrs.length; ifa++) {

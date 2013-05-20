@@ -21,7 +21,7 @@ PRIOR TO ALPHA RELEASE
 
     1.2. review (AA)
 
-2. device implementations (MTR)
+2. device implementations
 
     2.1. swivl ptz
 
@@ -35,11 +35,19 @@ PRIOR TO ALPHA RELEASE
 
     2.6. galileo
 
+    2.7. webcam
+
 4. device/group tags (MTR)
 
 5. steward "color" based on status
 
 6. steward "user assistance" queue
+
+    6.1. "press the button on the controller"
+
+    6.2. intelligent bulb replacement
+
+7. compile/evaluate the "magic" list
 
 8. gateway implementations
 
@@ -47,7 +55,7 @@ PRIOR TO ALPHA RELEASE
 
     8.2. implement z-wave gateway
 
-9. measurement samples (MTR)
+9. measurement samples
 
     9.1. API to access historical data
 

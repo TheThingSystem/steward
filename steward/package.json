@@ -5,6 +5,7 @@
   , "private"        : true
   , "dependencies"   : {
       "MD5"                 : "1.0.3"
+    , "axiscam"             : "0.0.4"
     , "blinkstick"          : "git://github.com/mrose17/blinkstick-node.git"
     , "cosm"                : "git://github.com/mrose17/node-cosm.git"
     , "cron-parser"         : "0.2.2"
