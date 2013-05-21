@@ -8,7 +8,7 @@
     , "axiscam"             : "0.0.4"
     , "blinkstick"          : "git://github.com/mrose17/blinkstick-node.git"
     , "cosm"                : "git://github.com/mrose17/node-cosm.git"
-    , "cron-parser"         : "0.2.2"
+    , "cron-parser"         : "git://github.com/mrose17/node-cron-parser.git"
     , "geocoder"            : "0.1.0"
     , "koubachi"            : "0.0.2"
     , "json-stringify-safe" : "3.0.0"
