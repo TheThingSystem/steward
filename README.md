@@ -23,7 +23,7 @@ PRIOR TO ALPHA RELEASE
 
 2. device implementations
 
-    2.1. swivl ptz
+    2.1. swivl ptz MTR)
 
     2.2. appleTV
 
@@ -37,11 +37,15 @@ PRIOR TO ALPHA RELEASE
 
     2.7. webcam
 
-4. device/group tags (MTR)
+4. the activity loop
 
-5. steward "color" based on status
+   4.1. device/group tags (MTR)
 
-6. steward "user assistance" queue
+   4.2. temporal relations
+
+5. steward "color" based on status MTR)
+
+6. steward "user assistance" queue MTR)
 
     6.1. "press the button on the controller"
 
@@ -51,9 +55,9 @@ PRIOR TO ALPHA RELEASE
 
 8. gateway implementations
 
-    8.1. complete zigbee gateway
+    8.1. complete zigbee gateway (MTR)
 
-    8.2. implement z-wave gateway
+    8.2. implement z-wave gateway (MTR)
 
 9. measurement samples
 
@@ -69,6 +73,7 @@ PRIOR TO ALPHA RELEASE
 
     11.1 read arp table (OS-specific)
 
+    11.2 backup/restore steward from client
 
 
 PRIOR TO PUBLIC RELEASE
