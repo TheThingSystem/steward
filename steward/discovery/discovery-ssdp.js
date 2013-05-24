@@ -86,7 +86,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     }
 
     if (info.ssdp.ST === 'upnp:rootdevice') {
-      o = url.parse(info.ssdp.LOCATION);
+      o = url.parse(info.ssdp.LOCATION || info.ssdp.Location);
       o.agent = false;
       http.get(o, function(response) {
         var content = '';

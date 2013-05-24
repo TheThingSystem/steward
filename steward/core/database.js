@@ -1,4 +1,4 @@
-var sqlite3     = require('sqlite3').verbose()
+var sqlite3     = require('sqlite3')
   , utility     = require('./utility')
   ;
 

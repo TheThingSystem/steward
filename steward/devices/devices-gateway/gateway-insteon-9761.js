@@ -830,7 +830,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
     info.id = info.device.unit.udn;
     if (devices.devices[info.id]) return socket.destroy();
 
-    utility.info('discovery').info(tag, { id: address, description: description, firmware: firmware });
+    utility.logger('discovery').info(tag, { id: address, description: description, firmware: firmware });
     devices.discover(info);
   }).on('error', function(error) {
     if (!silentP) utility.logger('discovery').warning(tag, { event: 'error', error: error });
