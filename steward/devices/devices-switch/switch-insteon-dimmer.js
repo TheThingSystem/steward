@@ -166,7 +166,7 @@ exports.start = function() {
                                    , level      : 'percentage'
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
 // other Insteon devices corresponding to a dimmable switch may also be listed here...
   devices.makers['Insteon.010e'] = Insteon;

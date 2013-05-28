@@ -119,7 +119,7 @@ exports.start = function() {
                                    , level  : [ 'none', 'mild', 'high' ]
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/wearable/watch'] = Watch;
 

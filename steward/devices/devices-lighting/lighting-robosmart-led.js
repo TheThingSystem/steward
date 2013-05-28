@@ -194,7 +194,7 @@ exports.start = function() {
                                    , rssi       : 's8'
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/lighting/robosmart/led'] = RoboSmart;
 

@@ -19,6 +19,7 @@ These require the RFXrec433 gateway:
 ## /device/gateway/
 ### insteon/hub - http://www.insteon.com/2242-222-insteon-hub.html
 ### insteon/smartlinc - http://www.insteon.com/2412N-smartlinc-central-controller.html
+### nest/cloud - http://nest.com
 ### netatmo/cloud - http://www.netatmo.com
 ### rfxrec433/usb - http://www.rfxcom.com/store/Receivers/12113
 ### sonos/bridge - http://www.sonos.com/system

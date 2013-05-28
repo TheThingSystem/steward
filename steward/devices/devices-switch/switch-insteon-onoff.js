@@ -127,7 +127,6 @@ var validate_perform = function(perform, parameter) {
 };
 
 
-
 exports.start = function() {
   steward.actors.device['switch'].insteon = steward.actors.device['switch'].insteon ||
       { $info     : { type: '/device/switch/insteon' } };
@@ -140,7 +139,7 @@ exports.start = function() {
                                    , status : [ 'waiting', 'on', 'off' ]
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
 // other Insteon devices corresponding to an on/off switch may also be listed here...
   devices.makers['Insteon.0209'] = Insteon;

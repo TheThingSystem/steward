@@ -179,7 +179,6 @@ Every five seconds, the module does a port scan of registered port numbers on IP
 port numbers.
 If a connection is made, then the device-specific callback is invoked.
 
-
 ### MAC OUI discovery
 The module's _pairing_ method is used to associate OUI prefixes with a callback in a particular device-specific driver.
 This callback determines whether the _device_ module should be informed.

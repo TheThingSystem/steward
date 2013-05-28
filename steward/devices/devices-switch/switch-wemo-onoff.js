@@ -212,7 +212,7 @@ exports.start = function() {
                                    , status : [ 'waiting', 'busy', 'on', 'off' ]
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
   devices.makers['urn:Belkin:device:controllee:1'] = WeMo_Switch;
 };

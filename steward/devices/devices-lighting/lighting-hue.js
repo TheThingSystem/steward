@@ -791,7 +791,7 @@ exports.start = function() {
                                    , status : [ 'ready', 'reset', 'waiting', 'busy' ]
                                    }
                     }
-      , $validate : { 'perform'  : validate_perform_hue }
+      , $validate : { perform    : validate_perform_hue }
       };
 
   steward.actors.device.lighting.hue = steward.actors.device.lighting.hue ||

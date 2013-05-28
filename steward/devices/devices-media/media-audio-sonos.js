@@ -374,7 +374,7 @@ exports.start = function() {
                                    , muted   : [ 'on', 'off' ]
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
   devices.makers['urn:schemas-upnp-org:device:ZonePlayer:1'] = Sonos_Audio;
 
@@ -389,7 +389,7 @@ exports.start = function() {
                                    , status  : [ 'present' ]
                                    }
                     }
-      , $validate : {  perform   : devices.validate_perform }
+      , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['Sonos ZoneBridge ZB100'] = Sonos_Bridge;
 };

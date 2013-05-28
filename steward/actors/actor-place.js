@@ -391,8 +391,8 @@ exports.start = function() {
                                                    , 'nadir' ]
                                    }
                     }
-      , $lookup   : function(id) { return (id === '1') ? place1 : null; }
       , $list     : function()   { return [ '1' ]; }
+      , $lookup   : function(id) { return (id === '1') ? place1 : null; }
       , $validate : { observe    : validate_observe
                     , perform    : validate_perform
                     }

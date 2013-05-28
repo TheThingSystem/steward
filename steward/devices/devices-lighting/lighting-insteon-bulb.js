@@ -164,7 +164,7 @@ exports.start = function() {
                                    , brightness : 'percentage'
                                    }
                     }
-      , $validate : {  perform   : validate_perform }
+      , $validate : { perform    : validate_perform }
       };
 // other Insteon devices corresponding to a single bulb may also be listed here...
   devices.makers['Insteon.013a'] = Insteon;

@@ -3,91 +3,377 @@
 An *actor* refers to an entity that participates in an activity. Typically, these refer to devices; however, there are two other types of actors: _groups_ which combine actors accordingly to a logical relationship (e.g., 'and' or 'first/next') and _pseudo actors_ which are software-only constructs (e.g., the *place*).
 
 ## Architecture
+Support for devices is added by creating a module with a path and name that conform to the Device Taxonomy.
+This module is detected and loaded by the steward during startup.
+**(At present, if you add a module to a running steward, you must restart the steward.)**
+
+When the module is loaded,
+the _start()_ function is invoked which does two things:
+
+* It defines an object that is consulted when an instance of the device is discovered.
+
+* It defines how instances of the device are discovered.
+
+### Module Structure
+
+A module consists of several parts.
+In reading this section, it is probably useful to also glance at one of the existing modules.
+For the examples that follow,
+let's say we're going to the define a module for a _macguffin_ presence device manufactured by _Yoyodyne Propulsion Systems_.
+
+The first step is to select the name of the device prototype.
+In this case, it's probably going to be:
+
+    /device/presence/yoyodyne/macguffin
+
+The corresponding file name would be:
+
+    devices/device-presence/presence-yoyodyne-macguffin.js
+
+The file should have six parts:
+
+_First_,
+is the _require_ section where external modules are loaded.
+By convention, system and third-party modules are loaded first, followed by any steward-provided modules, e.g.,
+
+    var util        = require('util')
+      , devices     = require('./../../core/device')
+      , steward     = require('./../../core/steward')
+      , utility     = require('./../../core/utility')
+      , presence    = require('./../device-presence')
+      ;
+
+_Second_,
+is the _logger_ section, which is usually just one line:
+
+    var logger = presence.logger;
+
+Logging is done _syslog-style_, which means these functions are available
+
+    logger.crit
+    logger.error
+    logger.warning
+    logger.notice
+    logger.info
+    logger.debug
+
+These functions take two arguments: a string and a property-list object, e.g.,
+
+    try {
+      ...
+    } catch(ex) {
+      logger.error('device/' + self.deviceID,
+                   { event: 'perform', diagnostic: ex.message });
+    }
+
+_Third_,
+is the _prototype_ function that is invoked by the steward whenever an instance of this device is (re-)discovered:
+
+    var Macguffin = exports.Device = function(deviceID, deviceUID, info) {
+      ...
+    }
+
+_Fourth_,
+comes the optional _observe_ section, that implements asynchronous observation of events.
+
+_Fifth_,
+comes the optional _perform_ section, that implements the performance of tasks.
+
+_Sixth_,
+comes the _start()_ function.
+
+### The Prototype function
+
+### The Observe section
+
+### The Perform section
+
+#### The start() function: Linkage
+
+As noted earlier, this function performs two tasks.
+The first task is to link the device prototype into the steward:
+
+    exports.start = function() {
+      steward.actors.device.presence.yoyodyne =
+          steward.actors.device.presence.yoyodyne ||
+          { $info     : { type: '/device/presence/yoyodyne' } };
+    
+      steward.actors.device.presence.yoyodyne.macguffin =
+          { $info     : { type       : '/device/presence/yoyodyne/macguffin'
+                        , observe    : [ ... ]
+                        , perform    : [ ... ]
+                        , properties : { name   : true
+                                       , status : [ ... ]
+                                       ...
+                                       }
+                        }
+          , $observe  : {  observe   : validate_observe }
+          , $validate : {  perform   : validate_perform }
+          };
+      devices.makers['/device/presence/yoyodyne/macguffin'] = MacGuffin;
+    ...
+
+The first assignment:
+
+      steward.actors.device.presence.yoyodyne =
+          steward.actors.device.presence.yoyodyne ||
+          { $info     : { type: '/device/presence/yoyodyne' } };
+    
+is there simply to make sure the naming tree already has a node for the parent of the device prototype.
+(The steward automatically creates naming nodes for the top-level categories).
+
+The next assignment is the tricky one:
+
+      steward.actors.device.presence.yoyodyne.macguffin =
+          { $info     : { type       : '/device/presence/yoyodyne/macguffin'
+                        , observe    : [ ... ]
+                        , perform    : [ ... ]
+                        , properties : { name   : true
+                                       , status : [ ... ]
+                                       ...
+                                       }
+                        }
+          , $list     : function()   { ... }
+          , $lookup   : function(id) { ... }
+          , $validate : { create     : validate_create
+                        , observe    : validate_observe
+                        , perform    : validate_perform
+                        }
+          };
+
+The _$info_ field is mandatory, as are its four sub-fields:
+
+* _type_: the name of the device prototype.
+
+* _observe_: an array of events that the device observe.
+The array may be empty.
+
+* _perform_: an array of tasks that the device performs.
+At a minimum,
+Every device must support a "set" task in order to set the name of the device instance.
+The array may be empty (the "set" task does not appear in the array).
+
+*_properties_: a list of property names and syntaxes.
+Consult the _Device Taxonomy_ section below for a list of defined properties and corresponding syntaxes.
+
+The _$list_ and _$lookup_ fields are for "special" kinds of actors, and are described later.
+
+The _$validate_ field contains an object, with these sub-fields:
+
+* _create_: present for "special" kinds of actors, described later.
+
+* _observe_: a function that is used to evaluate an event and its associated parameter, to see if "it makes sense."
+
+* _perform_: a function that is used to evaluate a task and its associated parameter, to see if "it makes sense."
+
+#### The start() function: Discovery
+
+The second task performed by the _start()_ function is to register with the appropriate discovery module.
+There are presently four modules:
+
+* SSDP: LAN multicast (not necessarily UPnP)
+
+* BLE: Bluetooth Low Energy
+
+* TCP port: TCP port number:
+
+* MAC OUI: MAC prefix
+
+For the first two discovery modules,
+the steward will automatically (re-)create device instances as appropriate.
+For the others,
+the module may need to do some additional processing before it decides that a device instance should (re-)created.
+Accordingly, the module calls _device.discovery()_ directly.
+
+Discovery via SSDP occurs when the steward encounters a local host with an SSDP server that advertises a particular
+"friendlyName" or "deviceType":
+
+    devices.makers['Yoyodye Propulsion Systems MacGuffin'] = Macguffin;
+
+Discovery via BLE occurs when the steward identifies a BLE device from a particular manufacturer,
+and find a matching characteristic value:
+
+    devices.makers['/device/presence/yoyodyne/macguffing'] = Macguffin;
+    require('./../../discovery/discovery-ble').register(
+      { 'Yoyodyne Propulsion' :
+          { '2a24' :
+              { 'MacGuffin 1.1' :
+                  { type : '/device/presence/yoyodyne/macguffin' }
+              }
+          }
+      });
+
+Discovery via TCP port occurs when the steward is able to connect to a particular TCP port on a local host:
+
+    require('./../../discovery/discovery-portscan').pairing([ 1234 ],
+    function(socket, ipaddr, portno, macaddr, tag) {
+      var info = { };
+
+      ...
+      info.deviceType = '/device/presence/yoyodyne/macguffin';
+      info.id = info.device.unit.udn;
+      if (devices.devices[info.id]) return socket.destroy();
+
+      utility.logger('discovery').info(tag, { ... });
+      devices.discover(info);
+    });
+
+Discovery via MAC OUI occurs when the steward encounters a local host with a MAC address whose first 3 octets match a particular
+prefix:
+
+    require('./../../discovery/discovery-mac').pairing([ '01:23:45' ],
+    function(ipaddr, macaddr, tag) {
+      var info = { };
+
+      ...
+      info.deviceType = '/device/presence/yoyodyne/macguffin';
+      info.id = info.device.unit.udn;
+      if (devices.devices[info.id]) return;
+
+      utility.logger('discovery').info(tag, { ... });
+      devices.discover(info);
+    });
+
 
 ## Design Patterns
 There are three design patterns currently in use for device actors.
 
-#### Standalone Actor
-#### Controller Actor and Subordinate Actors
-#### Singleton Actor
+### Standaline Actor
+A standalone actor refers to a device that is discovered by the steward and doesn't discover anything on its own.
 
-## Choosing a technology to integrate
-There are a large number of technologies available for integration.
-The steward's architecture is agnostic with respect to the choice of communication and application protocols.
-However,
-many of these technologies compete (in the loose sense of the word).
-Here is the algorithm that the steward's developers use to determine whether something should go into the development queue.
+Examples of standalone actors include:
 
-* Unless the device is going to solve a pressing problem for you, it really ought to be in _mainstream use_.
-One of the reasons that the open source/node.js ecosystem was selected is because it presently is the most accessible for
-developers.
-Similarly,
-it's desirable to integrate things that are going to reduce the pain for lots of people.
+* /device/lighting/blinkstick/led
 
-* The _mainstream use_ test consists of going to your national _amazon_ site and seeing what, if anything, is for sale.
-Usually, the search page will reveal several bits of useful information.
+* /device/media/sonos/audio
 
- * Sponsored Links: often these are links to distributors, but sometimes there links to knowledge aggregators.
-The first kind link is useful for getting a better sense as to the range of products available,
-but the second kind link is usually more useful because it will direct you to places where you can find out more about the
-integration possibilities, e.g., community sites, developer forums, and so on.
+* /device/presence/fob/inrange
 
- * Products for sale: 
+* /device/sensor/wemo/motion
 
- * Frequently Bought Together:
 
- * Customers Who Bought This Item Also Bought:
+### Gateway and Subordinate Actors
+Typically the steward is able to discover a gateway for a particular technology,
+and the module for that gateway then discovers "interesting" devices.
+Examples of these kinds of actors include things like:
 
-* One of the things that is quite perplexing is the lack of technical information on technical products.
-Although many developer forums have information,
-"code rules".
-So the obvious stop is [github](https://github.com) - search for the technology there.
-Look at each project:
+* /device/gateway/insteon/hub and /device/switch/insteon/dimmer, etc.
 
- * Many projects often include pointers to community, forum, and documentation sources.
+* /device/gateway/netatmo/cloud and device/climate/netatmo/sensor
 
- * Some projects contain a documentation directory;
-if not, you can usually get a sense of things by looking at the "main" source file.
+When a gateway actor discovers an "interesting" device,
+it calls _devices.discover()_ to tell the steward to (re-)create it.
 
- * If you are fortunate,
-a large part of the integration may already be done in node.js (use "npm search").
-If so, check the licensing to see if it is "MIT".
-If not, study it carefully to see whether it will work for you.
+### Creatable Actors
+These kind of actors aren't discoverable,
+so a client must make a specific API call to the steward in order to create an instance.
+Examples of creatable actors include:
 
- * After reviewing the project, go up one level and look at the author's other projects.
-Often there are related projects that weren't returned by the first search.
+* /device/indicator/text/cosm
 
-Finally, you may have a choice of devices to integrate with, and you may even have the opportunity to build your own.
-If you go the "off-the-shelf" route,
-please consider what is going to be easiest for others to connect to:
-
-* If there is an ethernet-connected gateway to a device, then it is best to integrate to that gateway:
-others will be able to use the gateway fairly easily, because attaching devices to an ethernet is fairly simple.
-
-* Otherwise, if there is a USB stick that talks to a device, then use that:
-although USB sticks should be less expensive than devices with ethernet-connectivity,
-they also tend to require more expertise to configure.
-
-* Finally, if there is a serial connector that talks to a device, you can always use that. Good luck!
-
-## Access Methods
-
+In general,
+these actors refer to software-only constructs:
+while it's the steward's job to discovery devices,
+only a user can decide whether they want sensor readings uploaded somewhere.
 
 ## API calls
+Devices are managed by authorized clients using the
 
-    /manage/api/v1/
-    
-        /device/create/uuid      name, comments, whatami, info
-        /device/list[/id]        options.depth: { flat, tree, all }
-        /device/perform/id       perform, parameter
-    TBD /device/delete/id
+    /manage/api/v1/device/
 
+path prefix, e.g.,
+
+    { path      : '/api/v1/actor/list'
+    , requestID : '1'
+    , options   : { depth: all }
+    }
+
+### Create Device
+To create a device,
+an authorized client sends:
+
+    { path      : '/api/v1/actor/create/UUID'
+    , requestID : 'X'
+    , name      : 'NAME'
+    , whatami   : 'TAXONOMY'
+    , info      : { PARAMS }
+    , comments  : 'COMMENTS'
+    }
+
+where _UUID_ corresponds to an unpredictable string generated by the client,
+_X_ is any non-empty string,
+_NAME_ is a user-friendly name for this instance,
+_INFO_ are any parameters associated with the device,
+and _COMMENTS_ (if present) are textual, e.g.,
+
+    { path      : '/api/v1/actor/create/YPI'
+    , requestID : '1'
+    , name      : 'OO'
+    , whatami   : '/device/presence/yoyodune/macguffin'
+    , info      : { beep: 'annoying' }
+    }
+
+### List Device(s)
+To list the properties of a single device,
+an authorized client sends:
+
+    { path      : '/api/v1/actor/list/ID'
+    , requestID : 'X'
+    , options   : { depth: DEPTH }
+    }
+
+where _ID_ corresponds to the _deviceID_ of the device to be deleted,
+_X_ is any non-empty string,
+and _DEPTH_ is either 'flat', 'tree', or 'all'
+
+If the ID is omitted, then all devices are listed, e.g., to find out anything about everything,
+an authorized client sends:
+
+    { path      : '/api/v1/actor/list'
+    , requestID : '2'
+    , options   : { depth: 'all' }
+    }
+
+### Perform Task
+To have a device perform a task,
+an authorized client sends:
+
+    { path      : '/api/v1/actor/perform/ID'
+    , requestID : 'X'
+    , perform   : 'TASK'
+    , parameter : 'PARAM'
+    }
+
+where _ID_ corresponds to the _deviceID_ of the device to be deleted,
+_X_ is any non-empty string,
+_TASK_ identifies a task to be performed,
+and _PARAM_ (if present) provides parameters for the task, e.g.,
+
+    { path      : '/api/v1/actor/perform/7'
+    , requestID : '3'
+    , perform   : 'on'
+    , parameter : '{"color":{"model":"cie1931","cie1931":{"x":0.5771,"y":0.3830}},"brightness":50}'
+    }
+
+### Delete Device
+To define a device,
+an authorized client sends:
+
+    { path      : '/api/v1/actor/device/ID'
+    , requestID : 'X'
+    }
+
+where _ID_ corresponds to the _deviceID_ of the device to be deleted, and _X_ is any non-empty string, e.g.,
+
+    { path      : '/api/v1/actor/device/7'
+    , requestID : '4'
+    }
 
 ## Device Taxonomy
-The steward's taxonomy consists of a hierarchical system for device types along with a flat namespace for properties.
-Although the naming for device types is hierarchical,
+The steward's taxonomy consists of a hierarchical system for device prototypes along with a flat namespace for properties.
+Although the naming for device prototypes is hierarchical,
 based on primary function,
-a given property may appear in any device type in which "it makes sense".
+a given property may appear in any device prototype in which "it makes sense".
 
 Properties are expressed in a consistent set of units:
 
@@ -385,4 +671,63 @@ The naming pattern is:
     /device/wearable/watch/XYZ
 
 Please consult the section on _Presence_ devices for further details.
-(In the future, it is likely that this device type will have additional features.)
+(In the future, it is likely that this device prototype will have additional features.)
+
+## Choosing a technology to integrate
+There are a large number of technologies available for integration.
+The steward's architecture is agnostic with respect to the choice of communication and application protocols.
+However,
+many of these technologies compete (in the loose sense of the word).
+Here is the algorithm that the steward's developers use to determine whether something should go into the development queue.
+
+* Unless the device is going to solve a pressing problem for you, it really ought to be in _mainstream use_.
+One of the reasons that the open source/node.js ecosystem was selected is because it presently is the most accessible for
+developers.
+Similarly,
+it's desirable to integrate things that are going to reduce the pain for lots of people.
+
+* The _mainstream use_ test consists of going to your national _amazon_ site and seeing what, if anything, is for sale.
+Usually, the search page will reveal several bits of useful information.
+
+ * Sponsored Links: often these are links to distributors, but sometimes there links to knowledge aggregators.
+The first kind link is useful for getting a better sense as to the range of products available,
+but the second kind link is usually more useful because it will direct you to places where you can find out more about the
+integration possibilities, e.g., community sites, developer forums, and so on.
+
+ * Products for sale: 
+
+ * Frequently Bought Together:
+
+ * Customers Who Bought This Item Also Bought:
+
+* One of the things that is quite perplexing is the lack of technical information on technical products.
+Although many developer forums have information,
+"code rules".
+So the obvious stop is [github](https://github.com) - search for the technology there.
+Look at each project:
+
+ * Many projects often include pointers to community, forum, and documentation sources.
+
+ * Some projects contain a documentation directory;
+if not, you can usually get a sense of things by looking at the "main" source file.
+
+ * If you are fortunate,
+a large part of the integration may already be done in node.js (use "npm search").
+If so, check the licensing to see if it is "MIT".
+If not, study it carefully to see whether it will work for you.
+
+ * After reviewing the project, go up one level and look at the author's other projects.
+Often there are related projects that weren't returned by the first search.
+
+Finally, you may have a choice of devices to integrate with, and you may even have the opportunity to build your own.
+If you go the "off-the-shelf" route,
+please consider what is going to be easiest for others to connect to:
+
+* If there is an ethernet-connected gateway to a device, then it is best to integrate to that gateway:
+others will be able to use the gateway fairly easily, because attaching devices to an ethernet is fairly simple.
+
+* Otherwise, if there is a USB stick that talks to a device, then use that:
+although USB sticks should be less expensive than devices with ethernet-connectivity,
+they also tend to require more expertise to configure.
+
+* Finally, if there is a serial connector that talks to a device, you can always use that. Good luck!
