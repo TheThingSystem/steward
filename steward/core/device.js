@@ -55,11 +55,12 @@ var idlist = function() {
 exports.start = function() {
   db = require('./database').db;
 
-  steward.actors.device = { $info   : { type       : '/device'
-                                                   }
-                                       , $lookup : id2device
-                                       , $list   : idlist
-                                       };
+  steward.actors.device =
+      { $info   : { type       : '/device'
+                  }
+      , $lookup : id2device
+      , $list   : idlist
+      };
   utility.acquire(logger, __dirname + '/../devices', /^device-.*\.js/, 7, -3, ' driver');
 };
 

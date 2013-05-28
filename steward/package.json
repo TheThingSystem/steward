@@ -15,7 +15,7 @@
     , "line-reader"         : "0.2.3"
     , "mdns"                : "1.1.0"
     , "mime"                : "1.2.9"
-    , "noble"               : "0.0.4"
+    , "noble"               : "git://github.com/sandeepmistry/noble.git"
     , "node-blink1"         : "0.0.3"
     , "node-hid"            : "0.2.3"
     , "node-netatmo"        : "git://github.com/mrose17/node-netatmo.git"

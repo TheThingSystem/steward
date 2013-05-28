@@ -200,10 +200,10 @@ var onactors = function(message) {
         entry = result[id][actor];
         entry.status = entry.status || entry.info.value || 'on';
         colour = d3.rgb.status[entry.status] || '#d3d3d3';
-        size = 3;
+        size = 10;
         if (!!entry.info.color) {
           color = entry.info.color;
-          size = 1;
+          size = 10;
           switch (color.model) {
             case 'temperature':
               colour = d3.mired.rgb(color.temperature);

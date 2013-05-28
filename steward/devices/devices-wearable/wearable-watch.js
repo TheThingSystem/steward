@@ -123,10 +123,12 @@ exports.start = function() {
       };
   devices.makers['/device/wearable/watch'] = Watch;
 
-  steward.actors.device.wearable.watch.cookoo = steward.actors.device.wearable.watch;
+  steward.actors.device.wearable.watch.cookoo = utility.clone(steward.actors.device.wearable.watch);
+  steward.actors.device.wearable.watch.cookoo.$info.type = '/device/wearable/watch/cookoo'; 
   devices.makers['/device/wearable/watch/cookoo'] = Watch;
 
-  steward.actors.device.wearable.watch.metawatch = steward.actors.device.wearable.watch;
+  steward.actors.device.wearable.watch.metawatch = utility.clone(steward.actors.device.wearable.watch);
+  steward.actors.device.wearable.watch.metawatch.$info.type = '/device/wearable/watch/metawatch'; 
   devices.makers['/device/wearable/watch/metawatch'] = Watch;
 
   require('./../../discovery/discovery-ble').register(

@@ -10,7 +10,7 @@ var logger = utility.logger('discovery');
 try {
 // if node.js crashes trying to load noble, please comment out this line (as a temporary work-around)
 
-//    noble       = require('noble');
+  noble       = require('noble');
 } catch(ex) { logger.warning('BLE support disabled', { diagnostic: ex.message } ); }
 
 
