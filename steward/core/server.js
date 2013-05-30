@@ -1,5 +1,5 @@
 var fs          = require('fs')
-  , mdns        = require('mdns')
+//  , mdns        = require('mdns')
   , mime        = require('mime')
   , portfinder  = require('portfinder')
   , url         = require('url')
@@ -102,6 +102,7 @@ exports.start = function() {
     });
 
     var uuid = require('./steward').uuid;
+/*
     mdns.createAdvertisement(mdns.tcp('wss'), portno, { name: 'steward', txtRecord: { uuid : uuid } })
         .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward wss ' + portno
                                                           , diagnostic : err.message }); })
@@ -110,6 +111,7 @@ exports.start = function() {
         .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward http ' + portno
                                                           , diagnostic : err.message }); })
         .start();
+ */
 
     logger.notice('listening on wss://0.0.0.0:' + portno);
 
