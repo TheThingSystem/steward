@@ -19,6 +19,7 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
 
   self.url = info.url;
   self.status = 'waiting';
+  self.changed();
   self.info = { lastSample: null };
   self.sid = null;
   self.seq = 0;
@@ -66,6 +67,7 @@ WeMo_Motion.prototype.observe = function(self, results) {
       self.status = 'motion';
       self.info.lastSample = now;
       for (eventID in self.events) if (self.events.hasOwnProperty(eventID)) steward.observed(eventID);
+      self.changed();
     } else self.status = 'quiet';
     break;
   }

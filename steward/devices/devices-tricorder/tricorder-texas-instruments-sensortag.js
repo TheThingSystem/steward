@@ -24,6 +24,7 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.status = 'present';
+  self.changed();
   self.peripheral = info.peripheral;
   self.ble = info.ble;
   self.info = {};

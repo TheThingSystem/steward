@@ -28,6 +28,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
               };
 
   self.status = 'ready';
+  self.changed();
   self.socket = info.socket;
   self.ipaddr = info.portscan.ipaddr;
   self.portno = info.portscan.portno;

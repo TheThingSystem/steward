@@ -22,6 +22,7 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
 
   self.url = info.url;
   self.status = 'waiting';
+  self.changed();
   self.gateway = info.gateway;
   self.insteon = info.device.unit.serial;
 

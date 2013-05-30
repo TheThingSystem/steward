@@ -21,6 +21,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.status = 'ready';
+  self.changed();
   self.rfx = info.rfx;
   self.info = {};
 
@@ -102,6 +103,7 @@ Gateway.prototype.thX = function(self, evt) {
 
   logger.info(info.device.name, { id: info.device.unit.serial,  params: params });
   devices.discover(info);
+  self.changed();
 };
 Gateway.prototype.tempX = Gateway.prototype.thX;
 

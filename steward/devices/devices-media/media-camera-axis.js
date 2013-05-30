@@ -30,6 +30,7 @@ var Axis_Camera = exports.Device = function(deviceID, deviceUID, info) {
   self.axis = new sonos.Sonos(o.hostname, o.port);
 */
   self.status = 'idle';
+  self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, observe, parameter) {
     if (request === 'ping') {

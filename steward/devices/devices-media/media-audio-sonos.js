@@ -34,6 +34,7 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
   o = url.parse(info.url);
   self.sonos = new sonos.Sonos(o.hostname, o.port);
   self.status = 'idle';
+  self.changed();
   self.info = { track: {}, mode: 'normal' };
   self.refreshID = null;
 
@@ -339,6 +340,7 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
 
   self.info = {};
   self.status = 'present';
+  self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'ping') return logger.info('device/' + self.deviceID, { status: self.status });

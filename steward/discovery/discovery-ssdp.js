@@ -88,6 +88,11 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     if (info.ssdp.ST === 'upnp:rootdevice') {
       o = url.parse(info.ssdp.LOCATION || info.ssdp.Location);
       o.agent = false;
+      if (o.hostname !== rinfo.address) {
+        logger.error('discovery', { event: 'bogus SSDP response', responder: rinfo, location: o.hostname });
+        return;
+      }
+
       http.get(o, function(response) {
         var content = '';
 
