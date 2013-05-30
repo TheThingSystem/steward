@@ -26,6 +26,7 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
 
   self.url = info.url;
   self.status = 'busy';
+  self.changed();
   self.lights = {};
   self.waitingP = false;
   self.inflight = 0;

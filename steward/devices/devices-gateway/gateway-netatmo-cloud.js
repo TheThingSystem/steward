@@ -30,6 +30,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.deviceType);
 
   self.status = 'waiting';
+  self.changed();
   self.timer = null;
 
   self.elide = [ 'passphrase' ];
@@ -61,6 +62,7 @@ Cloud.prototype.login = function(self) {
     if (err) { self.netatmo = null; return self.error(self, err); }
 
     self.status = 'ready';
+    self.changed();
     self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
     self.scan(self);
   });
@@ -68,6 +70,7 @@ Cloud.prototype.login = function(self) {
 
 Cloud.prototype.error = function(self, err) {
   self.status = 'error';
+  self.changed();
   logger.error('device/' + self.deviceID, { diagnostic: err.message });
 };
 
@@ -143,6 +146,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
 
   logger.info(info.device.name, { id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
+  self.changed();
 };
 
 Cloud.prototype.perform = function(self, taskID, perform, parameter) {

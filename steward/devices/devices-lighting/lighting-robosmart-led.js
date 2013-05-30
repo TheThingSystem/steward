@@ -20,6 +20,7 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
 
   self.status = 'waiting';
+  self.changed();
   self.peripheral = info.peripheral;
   self.ble = info.ble;
   self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }} };

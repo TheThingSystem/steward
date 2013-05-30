@@ -21,6 +21,7 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.status = 'waiting';
+  self.changed();
   self.gateway = info.gateway;
   self.insteon = info.device.unit.serial;
   self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }} };

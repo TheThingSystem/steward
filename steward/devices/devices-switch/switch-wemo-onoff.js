@@ -22,6 +22,7 @@ var WeMo_Switch = exports.Device = function(deviceID, deviceUID, info) {
 
   self.url = info.url;
   self.status = 'waiting';
+  self.changed();
   self.sid = null;
   self.seq = 0;
   self.logger = plug.logger;

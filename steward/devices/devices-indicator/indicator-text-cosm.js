@@ -27,6 +27,7 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.device);
   delete(self.info.deviceType);
   self.status = 'waiting';
+  self.changed();
 
   self.elide = [ 'apikey' ];
 

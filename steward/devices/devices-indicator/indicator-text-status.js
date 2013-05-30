@@ -25,11 +25,13 @@ var Status = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.device);
   delete(self.info.deviceType);
   self.status = 'waiting';
+  self.changed();
   fs.stat(self.info.directory, function (err, stats) {
     if (err) {
       return logger.error('device/' + self.deviceID, { event: 'fs.stat', path: self.info.directory, diagnostic: err.message });
     }
     self.status = stats.isDirectory() ? 'ready' : 'error';
+    self.changed();
   });
 
   self.reporting = {};

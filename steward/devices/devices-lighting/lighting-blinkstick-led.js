@@ -22,6 +22,7 @@ var Blinkstick = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.status = 'waiting';
+  self.changed();
   self.led = info.led;
   self.info = {};
 

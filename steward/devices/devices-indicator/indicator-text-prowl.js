@@ -21,11 +21,15 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.growl = function(err, remaining) {
     if (err) {
       self.status = 'error';
+      self.changed();
       logger.error('device/' + self.deviceID, { diagnostic: err.message });
       return;
     }
 
-    self.status = 'ready';
+    if (self.status !== 'ready') {
+      self.status = 'ready';
+      self.changed();
+    }
     logger.debug('device/' + self.deviceID, { limit: remaining + ' remaining calls this hour' });
   };
 
@@ -46,6 +50,7 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.info.priority = utility.value2key(winston.config.syslog.levels, self.priority);
   self.prowl = new prowler(self.info.apikey);
   self.status = 'ready';
+  self.changed();
 
   self.elide = [ 'apikey' ];
 

@@ -27,6 +27,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.status = 'ready';
+  self.changed();
   self.client = info.client;
   self.neighbors = {};
 

@@ -29,6 +29,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   sensor.update(self.deviceID, info.params);
 
   self.status = 'present';
+  self.changed();
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {/* jshint unused: false */
     if (request === 'ping') return logger.info('device/' + self.deviceID, { status: self.status });
