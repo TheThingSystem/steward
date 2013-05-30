@@ -40,6 +40,25 @@ Then go to the _steward_ directory and install the libraries:
     cd steward/steward
     npm install -l
 
+### Alternative method to install Node.js
+
+_NOTE: The nvm system is based around the bash shell. If you run tcsh or another alternative, it's not going to work for you. You'll have to install node by hand. Go ahead and checkout Node.js from the Github repository,_
+
+    git clone https://github.com/joyent/node.git
+
+_change directory and switch to v0.8.20 release._
+
+    cd node
+    git checkout v0.8.20 -b v0.8.20
+
+_Now go ahead and build,_
+
+    ./configure
+    make
+    sudo make install
+
+_before proceeding as normal._
+
 ## Instructions for starting the steward
 The _run.sh_ script does three things:
 

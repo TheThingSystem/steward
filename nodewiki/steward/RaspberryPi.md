@@ -23,7 +23,7 @@ rather than ejecting it by dragging it to the trash. Then in the Terminal change
 
     sudo dd bs=1m if=2013-02-09-wheezy-raspbian.img of=/dev/rdisk1
 
-if the above command report an error _"dd: bs: illegal numeric value"_, change *bs=1M* to *bs=1m*. The card should automatically remount when _dd_ is done.
+if the above command report an error _"dd: bs: illegal numeric value"_, change *bs=1m* to *bs=1M*. The card should automatically remount when _dd_ is done.
 
 Eject the card with the command, 
 
@@ -76,10 +76,10 @@ Then go ahead and checkout _Node.js_
 
     git clone https://github.com/joyent/node.git
 
-change directory and switch to v0.8.20 release for [compatibility reasons](Bootstramp.md).
+change directory and switch to v0.10.8 release for [compatibility reasons](Bootstramp.md).
 
     cd node
-    git checkout v0.8.20 -b v0.8.20
+    git checkout v0.10.8 -b v0.10.8
 
 Now go ahead and build,
 
@@ -92,7 +92,7 @@ _Optionally you can now test the executables. You can't use "make test" because 
 
     python tools/test.py -t 120 --mode=release simple message
 
-_Some tests may fail because they'll time out, one will fail because IPv6 isn't enabled by default on the Pi. There seem to be at least one "known" bugs as well. These may be resolved if we move to a later version of Node._
+_Some tests may fail because they'll time out, one will fail because IPv6 isn't enabled by default on the Pi. There seems to be at least one "known" bug as well. Some of these may be resolved if we move to a later version of Node._
 
 Now go ahead and install _node_ and _npm_,
 
@@ -112,7 +112,7 @@ Go ahead and install the [node version manager (nvm)](https://github.com/creatio
 
 make our version of Node the default
 
-    nvm alias default v0.8.20
+    nvm alias default v0.10.8
 
 ##Installing node-gyp
 
@@ -161,11 +161,33 @@ _TO DO: Note that we're disabling systemd integration as the Pi doesn't ship wit
 
 _NOTE: Manual installation of BlueZ leaves a copy of the gatttool in the attrib/ directory. You can run this tool from there, or copy it into /usr/local/bin along with the other BlueZ utilities. It's not clear why it's not installed by default._
 
+_NOTE: The noble library needs to have gatttool in the path at runtime._
+
+###Fixing dbus permissions
+
+There is a problem with dbus permissions which cause the bluetoothd daemon to fail to start,
+
+    bluetoothd[18198]: Bluetooth daemon 5.4
+    D-Bus setup failed: Connection ":1.12" is not allowed to own the service "org.bluez" due to security policies in the configuration file
+    bluetoothd[18198]: Unable to get on D-Bus
+
+the current work around is to edit /etc/dbus-1/system.d/bluetooth.conf and add the following line
+
+        <allow send_type="method_call"/>
+
+inside the <policy> ... </policy> block.
+
+_NOTE: This has security implications. This fix allows a method call from all console users, even those calls unrelated to Bluetooth. It's sub-optimal._
+
 ##Installing the Steward
 
-Copy the current release of the _steward_ onto the Pi, then unzip the bundle go to the _steward_ directory. Delete the existing node_modules directory if it exists, as the depending on the last build these may be for OS X, and go ahead and install the libraries,
+Check out the steward from its Git repository,
 
-    cd steward
+    git clone https://github.com/mrose17/steward.git
+    cd steward/steward
+
+Delete the existing node_modules directory if it exists, as the depending on the last build these may be for OS X, and go ahead and install the libraries,
+
     rm -rf node_modules
     npm install -l
 
