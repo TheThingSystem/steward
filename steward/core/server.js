@@ -1,11 +1,13 @@
 var fs          = require('fs')
-  , mdns        = require('mdns')
   , mime        = require('mime')
   , portfinder  = require('portfinder')
   , url         = require('url')
   , wsServer    = require('ws').Server
   , utility     = require('./utility')
   ;
+if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
+  var mdns      = require('mdns');
+}
 
 
 var logger = utility.logger('server');
@@ -102,14 +104,16 @@ exports.start = function() {
     });
 
     var uuid = require('./steward').uuid;
-    mdns.createAdvertisement(mdns.tcp('wss'), portno, { name: 'steward', txtRecord: { uuid : uuid } })
-        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward wss ' + portno
-                                                          , diagnostic : err.message }); })
-        .start();
-    mdns.createAdvertisement(mdns.tcp('http'), portno, { name: 'steward', txtRecord : { uuid: uuid } })
-        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward http ' + portno
-                                                          , diagnostic : err.message }); })
-        .start();
+    if (!!mdns) {
+      mdns.createAdvertisement(mdns.tcp('wss'), portno, { name: 'steward', txtRecord: { uuid : uuid } })
+          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward wss ' + portno
+                                                            , diagnostic : err.message }); })
+          .start();
+      mdns.createAdvertisement(mdns.tcp('http'), portno, { name: 'steward', txtRecord : { uuid: uuid } })
+          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward http ' + portno
+                                                            , diagnostic : err.message }); })
+          .start();
+    }
 
     logger.notice('listening on wss://0.0.0.0:' + portno);
 

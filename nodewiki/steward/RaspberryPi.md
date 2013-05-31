@@ -76,7 +76,7 @@ Then go ahead and checkout _Node.js_
 
     git clone https://github.com/joyent/node.git
 
-change directory and switch to v0.10.8 release for [compatibility reasons](Bootstramp.md).
+change directory and switch to v0.10.8 release for [compatibility reasons](Bootstrap.md).
 
     cd node
     git checkout v0.10.8 -b v0.10.8

@@ -28,10 +28,10 @@ Then, put the [node version manager (nvm)](https://github.com/creationix/nvm) on
     echo ". ~/.nvm/nvm.sh" >> ~/.bashrc  
     . ~/.nvm/nvm.sh
 
-Then install the v0.8.20 release of [_node.js_](http://nodejs.org) on the system:
+Then install the v0.10.8 release of [_node.js_](http://nodejs.org) on the system:
 
-    nvm install v0.8.20
-    nvm alias default v0.8.20
+    nvm install v0.10.8
+    nvm alias default v0.10.8
 
 (This isn't the most current version, but all the dependencies work with it...)
 
@@ -46,10 +46,10 @@ _The nvm system is based around the bash shell. If you run tcsh or another alter
 
     git clone https://github.com/joyent/node.git
 
-_change directory and switch to v0.8.20 release._
+_change directory and switch to v0.10.8 release._
 
     cd node
-    git checkout v0.8.20 -b v0.8.20
+    git checkout v0.10.8 -b v0.10.8
 
 _Now go ahead and build,_
 
@@ -87,3 +87,10 @@ You will probably want to customize this script for yourself.
 
 When the script starts, it will bring a lot of stuff on the console.
 Over time, the verbosity will decrease, but for now, it should give comfort...
+
+## If you have build failures
+You may want to do a "hard reset" on your _node.js_ installation:
+
+    rm -rf ~/.node-gyp ~/.npm ~/.nvm ~/.npmrc
+
+and then start again by installing _nvm_.
