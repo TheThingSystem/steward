@@ -76,7 +76,7 @@ Then go ahead and checkout _Node.js_
 
     git clone https://github.com/joyent/node.git
 
-change directory and switch to v0.10.8 release for [compatibility reasons](Bootstrap.md).
+change directory and switch to v0.10.8 release for [compatibility reasons](Bootstramp.md).
 
     cd node
     git checkout v0.10.8 -b v0.10.8
@@ -159,9 +159,7 @@ This will take a while, although nothing like as long as the node.js installatio
 
 _TO DO: Note that we're disabling systemd integration as the Pi doesn't ship with this by default. This means we'll have to write a configuration script to start the bluetoothd deamon and put it in the /etc/init.d directory with links in the relevant /etc/rc[0-6,S].d directories. For now we'll have to manually start the daemon._
 
-_NOTE: Manual installation of BlueZ leaves a copy of the gatttool in the attrib/ directory. You can run this tool from there, or copy it into /usr/local/bin along with the other BlueZ utilities. It's not clear why it's not installed by default._
-
-_NOTE: The noble library needs to have gatttool in the path at runtime._
+_NOTE: Manual installation of BlueZ leaves a copy of the gatttool in the attrib/ directory. You can run this tool from there, or copy it into /usr/local/bin along with the other BlueZ utilities. It's not clear why it's not installed by default. However the noble library needs to have gatttool in the path at runtime._
 
 ###Fixing dbus permissions
 
@@ -173,11 +171,11 @@ There is a problem with dbus permissions which cause the bluetoothd daemon to fa
 
 the current work around is to edit /etc/dbus-1/system.d/bluetooth.conf and add the following line
 
-        <allow send_type="method_call"/>
+        <allow send_type="method_call"></allow>
 
 inside the <policy> ... </policy> block.
 
-_NOTE: This has security implications. This fix allows a method call from all console users, even those calls unrelated to Bluetooth. It's sub-optimal._
+_NOTE: This has security implications. This fix allows a method call from all console users, even those calls unrelated to Bluetooth. This is a temporary and sub-optimal work-around to this problem. More research needed._
 
 ##Installing the Steward
 
@@ -193,26 +191,7 @@ Delete the existing node_modules directory if it exists, as the depending on the
 
 This will take a while. Go make coffee.
 
-###Manual installation of noble
-
-After building and installing the _steward_ go into the _stewart/node_modules_ subdirectory and delete the _noble_ directory. Then
-
-    git clone git://github.com/sandeepmistry/noble.git
-    cd noble
-    git checkout linux-bluez5
-    npm install -l
-
-to get the latest version which supports Linux and BlueZ 5.x.
-
-####Manual installation of blinkstick
-
-At the moment the version of the Blinkstick library we're using is ahead of the official version. Again in the  _stewart/node_modules_ subdirectory delete the _blinkstick_ directory, copy the modified version into place then,
-
-    cd blinkstick
-    rm -rf node_modules
-    npm install -l
-
-###Disabling Bluetooth LE Support
+### No Bluetooth LE Dongle?
 
 Right now there are still problems with the _noble_ library which will crash the _steward_ on startup with the following error if there is no Bluetooth LE adaptor present,
 
@@ -281,18 +260,44 @@ In the _steward_ directory type
 
 _NOTE: Unlike most modern Linux distributions /bin/bash and /bin/sh are different things on the Pi. So before starting the steward, you'll need to open up the run.sh script. Edit the #! line at the top to use bash_rather than sh_.
 
+###Possible Problems
+
+The steward currently starts up, however there may be problems with Bluetooth LE. If you see the following error,
+
+    warning: [discovery] BLE unable to start scanning diagnostic=Cannot call method 'startScanning' of null
+
+the steward will be unable to talk to Bluetooth devices.
+
 ###Possible Errors
 
 1) If you get an error saying "function not found" then open the run.sh script in an editor and make sure you changed the #! line to be #!/bin/bash rather than #!/bin/sh.
 
-2) If you get an error  saying "Invalid ELF header" it's likely that you have accidentally installed OS X binaries from the Mac installation on to the Pi. Go into the _steward_ directory and
+2) If the steward crashes on startup complaining about a _DNSServiceBrowse_ error related to the Axis Camera,
+
+    /home/pi/steward/steward/node_modules/mdns/lib/browser.js:64
+      dns_sd.DNSServiceBrowse(self.serviceRef, flags, ifaceIdx, '' + requested_typ
+             ^
+    Error: dns service error: unknown
+        at new Browser (/home/pi/steward/steward/node_modules/mdns/lib/browser.js:64:10)
+        at Object.exports.start (/home/pi/steward/steward/devices/devices-media/media-camera-axis.js:69:11)
+        at /home/pi/steward/steward/core/utility.js:108:41
+        at Object.oncomplete (fs.js:107:15)
+
+then you need to comment out the driver. In the devices/devices-media/media-camera-axis.js file, insert the following at the top,
+
+     exports.start = function() {};
+     return;
+
+and the steward should start normally.
+
+3) If you get an error  saying "Invalid ELF header" it's likely that you have accidentally installed OS X binaries from the Mac installation on to the Pi. Go into the _steward_ directory and
 
     rm -rf node_modules
     npm install -l
 
 which will rebuild the binaries. You'll have to move the git checkout of the _noble_ library out of the way before you do so because otherwise the _npm_ install will fail.
 
-3) If you don't see the message,
+4) If you don't see the message,
 
     notice: [server] listening on wss://0.0.0.0:8888
 
