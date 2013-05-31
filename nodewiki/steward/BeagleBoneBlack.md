@@ -1,10 +1,14 @@
 # Bootstrapping a BeagleBone Black
 
-Starting with a new board the first step is to plug the board into your laptop using the mini-USB cable provided. The BeagleBone has three USB ports, a full sized USB-A port, a micro-USB port and a mini-USB port. The mini port is located on the reverse side of the board near the Ethernet jack.
+Starting with a new board the first step is to plug the board into your laptop using the mini-USB cable provided. The BeagleBone has two USB ports, a full sized USB-A port, and a mini-USB port. The mini port is located on the reverse side of the board near the Ethernet jack.
 
 The board should boot and you should see a solid blue light next to the 5V power jack. When startup is completed, a new mass storage device called _BEAGLEBONE_ should appear on your desktop.
 
-Open up the mass storage device and click on the START.htm file to open it in a browser. You should probably read through this file to familiarise yourself with the BeagleBone's capabilities.
+Open up the mass storage device and click on the _START.htm_ file to open it in a browser. You should probably read through this file to familiarise yourself with the BeagleBone's capabilities.
+
+_NOTE: The port on the opposite side of the board from the full sized USB-A jack is a mini-HDMI jack, not a micro USB port as it might appear at first glance._
+
+_NOTE: The board uses the same power supply as the previous BeagleBone. 5VDC, 1A, 2.1mm, center positive. The power supply is not supplied with the board. However if you are going to configure the board to use a WiFi adaptor you should use a supply with a 2A rating otherwise you'll get intermittent crashes due to brown outs._
 
 ## Installing the Drivers
 
@@ -12,13 +16,13 @@ The BeagleBone Black comes with both Network and Serial drivers for Mac OS X. Th
 
 ### Installing the Network Driver
 
-Go to _Step #2_ in the _START.htm" file and grab the Network (HoRNDIS-rel4.pkg) driver file from the BeagleBone's mass storage device.
+Go to _Step #2_ in the _START.htm_ file and grab the Network (HoRNDIS-rel4.pkg) driver file from the BeagleBone's mass storage device.
 
-Install the driver by clicking on the _pkg_ file and following the instructions. 
+Install the driver on your Mac by clicking on the _pkg_ file and following the instructions. 
 
-Unfortunately we can't necessarily directly access the board using this method at this time. There seems to be something in the stock image that causes some boards to fail to bring up an SSH driver.
+After installation you should at this point be able to access the onboard web server of the BeagleBone Black over the USB cable by going to [http://192.168.7.2/](http://192.168.7.2/) in a browser.
 
-However you should at this point be able to access the onboard web server of the BeagleBone Black over the USB cable by going to [http://192.168.7.2/](http://192.168.7.2/) in a browser.
+_NOTE: Unfortunately we can't necessarily directly access the board using SSH at this point. There seems to be something in the stock image that causes some boards to fail to bring up the SSH server properly._
 
 ### Installing the FTDI Serial Driver
 
@@ -156,6 +160,8 @@ Open up [CoolTerm](http://freeware.the-meiers.org/CoolTermMac.zip) again and you
 
     crw-rw-rw-  1 root  wheel   18,  12 31 May 20:40 /dev/tty.usbserial-FTE4XVKD
 
+While I've had this method up and working, I've had intermittent luck with it - USB Serial seems to be more reliable once you have the FTDI drivers installed and working on your Mac.
+
 ###Connecting via network over USB
 
 Plug the BeagleBone back into the mini-USB cable connected to your Mac, and wait for it to boot back up. When it has finished booting, you should be able to once again reach the onboard webpages at [http://192.168.7.2/](http://192.168.7.2/)  in your browser, but you should also be able to SSH to the board,
@@ -197,4 +203,31 @@ Plug an Ethernet cable into the jack on the board. After a moment the two lights
               RX bytes:316153 (308.7 KiB)  TX bytes:675250 (659.4 KiB)
 
 If your router is capable you might want to configure it so that the BeagleBone's IP address is fixed in future and that it's got a local name that you can use rather than a raw IP address.
+
+##Updating the Operating System
+
+_NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the package servers to download new software._
+
+Despite installing the latest image, we should upgrade the installed packages to the latest versions. Login to BeagleBone via the local network and type,
+
+    opkg update
+
+then
+
+    mkdir /home/root/tmp
+    opkg -t /home/root/tmp upgrade
+
+This will take some time. You might want to go make a cup of coffee and maybe a grilled cheese sandwich.
+
+##Configuring WiFi
+
+_NOTE: An external power supply is required to use WiFi, due to the power requirements. Flaky behavior, crashes, etc will result if you do not plug in a 5V 2000mA adapter. If you're still having problems, try an external powered USB hub._
+
+_NOTE: These instructions are for the [miniature WiFi (802.11b/g/n module)](http://www.adafruit.com/products/814) sold by Adafruit._
+
+
+
+Login to the BeagleBone via 
+
+
 
