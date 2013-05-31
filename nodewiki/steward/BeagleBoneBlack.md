@@ -12,9 +12,13 @@ The BeagleBone Black comes with both Network and Serial drivers for Mac OS X. Th
 
 ### Installing the Network Driver
 
-Go to _Step #2_ in the _START.htm" file and grab the Network (_HoRNDIS-rel4.pkg_) driver file from the BeagleBone's mass storage device.
+Go to _Step #2_ in the _START.htm" file and grab the Network (HoRNDIS-rel4.pkg) driver file from the BeagleBone's mass storage device.
 
-Install the driver by clicking on the _pkg_ file and following the instructions.
+Install the driver by clicking on the _pkg_ file and following the instructions. 
+
+Unfortunately we can't necessarily directly access the board using this method at this time. There seems to be something in the stock image that causes some boards to fail to bring up an SSH driver.
+
+However you should at this point be able to access the onboard web server of the BeagleBone Black over the USB cable by going to [http://192.168.7.2/](http://192.168.7.2/) in a browser.
 
 ### Installing the FTDI Serial Driver
 
@@ -72,6 +76,16 @@ it's probably that the system isn't going to let you do that at this point,
 
 and you'll have to *reboot your Mac* to reload the driver.
 
+Once you've done so you enter,
+
+    kextstat -l | grep FTDI
+
+in the terminal, you should see something like this,
+
+    125    0 0xffffff7f81b6c000 0x8000     0x8000     com.FTDI.driver.FTDIUSBSerialDriver (2.2.18) <124 33 5 4 3 1>
+
+which indicates that the driver has loaded correctly.
+
 ## Installing the Operating System
 
 The main difference from the [Raspberry Pi](RaspberryPi.md) for setup is that the BeagleBone ships with the Angstrom Linux distribution and boots from onboard flash memory. That means we don't have to up do an initial OS installation before talking to the board. However, it's advisable to go ahead and update the OS before continuing in any case.
@@ -84,7 +98,7 @@ The image comes as a .xz file. You can install the XZ Utils which will let you u
 
     xz -d BBB-eMMC-flasher-2013.05.27.img.xz 
 
-After decompression is should be around 3.4GB. Now go ahead and insert your microSD card in its adaptor into your Macbook. 
+After decompression is should be around 3.4GB, so you will need a micro SD card at least 4GB in size to handle the image. Go ahead and insert the microSD card in its adaptor into your Macbook. 
 
 Open up a Terminal window and type *df -h*, remember the device name for your micro SD Card. In my case it's */dev/disk1*. We'll need to use the raw device, */dev/rdisk1*.
 
@@ -116,4 +130,71 @@ Power the BeagleBone Black down and [locate the "User Boot" button](http://learn
 Insert the micro SD card in the slot and, whilst holding the "User Boot" button down, plug the board into mini-USB connector. Hold the button down until you see the bank of 4 LEDs light up for a few seconds. You can now release the button.
 
 It will take anywhere from *30 to 45 minutes to flash the image* onto the on-board flash storage. Once done, the bank of 4 LEDs near the Ethernet jack will all light up and stay lit up. Power down the board at this point.
+
+
+## Connecting to the BeagleBone Black
+
+There are four methods to connect to the board. When you connect to the board the default *root password is blank* so just hit return to login to the board.
+
+### Connecting via USB Serial
+
+Several _/dev/tty.usbmodem*_ devices should be present when the board is plugged in via the mini-USB cable.
+
+Open up [CoolTerm](http://freeware.the-meiers.org/CoolTermMac.zip) or a similar program and you can connect to your board at 115,200 8-N-1 (Local Echo should be off) on one of these ttys offered by the board. Of the three offered by the board,
+
+    crw-rw-rw-  1 root  wheel   18,   8 31 May 20:14 /dev/tty.usbmodem401211
+    crw-rw-rw-  1 root  wheel   18,  16 31 May 21:43 /dev/tty.usbmodem401213
+    crw-rw-rw-  1 root  wheel   18,  14 31 May 21:43 /dev/tty.usbmodem7
+
+only _/dev/tty.usbmodem401213_ connected for me. Your milage may vary at this point.
+
+### Connecting via FTDI Serial
+
+Alternatively you can use a 3.3V [FTDI-to-USB](https://www.adafruit.com/products/70) cable to connect to the debug (J1) header block. Pin 1 on the cable is the black wire and connects to pin 1 on the board, the pin with the white dot next to it.
+
+Open up [CoolTerm](http://freeware.the-meiers.org/CoolTermMac.zip) again and you can connect to your board at 115,200 8-N-1 (Local Echo should be off) via the _usbserial_ port offered by the cable, e.g.
+
+    crw-rw-rw-  1 root  wheel   18,  12 31 May 20:40 /dev/tty.usbserial-FTE4XVKD
+
+###Connecting via network over USB
+
+Plug the BeagleBone back into the mini-USB cable connected to your Mac, and wait for it to boot back up. When it has finished booting, you should be able to once again reach the onboard webpages at [http://192.168.7.2/](http://192.168.7.2/)  in your browser, but you should also be able to SSH to the board,
+
+     ssh root@192.168.7.2
+     root@192.168.7.2's password: 
+     root@beaglebone:~# 
+
+###Connecting via the local network
+
+Plug an Ethernet cable into the jack on the board. After a moment the two lights on the jack (green and yellow) should go live and indicate that it is on the network. You can either login to your board via one of the methods above to find out what its IP address is, or check your router.
+
+    root@beaglebone:~# ifconfig
+    eth0      Link encap:Ethernet  HWaddr C8:A0:30:AF:C2:18  
+              inet addr:192.168.1.90  Bcast:192.168.1.255  Mask:255.255.255.0
+              inet6 addr: fe80::caa0:30ff:feaf:c218/64 Scope:Link
+              UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+              RX packets:1843 errors:0 dropped:1 overruns:0 frame:0
+              TX packets:83 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:1000 
+              RX bytes:150073 (146.5 KiB)  TX bytes:12398 (12.1 KiB)
+              Interrupt:56 
+    
+    lo        Link encap:Local Loopback  
+              inet addr:127.0.0.1  Mask:255.0.0.0
+              inet6 addr: ::1/128 Scope:Host
+              UP LOOPBACK RUNNING  MTU:65536  Metric:1
+              RX packets:4 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:4 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:0 
+              RX bytes:280 (280.0 B)  TX bytes:280 (280.0 B)
+
+    usb0      Link encap:Ethernet  HWaddr 06:74:70:BE:E7:97  
+              inet addr:192.168.7.2  Bcast:192.168.7.3  Mask:255.255.255.252
+              UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+              RX packets:4688 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:4537 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:1000 
+              RX bytes:316153 (308.7 KiB)  TX bytes:675250 (659.4 KiB)
+
+If your router is capable you might want to configure it so that the BeagleBone's IP address is fixed in future and that it's got a local name that you can use rather than a raw IP address.
 
