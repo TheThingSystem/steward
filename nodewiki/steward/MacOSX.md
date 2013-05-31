@@ -42,7 +42,7 @@ Then go to the _steward_ directory and install the libraries:
 
 ### Alternative method to install Node.js
 
-_NOTE: The nvm system is based around the bash shell. If you run tcsh or another alternative, it's not going to work for you. You'll have to install node by hand. Go ahead and checkout Node.js from the Github repository,_
+_The nvm system is based around the bash shell. If you run tcsh or another alternative, it's not going to work for you. You'll have to install node by hand. Go ahead and checkout Node.js from the Github repository,_
 
     git clone https://github.com/joyent/node.git
 
@@ -59,7 +59,17 @@ _Now go ahead and build,_
 
 _before proceeding as normal._
 
+### If you have problems building the steward
+
+_If you have problems at the npm install stage when building the steward, you should clean up your environment and try again,_
+
+	rm -f ~/.node-gyp
+	rm -f ~/.npm
+	rm -f ~/.nvm
+	rm -f ~/.npmrc
+
 ## Instructions for starting the steward
+
 The _run.sh_ script does three things:
 
 * The script changes the group/permissions for _/dev/bpf*_ and flushes the arp caches.
