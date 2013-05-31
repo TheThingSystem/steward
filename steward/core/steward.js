@@ -399,13 +399,12 @@ exports.start = function() {
 
   noneP = true;
   for (ifname in ifaces) {
-    if ((!ifaces.hasOwnProperty(ifname)) || (ifname.substr(0, 5) === 'vmnet')) continue;
-    if (ifname.indexOf('tun') !== -1) continue;
+    if ((!ifaces.hasOwnProperty(ifname)) || (ifname.substr(0, 5) === 'vmnet') || (ifname.indexOf('tun') !== -1)) continue;
 
     ifaddrs = ifaces[ifname];
     if (ifaddrs.length === 0) continue;
     for (ifa = 0; ifa < ifaddrs.length; ifa++) {
-      if (ifaddrs[ifa].internal) continue;
+      if ((ifaddrs[ifa].internal) || (ifaddrs[ifa].family !== 'IPv4')) continue;
 
       logger.info('scanning ' + ifname);
       ifaces[ifname] = { addresses: ifaddrs, arp: {} };
