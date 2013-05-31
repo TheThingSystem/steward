@@ -384,7 +384,7 @@ exports.forEachAddress = function(callback) {
 
 
 exports.start = function() {
-  var ifa, ifaddrs, ifname;
+  var ifa, ifaddrs, ifname, noneP;
 
   if (exports.uuid) {
     logger.info('start', { uuid: exports.uuid });
@@ -397,8 +397,10 @@ exports.start = function() {
   if (loadedP) return setTimeout(exports.start, 10);
   loadedP = true;
 
+  noneP = true;
   for (ifname in ifaces) {
     if ((!ifaces.hasOwnProperty(ifname)) || (ifname.substr(0, 5) === 'vmnet')) continue;
+    if (ifname.indexOf('tun') !== -1) continue;
 
     ifaddrs = ifaces[ifname];
     if (ifaddrs.length === 0) continue;
@@ -420,7 +422,9 @@ exports.start = function() {
     for (ifa = 0; ifa < ifaddrs.length; ifa++) {
       if ((!ifaddrs[ifa].internal) && (ifaddrs[ifa].family === 'IPv4')) prime(ifaddrs[ifa].address);
     }
+    noneP = false;
   }
+  if (noneP) logger.error('no network interfaces');
 
   for (ifname in ifaces) if ((ifaces.hasOwnProperty(ifname)) && (util.isArray(ifaces[ifname]))) delete(ifaces[ifname]);
 
