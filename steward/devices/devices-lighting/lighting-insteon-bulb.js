@@ -24,7 +24,7 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.gateway = info.gateway;
   self.insteon = info.device.unit.serial;
-  self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }} };
+  self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }, fixed: true } };
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'ping') {

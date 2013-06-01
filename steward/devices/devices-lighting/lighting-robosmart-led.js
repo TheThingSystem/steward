@@ -23,7 +23,7 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.peripheral = info.peripheral;
   self.ble = info.ble;
-  self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }} };
+  self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }, fixed: true } };
 
   self.peripheral.on('connect', function() {
     self.peripheral.updateRssi();
