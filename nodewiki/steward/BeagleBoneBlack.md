@@ -135,7 +135,6 @@ Insert the micro SD card in the slot and, whilst holding the "User Boot" button 
 
 It will take anywhere from *30 to 45 minutes to flash the image* onto the on-board flash storage. Once done, the bank of 4 LEDs near the Ethernet jack will all light up and stay lit up. Power down the board at this point.
 
-
 ## Connecting to the BeagleBone Black
 
 There are four methods to connect to the board. When you connect to the board the default *root password is blank* so just hit return to login to the board.
@@ -208,6 +207,8 @@ If your router is capable you might want to configure it so that the BeagleBone'
 
 _NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the package servers to download new software._
 
+_NOTE: This will generate a lot of errors. Mostly of type "404 Not Found." I'm note sure whether these are actually a problem. The board will reboot and run apparently okay. It's possible that you should avoid this step for now._
+
 Despite installing the latest image, we should upgrade the installed packages to the latest versions. Login to BeagleBone via the local network and type,
 
     opkg update
@@ -225,9 +226,116 @@ _NOTE: An external power supply is required to use WiFi, due to the power requir
 
 _NOTE: These instructions are for the [miniature WiFi (802.11b/g/n module)](http://www.adafruit.com/products/814) sold by Adafruit._
 
+Login to the BeagleBone via the local network grab the latest drivers from the Realtek site,
 
+    wget ftp://WebUser:r3iZ6vJI@95.130.192.218/cn/wlan/RTL8192xC_USB_linux_v3.4.4_4749.20121105.zip
+    unzip RTL8192xC_USB_linux_v3.4.4_4749.20121105.zip 
+    cd RTL8188C_8192C_USB_linux_v3.4.4_4749.20121105/driver
+    tar -zxvf rtl8188C_8192C_usb_linux_v3.4.4_4749.20121105.tar.gz
+    cd rtl8188C_8192C_usb_linux_v3.4.4_4749.20121105
 
-Login to the BeagleBone via 
+Edit the makefile,
 
+     vi rtl8188C_8192C_usb_linux_v3.4.4_4749.20121105/Makefile
 
+changing line 39 to read, 
+
+     CONFIG_PLATFORM_I386_PC = n
+
+and adding  this somewhere around line 64,
+
+    CONFIG_PLATFORM_ARM_BEAGLE = y
+
+add the following linestowards the end of the other platform configs (at line 455),
+
+    ifeq ($(CONFIG_PLATFORM_ARM_BEAGLE), y)
+    EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+    ARCH := arm
+    CROSS_COMPILE := /usr/bin/arm-angstrom-linux-gnueabi-
+    KSRC := /usr/src/kernel
+    KVER  := $(shell uname -r)
+    MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+    MODULE_NAME := rtl8192cu
+   endif
+
+save and exit. We need to build the kernel module, so we need the kernel development packages
+
+    opkg install kernel-headers  
+    opkg install kernel-dev
+
+Make the helper scripts,
+
+    cd /usr/src/kernel
+
+edit the Makefile to remove the line which will turn warning on implicit declarations into errors, look for the -Werror, and then,
+
+    make scripts
+
+Compile and install the driver,
+
+    cd /home/root/RTL8188C_8192C_USB_linux_v3.4.4_4749.20121105/driver
+    cd rtl8188C_8192C_usb_linux_v3.4.4_4749.20121105
+    make
+    make install
+
+Plug your Wifi adapter in the USB socket if it isn't already and reboot the BeagleBone. After rebooting the board, log back in and check dmesg. 
+
+_NOTE: Due to the way the connection manager works, you (probably?) can't have Ethernet and WiFi up simultaneously. So disconnect your Ethernet cable, which was previously plugged in for downloading updates, and connect back to the board using one of the Serial methods._
+
+You should see something like this,
+
+    [   12.513570] rtl8192cu 1-1:1.0: usb_probe_interface
+    [   12.513602] rtl8192cu 1-1:1.0: usb_probe_interface - got id
+    [   12.514698] rtl8192cu: Chip version 0x10
+    [   12.836885] rtl8192cu: MAC address: 00:e0:4c:09:3e:5e
+    [   12.836920] rtl8192cu: Board Type 0
+    [   12.837036] rtlwifi: rx_max_size 15360, rx_urb_num 8, in_ep 1
+    [   12.837219] rtl8192cu: Loading firmware rtlwifi/rtl8192cufw.bin
+    [   12.841138] usbcore: registered new interface driver rtl8192cu
+    [   13.294573] ieee80211 phy0: Selected rate control algorithm 'rtl_rc'
+    [   13.296188] rtlwifi: wireless switch is on
+    [   16.804823] rtl8192cu: MAC auto ON okay!
+    [   16.892552] rtl8192cu: Tx queue select: 0x05
+    [   17.433002] IPv6: ADDRCONF(NETDEV_UP): wlan0: link is not ready
+
+and if you type 
+
+    ifconfig wlan0
+
+you should see something like this,
+
+    wlan0     Link encap:Ethernet  HWaddr 00:E0:4C:09:3E:5E  
+              UP BROADCAST MULTICAST  MTU:1500  Metric:1
+              RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:1000 
+              RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+there's a link, but no connection as yet. We need to set that up in the connection manager. Go ahead and open the _/var/lib/connman/settings_ file in an editor, and ensure that WiFi is enabled,
+
+    [global]
+    OfflineMode=false
+    
+    [Wired]
+    Enable=true
+    
+    [WiFi]
+    Enable=true
+
+    [Bluetooth]
+    Enable=false
+
+Create a file _/var/lib/connman/wifi.config_ with your WiFi settings, e.g.
+
+    [service_home]
+    Type = wifi
+    Name = Babilim
+    Security = wpa
+    Passphrase = PASSPHRASE_GOES_HERE
+
+and reboot the board, or restart _connman_ to get it to update to use the new settings,
+
+    systemctl restart connman.service
+
+After a few seconds, or on reboot after you've logged back into the board, you should see something like this when you type _ifconfig wlan0_,
 
