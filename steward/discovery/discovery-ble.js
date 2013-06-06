@@ -7,13 +7,6 @@ var noble       = null
 var logger = utility.logger('discovery');
 
 
-try {
-// if node.js crashes trying to load noble, please comment out this line (as a temporary work-around)
-
-  noble       = require('noble');
-} catch(ex) { logger.warning('BLE support disabled', { diagnostic: ex.message } ); }
-
-
 var deviceTypes = {};
 
 exports.register = function(manufacturers) {
@@ -38,6 +31,9 @@ exports.register = function(manufacturers) {
 
 
 exports.start = function() {
+  try {
+    noble       = require('noble');
+  } catch(ex) { logger.warning('BLE support disabled', { diagnostic: ex.message } ); }
   if (!noble) return;
 
   noble.on('stateChange', function(state) {
@@ -113,8 +109,6 @@ exports.start = function() {
       devices.discover(info);
     });
   });
-
-  try { noble.startScanning(); } catch(ex) { logger.warning ('BLE unable to start scanning', { diagnostic: ex.message }); }
 };
 
 var uuidmap = {
