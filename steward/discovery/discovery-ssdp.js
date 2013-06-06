@@ -1,5 +1,6 @@
 var fs          = require('fs')
   , http        = require('http')
+  , lsof        = require('lsof')
   , portfinder  = require('portfinder')
   , SSDP        = require('node-ssdp')
   , stringify   = require('json-stringify-safe')
@@ -52,7 +53,13 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     });
   });
 
-  ssdp.server(addr, portno);
+  try { ssdp.server(addr, portno); } catch(ex) {
+    lsof.rawUdpPort(1900, function(data) {
+      logger.error('discovery', { event: 'listen', diagnostic: ex.message, listeners: stringify(data) });
+    });
+
+    throw(ex);
+  }
 
   client = new SSDP();
   client.logger = logger;
