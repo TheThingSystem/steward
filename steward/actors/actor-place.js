@@ -421,7 +421,7 @@ var readyP = function() {
       params = null;
       try { params = JSON.parse(row.value); } catch(ex) {
         params = null;
-        logger.error('place/1', { event: 'JSON.parse', data: row.value, diagnostic: ex.message });
+        if (row.value.length > 0) logger.error('place/1', { event: 'JSON.parse', data: row.value, diagnostic: ex.message });
       }
       if (!!params) {
         new Place(JSON.parse(row.value));
