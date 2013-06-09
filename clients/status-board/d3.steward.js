@@ -477,6 +477,7 @@ d3.timestamp = d3.timestamp || {};
 
 // http://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
 d3.timestamp.ago = function(time, agoP) {
+  if (!time) return '';
   switch (typeof time) {
     case 'number':
       break;

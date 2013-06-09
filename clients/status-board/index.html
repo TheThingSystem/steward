@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head> 
+<title>steward</title> 
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+<meta http-equiv="cache-control" content="no-cache" />
+
+<style type="text/css">
+// please do not change this section... it is trying to emulate what status board provides
+// cf., http://www.panic.com/statusboard/docs/diy_tutorial.pdf
+
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series EM";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series EM.otf");
+}
+
+body {
+  font-family: "Roadgeek 2005 Series D", sans-serif;
+  background: #000 !important;
+  margin: 0px; padding: 0px;
+  color: #fff;
+}
+
+#landing {
+  background-image: url("images/thing.bkg.svg");  
+}
+</style>
+
+<script type='text/javascript' src='d3.v2.js'></script>
+<script type='text/javascript' src='d3.steward.js'></script>
+<script type='text/javascript' src='onactors.js'></script>
+
+<link rel="stylesheet" href="master.css" type="text/css" media="screen" />
+<script type='text/javascript' src='drilldown.js'></script>
+
+<script type='text/javascript'>
+var stack = [];
+
+var main = function() {
+  stack.push({ page: home });
+  go();
+};
+
+var go = function() {
+  var req = new XMLHttpRequest();
+  req.onreadystatechange = function() {
+    var message, state;
+
+    try {
+      if (this.readyState === 4) {
+        message = JSON.parse(this.responseText);
+        if (!message) throw new Error('invalid JSON: ' + this.responseText);
+
+        state = stack.pop();
+        state.message = message;
+        stack.push(state);
+        (state.page)(state);
+      }
+    } catch(ex) { console.log(ex); }
+  }.bind(req);
+  req.open('GET', 'actors.json', true);
+  req.send(null);
+
+// LATER: schedule the next fetch
+};
+
+var goback = function() {
+  var state = stack.pop();
+
+  if (stack.length > 0) state = stack.pop();
+  stack.push(state);
+  (state.page)(state);
+};
+
+var goforw = function(page, actor) {
+  var state = { page: page, actor: actor };
+
+  stack.push(state);
+  (state.page)(state);
+};
+
+</script>
+</head> 
+
+
+<body onload='main();'> 
+
+<div id="chart">
+</div>
+
+</body>
+</html>
