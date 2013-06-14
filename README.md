@@ -23,7 +23,7 @@ PRIOR TO ALPHA RELEASE
 
 2. device implementations
 
-    2.1. swivl ptz MTR)
+    2.1. swivl ptz (MTR)
 
     2.2. appleTV
 
@@ -43,9 +43,9 @@ PRIOR TO ALPHA RELEASE
 
    4.2. temporal relations
 
-5. steward "color" based on status MTR)
+5. steward "color" based on status (MTR)
 
-6. steward "user assistance" queue MTR)
+6. steward "user assistance" queue (MTR)
 
     6.1. "press the button on the controller"
 

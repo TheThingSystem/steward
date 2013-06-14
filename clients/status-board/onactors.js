@@ -18,7 +18,7 @@ var thePlace = function(message) {
 };
 
 var mostDevices = function(message) {
-  var actor, devices, id, path, result;
+  var actor, devices, entry, id, now, path, result;
 
   result = message.result;
   if (!result) return null;
@@ -30,8 +30,26 @@ var mostDevices = function(message) {
     path = id.split('/');
     if ((path[1] !== 'device') || (path[2] === 'gateway') || (path[2] === 'indicator')) continue;
 
-    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) devices.push(result[id][actor]);
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) {
+      entry = result[id][actor];
+      entry.actor = actor;
+      entry.deviceType = id;
+      devices.push(entry);
+    }
   }
+
+  now = new Date().getTime();
+  devices.sort(function(a, b) {
+    var au, bu;
+
+    au = bu = now;
+    if (!!a.updated) try { au = new Date(a.updated).getTime(); } catch(ex) {}
+    if (!!b.updated) try { bu = new Date(b.updated).getTime(); } catch(ex) {}
+
+    return ((au !== bu) ? (bu - au)
+         : (a.name.toLowerCase() !== b.name.toLowerCase()) ? a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+         : a.actor.localeCompare(b.actor));
+  });
 
   return devices;
 };
@@ -40,7 +58,7 @@ var mostDevices = function(message) {
 // returns an object with members named by tag (e.g., "living room'), each member is an array
 
 var allTags = function(message) {
-  var actor, device, devices, i, id, path, result, tag, tags;
+  var actor, device, devices, entry, i, id, path, result, tag, tags;
 
   result = message.result;
   if (!result) return null;
@@ -55,7 +73,12 @@ var allTags = function(message) {
     path = id.split('/');
     if (path[1] !== 'device') continue;
 
-    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) devices[actor] = result[id][actor];
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) {
+      entry = result[id][actor];
+      entry.actor = actor;
+      entry.deviceType = id;
+      devices[actor] = entry;
+    }
   }
 
   tags = {};
@@ -71,14 +94,14 @@ var allTags = function(message) {
     if (tags[tag.name].length < 1) delete(tags[tag.name]);
   }
 
-  return tags;
+  return sorted(tags);
 };
 
 
 // returns an object with members named by device category (e.g., 'lighting'), each member is an array
 
 var allCategories = function(message) {
-  var actor, categories, category, id, path, result;
+  var actor, categories, category, entry, id, path, result;
 
   result = message.result;
   if (!result) return null;
@@ -92,10 +115,27 @@ var allCategories = function(message) {
 
     category = path[2];
     if (!categories[category]) categories[category] = [];
-    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) categories[category].push(result[id][actor]);
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) {
+      entry = result[id][actor];
+      entry.actor = actor;
+      entry.deviceType = id;
+      categories[category].push(entry);
+    }
   }
 
-  return categories;
+  return sorted(categories);
+};
+
+var sorted = function(o) {
+  var a, i, prop, result;
+
+  a = [];
+  for (prop in o) if (o.hasOwnProperty(prop)) a.push({ key: prop, value: o[prop] });
+  a.sort(function(a, b) { return a.key.toLowerCase().localeCompare(b.key.toLowerCase()); });
+
+  result = {};
+  for (i = 0; i < a.length; i++) result[a[i].key] = a[i].value;
+  return result;
 };
 
 
@@ -127,24 +167,24 @@ var statusColor = function(entry) {
     case 'quiet':
     case 'ready':
     case 'green':
-      return 'green';
+      return '#00ba00';
 
     case 'busy':
     case 'motion':
     case 'off':
     case 'recent':
     case 'blue':
-      return 'blue';
+      return '#006be6';
 
     case 'waiting':
     case 'indigo':
-      return 'indigo';
+      return '#9b00c1';
 
     case 'absent':
     case 'error':
     case 'reset':
     case 'red':
-      return 'red';
+      return '#ff3000';
 
     default:
       return 'black';

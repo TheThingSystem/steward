@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" sodipodi:docname="ecobee.svg" inkscape:version="0.48.2 r9819"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<sodipodi:namedview  fit-margin-top="0" gridtolerance="10" fit-margin-left="0" id="namedview9" fit-margin-right="0" inkscape:window-width="640" inkscape:window-x="0" fit-margin-bottom="0" inkscape:window-y="0" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:cx="22.148" inkscape:cy="22.631" objecttolerance="10" borderopacity="1" bordercolor="#666666" showgrid="false" inkscape:current-layer="Layer_1" inkscape:window-height="480" inkscape:zoom="0.18209877" pagecolor="#ffffff" inkscape:window-maximized="0">
+	</sodipodi:namedview>
+<path id="path3" inkscape:connector-curvature="0" fill="#222222" d="M22.32,0C10.013,0,0,10.013,0,22.32
+	C0,34.627,10.014,44.637,22.32,44.637c12.309,0,22.316-10.012,22.316-22.317C44.636,10.013,34.626,0,22.32,0z"/>
+<g id="g5" transform="translate(-463.852,-625.994)">
+	<path id="path7" inkscape:connector-curvature="0" fill="#222222" d="M486.172,627.494c-11.499,0-20.816,9.317-20.816,20.815
+		c0,11.496,9.317,20.817,20.816,20.817c11.496,0,20.816-9.321,20.816-20.817S497.668,627.494,486.172,627.494z M486.317,667.457
+		c-10.572,0-19.146-8.57-19.146-19.146c0-10.57,8.571-19.145,19.146-19.145s19.145,8.571,19.145,19.145
+		C505.462,658.887,496.891,667.457,486.317,667.457z"/>
+</g>
+<g>
+	<path id="path48129" sodipodi:nodetypes="cccc" fill="#222222" stroke="#FFFFFF" d="M16.833,34.072
+		c5.59-4.521,4.915-7.085,5.862-10.154c0.319,3.008,1.538,6.224,5.864,10.154H16.833L16.833,34.072z"/>
+	<path id="rect48116" fill="#222222" stroke="#FFFFFF" stroke-width="1.5" d="M10.204,11.268h24.218
+		c0.451,0,0.815,0.366,0.815,0.817v15.792c0,0.451-0.364,0.814-0.815,0.814H10.204c-0.452,0-0.817-0.363-0.817-0.814V12.085
+		C9.387,11.634,9.753,11.268,10.204,11.268z"/>
+	<path id="rect48683" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0.625" d="M35.154,31.75c-1.088-0.351-2.338,0.375-2.594,1.482
+		c-0.191,0.794-0.623,1.553-0.642,2.376c-0.008,1.02,0.825,1.893,1.814,2.048c1.077,0.255,2.231-0.507,2.46-1.583
+		c0.2-0.866,0.736-1.712,0.598-2.62C36.656,32.609,35.984,31.935,35.154,31.75L35.154,31.75z"/>
+	<path id="path48685" fill="none" stroke="#000000" stroke-width="0.9847" stroke-linecap="round" stroke-linejoin="round" d="
+		M34.823,33.252l-0.435,1.357"/>
+</g>
+</svg>

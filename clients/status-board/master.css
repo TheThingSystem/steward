@@ -1,0 +1,302 @@
+#chart {
+  position: relative;
+  background: #000;
+  width: 802px;
+  height: 802px;
+}
+
+#chart div {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  color: #ddd;
+  font-size: 11px;
+  font-family: "Roadgeek 2005 Series D";
+ }
+
+#chart a {
+  color: #fff;
+}
+
+#controls {
+        position: absolute;
+        top: 189px;
+        left: 95px;
+        width: 280px;
+        height: 300px;
+        text-align: center;
+}
+
+#controls-home {
+        position: absolute;
+        top: 550px;
+        left: 278px;
+        width: 250px;
+        text-align: center;
+}
+
+#subcontrols {
+        position: absolute;
+        top: 284px;
+        left: 398px;
+        width: 250px;
+        text-align: left;
+        font-weight: normal;
+}
+
+#labels {
+        position: absolute;
+        top: 52px;
+        left: 278px;
+        width: 100px;
+        text-align: right;
+        font-weight: normal;
+}
+
+
+#chart div.big-instructions {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        color: #fff;
+        font-weight: normal;
+        line-height: 27px;
+        margin-top: 2px;
+        margin-left: 6px;
+        padding-top: 3px;
+}
+
+#controls div.multiple-instructions {
+		position: relative;
+        width: 100%; 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        line-height: 18px;
+        font-weight: normal;
+        margin-top: 16px;
+        margin-left: 4px;
+        white-space: nowrap;
+        text-align: center;
+}
+
+#chart div.small-instructions {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 16px;
+        line-height: 18px;
+        font-weight: normal;
+        margin-top: 16px;
+        margin-left: 4px;
+        white-space: nowrap;
+}
+
+#chart div.subinstructions {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 16px;
+        line-height: 46px;
+        font-weight: normal;
+        margin-top: 16px;
+        margin-left: 4px;
+        color: #fff;
+}
+
+#chart div.labels {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 41px;
+        font-weight: normal;
+        color: #fff;
+        padding-right: 5px;
+}
+
+#readings {
+        position: absolute;
+        top: 68px;
+        left: 392px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        font-weight: normal;
+        text-align: left;
+        color: #fff;
+}
+
+#chart div.label {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        font-weight: normal;
+        color: #fff;
+        height: 41px;
+}
+
+text {
+  font: 10px sans-serif;
+}
+
+div.actor { text-align: center; float: left;  width: 50px; height: 70px; overflow: hidden;}
+img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-color: #fff; overflow: hidden; }
+
+.actor1  { position: absolute; top: 222px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor2  { position: absolute; top: 222px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor3  { position: absolute; top: 222px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor4  { position: absolute; top: 222px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor5  { position: absolute; top: 222px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor6  { position: absolute; top: 222px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor7  { position: absolute; top: 222px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor8  { position: absolute; top: 222px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor9  { position: absolute; top: 222px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor10         { position: absolute; top: 222px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor11         { position: absolute; top: 222px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor12         { position: absolute; top: 222px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+
+.actor13         { position: absolute; top: 300px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor14         { position: absolute; top: 300px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor15         { position: absolute; top: 300px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor16         { position: absolute; top: 300px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor17         { position: absolute; top: 300px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor18         { position: absolute; top: 300px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor19         { position: absolute; top: 300px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor20         { position: absolute; top: 300px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor21         { position: absolute; top: 300px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor22         { position: absolute; top: 300px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor23         { position: absolute; top: 300px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor24         { position: absolute; top: 300px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+.actor25         { position: absolute; top: 377px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor26         { position: absolute; top: 377px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor27         { position: absolute; top: 377px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor28         { position: absolute; top: 377px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor29         { position: absolute; top: 377px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor30         { position: absolute; top: 377px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor31         { position: absolute; top: 377px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor32         { position: absolute; top: 377px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor33         { position: absolute; top: 377px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor34         { position: absolute; top: 377px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor35         { position: absolute; top: 377px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor36         { position: absolute; top: 377px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+.actor37         { position: absolute; top: 423px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor38         { position: absolute; top: 423px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor39         { position: absolute; top: 423px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor40         { position: absolute; top: 423px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor41         { position: absolute; top: 423px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor42         { position: absolute; top: 423px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor43         { position: absolute; top: 423px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor44         { position: absolute; top: 423px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor45         { position: absolute; top: 423px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor46         { position: absolute; top: 423px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor47         { position: absolute; top: 423px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor48         { position: absolute; top: 423px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+.actor49         { position: absolute; top: 491px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor50         { position: absolute; top: 491px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor51         { position: absolute; top: 491px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor52         { position: absolute; top: 491px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor53         { position: absolute; top: 491px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor54         { position: absolute; top: 491px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor55         { position: absolute; top: 491px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor56         { position: absolute; top: 491px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor57         { position: absolute; top: 491px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor58         { position: absolute; top: 491px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor59         { position: absolute; top: 491px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor60         { position: absolute; top: 491px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+.actor61         { position: absolute; top: 559px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor62         { position: absolute; top: 559px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor63         { position: absolute; top: 559px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor64         { position: absolute; top: 559px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor65         { position: absolute; top: 559px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor66         { position: absolute; top: 559px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor67         { position: absolute; top: 559px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor68         { position: absolute; top: 559px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor69         { position: absolute; top: 559px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor70         { position: absolute; top: 559px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor71         { position: absolute; top: 559px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor72         { position: absolute; top: 559px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+.actor73         { position: absolute; top: 627px; left: 65px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor74         { position: absolute; top: 627px; left: 123px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor75         { position: absolute; top: 627px; left: 181px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor76         { position: absolute; top: 627px; left: 239px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor77         { position: absolute; top: 627px; left: 297px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor78         { position: absolute; top: 627px; left: 355px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor79         { position: absolute; top: 627px; left: 413px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor80         { position: absolute; top: 627px; left: 471px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor81         { position: absolute; top: 627px; left: 529px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor82         { position: absolute; top: 627px; left: 587px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor83         { position: absolute; top: 627px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+.actor84         { position: absolute; top: 627px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
+
+.actor-name		 { width: 100px; text-align: center; font-weight: normal; color: #fff; }
+.grouping {        
+		font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        height: 65px;
+        text-transform: uppercase;
+        display: none;
+}
+
+.wrapper {        
+		margin: 0px auto;
+}
+
+
+#chart div.categories { position: absolute; top: 461px; left: 180px; text-align: center; width: 680px; height: 100px; }
+#chart div.category { text-align: center; width: 50px; position: relative; float: left; padding: 5px 4px; }
+
+#chart .wrapper {        
+		margin: 0px auto;
+}
+ 
+#chart div.tags { position: absolute; top: 545px; left: 180px; width: 680px; height: 50px; }
+#chart span.tag { text-align: center; position: relative; padding: 3px 8px; margin: 12px 2px; background-color: #333; 
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px; /* future proofing */
+	-khtml-border-radius: 10px; /* for old Konqueror browsers */
+}
+
+form {
+  position: absolute;
+  right: 44px;
+  top: 10px;
+}
+
+.logo { position: absolute; top: 50px; left: 220px;}
+
+#chart div.status {
+        position: absolute;
+        top: 150px;
+        left: 0px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        text-transform: uppercase;
+        text-align: center;
+}
+
+
+#chart div.actors { position: absolute; top: 0px; left: 0px;}
+
+p.actor-name {
+    width: 100%;                   /* IE6 needs any width */
+    overflow: hidden;              /* "overflow" value must be different from  visible"*/ 
+    -o-text-overflow: ellipsis;    /* Opera < 11*/
+    text-overflow:    ellipsis;    /* IE, Safari (WebKit), Opera >= 11, FF > 6 */
+    padding: 3px 0px 0px 0px;
+    margin: 0px;
+    height: 23px;
+    display: cell;
+    vertical-align: bottom;
+    text-align: center;
+}
+
+.actor-grouping {  }

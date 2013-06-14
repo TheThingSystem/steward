@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" inkscape:version="0.48.1 r9760" sodipodi:docname="insteon_LED.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<sodipodi:namedview  inkscape:current-layer="Layer_1" id="namedview11726" bordercolor="#666666" pagecolor="#ffffff" borderopacity="1" inkscape:cy="22.318501" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:zoom="21.013957" inkscape:cx="22.318501" inkscape:window-width="1910" inkscape:window-height="1156" gridtolerance="10" inkscape:window-x="0" inkscape:window-y="0" showgrid="false" objecttolerance="10" inkscape:window-maximized="0" guidetolerance="10">
+	</sodipodi:namedview>
+<g id="g11706">
+	<g id="g11708">
+	</g>
+	<g id="g11712">
+	</g>
+	<g id="g11716">
+	</g>
+	<g id="g11720">
+	</g>
+</g>
+<g>
+	<path d="M22.465,3.102c-10.573,0-19.146,8.572-19.146,19.146c0,10.571,8.573,19.143,19.146,19.143
+		c10.574,0,19.144-8.571,19.145-19.143C41.61,11.673,33.039,3.102,22.465,3.102z M15.021,13.484h14.117
+		c0.645,1.233,3.857,6.768,4.907,8.373H15.199l0.539-0.883h-1.765l-0.585,0.883h-3.265L15.021,13.484z M34.29,29.969H9.884v-7.165
+		c0.013,0.001,0.021,0.014,0.034,0.213h3.46v1.596h1.66v-1.596H34.29V29.969z"/>
+	<path d="M0,0v44.637h44.637V0H0z M22.32,43.064c-11.498,0-20.818-9.32-20.818-20.815c0-11.5,9.32-20.821,20.818-20.821
+		c11.496,0,20.816,9.321,20.816,20.821C43.136,33.743,33.816,43.064,22.32,43.064z"/>
+</g>
+</svg>

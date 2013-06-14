@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" sodipodi:docname="ecobee.svg" inkscape:version="0.48.2 r9819" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<sodipodi:namedview  id="namedview9" fit-margin-top="0" fit-margin-left="0" fit-margin-right="0" fit-margin-bottom="0" gridtolerance="10" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:cx="22.148" inkscape:cy="22.631" objecttolerance="10" borderopacity="1" bordercolor="#666666" showgrid="false" inkscape:current-layer="Layer_1" inkscape:window-height="480" inkscape:zoom="0.18209877" pagecolor="#ffffff" inkscape:window-width="640" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="0">
+	</sodipodi:namedview>
+<path id="path3" inkscape:connector-curvature="0" fill="#222222" d="M22.32,0C10.013,0,0,10.013,0,22.32
+	s10.014,22.317,22.32,22.317c12.305,0,22.316-10.012,22.316-22.317C44.636,10.013,34.626,0,22.32,0z"/>
+<g id="g5" transform="translate(-463.852,-625.994)">
+	<path id="path7" inkscape:connector-curvature="0" fill="#222222" d="M486.172,627.494c-11.499,0-20.82,9.321-20.82,20.819
+		c0,11.496,9.321,20.817,20.82,20.817c11.496,0,20.816-9.321,20.816-20.817C506.988,636.816,497.668,627.494,486.172,627.494z
+		 M486.317,667.457c-10.572,0-19.145-8.57-19.145-19.144s8.571-19.145,19.145-19.145c10.574,0,19.145,8.571,19.145,19.145
+		S496.891,667.457,486.317,667.457z"/>
+</g>
+<g>
+	<path d="M22.646,19.005v9.313c0,0.901,0.237,1.617,0.71,2.15s1.103,0.8,1.884,0.8c0.925,0,1.777-0.414,2.56-1.244l1.636,2.809
+		c-1.399,1.256-2.963,1.884-4.692,1.884c-1.659,0-3.087-0.587-4.283-1.76c-1.197-1.173-1.795-2.755-1.795-4.745v-9.207h-2.381
+		v-3.199h2.381V9.869h3.981v5.937h4.976v3.199H22.646z"/>
+</g>
+</svg>
