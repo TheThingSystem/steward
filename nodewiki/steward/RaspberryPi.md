@@ -191,6 +191,16 @@ Delete the existing node_modules directory if it exists, as the depending on the
 
 This will take a while. Go make coffee.
 
+####Manual installation of noble
+
+After building and installing the steward go into the _stewart/node_modules_ subdirectory and delete the _noble_ directory. Then,
+
+    git clone git://github.com/sandeepmistry/noble.git
+    cd noble
+    npm install -l
+
+to get the latest version which supports Linux and BlueZ 5.x.
+
 ### No Bluetooth LE Dongle?
 
 Right now there are still problems with the _noble_ library which will crash the _steward_ on startup with the following error if there is no Bluetooth LE adaptor present,
