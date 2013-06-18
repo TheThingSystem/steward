@@ -798,9 +798,12 @@ var peripheral_scan = function(peripheral, callback) {
           c.discoverDescriptors();
 
           if (!!n.fetch) {
-            zero++;
-            c.on('read', characteristicRead(service.characteristics[c.uuid]));
-            c.read();
+
+            if (c.properties.indexOf('read') !== -1) {
+              zero++;
+              c.on('read', characteristicRead(service.characteristics[c.uuid]));
+              c.read();
+            }
           }
         }
         if (--zero === 0) callback(ble);
