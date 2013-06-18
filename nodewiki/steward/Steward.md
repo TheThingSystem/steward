@@ -140,8 +140,8 @@ Once a second, the _scan_ function in the steward module is run.
 This looks through the list of all events known to the steward.
 There are three possibilities:
 
-* The event is a _conditional_ meaning that the steward looks at state information in the event to see if the event should be
-considered observed.
+* The event is '.condition',
+which indicates that the steward should look at the actors' state information to see if the event should be considered observed.
 
 * The event isn't being observed, in which case, the steward publishes a request for the event to be observed.
 (When the actor that is supposed to observe the event is able to do so, in response it will call the _report_ function.)

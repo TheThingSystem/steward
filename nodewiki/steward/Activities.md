@@ -61,7 +61,7 @@ hopefully, the light is not close to someone sleeping, as they may not appreciat
 
 Of course,
 real-world activities tend to be more complex in the sense that we might want multiple lights to go on at once.
-So, the steward supports _groups_ (discussed momentarily).
+So, the steward supports _groups_ (discussed later on).
 
 ## Taxonomy
 A **key concept** in the steward is that when a thing observes an event,
@@ -87,6 +87,37 @@ Unlike the _eventID_ and _eventUID_, these are meant t be meaningful to people.
 
 * A _sortOrder_ to provide an optional hint to programs when sorting events for display.
 
+If the _observe_ verb is the value '.condition',
+then the associated actor may NOT refer to a group,
+and the _parameter_ value is an expression that is evaluated against the _info_ property of the actor
+(termed the actor's state information).
+For example, 
+
+    { operator : "any-of"
+    , operand1 : ".solar"
+    , operand2": ["morning", "daylight", "evening"]
+    }
+
+says to look at the actor's 'info.solar' property, and if the value is equal to any of the strings in the list,
+then this evaluates to true.
+
+The parameter consists of three parts:
+
+* _operator_: one of "equals", "not-equals", "less-than", "less-than-or-equals", "greater-than", "greater-than-or-equals",
+"any-of", "none-of", "present", "not" "and", "or"
+
+* _operand1_: either a number, a string beginning with "." (referring to a state variable), or a literal string.
+
+* _operand2_: as _operand1_, but optional, depending on the operator
+
+Typically conditional events are long-lived and are grouped with some other event that is observed to trigger an activity.
+For example,
+the condition above refers to daylight hours.
+It is likely that this is used with something an observed event (e.g., a motion sensor detecting motion) to perform a particular
+task.
+Alternatively,
+this might be used as a task _guard_ so to limit the performance of a particular task to daylight hours.
+
 ### Tasks
 An _task_ consists of:
 
@@ -102,6 +133,8 @@ Unlike the _taskID_ and _taskUID_, these are meant t be meaningful to people.
 * An _actorType_ (either 'device', 'place', or 'group') and _actorID_ that is assigned by the client during task creation.
 
 * A _perform_ verb and _parameter_ value specific to the actor that is assigned by the client during task creation.
+
+* A _guard_, if present, identifies a conditional event that must be true in order for the task to be performed.
 
 * A _sortOrder_ to provide an optional hint to programs when sorting tasks for display.
 
@@ -228,6 +261,7 @@ an authorized client sends:
     , actor     : 'TYPE/ID'
     , perform   : 'TASK'
     , parameter : 'PARAMS'
+    , guard     : 'event/ID'
     , comments  : 'COMMENTS'
     }
 
@@ -237,6 +271,7 @@ _NAME_ is a user-friendly name for this instance,
 _TYPE/ID_ identifies the actor that performs the task,
 _TASK_ identifies the particular task,
 _PARAMS_ provides the parameters,
+_event/ID_ (if present) the guard event associated with this task,
 and _COMMENTS_ (if present) are textual, e.g.,
 
     { path      : '/api/v1/task/create/0123456789abcdef'
