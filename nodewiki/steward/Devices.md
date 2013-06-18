@@ -238,7 +238,7 @@ prefix:
 ## Design Patterns
 There are three design patterns currently in use for device actors.
 
-### Standaline Actor
+### Standalone Actor
 A standalone actor refers to a device that is discovered by the steward and doesn't discover anything on its own.
 
 Examples of standalone actors include:
@@ -344,7 +344,7 @@ an authorized client sends:
     , parameter : 'PARAM'
     }
 
-where _ID_ corresponds to the _deviceID_ of the device to be deleted,
+where _ID_ corresponds to the _deviceID_ of the device to perform the task,
 _X_ is any non-empty string,
 _TASK_ identifies a task to be performed,
 and _PARAM_ (if present) provides parameters for the task, e.g.,
