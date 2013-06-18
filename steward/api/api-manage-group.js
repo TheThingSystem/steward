@@ -12,7 +12,7 @@ var util       = require('util')
 
 var groups    = exports.groups    = {};
 var operators = exports.operators = { and: 0, or: 1, not: 2 };
-var types     = exports.types     = { device: 'device', event: 'event', task: 'task' };
+var types     = exports.types     = { device: 'device', place: 'place', event: 'event', task: 'task' };
 
 var db;
 
@@ -80,7 +80,7 @@ var create = function(logger, ws, api, message, tag) {
         actor = actors[member[0]];
         if (!actor)                                         return error(true,  'invalid member ' + member[2]);
         if (!actor.$lookup(member[1]))                      return error(false, 'unknown member ' + member[2]);
-        if (type !== 'device')                              return error(false, 'group/actor type mismatch');
+        if ((type !== 'device') && (type !== 'place'))      return error(false, 'group/actor type mismatch');
         break;
     }
   }
