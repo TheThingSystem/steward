@@ -54,7 +54,7 @@ exports.performed = function(taskID) {
 
 
 var scan = function() {
-  var activity, device, event, i, module, now, performance, performances, stamp, task, uuid;
+  var activity, device, event, i, now, performance, performances, stamp, task, uuid;
 
   now = new Date();
   stamp = now.getTime();
@@ -109,8 +109,6 @@ var scan = function() {
       broker.publish('actors', 'perform', performance.taskID, device, performance.perform, performance.parameter);
     }
   }
-
-  for (module in exports.status) if (exports.status.hasOwnProperty(module)) report(module, exports.status[module], now);
 };
 
 
@@ -391,6 +389,12 @@ exports.start = function() {
     server.start();
     utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js/, 6, -3, ' actor');
     setInterval(scan, 1000);
+    setInterval(function() {
+      var module, now;
+
+      now = new Date();
+      for (module in exports.status) if (exports.status.hasOwnProperty(module)) report(module, exports.status[module], now);
+    }, 15 * 1000);
     return;
   }
 

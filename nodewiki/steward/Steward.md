@@ -134,7 +134,33 @@ Once that occurs, the steward computes its own UUID and starts the _server_ modu
 It then loads the pseudo actors (e.g., 'place/1') and begins its observer-perform (or 'activity') loop.
 
 ### The Observe-Perform Loop
-__TBD__
+In a sense,
+this is the heart of the _steward_.
+Once a second, the _scan_ function in the steward module is run.
+This looks through the list of all events known to the steward.
+There are three possibilities:
+
+* The event is a _conditional_ meaning that the steward looks at state information in the event to see if the event should be
+considered observed.
+
+* The event isn't being observed, in which case, the steward publishes a request for the event to be observed.
+(When the actor that is supposed to observe the event is able to do so, in response it will call the _report_ function.)
+
+* The event is being observed.
+
+Next,
+the _scan_ function looks through the list of armed activities,
+and if the event associated with an activity has been observed,
+then the associated task is marked for subsequent performance.
+The _scan_ function then looks through the list of all non-conditional events known to the steward and resets their "observed"
+status.
+
+Then,
+the _scan_function then looks through the list of all tasks known to the steward,
+and constructs a list of tasks to be performed.
+For each task it publishes a request for the task to be performed.
+
+**NOTE THAT THIS ALGORITHM DOES NOT IMPLEMENT TEMPORAL EVALUATION**
 
 ## Server module
 On startup,
@@ -188,12 +214,106 @@ it invokes a method in this module to see if either MAC address has not previous
 callback should be invoked.
 
 ## Routing modules
+At present, the _steward_ has three API modules.
 
 ## Console API
+Authorized clients connect to the
+
+    /console
+
+resource in order to receive logging entries from the _steward_.
+When a client first connects to this resource,
+most actors in the system will present a brief synopsis.
+Thereafter log entries will be sent to the client, e.g.,
+
+    {
+      "climate": [
+        {
+          "date": "2013-06-18T08:12:12.787Z",
+          "level": "info",
+          "message": "device\/44",
+          "meta": {
+            "status": "present"
+          }
+        },
+        {
+          "date": "2013-06-18T08:12:12.788Z",
+          "level": "info",
+          "message": "device\/45",
+          "meta": {
+            "status": "present"
+          }
+        },
+        {
+          "date": "2013-06-18T08:12:12.788Z",
+          "level": "info",
+          "message": "device\/49",
+          "meta": {
+            "status": "present"
+          }
+        }
+      ]
+    }
+
+Finally,
+any traffic sent from the client is ignored.
+
 
 ## Inspection API
+Authorized client may connect to the
+
+    /
+
+resource in order to inspect available resources and API calls, e.g.,
+
+    {
+      "requestID": 0,
+      "result": {
+        "\/console": {
+          
+        },
+        "\/manage": {
+          "\/api\/v1\/activity\/create": {
+            "access": "write",
+            "required": {
+              "uuid": true,
+              "name": true,
+              "event": "actor",
+              "task": "actor"
+            },
+            "optional": {
+              "comments": true,
+              "armed": [
+                "true",
+                "false"
+              ]
+            },
+            "response": {
+              
+            },
+            "comments": [
+              "the uuid is specified as the create suffix",
+              "the event actor must resolve to an event or a group of events",
+              "the task actor must resolve to an event or a group of tasks"
+            ]
+          },
+        },
+
+        ...
+
+        "\/": {
+          
+        }
+      }
+    }
+
 
 ## Management API
+Authorized clients connect to the
+
+    /manage
+
+resource in order to manage [devices](Devices.md) or [activities, events, tasks, and groups](Activities.md).
 
 
 ## To be implemented

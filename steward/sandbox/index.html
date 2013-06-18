@@ -614,7 +614,7 @@ var notice = function(message, meta) {
 };
 
 var go = function(host, i) {
-  var opened, ws, ws2;
+  var opened, ws, ws2, ws3;
   var tag = 'connection #' + i + ' to ws://' + host + ':8888/console';
 
   notice(tag, { state: 'connecting...' });
@@ -622,6 +622,7 @@ var go = function(host, i) {
   opened = 0;
   ws = new WebSocket('ws://' + host + ':8888/console');
   ws2 = null;
+  ws3 = null;
 
   ws.onopen = function(event) {
     var x;
@@ -661,6 +662,19 @@ var go = function(host, i) {
     ws2.onclose = function(event) {};
 
     ws2.onerror = function(event) {};
+
+
+    ws3 = new WebSocket('ws://' + host + ':8888/');
+
+    ws3.onopen = function(event) {}
+
+    ws3.onmessage = function(event) {
+      console.log(event.data));
+    };
+
+    ws3.onclose = function(event) {};
+
+    ws3.onerror = function(event) {};
   };
 
   ws.onmessage = function(event) {

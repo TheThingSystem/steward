@@ -287,7 +287,7 @@ with your clients.
 
 **NOTE THAT ENCRYPTION IS NOT YET ENABLED**
 
-The steward will use "security" is available with the device,
+The steward will use whatever "security" is available with the device,
 but speaking candidly: given the state of today's device security, that's not saying much.
 
 ## A System of Systems
