@@ -18,6 +18,8 @@ process.addListener("uncaughtException", function (err) {
 
   console.log('uncaught exception: ' + err);
   console.trace();
+
+  process.exit(1);
 });
 
 
