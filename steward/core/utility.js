@@ -1,8 +1,24 @@
 var fs          = require('fs')
   , EventBroker = require('observer').EventBroker
+  , longjohn    = require('longjohn')
+  , stacktrace  = require('stack-trace')
   , winston     = require('winston')
   , util        = require('util')
   ;
+
+
+process.addListener("uncaughtException", function (err) {
+  var logger;
+
+  try {
+    logger = exports.logger('steward');
+    logger.alert('exception', { diagnostic: err.message });
+    logger.alert('exception', { stack: JSON.stringify(stacktrace.parse(err)) });
+  } catch(ex) {}
+
+  console.log('uncaught exception: ' + err);
+  console.trace();
+});
 
 
 // winston.exitErrs = false;
