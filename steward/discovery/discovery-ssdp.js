@@ -16,11 +16,10 @@ var fs          = require('fs')
 
 var logger = utility.logger('discovery');
 
-var ssdp;
 var listening;
 
 var listen = function(addr, portno) {/* jshint multistr: true */
-  var client, data, filename;
+  var client, data, filename, ssdp;
 
   filename = __dirname + '/../sandbox/index.xml';
   data =
@@ -52,6 +51,12 @@ var listen = function(addr, portno) {/* jshint multistr: true */
       }
     });
   });
+
+  ssdp = new SSDP();
+  ssdp.logger = logger;
+  ssdp.description = 'index.xml';
+  ssdp.addUSN('upnp:rootdevice');
+  ssdp.addUSN('urn:schemas-upnp-org:device:Basic:1');
 
   try { ssdp.server(addr, portno); } catch(ex) {
     lsof.rawUdpPort(1900, function(data) {
@@ -307,10 +312,6 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
 exports.start = function(portno) {
   SSDP.SSDP_LOGGER = logger;
 
-  ssdp = exports.ssdp = new SSDP();
-  ssdp.description = 'index.xml';
-  ssdp.addUSN('upnp:rootdevice');
-  ssdp.addUSN('urn:schemas-upnp-org:device:Basic:1');
   steward.forEachAddress(function(addr) {
     listen(addr, portno);
    });

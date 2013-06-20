@@ -26,11 +26,6 @@ exports.start = function() {
       , wssT  = 'ws'
       ;
 
-    var start = function(request, result) {
-      result.writeHead(200);
-      result.end('');
-    };
-
     if (fs.existsSync(key)) {
       if (fs.existsSync(crt)) {
         options.key = key;
@@ -133,7 +128,7 @@ exports.start = function() {
           .start();
     }
 
-    logger.notice('listening on ' + wssT + '://0.0.0.0:' + portno);
+    logger.info('listening on ' + wssT + '://0.0.0.0:' + portno);
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js/, 10, -3, ' discovery', portno);
   });
