@@ -298,7 +298,7 @@ In the _steward_ directory type
 
     ./run.sh
 
-_NOTE: Unlike most modern Linux distributions /bin/bash and /bin/sh are different things on the Pi. So before starting the steward, you'll need to open up the run.sh script. Edit the #! line at the top to use bash_rather than sh_.
+_NOTE: Unlike most modern Linux distributions /bin/bash and /bin/sh are different things on the Pi. So before starting the steward, you'll need to open up the run.sh script. Edit the #! line at the top to use bash rather than sh_.
 
 ###Possible Problems
 
