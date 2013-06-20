@@ -19,9 +19,9 @@ exports.start = function() {
   portfinder.getPort({ port: 8888 }, function(err, portno) {
     var server;
 
-    var crt     = __dirname + '/../sandbox/startup.crt'
+    var crt     = __dirname + '/../sandbox/server.crt'
       , httpsT  = 'http'
-      , key     = __dirname + '/../db/startup.key'
+      , key     = __dirname + '/../db/server.key'
       , options = { port : portno }
       , wssT  = 'ws'
       ;

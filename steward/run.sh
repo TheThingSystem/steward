@@ -7,10 +7,10 @@ if [ ! -f index.js ]; then
   exit 1
 fi
 
-if [ ! -f db/startup.key ]; then
-  rm -f sandbox/startup.crt
+if [ ! -f db/server.key ]; then
+  rm -f sandbox/server.crt
 
-  T=/tmp/startup.config$$
+  T=/tmp/server.config$$
 echo '[ req ]
 prompt             = no
 distinguished_name = req_distinguished_name
@@ -18,14 +18,17 @@ distinguished_name = req_distinguished_name
 [ req_distinguished_name ]
 CN                 = steward' > $T
 
+  if openssl req -x509 -newkey rsa:2048 -keyout db/server.key -out sandbox/server.crt -days 3650 -nodes -config $T; then
+    chmod 400 db/server.key
+    chmod 444 sandbox/server.crt
 
-  if openssl req -x509 -newkey rsa:2048 -keyout db/startup.key -out sandbox/startup.crt -days 720 -nodes \
-              -config $T; then
-    :
+    openssl x509 -sha1 -in sandbox/server.crt -noout -fingerprint > sandbox/server.sha1
+    chmod 444 sandbox/server.sha1
   else
-    rm -f db/startup.key sandbox/startup.crt
-    echo "unable to create self-signed startup certificate" 1>&2
+    rm -f db/server.key sandbox/server.crt
+    echo "unable to create self-signed server certificate" 1>&2
   fi
+
   rm -f $T
 fi
 
