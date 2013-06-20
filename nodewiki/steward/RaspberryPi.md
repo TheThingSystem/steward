@@ -152,16 +152,6 @@ _NOTE: As of the latest version of the operating system we no longer have to exp
 
 ##Installing BlueZ
 
-The stock BlueZ available on Wheezy is currently BlueZ 4.99. This should be sufficient, so
-
-    sudo apt-get install bluetoothd
-
-_NOTE: If you plug your Bluetooth LE adaptor into your Pi before installing BlueZ 4.x via apt-get it should automatically start Bluetooth services on installation. Otherwise you may have to reboot the Pi before running the steward to start these services._
-
-_NOTE: Current testing is using the [IOGEAR GBU521 Adaptor](http://www.iogear.com/product/GBU521/), however other adaptors have been tested and appear to work._
-
-### Alternative BlueZ Installation
-
 Development of the [noble](https://github.com/sandeepmistry/noble) library on Linux is mainly be done using BlueZ 4.x. However we've mostly tested the steward with BlueZ 5.x. If you want to continue to use/test 5.x you'll need to download the [latest version](https://www.kernel.org/pub/linux/bluetooth/) and unpack it. Then,
 
     cd bluez-5.x
@@ -187,9 +177,21 @@ If this occurs for you,  the current work around is to edit /etc/dbus-1/system.d
 
         <allow send_type="method_call"></allow>
 
-inside the <policy> ... </policy> block.
+inside the <policy> ... </policy> block, and restarting dbus,
+
+     sudo /etc/init.d/dbus restart
 
 _NOTE: This has security implications. This fix allows a method call from all console users, even those calls unrelated to Bluetooth. This is a temporary and sub-optimal work-around to this problem. More research needed._
+
+### Alternative BlueZ Installation
+
+The stock BlueZ available on Wheezy is currently BlueZ 4.99. This should be sufficient, so
+
+    sudo apt-get install bluetoothd
+
+_NOTE: If you plug your Bluetooth LE adaptor into your Pi before installing BlueZ 4.x via apt-get it should automatically start Bluetooth services on installation. Otherwise you may have to reboot the Pi before running the steward to start these services._
+
+_NOTE: Current testing is using the [IOGEAR GBU521 Adaptor](http://www.iogear.com/product/GBU521/), however other adaptors have been tested and appear to work._
 
 ##Installing the Steward
 
@@ -310,7 +312,22 @@ the steward is unable to talk to Bluetooth devices.
 
 ###Possible Errors
 
-1) If you get an error saying "function not found" then open the run.sh script in an editor and make sure you changed the #! line to be #!/bin/bash rather than #!/bin/sh.
+1) If you get an error saying "function not found" then open the run.sh script 
+
+    ./run.sh: 19: /home/pi/.nvm/nvm.sh: function: not found
+    ./run.sh: 25: /home/pi/.nvm/nvm.sh: shopt: not found
+    ./run.sh: 27: /home/pi/.nvm/nvm.sh: Syntax error: "}" unexpected
+
+in an editor and make sure you changed the #! line to be #!/bin/bash rather than #!/bin/sh.
+
+2) If you get this error,
+
+    [Error: socket: Operation not permitted]
+    hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp 1000 /dev/bpf*"
+
+ you need to edit the _run.sh_ script and change the line that starts _node_ to use sudo, i.e.
+
+    sudo node index.js
 
 2) If the steward crashes on startup complaining about a _DNSServiceBrowse_ error related to the Axis Camera,
 
@@ -342,12 +359,6 @@ which will rebuild the binaries. You'll have to move the git checkout of the _no
     notice: [server] listening on wss://0.0.0.0:8888
 
 scroll by when the _steward_ startups up and instead see and error talking about permissions problems you need to edit the _run.sh_ script and change the line that starts _node_ to use sudo, i.e.
-
-    #!/bin/bash
-
-    : sudo sh -c 'chgrp admin /dev/bpf* ; chmod g+r /dev/bpf*; arp -d -a'
-
-    . ~/.nvm/nvm.sh
 
     sudo node index.js
 
