@@ -36,13 +36,16 @@ Insert the card in the Raspberry Pi, plug the Pi into the Ethernet, and then con
 Common symptoms of an inadequate power supply are unreliable Ethernet (or keyboard) operation, especially if it's OK at first but not when the GUI is started. SD card errors at start up seems to be another symptom of poor power. If you think you have a problem with your power supply, it is a good idea to check the actual voltage on the Raspberry Pi circuit board. Two test points labelled TP1 and TP2 are provided on the circuit board to facilitate voltage measurements.
 
 Use a multimeter which is set to the range 20 volts DC. You should see a voltage between 4.75 and 5.25 volts. Anything outside this range indicates that you have a problem with your power supply or your power cable, or the input polyfuse F3. Anything inside, but close to the limits, of this range may indicate a problem.
+
 ##Connecting to the Pi
 
 When it boots the Pi should bring up a *sshd* server, go to your router and find out the Pi's IP address. If your router is capable you might want to configure it so that the Pi's IP address is fixed in future and that it's got a local name that you can use rather than a raw IP address. 
 
 In any case connect to the Pi with ssh. The username is _"pi"_ and the password is _"raspberry"_. 
 
-_Note that the "root" account is disabled by default, access to root-privileges is via sudo only._
+_NOTE: The "root" account is disabled by default, access to root-privileges is via sudo only._
+
+_NOTE: YOU SHOULD CHANGE THE DEFAULT PASSWORD THE FIRST TIME YOU LOGIN TO THE PI._
 
 ##Expanding the Disk
 
@@ -145,7 +148,7 @@ We'll also need some other libraries that aren't installed by default in on the 
     sudo apt-get install libdbus-glib-1-dev 
     sudo apt-get install libexpat1-dev
 	
-_NOTE:_ As of the latest version of the operating system we no longer have to explicitly install g++ as it comes with the distribution._
+_NOTE: As of the latest version of the operating system we no longer have to explicitly install g++ as it comes with the distribution._
 
 ##Installing BlueZ
 

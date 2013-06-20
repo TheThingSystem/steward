@@ -1,6 +1,6 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          skeleton
+# Provides:          steward
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -19,35 +19,51 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
-NAME=node
-DAEMON=/usr/local/bin/$NAME
-DAEMON_ARGS="/home/pi/steward/steward/server.js"
-PIDFILE=/var/run/$NAME.pid
-SCRIPTNAME=/etc/init.d/$NAME
 
-LOG_FILE="/var/log/steward.log"
-LOCK_FILE="/var/lock/subsys/node-server"
+HCI=/usr/local/bin/hciconfig
+BLUETOOTH=/usr/local/libexec/bluetooth/bluetoothd
+BLUE_PID=/var/run/bluetoothd.pid
+BLUE_FILE="/var/log/bluetoothd.log"
+
+STEWARD=/usr/local/bin/node
+STEW_PID=/var/run/steward.pid
+STEW_ARGS="/home/pi/steward/steward/server.js"
+STEW_FILE="/var/log/steward.log"
 
 PID=
 
 case "$1" in
-start)   echo -n "Start steward services... "
-   $DAEMON $DAEMON_ARGS >> $LOG_FILE 2>&1 &
+start) echo "Bringing up Bluetooth LE dongle"
+   $HCI hci0 up
+   echo -n "Start bluetoothd... "
+   $BLUETOOTH >> $BLUE_FILE 2>&1 &
    PID=$!
    echo "pid is $PID"
-   echo $PID >> $PIDFILE
+   echo $PID >> $BLUE_PID
+
+   echo -n "Start steward services... "
+   $STEWARD $STEW_ARGS >> $STEW_FILE 2>&1 &
+   PID=$!
+   echo "pid is $PID"
+   echo $PID >> $STEW_PID
    ;;
 stop)   echo -n "Stop steward services..."
    echo -n "killing "
-   echo `cat $PIDFILE`
-   kill `cat $PIDFILE`
-   rm $PIDFILE
+   echo -n `cat $STEW_PID`
+   kill `cat $STEW_PID`
+   rm $STEW_PID
+   echo -n " "
+   echo `cat $BLUE_PID`
+   kill `cat $BLUE_PID`
+   rm $BLUE_PID
+   echo "Shutting down Bluetooth LE dongle"
+   $HCI hci0 down
    ;;
 restart)
    $0 stop
    $0 start
         ;;
-*)   echo "Usage: $0 start"
+*)   echo "Usage: $0 (start|stop)"
         exit 1
         ;;
 esac
