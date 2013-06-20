@@ -333,7 +333,30 @@ The _run.sh_ script does three things:
 
 You will probably want to customize this script for yourself. When the script starts, it will bring a lot of stuff on the console. Over time, the verbosity will decrease, but for now, it should give comfort...
 
-###Appendix - Useful Tools
+#Appendix - Starting at boot time
+
+Go ahead and copy the two scripts _bluetoothd.sh_ and _steward.sh_ from the _steward/init.d/_ directory into _/etc/init.d_
+
+    sudo cp bluetoothd.sh /etc/init.d/bluetoothd
+    sudo cp steward.sh /etc/init.d/steward
+    chmod uog+rx /etc/init.d/bluetoothd
+    chmod uog+rx /etc/init.d/steward
+
+and establish symbolic links to them in the relevant _etc/rcX.d/_ directories,
+
+    cd /etc/rc0.d/
+    sudo ln -s ../init.d/steward K02steward
+    cd /etc/rc6.d/
+    sudo ln -s ../init.d/steward K02steward
+
+    cd /etc/rc2.d
+    sudo ln -s ../init.d/steward S98steward
+    cd /etc/rc3.d
+    sudo ln -s ../init.d/steward S98steward
+    cd /etc/rc5.d
+    sudo ln -s ../init.d/steward S98steward
+
+#Appendix - Useful Tools
 
 If you're debugging Bluetooth LE connections and working with _hciconfig_ and _hcitool_ in the console, you might want to install DFeet. It's a DBus debugger.
 
