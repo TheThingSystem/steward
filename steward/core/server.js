@@ -19,14 +19,25 @@ exports.start = function() {
   portfinder.getPort({ port: 8888 }, function(err, portno) {
     var server;
 
-    var options = { port     : portno
-/*
-                  , key      : __dirname + '/private/server.key'
-                  , cert     : __dirname + '/private/server.crt'
-                  , ca       : __dirname + '/private/ca.crt'
-                  , password : '    '
- */
-                  };
+    var crt     = __dirname + '/../sandbox/server.crt'
+      , httpsT  = 'http'
+      , key     = __dirname + '/../db/server.key'
+      , options = { port : portno }
+      , wssT  = 'ws'
+      ;
+
+    if (fs.existsSync(key)) {
+      if (fs.existsSync(crt)) {
+        options.key = key;
+        options.cert = crt;
+        httpsT = 'https';
+        wssT = 'wss';
+      } else {
+        logger.warning('no startup certificate', { cert: crt });
+      }
+    } else {
+      logger.warning('no startup key', { key: key });
+    }
 
     if (err) {
       logger.error('server', { event: 'portfinder.getPort 8888', diagnostic: err.message });
@@ -36,11 +47,13 @@ exports.start = function() {
     server = new wsServer(options).on('connection', function(ws) {
       var request = ws.upgradeReq;
       var pathname = url.parse(request.url).pathname;
-      var tag = 'wss ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
+      var tag = wssT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
 
       logger.info(tag, { event: 'connection' });
 
-      ws.on('error', function(err) {/* jshint unused: false */});
+      ws.on('error', function(err) {
+        logger.info(tag, { event: 'error', message: err });
+      });
       ws.on('close', function(code, message) {
         logger.info(tag, { event: 'close', code: code, message: message });
       });
@@ -62,7 +75,7 @@ exports.start = function() {
       var ct;
 
       var pathname = url.parse(request.url).pathname;
-      var tag = 'https ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
+      var tag = httpsT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
 
       logger.info(tag, { event: 'request' });
 
@@ -105,17 +118,17 @@ exports.start = function() {
 
     var uuid = require('./steward').uuid;
     if (!!mdns) {
-      mdns.createAdvertisement(mdns.tcp('wss'), portno, { name: 'steward', txtRecord: { uuid : uuid } })
-          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward wss ' + portno
+      mdns.createAdvertisement(mdns.tcp(wssT), portno, { name: 'steward', txtRecord: { uuid : uuid } })
+          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT + ' ' + portno
                                                             , diagnostic : err.message }); })
           .start();
-      mdns.createAdvertisement(mdns.tcp('http'), portno, { name: 'steward', txtRecord : { uuid: uuid } })
-          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward http ' + portno
+      mdns.createAdvertisement(mdns.tcp(httpsT), portno, { name: 'steward', txtRecord : { uuid: uuid } })
+          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT+ ' ' + portno
                                                             , diagnostic : err.message }); })
           .start();
     }
 
-    logger.notice('listening on wss://0.0.0.0:' + portno);
+    logger.info('listening on ' + wssT + '://0.0.0.0:' + portno);
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js/, 10, -3, ' discovery', portno);
   });

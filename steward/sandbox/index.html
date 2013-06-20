@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>steward</title>
+<title>steward console</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <style>
   body {
@@ -287,7 +287,7 @@ var pretty_msg = function(category, message) {
 
   parts = message.split(' ');
   if ((parts.length >= 4)
-        && ((parts[0] === 'http') || (parts[0] === 'https') || (parts[0] === 'ws') || (parts[0] === 'wss'))) {
+        && ((parts[0] === 'http') || (parts[0] === 'https') || (parts[0] === 'ws') || (parts[0] === 'ws'))) {
     var scheme = '      ' + parts[0]
       , host   = parts[1] + '    '
       , port   = '      ' + parts[2]
@@ -564,7 +564,7 @@ var onupdate = function(update) {
       if (category === 'server') {
         parts = datum.message.split(' ');
         if ((parts.length >= 4)
-              && ((parts[0] === 'http') || (parts[0] === 'https') || (parts[0] === 'ws') || (parts[0] === 'wss'))) {
+              && ((parts[0] === 'http') || (parts[0] === 'https') || (parts[0] === 'ws') || (parts[0] === 'ws'))) {
           if ((!meta.path) && ((!meta.error) || (!meta.error.path))) {
             meta.path = parts[3];
           }
@@ -613,14 +613,14 @@ var notice = function(message, meta) {
   onupdate({ monitor: [{ date: new Date().toISOString(), level: 'notice', message: message, meta: (meta || {}) }] });
 };
 
-var go = function(host, i) {
+var go = function(location, i) {
   var opened, ws, ws2, ws3;
-  var tag = 'connection #' + i + ' to ws://' + host + ':8888/console';
+  var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/console';
 
   notice(tag, { state: 'connecting...' });
 
   opened = 0;
-  ws = new WebSocket('ws://' + host + ':8888/console');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console');
   ws2 = null;
   ws3 = null;
 
@@ -630,7 +630,7 @@ var go = function(host, i) {
     opened = 1;
     notice(tag, { state: 'open' });
 
-    ws2 = new WebSocket('ws://' + host + ':8888/manage');
+    ws2 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
 
     ws2.onopen = function(event) {
       x = 2;
@@ -664,12 +664,12 @@ var go = function(host, i) {
     ws2.onerror = function(event) {};
 
 
-    ws3 = new WebSocket('ws://' + host + ':8888/');
+    ws3 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/');
 
     ws3.onopen = function(event) {}
 
     ws3.onmessage = function(event) {
-      console.log(event.data));
+//      console.log(event.data);
     };
 
     ws3.onclose = function(event) {};
@@ -684,21 +684,28 @@ var go = function(host, i) {
 
   ws.onclose = function(event) {
     notice(tag, { state: (opened ? 'closed' : 'error'), code: event.code, message: event.reason });
-    if (!!ws2) { try { ws2.close(); } catch (ex) {}; }
-    setTimeout (function() { go(host, i + 1); }, 2500);
+    setTimeout (function() { go(location, i + 1); }, 2500);
   };
 
   ws.onerror = function(event) {
     notice(tag, { state: 'error', event: event });
-    try { ws.close (); } catch (ex) {};
-    if (!!ws2) { try { ws2.close(); } catch (ex) {}; }
-    setTimeout (function() { go(host, i + 1); }, 5000);
+    try { ws.close (); } catch (ex) {}; ws = null;
+/*
+    if (!!ws2) { try { ws2.close(); } catch (ex) {}; ws2 = null; }
+    if (!!ws3) { try { ws3.close(); } catch (ex) {}; ws3 = null; }
+*/
+    setTimeout (function() { go(location, i + 1); }, 5000);
   };
 };
 
 var main = function() {
+  var location = { hostname : window.location.hostname
+                 , port     : window.location.port
+                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 };
+
   notice('start');
-  go(window.document.location.host.replace(/:.*/, ''), 1);
+  go(location, 1);
   setInterval(onupdate, 10000);
 };
 </script>

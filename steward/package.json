@@ -4,7 +4,7 @@
   , "version"               : "0.0.1"
   , "private"               : true
   , "engines"        : {
-      "node"                : ">=0.10"
+      "node"                : ">=0.10.12"
     }
   , "dependencies"   : {
       "MD5"                 : "1.0.3"
@@ -39,7 +39,7 @@
     , "suncalc"             : "1.2.1"
     , "validator"           : "1.1.3"
     , "winston"             : "0.6.2"
-    , "ws"                  : "0.4.25"
+    , "ws"                  : "git://github.com/mrose17/ws.git"
     , "unofficial-nest-api" : "git://github.com/mrose17/unofficial_nodejs_nest.git"
     , "xml2js"              : "0.2.7"
   }

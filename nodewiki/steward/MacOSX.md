@@ -28,10 +28,10 @@ Then, put the [node version manager (nvm)](https://github.com/creationix/nvm) on
     echo ". ~/.nvm/nvm.sh" >> ~/.bashrc  
     . ~/.nvm/nvm.sh
 
-Then install the v0.10.8 release of [_node.js_](http://nodejs.org) on the system:
+Then install the v0.10.12 release of [_node.js_](http://nodejs.org) on the system:
 
-    nvm install v0.10.8
-    nvm alias default v0.10.8
+    nvm install v0.10.12
+    nvm alias default v0.10.12
 
 (This isn't the most current version, but all the dependencies work with it...)
 
@@ -46,10 +46,10 @@ _The nvm system is based around the bash shell. If you run tcsh or another alter
 
     git clone https://github.com/joyent/node.git
 
-_change directory and switch to v0.10.8 release._
+_change directory and switch to v0.10.12 release._
 
     cd node
-    git checkout v0.10.8 -b v0.10.8
+    git checkout v0.10.12 -b v0.10.12
 
 _Now go ahead and build,_
 
