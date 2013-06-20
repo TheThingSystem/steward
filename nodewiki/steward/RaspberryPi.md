@@ -76,10 +76,10 @@ Then go ahead and checkout _Node.js_
 
     git clone https://github.com/joyent/node.git
 
-change directory and switch to v0.10.8 release for [compatibility reasons](Bootstramp.md).
+change directory and switch to v0.10.12 release for [compatibility reasons](Bootstramp.md).
 
     cd node
-    git checkout v0.10.8 -b v0.10.8
+    git checkout v0.10.12 -b v0.10.12
 
 Now go ahead and build,
 
@@ -112,7 +112,7 @@ Go ahead and install the [node version manager (nvm)](https://github.com/creatio
 
 make our version of Node the default
 
-    nvm alias default v0.10.8
+    nvm alias default v0.10.12
 
 ##Installing node-gyp
 

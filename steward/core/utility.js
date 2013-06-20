@@ -1,12 +1,12 @@
 var fs          = require('fs')
   , EventBroker = require('observer').EventBroker
-  , longjohn    = require('longjohn')
   , stacktrace  = require('stack-trace')
   , winston     = require('winston')
   , util        = require('util')
   ;
 
 
+require('longjohn');
 process.addListener("uncaughtException", function (err) {
   var logger;
 
