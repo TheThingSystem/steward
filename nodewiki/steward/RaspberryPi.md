@@ -356,6 +356,33 @@ and establish symbolic links to them in the relevant _etc/rcX.d/_ directories,
     cd /etc/rc5.d
     sudo ln -s ../init.d/steward S98steward
 
+#Appendix - Cloning a Bootable SD Card
+
+There are times when you'll want to clone your Raspberry Pi SD Card. The easiest way to do this is shutdown the Pi, take the card out and insert it into your Macbook.
+
+IOpen up a Terminal window and type *df -h*, remember the device name for your SD Card. In my case it's */dev/disk1*. We'll need to use the raw device, */dev/rdisk1*.
+
+    Filesystem      Size   Used  Avail Capacity  iused    ifree %iused  Mounted on
+    /dev/disk0s2   699Gi  367Gi  332Gi    53% 96214802 86992771   53%   /
+    devfs          206Ki  206Ki    0Bi   100%      714        0  100%   /dev
+    map -hosts       0Bi    0Bi    0Bi   100%        0        0  100%   /net
+    map auto_home    0Bi    0Bi    0Bi   100%        0        0  100%   /home
+    /dev/disk1s2    59Gi   33Gi   26Gi    57%  8739054  6768902   56%   /Volumes/SD Card
+
+Unmount the card,
+
+    sudo diskutil unmount /dev/disk1s2
+
+rather than ejecting it by dragging it to the trash. Then in the Terminal change directory to your Desktop folder and type
+
+    sudo dd bs=1m if=/dev/rdisk1 of=sdcard.img
+
+if the above command report an error _"dd: bs: illegal numeric value"_, change *bs=1m* to *bs=1M*. 
+
+A disk image will be created on your Desktop. You can use this image as you would a normal install image for the Pi.
+
+_NOTE: The size of the image will be dependent on the size of the SD Card you are using on the Raspberry Pi._
+
 #Appendix - Useful Tools
 
 If you're debugging Bluetooth LE connections and working with _hciconfig_ and _hcitool_ in the console, you might want to install DFeet. It's a DBus debugger.
