@@ -130,7 +130,7 @@ var list = function(logger, ws, api, message, tag) {
   if (suffix.length === 0) suffix = null;
 
   results = { requestID: message.requestID, result: { activities: {} } };
-  if (treeP) entities = {}, results.result.events = {}, results.result.tasks = {};
+  if (treeP) { entities = {}; results.result.events = {}; results.result.tasks = {}; }
   if (allP) results.result.actors = {};
   for (uuid in activities) {
     if (!activities.hasOwnProperty(uuid)) continue;
@@ -230,7 +230,7 @@ var list = function(logger, ws, api, message, tag) {
             for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
             if (!!actor) {
               props = clone(actor.$info);
-              type = props.type, delete(props.type);
+              type = props.type; delete(props.type);
               results.result.actors[type] = props;
             }
           }

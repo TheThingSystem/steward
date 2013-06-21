@@ -206,7 +206,7 @@ var list = function(logger, ws, api, message, tag) {
           }
           if (!!entity) {
             props = entity.proplist();
-            who = props.whoami, delete(props.whoami);
+            who = props.whoami; delete(props.whoami);
             results.result[type + 's'][who] = props;
           }
         }

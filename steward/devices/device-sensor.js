@@ -130,7 +130,7 @@ exports.start = function() {
   try {
     db = new sqlite3.Database(__dirname + '/../db/measurements.db');
   } catch(ex) {
-    return logger.emerg('database', { event: 'create ' + __dirname + '/../db/sensors.db', diagnostic: ex.message });
+    return logger.emerg('database', { event: 'create ' + __dirname + '/../db/measurements.db', diagnostic: ex.message });
   }
 
   db.serialize(function() {

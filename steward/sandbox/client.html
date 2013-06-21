@@ -12,11 +12,117 @@
 </style>
 <script>
 
+var reqno = 1;
+var callbacks = {};
+
+var add_callback = function(cb) {
+  callbacks[reqno.toString()] = cb;
+
+  return reqno++;
+};
+
+var create_user = function(ws, name, whoami, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/create/' + name
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , command   : whoami
+                         }));
+};
+
+
+var ws = null;
+
+var validate_create = function() {
+  var form     = document.forms.createForm
+    , name     = form.userName.value
+    , comments = form.userComments.value
+    , qrcode   = document.images.qrcode
+    , otpURL   = document.getElementById('otpURL')
+    , status   = document.getElementById('status')
+    ;
+
+  qrcode.src = 'qrcode.png';
+  otpURL.href = '';
+  status.innerHTML = '';
+
+  if (!!name) name = name.replace(/^\s+|\s+$/g, '');
+  if ((!name)
+        || (name.length === 0)
+        || (name.search(/\s/) !== -1)
+        || (name.indexOf('-') === 0)
+        || (name.indexOf('.') !== -1)
+        || (name.indexOf(':') !== -1)) {
+    alert('invalid short name');
+    return false;
+  }
+
+  if (!!comments) comments = comments.replace(/^\s+|\s+$/g, '');
+
+  create_user(ws, name, comments, function(message) {
+    if (!!message.result) {
+      qrcode.src = message.result.authenticatorURL;
+      otpURL.href = message.result.otpURL;
+      status.innerHTML = '<strong><font color="green">success.</strong></font>';
+      return true;
+    }
+
+    if (!!message.error) {
+      status.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+      return true;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+var go = function(location, i) {
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
+
+  ws.onopen = function(event) {};
+
+  ws.onmessage = function(event) {
+    var id, message;
+
+    try {
+      message = JSON.parse(event.data);
+      id = message.requestID.toString();
+      if ((!!callbacks[id]) && ((callbacks[id])(message))) delete(callbacks[id]);
+    } catch(ex) {
+      console.log(ex.message);
+    }
+  };
+
+  ws.onclose = function(event) {
+    console.log('onclose'); console.log(event);
+
+    setTimeout (function() { go(location, i + 1); }, 2500);
+  };
+
+  ws.onerror = function(event) {
+    console.log('onerror'); console.log(event);
+
+    try { ws.close (); } catch (ex) {}; ws = null;
+    setTimeout (function() { go(location, i + 1); }, 5000);
+  };
+};
+
+var main = function() {
+  var location = { hostname : window.location.hostname
+                 , port     : window.location.port
+                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 };
+
+  go(location, 1);
+};
 </script>
 </head>
 
 <body onload='main();'>
 <div id='main'>
+<center><strong><font size='+3'>NOTE: THE TEXT ON THIS PAGE IS ACCURATE, BUT NOT USER-FACING.</font></strong></center>
+
 <h1>Welcome!</h1>
 <p>
 Welcome to the client bootstrap page for the steward.
@@ -27,7 +133,7 @@ the client and steward will automatically use industry-standard secure
 technologies to communicate.
 </p>
 
-<h2>tl;dr</h2>
+<h1>tl;dr</h1>
 <ul>
 <li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>.</li>
 
@@ -36,7 +142,7 @@ technologies to communicate.
 <li>Launch the authenticator and scan the QR code.</li>
 </ul>
 
-<h2>Start with a home browser</h2>
+<h1>Start with a home browser</h1>
 <p>
 First,
 you should be using a browser on a computer on your home network.
@@ -130,7 +236,7 @@ if you haven't already downloaded Google Authenticator for your smartphone.
 Please install it using these <a href='https://support.google.com/accounts/answer/1066447'>instructions</a>.
 </p>
 
-<h2>Creating an Account</h2>
+<h1>Creating an Account</h1>
 <p>
 Here is a form that asks you to input a short name (e.g., "root")
 and a longer, more descriptive name (e.g., "Angus MacPhail").
@@ -147,8 +253,21 @@ and the application will automatically focus on the QR code and do the rest.</li
 </ul>
 </p>
 
-
-<form>
+<form name='createForm' onsubmit='return validate_create();' action='#'>
+<table>
+<tr><td>Short Name:</td>
+    <td><input type='text' name='userName' /></td>
+    <td width='120'>&nbsp;</td>
+    <td rowspan='3'><a id='otpURL' href=''><img name='qrcode' src='qrcode.png' width='166' height='166' /></a></span></td>
+</tr>
+<tr><td>Descriptive Name:</td>
+    <td><input type='text' name='userComments' /></td>
+</tr>
+<tr valign='top'>
+    <td></td>
+    <td><input type='submit' value='Create' /><br/><br/><span id='status'></span></td>
+</tr>
+</table>
 </form>
 
 </div>
