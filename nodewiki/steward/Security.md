@@ -1,5 +1,3 @@
-**THIS IS A PROPOSAL, NOT AN IMPLEMENTATION**
-
 # The Security Model
 Speaking plainly: there is a _wide_ spectrum of security properties with respect to home automation peripherals. Although there are some exceptions, the properties run the gamit from horrific to rather unfortunate.
 
@@ -24,41 +22,73 @@ With that in mind, here's the basics:
     * However, the steward will accept unencrypted traffic for http/ws protocols for very limited status checking.
 
 ## Client (not user) Authentication
-### The _tap_
-A person takes a device and _taps_ the NFC pad on the box. During the tap:
+Clients authenticate to the steward,
+and the user associated with a client is authorized to invoke various API calls.
+There is a 1:N relationship between users and clients.
 
-* The client sends:
+If no users are configured on the steward,
+then an unauthenticated API call from a device on the same network as the steward may be used to create the initial user and
+client.
 
-    * An ssh public key to the steward, which is used by the steward to authenticate incoming ssh requests.
+### Authentication: Time-based OTP (TOTP)
+When a client is created,
+the steward responds with TOTP information allowing the client to authenticate itself.
+The methods used by the TOTP algorithm are based on [RFC 6238](http://tools.ietf.org/html/rfc6238),
+so programs such as [Google Authenticator](https://support.google.com/accounts/answer/1066447) can be used for web-based
+access.
 
-* The steward returns:
+### Privacy: HTTPS or SSH
+After a client is created,
+it may invoke an API call to upload
 
-    * A self-signed public-key certificate;
+* A self-signed public-key certificate; and,
 
-    * An SNI hostname;
+* An ssh key fingerprint.
 
-    * An ssh key fingerprint; and,
+and then retrieve a _privacy package_ from the steward containing:
 
-    * An opaque client-identifier.
+* A self-signed public-key certificate;
 
-### API access
+* An SNI hostname; and,
+
+* An ssh key fingerprint.
+
+After this exchange,
+both the steward and client have https and ssh materials suitable for uniquely identifying both parties.
+
+### HTTPS access
 Whenever the client connects to the steward for API access:
 
 * The client uses the mDNS to identify the IP address and port number of the steward.
 
 * The client establishes a TCP connection, and starts TLS over that connection:
 
-    * It authenticates itself using the private-key corresponding to the PKC that it sent to the steward during the _tap_.
+    * It authenticates itself using the private-key corresponding to the PKC that it sent to the steward.
 
-    * It send the SNI hostname during the initialization, allowing the steward to select the appropriate private-key to use.
+    * It sends the SNI hostname during the initialization, allowing the steward to select the appropriate private-key to use.
 
 * Once the TLS is negotiated, the client does an HTTP upgrade to WebSockets.
 
-### ssh access
-Whenever the client connects to the steward for SSH access:
+### SSH access
+Whenever the client connects to the steward for ssh access:
 
 * The client uses the mDNS to identify the IP address and port number of the steward.
 
-* The client starts an ssh client using the client-identifier and it's ssh private key.
+* The client starts an ssh client using its ssh private key.
 
-* The client verifies that the fingerprint corresponding to the server matches the value provided during the _tap_.
+* Using a local extension, the client sends the SNI from the _privacy package_.
+
+* The client verifies that the fingerprint corresponding to the server matches the value provided in the _privacy package_.
+
+## Authorization: Roles
+A user has one of five roles:
+
+* _master_   - for unlimited access to the steward;
+
+* _resident_ - for extended access to the steward;
+
+* _guest_    - for limited access to the steward;
+
+* _device_   - for devices implementing [The Simple Thing Protocol](Simple.md); or,
+
+* _cloud_    - for services in the cloud

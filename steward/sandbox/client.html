@@ -21,11 +21,20 @@ var add_callback = function(cb) {
   return reqno++;
 };
 
-var create_user = function(ws, name, whoami, cb) {
-  ws.send(JSON.stringify({ path      : '/api/v1/user/create/' + name
+var create_user = function(ws, name, comments, role, cb) {
+  ws.send(JSON.stringify({ path       : '/api/v1/user/create/' + name
+                         , requestID  : add_callback(cb)
+                         , name       : name
+                         , comments   : comments
+                         , role       : role
+                         , clientName : name + '/bootstrap'
+                         }));
+};
+
+var authenticate_user = function(ws, name, code, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/authenticate/' + name
                          , requestID : add_callback(cb)
-                         , name      : name
-                         , command   : whoami
+                         , response  : code
                          }));
 };
 
@@ -33,12 +42,13 @@ var create_user = function(ws, name, whoami, cb) {
 var ws = null;
 
 var validate_create = function() {
-  var form     = document.forms.createForm
-    , name     = form.userName.value
-    , comments = form.userComments.value
+  var create   = document.forms.createForm
+    , name     = create.userName.value
+    , comments = create.userComments.value
     , qrcode   = document.images.qrcode
     , otpURL   = document.getElementById('otpURL')
     , status   = document.getElementById('status')
+    , test     = document.forms.testForm
     ;
 
   qrcode.src = 'qrcode.png';
@@ -47,9 +57,10 @@ var validate_create = function() {
 
   if (!!name) name = name.replace(/^\s+|\s+$/g, '');
   if ((!name)
-        || (name.length === 0)
+        || (name.length       ===  0)
         || (name.search(/\s/) !== -1)
-        || (name.indexOf('-') === 0)
+        || (name.indexOf('-') ===  0)
+        || (name.indexOf('/') ===  0)
         || (name.indexOf('.') !== -1)
         || (name.indexOf(':') !== -1)) {
     alert('invalid short name');
@@ -58,16 +69,49 @@ var validate_create = function() {
 
   if (!!comments) comments = comments.replace(/^\s+|\s+$/g, '');
 
-  create_user(ws, name, comments, function(message) {
+  create_user(ws, name, comments, 'master', function(message) {
     if (!!message.result) {
       qrcode.src = message.result.authenticatorURL;
       otpURL.href = message.result.otpURL;
       status.innerHTML = '<strong><font color="green">success.</strong></font>';
+      test.userName.value = name + '/' + message.result.client;
       return true;
     }
 
     if (!!message.error) {
       status.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+      return true;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+var validate_test = function() {
+  var test     = document.forms.testForm
+    , name     = test.userName.value
+    , code     = test.userCode.value
+    , status2  = document.getElementById('status2')
+    ;
+
+  status2.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    alert('invalid login code');
+    return false;
+  }
+
+  authenticate_user(ws, name, code, function(message) {
+    if (!!message.result) {
+      status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      return true;
+    }
+
+    if (!!message.error) {
+      status2.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
       return true;
     }
 
@@ -135,7 +179,9 @@ technologies to communicate.
 
 <h1>tl;dr</h1>
 <ul>
-<li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>.</li>
+<li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
+or some other program that implements <a href='http://tools.ietf.org/html/rfc6238'>time-based one-time passwords (TOTP)</a>.
+There are several out there for both platforms and desktops.</li>
 
 <li>Scroll to the bottom of this page, fill-in the form, and press "Submit".</li>
 
@@ -214,9 +260,8 @@ then no device <em>should</em> be able to capture/modify the traffic between the
 <p>
 First,
 you will need a smartphone
-with <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>.
-This is a program that will perform "token-based" authentication using
-your Android, Blackberry or iOS device.
+with <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
+or another program that does "TOTP" on your smartphone.
 </p>
 
 <p>
@@ -232,8 +277,9 @@ you are probably guarding (and locking) your smartphone zealously.
 
 <p>
 So,
-if you haven't already downloaded Google Authenticator for your smartphone.
-Please install it using these <a href='https://support.google.com/accounts/answer/1066447'>instructions</a>.
+if you haven't already downloaded Google Authenticator for your smartphone,
+please install it using these <a href='https://support.google.com/accounts/answer/1066447'>instructions</a>.
+Or find another authenticator program that is appropriate for your platform.
 </p>
 
 <h1>Creating an Account</h1>
@@ -241,9 +287,9 @@ Please install it using these <a href='https://support.google.com/accounts/answe
 Here is a form that asks you to input a short name (e.g., "root")
 and a longer, more descriptive name (e.g., "Angus MacPhail").
 When you enter that information and click "Submit",
-a "QR code" will appear that you scan with the Google Authenticator:
+a "QR code" will appear that you scan with the authenticator:
 <ul>
-<li>Launch the Authenticator application on your smartphone.</li>
+<li>Launch the authenticator application on your smartphone.</li>
 
 <li>Press the "+" button and then the "Scan Barcode" button.</li>
 
@@ -266,6 +312,33 @@ and the application will automatically focus on the QR code and do the rest.</li
 <tr valign='top'>
     <td></td>
     <td><input type='submit' value='Create' /><br/><br/><span id='status'></span></td>
+</tr>
+</table>
+</form>
+
+<h1>Testing a Client</h1>
+<p>
+Here is a form that asks you to enter the six-digit code from Google
+Authenticator and verify that everything's working.
+</p>
+
+<p>After you created an account,
+did you notice the solidus ('/') and number appended to the short name below?
+That identifies the client that is now associated with the user.
+Clients authenticate to the steward, and the user associated with a client is authorized to invoke various API calls.
+</p>
+
+<form name='testForm' onsubmit='return validate_test();' action='#'>
+<table>
+<tr><td>Short Name:</td>
+    <td><input type='text' name='userName' /></td>
+</tr>
+<tr><td>Login Code:</td>
+    <td><input type='text' name='userCode' /></td>
+</tr>
+<tr valign='top'>
+    <td></td>
+    <td><input type='submit' value='Test' /><br/><br/><span id='status2'></span></td>
 </tr>
 </table>
 </form>
