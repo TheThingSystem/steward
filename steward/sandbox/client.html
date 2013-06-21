@@ -22,12 +22,14 @@ var add_callback = function(cb) {
 };
 
 var create_user = function(ws, name, comments, role, cb) {
+  var x = name.indexOf('/');
+
   ws.send(JSON.stringify({ path       : '/api/v1/user/create/' + name
                          , requestID  : add_callback(cb)
-                         , name       : name
+                         , name       : (x !== -1) ? name.slice(x + 1) : name
                          , comments   : comments
                          , role       : role
-                         , clientName : name + '/bootstrap'
+                         , clientName : 'bootstrap'
                          }));
 };
 
@@ -60,7 +62,6 @@ var validate_create = function() {
         || (name.length       ===  0)
         || (name.search(/\s/) !== -1)
         || (name.indexOf('-') ===  0)
-        || (name.indexOf('/') ===  0)
         || (name.indexOf('.') !== -1)
         || (name.indexOf(':') !== -1)) {
     alert('invalid short name');
@@ -70,10 +71,14 @@ var validate_create = function() {
   if (!!comments) comments = comments.replace(/^\s+|\s+$/g, '');
 
   create_user(ws, name, comments, 'master', function(message) {
+    var x;
+
     if (!!message.result) {
       qrcode.src = message.result.authenticatorURL;
       otpURL.href = message.result.otpURL;
       status.innerHTML = '<strong><font color="green">success.</strong></font>';
+      x = name.indexOf('/');
+      if (x !== -1) name = name.slice(0, x);
       test.userName.value = name + '/' + message.result.client;
       return true;
     }

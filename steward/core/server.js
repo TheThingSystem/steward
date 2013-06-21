@@ -55,7 +55,7 @@ exports.start = function() {
         logger.info(tag, { event: 'error', message: err });
       });
       ws.on('close', function(code, message) {
-        logger.info(tag, { event: 'close', code: code, message: message });
+        logger.info(tag, { event: 'close', clientID: ws.clientID, code: code, message: message });
       });
 
       if (!routes[pathname]) {

@@ -11,47 +11,66 @@ var clients = {};
 
 
 var create = function(logger, ws, api, message, tag) {
-  var alg, data, options, results, uuid, x;
+  var data, options, name, pair, results, user, uuid;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user creation', message.requestID, permanent, diagnostic);
   };
 
   if (!exports.db)                                          return error(false, 'database not ready');
+console.log(message);
 
   uuid = message.path.slice(api.prefix.length + 1);
   if (uuid.length === 0)                                    return error(true,  'missing uuid');
-
   if (!message.name)                                        return error(true,  'missing name element');
   if (!message.name.length)                                 return error(true,  'empty name element');
-  if ((message.name.search(/\s/)      !== -1)
-        || (message.name.indexOf('-') ===  0)
-        || (message.name.indexOf('/') !== -1)
-        || (message.name.indexOf('.') !== -1)
-        || (message.name.indexOf(':') !== -1))              return error(true,  'invalid name element');
 
+  if (uuid.indexOf('/') === -1) {
+    user = null;
 
-  if (!message.comments) message.comments = '';
+    if ((message.name.search(/\s/)      !== -1)
+          || (message.name.indexOf('-') ===  0)
+          || (message.name.indexOf('/') !== -1)
+          || (message.name.indexOf('.') !== -1)
+          || (message.name.indexOf(':') !== -1))            return error(true,  'invalid name element');
 
-  if (!message.role) message.role = 'resident';
-  message.role = message.role.toLowerCase();
-  if (!{ master   : true
-       , resident : true
-       , guest    : true
-       , device   : true
-       , cloud    : true
-       , none     : true }[message.role])                   return error(true,  'invalid role element');
+    if (!message.comments) message.comments = '';
 
-  if (!message.clientName) message.clientName = '';
+    if (!message.role) message.role = 'resident';
+    message.role = message.role.toLowerCase();
+    if (!{ master   : true
+         , resident : true
+         , guest    : true
+         , device   : true
+         , cloud    : true
+         , none     : true }[message.role])                 return error(true,  'invalid role element');
 
-  if (!!users[uuid])                                        return error(false, 'duplicate uuid');
-  if (!!name2user[message.name])                            return error(false, 'duplicate name');
-  users[uuid] = {};
+    if (!message.clientName) message.clientName = '';
+
+    if (!!users[uuid])                                      return error(false, 'duplicate uuid');
+    if (!!name2user(message.name))                          return error(false, 'duplicate name');
+    users[uuid] = {};
+  } else {
+    pair = uuid.split('/');
+    if (pair.length !== 2)                                  return error(true,  'invalid uuid');
+    user = name2user(pair[0]);
+    if (!user)                                              return error(false, 'invalid user in uuid');
+
+    uuid = pair[1];
+    if (uuid.length === 0)                                  return error(true,  'invalid uuid');
+
+    name = message.name;
+
+    if (!message.comments) message.comments = '';
+
+    if (!!clients[uuid])                                    return error(false, 'duplicate uuid');
+    if (!!name2client(user, name))                          return error(false, 'duplicate name');
+    clients[uuid] = {};
+  }
 
   results = { requestID: message.requestID };
   try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
 
-  alg = 'otpauth://totp';
   options = { length         : 40
             , random_bytes   : false
             , symbols        : false
@@ -60,6 +79,16 @@ var create = function(logger, ws, api, message, tag) {
             , issuer         : 'steward'
             };
   data = speakeasy.generate_key(options);
+  results.result = { authenticatorURL : data.google_auth_qr
+                   , otpURL           : data.url()
+                   };
+
+  if (!!user) {
+    results.result.user = user.userID;
+    create2(logger, ws, user, results, tag, uuid, name, message.comments, data);
+
+    return true;
+  }
 
   exports.db.run('INSERT INTO users(userUID, userName, userComments, userRole, created) '
                  + 'VALUES($userUID, $userName, $userComments, $userRole, datetime("now"))',
@@ -77,10 +106,7 @@ var create = function(logger, ws, api, message, tag) {
 
     userID = this.lastID.toString();
 
-    results.result = { user             : userID
-                     , authenticatorURL : data.google_auth_qr
-                     , otpURL           : data.url()
-                     };
+    results.result.user = userID;
     users[uuid] = { userID         : userID
                   , userUID        : uuid
                   , userName       : message.name
@@ -90,55 +116,61 @@ var create = function(logger, ws, api, message, tag) {
                   , clients        : []
                   };
 
-    exports.db.run('INSERT INTO clients(clientUID, clientUserID, clientName, clientComments, clientAuthAlg, clientAuthParams, '
-                   + 'clientAuthKey, created) '
-                   + 'VALUES($clientUID, $clientUserID, $clientName, $clientComments, $clientAuthAlg, $clientAuthParams, '
-                   + '$clientAuthKey, datetime("now"))',
-                   { $clientUID: uuid, $clientUserID: userID, $clientName: message.clientName, $clientComments: '',
-                     $clientAuthAlg: alg, $clientAuthParams: JSON.stringify(data.params), $clientAuthKey: data.base32 },
-                   function(err) {
-      var clientID;
-
-      if (err) {
-        logger.error(tag, { user: 'INSERT clients.clientUID for ' + uuid, diagnostic: err.message });
-        results.error = { permanent: false, diagnostic: 'internal error' };
-        try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
-        return;
-      }
-
-      clientID = this.lastID.toString();
-
-      data.params.name = '/user/' + message.name + '/' + clientID;
-      x = data.google_auth_qr.indexOf('otpauth://totp/');
-      if (x > 0) {
-        data.google_auth_qr = data.google_auth_qr.slice(0, x) + 'otpauth://totp/' + encodeURIComponent(data.params.name)
-                              + '%3Fsecret=' + encodeURIComponent(data.base32);
-      }
-      exports.db.run('UPDATE clients SET clientAuthParams=$clientAuthParams WHERE clientID=$clientID',
-                     { $clientID: clientID, $clientAuthParams: JSON.stringify(data.params) }, function(err) {
-        if (err) logger.error(tag, { event: 'UPDATE client.authParams for ' + clientID, diagnostic: err.message });
-      });
-
-      results.result.client = clientID;
-      results.result.authenticatorURL = data.google_auth_qr;
-      results.result.otpURL = data.url();
-      clients[uuid] = { clientID         : clientID
-                      , clientUID        : uuid
-                      , clientUserID     : userID
-                      , clientName       : message.clientName
-                      , clientComments   : ''
-                      , clientAuthAlg    : alg
-                      , clientAuthParams : data.params
-                      , clientAuthKey    : data.base32
-                      , clientLastLogin  : null
-                    };
-      users[uuid].clients.push(clientID);
-
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
-    });
+    create2(logger, ws, users[uuid], results, tag, uuid, message.clientName, '', data);
   });
 
   return true;
+};
+
+var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientComments, data) {
+  var x;
+
+  exports.db.run('INSERT INTO clients(clientUID, clientUserID, clientName, clientComments, clientAuthAlg, clientAuthParams, '
+                 + 'clientAuthKey, created) '
+                 + 'VALUES($clientUID, $clientUserID, $clientName, $clientComments, $clientAuthAlg, $clientAuthParams, '
+                 + '$clientAuthKey, datetime("now"))',
+                 { $clientUID: uuid, $clientUserID: user.userID, $clientName: clientName, $clientComments: clientComments,
+                   $clientAuthAlg: 'otpauth://totp', $clientAuthParams: JSON.stringify(data.params),
+                   $clientAuthKey: data.base32 }, function(err) {
+    var clientID;
+
+    if (err) {
+      logger.error(tag, { user: 'INSERT clients.clientUID for ' + uuid, diagnostic: err.message });
+      results.error = { permanent: false, diagnostic: 'internal error' };
+      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      return;
+    }
+
+    clientID = this.lastID.toString();
+
+    data.params.name = '/user/' + user.userName + '/' + clientID;
+    x = data.google_auth_qr.indexOf('otpauth://totp/');
+    if (x > 0) {
+      data.google_auth_qr = data.google_auth_qr.slice(0, x) + 'otpauth://totp/' + encodeURIComponent(data.params.name)
+                            + '%3Fsecret=' + encodeURIComponent(data.base32);
+    }
+    exports.db.run('UPDATE clients SET clientAuthParams=$clientAuthParams WHERE clientID=$clientID',
+                   { $clientID: clientID, $clientAuthParams: JSON.stringify(data.params) }, function(err) {
+      if (err) logger.error(tag, { event: 'UPDATE client.authParams for ' + clientID, diagnostic: err.message });
+    });
+
+    results.result.client = clientID;
+    results.result.authenticatorURL = data.google_auth_qr;
+    results.result.otpURL = data.url();
+    clients[uuid] = { clientID         : clientID
+                    , clientUID        : uuid
+                    , clientUserID     : user.userID
+                    , clientName       : clientName
+                    , clientComments   : clientComments
+                    , clientAuthAlg    : 'otpauth://totp'
+                    , clientAuthParams : data.params
+                    , clientAuthKey    : data.base32
+                    , clientLastLogin  : null
+                  };
+    user.clients.push(clientID);
+
+    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  });
 };
 
 var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
@@ -208,8 +240,9 @@ var authenticate = function(logger, ws, api, message, tag) {
   if (otp !== message.response) {
     results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
   } else {
-    results.result = { user : user.userID, role: user.userRole };
+    results.result = { userID: user.userID, role: user.userRole };
     ws.userID = user.userID;
+    ws.clientID = clientID;
 
     logger.notice(tag, { event: 'login', clientID: clientID, role: user.userRole });
 
@@ -272,6 +305,19 @@ var proplist = function(id, user) {
   }
 
   return result;
+};
+
+var name2client = function(user, name) {
+  var client, i;
+
+  if (!name) return null;
+
+  for (i = 0; i < user.clients.length; i++) {
+    client = id2client(user, user.clients[i]);
+    if ((!!client) && (name === client.clientName)) return client;
+  }
+
+  return null;
 };
 
 var proplist2 = function(id, client, user) {
@@ -399,7 +445,8 @@ exports.start = function() {
                                 , clientName : true
                                 }
                    , response : {}
-                   , comments : [ 'the uuid is specified as the create suffix'
+                   , comments : [ 'the uuid is specified as the create suffix, either USER or USER/CLIENT'
+                                , 'the default role is "resident"'
                                 ]
                    });
   manage.apis.push({ prefix  : '/api/v1/user/list'
