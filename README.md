@@ -15,15 +15,19 @@ Enjoy!
 PRIOR TO ALPHA RELEASE
 ======================
 
+0. platform ports
+
+    0.1. RPi (AA) ... needs BLE
+
+    0.2. BBB (AA) ... needs WiFi
+
 1. initial documentation
 
-    1.1. ~4 files to go (MTR)
-
-    1.2. review (AA)
+    1.1. review (AA)
 
 2. device implementations
 
-    2.1. swivl ptz (MTR)
+    2.1. swivl ptz (MTR: July)
 
     2.2. appleTV
 
@@ -37,27 +41,29 @@ PRIOR TO ALPHA RELEASE
 
     2.7. webcam
 
-4. the activity loop
+4. internals
 
-   4.1. device/group tags (MTR)
+   4.1. device/group tags (MTR: July)
 
    4.2. temporal relations
 
-5. steward "color" based on status (MTR)
+   4.3. authentication/authorization (MTR: June)
 
-6. steward "user assistance" queue (MTR)
+5. steward "color" based on status
+
+6. steward "user assistance" queue
 
     6.1. "press the button on the controller"
 
-    6.2. intelligent bulb replacement
+7. compile/evaluate the "magic" list (AA)
 
-7. compile/evaluate the "magic" list
+    7.2. intelligent bulb replacement
 
 8. gateway implementations
 
-    8.1. complete zigbee gateway (MTR)
+    8.1. complete zigbee gateway (MTR: July)
 
-    8.2. implement z-wave gateway (MTR)
+    8.2. implement z-wave gateway (MTR: July)
 
 9. measurement samples
 
@@ -67,13 +73,15 @@ PRIOR TO ALPHA RELEASE
 
 10. clients
 
-    10.1 json/d3 client
+    10.1 json/d3 client (MTR, et. al.: July)
 
-11. miscellaneous
+    10.2 Client API
 
-    11.1 read arp table (OS-specific)
+11. remote access
 
-    11.2 backup/restore steward from client
+    11.1 nodejitsu server
+
+    11.2 Remote API
 
 
 PRIOR TO PUBLIC RELEASE
@@ -87,8 +95,11 @@ PRIOR TO PUBLIC RELEASE
 
     1.3. Prefab API
 
-2. Steward implementation
+2. Mobile client integration
 
-3. Mobile client integration
+    2.1. client bootstrapping using NFC
 
-    3.1. client bootstrapping using NFC
+3. miscellaneous
+
+    3.1 backup/restore steward from client
+

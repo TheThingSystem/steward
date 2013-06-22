@@ -380,6 +380,27 @@ exports.forEachAddress = function(callback) {
   }
 };
 
+exports.clientInfo = function(connection) {
+  var ifname, props;
+
+  props = { loopback : connection.remoteAddress === '127.0.0.1'
+          , subnet   : false
+          };
+
+// TBD: in node 0.11, this should be reworked....
+  for (ifname in ifaces) {
+    if (!ifaces.hasOwnProperty(ifname)) continue;
+
+    if (!!ifaces[ifname].arp[connection.remoteAddress]) {
+      props.subnet = true;
+      break;
+    }
+  }
+
+  props.local = props.loopback || props.subnet;
+  return props;
+};
+
 
 exports.start = function() {
   var ifa, ifaddrs, ifname, noneP;

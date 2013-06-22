@@ -65,7 +65,7 @@ var create = function(logger, ws, api, message, tag) {
 };
 
 var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
-  var actor, allP, child, children, doneP, device, i, id, p, parts, props, results, suffix, treeP, type, uid;
+  var actor, allP, child, children, doneP, device, i, id, p, parts, props, results, suffix, treeP, type, uuid;
 
   allP = message.options.depth === 'all';
   treeP = allP || (message.options.depth === 'tree');
@@ -73,12 +73,12 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   if (suffix.length === 0) suffix = null;
 
   doneP = false;
-  results = { requestID: message.requestID, result: { devices: {}}};
+  results = { requestID: message.requestID, result: { devices: {} } };
   if (allP) results.result.actors = {};
-  for (uid in devices.devices) {
-    if (!devices.devices.hasOwnProperty(uid)) continue;
+  for (uuid in devices.devices) {
+    if (!devices.devices.hasOwnProperty(uuid)) continue;
 
-    device = devices.devices[uid];
+    device = devices.devices[uuid];
     if (!device.device) continue;
 
     id = device.device.deviceID;
@@ -92,7 +92,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
         for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
         if (!!actor) {
           props = clone(actor.$info);
-          type = props.type, delete(props.type);
+          type = props.type; delete(props.type);
           results.result.actors[type] = props;
         }
       }
@@ -118,7 +118,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
           for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
           if (!!actor) {
             props = clone(actor.$info);
-            type = props.type, delete(props.type);
+            type = props.type; delete(props.type);
             results.result.actors[type] = props;
           }
         }

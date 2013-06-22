@@ -2,8 +2,8 @@
 // Axis network cameras - http://www.axis.com/products/video/camera/
 
 
-	exports.start = function() {};
-       return;
+        exports.start = function() {};
+        return;
 
 var url         = require('url')
   , axis        = require('axiscam')

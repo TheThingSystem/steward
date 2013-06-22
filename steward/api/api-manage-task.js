@@ -132,7 +132,7 @@ var list = function(logger, ws, api, message, tag) {
         entity = actor.$lookup(task.actorID);
         if (!!entity) {
           props = (!!entity.proplist) ? entity.proplist() : actor.$proplist(task.actorID, entity);
-          who = props.whoami, delete(props.whoami);
+          who = props.whoami; delete(props.whoami);
           type = props.whatami.split('/')[1];
           if (!results.result[type + 's']) results.result[type + 's'] = {};
           results.result[type + 's'][who] = props;
@@ -143,7 +143,7 @@ var list = function(logger, ws, api, message, tag) {
             for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
             if (!!actor) {
               props = clone(actor.$info);
-              type = props.type, delete(props.type);
+              type = props.type; delete(props.type);
               results.result.actors[type] = props;
             }
           }
@@ -155,7 +155,7 @@ var list = function(logger, ws, api, message, tag) {
         entity = actor.$lookup(task.guardID);
         if (!!entity) {
           props = (!!entity.proplist) ? entity.proplist() : actor.$proplist(task.guardID, entity);
-          who = props.whoami, delete(props.whoami);
+          who = props.whoami; delete(props.whoami);
           type = props.whatami.split('/')[1];
           if (!results.result[type + 's']) results.result[type + 's'] = {};
           results.result[type + 's'][who] = props;
@@ -166,7 +166,7 @@ var list = function(logger, ws, api, message, tag) {
             for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
             if (!!actor) {
               props = clone(actor.$info);
-              type = props.type, delete(props.type);
+              type = props.type; delete(props.type);
               results.result.actors[type] = props;
             }
           }
@@ -219,7 +219,7 @@ var list = function(logger, ws, api, message, tag) {
             for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
             if (!!actor) {
               props = clone(actor.$info);
-              type = props.type, delete(props.type);
+              type = props.type; delete(props.type);
               results.result.actors[type] = props;
             }
           }

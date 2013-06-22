@@ -66,7 +66,10 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     throw(ex);
   }
 
+  client = ssdp;
+/* i'm not sure why i allocated a new SSDP object, not needed...
   client = new SSDP();
+ */
   client.logger = logger;
   client.description = 'index.xml';
   client.on('advertise-alive', function(heads) {

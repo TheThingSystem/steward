@@ -16,12 +16,12 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   suffix = message.path.slice(api.prefix.length + 1);
   if (suffix.length === 0) suffix = null;
 
-  results = { requestID: message.requestID, result: { actors: {}}};
+  results = { requestID: message.requestID, result: { actors: {} } };
   for (actor in actors) {
     if (!actors.hasOwnProperty(actor)) continue;
 
     info = clone(actors[actor].$info);
-    what = info.type, delete(info.type);
+    what = info.type; delete(info.type);
     results.result.actors[what] = info;
     if (!treeP) continue;
 
@@ -29,7 +29,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
       if ((!actors[actor].hasOwnProperty(child)) || (child.charAt(0) === '$')) continue;
 
       info = clone(actors[actor][child].$info);
-      what = info.type, delete(info.type);
+      what = info.type; delete(info.type);
       results.result.actors[what] = info;
     }
   }
@@ -50,7 +50,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
         if (!results.result.actors[info.type]) {
           againP = true;
 
-          what = info.type, delete(info.type);
+          what = info.type; delete(info.type);
           results.result.actors[what] = info;
         }
       }
@@ -69,8 +69,8 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
         for (i = 0; i < entities.length; i++) {
           if (!(entity = actor.$lookup(entities[i]))) continue;
           props = (!!entity.proplist) ? entity.proplist() : actor.$proplist(entities[i], entity);
-          what = props.whatami, delete(props.whatami);
-          who = props.whoami, delete(props.whoami);
+          what = props.whatami; delete(props.whatami);
+          who = props.whoami; delete(props.whoami);
           if (!results.result[what]) results.result[what] = {};
           results.result[what][who] = props;
         }
@@ -117,14 +117,14 @@ var perform = function(logger, ws, api, message, tag) {
     if (!actors.hasOwnProperty(actor)) continue;
 
     info = clone(actors[actor].$info);
-    what = info.type, delete(info.type);
+    what = info.type; delete(info.type);
     present.actors[what] = info;
 
     for (child in actors[actor]) {
       if ((!actors[actor].hasOwnProperty(child)) || (child.charAt(0) === '$')) continue;
 
       info = clone(actors[actor][child].$info);
-      what = info.type, delete(info.type);
+      what = info.type; delete(info.type);
       present.actors[what] = info;
     }
   }
@@ -145,7 +145,7 @@ var perform = function(logger, ws, api, message, tag) {
         if (!present.actors[info.type]) {
           againP = true;
 
-          what = info.type, delete(info.type);
+          what = info.type; delete(info.type);
           present.actors[what] = info;
         }
       }

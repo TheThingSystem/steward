@@ -12,11 +12,166 @@
 </style>
 <script>
 
+var reqno = 1;
+var callbacks = {};
+
+var add_callback = function(cb) {
+  callbacks[reqno.toString()] = cb;
+
+  return reqno++;
+};
+
+var create_user = function(ws, name, comments, role, cb) {
+  var x = name.indexOf('/');
+
+  ws.send(JSON.stringify({ path       : '/api/v1/user/create/' + name
+                         , requestID  : add_callback(cb)
+                         , name       : (x !== -1) ? name.slice(x + 1) : name
+                         , comments   : comments
+                         , role       : role
+                         , clientName : 'bootstrap'
+                         }));
+};
+
+var authenticate_user = function(ws, name, code, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/authenticate/' + name
+                         , requestID : add_callback(cb)
+                         , response  : code
+                         }));
+};
+
+
+var ws = null;
+
+var validate_create = function() {
+  var create   = document.forms.createForm
+    , name     = create.userName.value
+    , comments = create.userComments.value
+    , qrcode   = document.images.qrcode
+    , otpURL   = document.getElementById('otpURL')
+    , status   = document.getElementById('status')
+    , test     = document.forms.testForm
+    ;
+
+  qrcode.src = 'qrcode.png';
+  otpURL.href = '';
+  status.innerHTML = '';
+
+  if (!!name) name = name.replace(/^\s+|\s+$/g, '');
+  if ((!name)
+        || (name.length       ===  0)
+        || (name.search(/\s/) !== -1)
+        || (name.indexOf('-') ===  0)
+        || (name.indexOf('.') !== -1)
+        || (name.indexOf(':') !== -1)) {
+    alert('invalid short name');
+    return false;
+  }
+
+  if (!!comments) comments = comments.replace(/^\s+|\s+$/g, '');
+
+  create_user(ws, name, comments, 'master', function(message) {
+    var x;
+
+    if (!!message.result) {
+      qrcode.src = message.result.authenticatorURL;
+      otpURL.href = message.result.otpURL;
+      status.innerHTML = '<strong><font color="green">success.</strong></font>';
+      x = name.indexOf('/');
+      if (x !== -1) name = name.slice(0, x);
+      test.userName.value = name + '/' + message.result.client;
+      return true;
+    }
+
+    if (!!message.error) {
+      status.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+      return true;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+var validate_test = function() {
+  var test     = document.forms.testForm
+    , name     = test.userName.value
+    , code     = test.userCode.value
+    , status2  = document.getElementById('status2')
+    ;
+
+  status2.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    alert('invalid login code');
+    return false;
+  }
+
+  authenticate_user(ws, name, code, function(message) {
+    if (!!message.result) {
+      status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      return true;
+    }
+
+    if (!!message.error) {
+      status2.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+      return true;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+var go = function(location, i) {
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
+
+  ws.onopen = function(event) {};
+
+  ws.onmessage = function(event) {
+    var id, message;
+
+    try {
+      message = JSON.parse(event.data);
+      id = message.requestID.toString();
+      if ((!!callbacks[id]) && ((callbacks[id])(message))) delete(callbacks[id]);
+    } catch(ex) {
+      console.log(ex.message);
+    }
+  };
+
+  ws.onclose = function(event) {
+    console.log('onclose'); console.log(event);
+
+    setTimeout (function() { go(location, i + 1); }, 2500);
+  };
+
+  ws.onerror = function(event) {
+    console.log('onerror'); console.log(event);
+
+    try { ws.close (); } catch (ex) {}; ws = null;
+    setTimeout (function() { go(location, i + 1); }, 5000);
+  };
+};
+
+var main = function() {
+  var location = { hostname : window.location.hostname
+                 , port     : window.location.port
+                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 };
+
+  go(location, 1);
+};
 </script>
 </head>
 
 <body onload='main();'>
 <div id='main'>
+<center><strong><font size='+3'>NOTE: THE TEXT ON THIS PAGE IS ACCURATE, BUT NOT USER-FACING.</font></strong></center>
+
 <h1>Welcome!</h1>
 <p>
 Welcome to the client bootstrap page for the steward.
@@ -27,16 +182,18 @@ the client and steward will automatically use industry-standard secure
 technologies to communicate.
 </p>
 
-<h2>tl;dr</h2>
+<h1>tl;dr</h1>
 <ul>
-<li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>.</li>
+<li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
+or some other program that implements <a href='http://tools.ietf.org/html/rfc6238'>time-based one-time passwords (TOTP)</a>.
+There are several out there for both platforms and desktops.</li>
 
 <li>Scroll to the bottom of this page, fill-in the form, and press "Submit".</li>
 
 <li>Launch the authenticator and scan the QR code.</li>
 </ul>
 
-<h2>Start with a home browser</h2>
+<h1>Start with a home browser</h1>
 <p>
 First,
 you should be using a browser on a computer on your home network.
@@ -108,9 +265,8 @@ then no device <em>should</em> be able to capture/modify the traffic between the
 <p>
 First,
 you will need a smartphone
-with <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>.
-This is a program that will perform "token-based" authentication using
-your Android, Blackberry or iOS device.
+with <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
+or another program that does "TOTP" on your smartphone.
 </p>
 
 <p>
@@ -126,18 +282,19 @@ you are probably guarding (and locking) your smartphone zealously.
 
 <p>
 So,
-if you haven't already downloaded Google Authenticator for your smartphone.
-Please install it using these <a href='https://support.google.com/accounts/answer/1066447'>instructions</a>.
+if you haven't already downloaded Google Authenticator for your smartphone,
+please install it using these <a href='https://support.google.com/accounts/answer/1066447'>instructions</a>.
+Or find another authenticator program that is appropriate for your platform.
 </p>
 
-<h2>Creating an Account</h2>
+<h1>Creating an Account</h1>
 <p>
 Here is a form that asks you to input a short name (e.g., "root")
 and a longer, more descriptive name (e.g., "Angus MacPhail").
 When you enter that information and click "Submit",
-a "QR code" will appear that you scan with the Google Authenticator:
+a "QR code" will appear that you scan with the authenticator:
 <ul>
-<li>Launch the Authenticator application on your smartphone.</li>
+<li>Launch the authenticator application on your smartphone.</li>
 
 <li>Press the "+" button and then the "Scan Barcode" button.</li>
 
@@ -147,8 +304,48 @@ and the application will automatically focus on the QR code and do the rest.</li
 </ul>
 </p>
 
+<form name='createForm' onsubmit='return validate_create();' action='#'>
+<table>
+<tr><td>Short Name:</td>
+    <td><input type='text' name='userName' /></td>
+    <td width='120'>&nbsp;</td>
+    <td rowspan='3'><a id='otpURL' href=''><img name='qrcode' src='qrcode.png' width='166' height='166' /></a></span></td>
+</tr>
+<tr><td>Descriptive Name:</td>
+    <td><input type='text' name='userComments' /></td>
+</tr>
+<tr valign='top'>
+    <td></td>
+    <td><input type='submit' value='Create' /><br/><br/><span id='status'></span></td>
+</tr>
+</table>
+</form>
 
-<form>
+<h1>Testing a Client</h1>
+<p>
+Here is a form that asks you to enter the six-digit code from Google
+Authenticator and verify that everything's working.
+</p>
+
+<p>After you created an account,
+did you notice the solidus ('/') and number appended to the short name below?
+That identifies the client that is now associated with the user.
+Clients authenticate to the steward, and the user associated with a client is authorized to invoke various API calls.
+</p>
+
+<form name='testForm' onsubmit='return validate_test();' action='#'>
+<table>
+<tr><td>Short Name:</td>
+    <td><input type='text' name='userName' /></td>
+</tr>
+<tr><td>Login Code:</td>
+    <td><input type='text' name='userCode' /></td>
+</tr>
+<tr valign='top'>
+    <td></td>
+    <td><input type='submit' value='Test' /><br/><br/><span id='status2'></span></td>
+</tr>
+</table>
 </form>
 
 </div>
