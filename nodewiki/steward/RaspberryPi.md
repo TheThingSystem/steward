@@ -234,7 +234,7 @@ the _steward_ should start correctly after these changes without Bluetooth LE su
 
 If you chose to install BlueZ 4.x via apt-get, and so long as your Bluetooth LE USB adaptor was plugged into your Pi when you installed BlueZ, the Pi will be automatically configured to start Bluetooth. Bluetooth should be running, type
 
-   hciconfig
+    hciconfig
 
 at the prompt and you should see something like this,
 
