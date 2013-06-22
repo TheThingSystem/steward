@@ -18,7 +18,6 @@ var create = function(logger, ws, api, message, tag) {
   };
 
   if (!exports.db)                                          return error(false, 'database not ready');
-console.log(message);
 
   uuid = message.path.slice(api.prefix.length + 1);
   if (uuid.length === 0)                                    return error(true,  'missing uuid');
@@ -209,7 +208,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 };
 
 var authenticate = function(logger, ws, api, message, tag) {
-  var client, clientID, date, now, otp, pair, results, user;
+  var client, clientID, date, meta, now, otp, pair, results, user;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user authentication', message.requestID, permanent, diagnostic);
@@ -241,10 +240,12 @@ var authenticate = function(logger, ws, api, message, tag) {
     results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
   } else {
     results.result = { userID: user.userID, role: user.userRole };
-    ws.userID = user.userID;
-    ws.clientID = clientID;
+    ws.clientInfo.userID = user.userID;
+    ws.clientInfo.clientID = clientID;
 
-    logger.notice(tag, { event: 'login', clientID: clientID, role: user.userRole });
+    meta = ws.clientInfo;
+    meta.event = 'login';
+    logger.notice(tag, meta);
 
     now = new Date();
 // http://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime

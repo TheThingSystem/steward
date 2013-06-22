@@ -48,14 +48,23 @@ exports.start = function() {
       var request = ws.upgradeReq;
       var pathname = url.parse(request.url).pathname;
       var tag = wssT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
+      var meta;
 
-      logger.info(tag, { event: 'connection' });
+      ws.clientInfo = require('./steward').clientInfo(request.connection);
+      meta = ws.clientInfo;
+      meta.event = 'connection';
+      logger.info(tag, meta);
 
       ws.on('error', function(err) {
         logger.info(tag, { event: 'error', message: err });
       });
       ws.on('close', function(code, message) {
-        logger.info(tag, { event: 'close', clientID: ws.clientID, code: code, message: message });
+        var meta = ws.clientInfo;
+     
+        meta.event = 'close';
+        meta.code = code;
+        meta.message = message;
+        logger.info(tag, meta);
       });
 
       if (!routes[pathname]) {
@@ -76,13 +85,13 @@ exports.start = function() {
 
       var pathname = url.parse(request.url).pathname;
       var tag = httpsT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
+      var meta = require('./steward').clientInfo(request.connection);
 
-      logger.info(tag, { event: 'request' });
-
-// TBD: access control based on remoteAddress & token
+      meta.event = 'request';
+      logger.info(tag, meta);
 
       if (pathname == '/') pathname= '/index.html';
-      if ((pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
+      if ((!meta.local) || (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'not-allowed', code: 404 });
         response.writeHead(404, { 'Content-Type': 'text/plain' });
         response.end('404 not found');
@@ -129,6 +138,21 @@ exports.start = function() {
     }
 
     logger.info('listening on ' + wssT + '://0.0.0.0:' + portno);
+
+    var hack = '0.0.0.0';
+
+    require('http').createServer(function(request, response) {
+      response.writeHead(302, { Location   :  httpsT + '://' + hack + ':' + portno
+                              , Connection : 'close'
+                              });
+      response.end();
+    }).on('connection', function(socket) {
+      hack = socket.localAddress;
+    }).on('listening', function() {
+      logger.info('listening on http://0.0.0.0:80');
+    }).on('error', function(err) {
+      logger.info('unable to listen on http://0.0.0.0:80', { diagnostic : err.message });
+    }).listen(80);
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js/, 10, -3, ' discovery', portno);
   });
