@@ -33,13 +33,15 @@ PRIOR TO ALPHA RELEASE
 
     2.3. TI sensortag (AA)
 
-    2.4. nest control
+    2.4. nest goal temperature, fan status, heating/cooling status, and control functions
 
     2.5. romo
 
     2.6. galileo
 
     2.7. webcam
+
+    2.8. ecobee
 
 4. internals
 

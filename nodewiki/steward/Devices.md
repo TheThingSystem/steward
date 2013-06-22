@@ -740,7 +740,7 @@ The are devices that measure multiple physical qualities.
 Because of their specialized nature,
 the naming pattern is
 
-    /device/tricorder/MANUFACTURE/MODEL
+    /device/tricorder/MANUFACTURER/MODEL
 
 In addition to the properties specific to the individual device,
 the _lastSample_ property must also be present.

@@ -403,7 +403,7 @@ exports.clientInfo = function(connection) {
 
 
 exports.start = function() {
-  var ifa, ifaddrs, ifname, noneP;
+  var captureP, errorP, ifa, ifaddrs, ifname, noneP;
 
   if (exports.uuid) {
     logger.info('start', { uuid: exports.uuid });
@@ -422,36 +422,47 @@ exports.start = function() {
   if (loadedP) return setTimeout(exports.start, 10);
   loadedP = true;
 
+  errorP = false;
   noneP = true;
   for (ifname in ifaces) {
     if ((!ifaces.hasOwnProperty(ifname)) || (ifname.substr(0, 5) === 'vmnet') || (ifname.indexOf('tun') !== -1)) continue;
 
     ifaddrs = ifaces[ifname];
     if (ifaddrs.length === 0) continue;
+
+    captureP = false;
     for (ifa = 0; ifa < ifaddrs.length; ifa++) {
       if ((ifaddrs[ifa].internal) || (ifaddrs[ifa].family !== 'IPv4')) continue;
 
-      logger.info('scanning ' + ifname);
+      logger.notice('scanning ' + ifname);
       ifaces[ifname] = { addresses: ifaddrs, arp: {} };
       try {
         pcap.createSession(ifname, 'arp').on('packet', listen(ifname));
-        break;
+        captureP = true;
       } catch(ex) {
 // NB: referencing ifname in this exception catch confuses jshint about whether ifname is var'd above...
-        logger.crit('unable to scan ' + ifname, { diagnostic: ex.message });
-        if ((!!process.getgid) && ((!process.getuid) || (process.getuid() !== 0))) {
-          console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
-        }
-        process.exit(1);
+        logger.error('unable to scan ' + ifname, { diagnostic: ex.message });
+        errorP = true;
       }
+
+      break;
     }
+    if (!captureP) continue;
+    noneP = false;
 
     for (ifa = 0; ifa < ifaddrs.length; ifa++) {
       if ((!ifaddrs[ifa].internal) && (ifaddrs[ifa].family === 'IPv4')) prime(ifaddrs[ifa].address);
     }
-    noneP = false;
   }
-  if (noneP) logger.error('no network interfaces');
+  if (noneP) {
+    logger.error('no network interfaces');
+    if (errorP) {
+      if ((!!process.getgid) && ((!process.getuid) || (process.getuid() !== 0))) {
+        console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
+      }
+      process.exit(1);
+    }
+  }
 
   for (ifname in ifaces) if ((ifaces.hasOwnProperty(ifname)) && (util.isArray(ifaces[ifname]))) delete(ifaces[ifname]);
 
