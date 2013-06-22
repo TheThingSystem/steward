@@ -1,4 +1,5 @@
 var server      = require('./../core/server')
+  , users       = require('./../api/api-manage-user')
   , utility     = require('./../core/utility')
   ;
 
@@ -6,7 +7,15 @@ var server      = require('./../core/server')
 var logger = exports.logger = utility.logger('manage');
 
 var apis = exports.apis = [];
-var access = exports.access = { level: { read: 1, perform: 2, write: 4 } };
+var access = exports.access = { level : { read    :    1
+                                        , perform :    2
+                                        , write   :    4
+                                        , create  :    8
+                                        , attach  :   16
+                                        , peer    :   32
+                                        , none    : 1024
+                                        }
+                              };
 
 
 var route = function(ws, tag) {
@@ -57,12 +66,44 @@ var route = function(ws, tag) {
       }
     }
 
-// TBD: access control based on token
+    if (!accessP(best, ws.clientInfo, tag)) {
+      error(ws, tag, 'route', message.requestID, false, 'unknown api: ' + path);
+      return;
+    }
+
     logger.info(tag, { message: message });
     if (!(best.route)(logger, ws, best, message, tag)) try { ws.close(); } catch (ex) {}
   });
 };
 
+
+var accessP = function(api, clientInfo, tag) {
+  var levels, role, user;
+
+  user = users.id2user(clientInfo.userID);
+  role = (!!user) ? user.userRole : 'none';
+  levels = { master   : access.level.read   | access.level.perform | access.level.write | access.level.manage
+           , resident : access.level.read   | access.level.perform | access.level.write
+           , guest    : access.level.read   | access.level.perform
+           , device   : access.level.attach
+           , cloud    : access.level.peer
+           , none     : clientInfo.local ? access.level.read : access.level.none
+           }[role];
+  if (!levels) {
+      logger.warning(tag, { event: 'access', diagnostic: 'unknown authorization role', role: role });
+      return false;
+  }
+
+  if (!(levels & api.access)) {
+    logger.warning(tag, { event: 'access', diagnostic: 'unauthorized', level: api.access, role: role });
+// TBD: uncomment this later on
+/*
+    return false;
+ */
+  }
+
+  return true;
+};
 
 var error = exports.error = function(ws, tag, event, requestID, permanent, diagnostic) {
   var meta = { error: { permanent: permanent, diagnostic: diagnostic }};

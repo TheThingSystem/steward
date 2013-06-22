@@ -7,6 +7,8 @@ var manage      = require('./route-manage')
 var route = function(ws, tag) {
   var api, apis, i, results, route;
 
+// NB: no access control
+
   ws.on('message', function(data, flags) {
     var message;
 

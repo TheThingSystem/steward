@@ -436,9 +436,12 @@ exports.start = function() {
       try {
         pcap.createSession(ifname, 'arp').on('packet', listen(ifname));
         break;
-      } catch (ex) {
-        console.log(ex);
-        if (process.getgid) console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
+      } catch(ex) {
+// NB: referencing ifname in this exception catch confuses jshint about whether ifname is var'd above...
+        logger.crit('unable to scan ' + ifname, { diagnostic: ex.message });
+        if ((!!process.getgid) && ((!process.getuid) || (process.getuid() !== 0))) {
+          console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
+        }
         process.exit(1);
       }
     }

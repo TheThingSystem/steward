@@ -60,7 +60,7 @@ exports.start = function() {
       });
       ws.on('close', function(code, message) {
         var meta = ws.clientInfo;
-     
+
         meta.event = 'close';
         meta.code = code;
         meta.message = message;
@@ -73,8 +73,7 @@ exports.start = function() {
         return;
       }
 
-// TBD: access control based on remoteAddress & token
-
+// NB: each route is responsible for access control, both at start and per-message
       (routes[pathname].route)(ws, tag);
     }).on('error', function(err) {
       logger.error('server', { event: 'ws.error', diagnostic: err.message });
