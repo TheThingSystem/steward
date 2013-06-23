@@ -92,7 +92,3 @@ A user has one of five roles:
 * _device_   - for devices implementing [The Simple Thing Protocol](Simple.md); or,
 
 * _cloud_    - for services in the cloud
-
-<x>comment 1</x>
-
-<!-- comment 2 -->
