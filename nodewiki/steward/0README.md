@@ -36,10 +36,10 @@ Actually, none of the clients are implemented yet!
 So, you have to use .html files to pretty much do everything now.
 
 ## Monitoring
-When the steward starts, it will be listening for http traffic on port 8888.
+When the steward starts, it will be listening for https traffic on port 8888.
 Start by visiting
 
-        http://127.0.0.1:8888/
+        https://127.0.0.1:8888/
 
 which reports the status of the steward in three parts (activities, devices, and logs).
 
@@ -65,12 +65,12 @@ The first thing you want to do is look for
 
 Edit the file to put the appropriate values in those variables and then visit
 
-    http://127.0.0.1:8888/bootstrap.html
+    https://127.0.0.1:8888/bootstrap.html
 
 in a browser. This will use the management API to set these variables in the steward.
 
 The changes will be reflected when you look at
 
-    http://127.0.0.1:8888/
+    https://127.0.0.1:8888/
 
 Congratulations! The steward is now configured and running.

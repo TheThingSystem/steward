@@ -80,6 +80,8 @@ var route = function(ws, tag) {
 var accessP = function(api, clientInfo, tag) {
   var levels, role, user;
 
+  if (clientInfo.loopback) return true;
+
   user = users.id2user(clientInfo.userID);
   role = (!!user) ? user.userRole : 'none';
   levels = { master   : access.level.read   | access.level.perform | access.level.write | access.level.manage

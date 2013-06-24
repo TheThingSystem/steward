@@ -11,7 +11,7 @@ var clients = {};
 
 
 var create = function(logger, ws, api, message, tag) {
-  var data, options, name, pair, results, user, uuid;
+  var client, createP, data, options, name, pair, results, user, uuid;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user creation', message.requestID, permanent, diagnostic);
@@ -66,6 +66,11 @@ var create = function(logger, ws, api, message, tag) {
     if (!!name2client(user, name))                          return error(false, 'duplicate name');
     clients[uuid] = {};
   }
+
+  client = id2user(ws.clientInfo.userID);
+  createP = ws.clientInfo.loopback
+           || ((!!client) && (client.role === 'master'))
+           || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet);
 
   results = { requestID: message.requestID };
   try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
@@ -183,6 +188,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   if (suffix.length === 0) suffix = null;
 
   results = { requestID: message.requestID, result: { users: {} } };
+  results.uuid = steward.uuid;
   if (allP) {
     results.result.users = {};
     results.result.clients = {};
@@ -285,7 +291,7 @@ var name2user = function(name) {
   return null;
 };
 
-exports.id2user = function(id) {
+var id2user = exports.id2user = function(id) {
   var uuid;
 
   if (!!id) for (uuid in users) if ((users.hasOwnProperty(uuid)) && (id === users[uuid].userID)) return users[uuid];
@@ -437,7 +443,7 @@ exports.start = function() {
 
   manage.apis.push({ prefix  : '/api/v1/user/create'
                    , route   : create
-                   , access  : manage.access.level.write
+                   , access  : manage.access.level.read    // does its own checking...
                    , required : { uuid       : true
                                 , name       : true
                                 }
