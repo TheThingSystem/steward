@@ -40,6 +40,13 @@ var authenticate_user = function(ws, name, code, cb) {
                          }));
 };
 
+var list_users = function(ws, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/list/'
+                         , requestID : add_callback(cb)
+                         , options   : { depth: 'all' }
+                         }));
+};
+
 
 var ws = null;
 
@@ -129,7 +136,9 @@ var validate_test = function() {
 var go = function(location, i) {
   ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
 
-  ws.onopen = function(event) {};
+  ws.onopen = function(event) {
+    list_users(ws, function(message) { console.log(message) });
+  };
 
   ws.onmessage = function(event) {
     var id, message;

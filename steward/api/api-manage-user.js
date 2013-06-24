@@ -178,7 +178,7 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
 };
 
 var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
-  var allP, client, i, id, results, suffix, treeP, user, uuid;
+  var allP, client, i, id, props, results, suffix, treeP, user, uuid;
 
   if (!exports.db) return manage.error(ws, tag, 'user listing', message.requestID, false, 'database not ready');
 
@@ -187,8 +187,8 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   suffix = message.path.slice(api.prefix.length + 1);
   if (suffix.length === 0) suffix = null;
 
-  results = { requestID: message.requestID, result: { users: {} } };
-  results.uuid = steward.uuid;
+  results = { requestID: message.requestID, result: { steward: {}, users: {} } };
+  results.result.steward.uuid = steward.uuid;
   if (allP) {
     results.result.users = {};
     results.result.clients = {};
@@ -199,7 +199,9 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
     user = users[uuid];
     id = user.userID;
     if ((!suffix) || (suffix === id)) {
-      results.result.users['user/' + user.userName] = proplist(null, user);
+      props = proplist(null, user);
+      if ((!ws.clientInfo.loopback) && (!ws.clientInfo.userID)) delete(props.role);
+      results.result.users['user/' + user.userName] = props;
 
       if (treeP) results.result.users['user/' + user.userName].clients = user.clients;
       for (i = 0; i < user.clients.length; i++) {
