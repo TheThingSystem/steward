@@ -9,7 +9,9 @@ With that in mind, here's the basics:
 
     * otherwise, then hardening of the box is outside of our scope.
 
-* Allow only persons whom you trust to have physical access to the box. Anyone who can physically access the is capable of defeating any security on the box. This is true whether those persons wear black hats or diapers.
+* Allow only persons whom you trust to have physical access to the box.
+Anyone who can physically access the box is capable of defeating any security on the box.
+This is true whether those persons wear black hats or diapers.
 
 * If you connect to the steward via the loopbox interface, you have full administrative privileges.
 
@@ -17,9 +19,11 @@ With that in mind, here's the basics:
 
     * You may be tempted to provide a tunnel to the loopback interface. If you feel you must do so, please make it an ssh tunnel that requires public-key (not password) authentication.
 
-* If you connect to the steward via another interface, you must encrypt to do anything meaningful.
-
-    * However, the steward will accept unencrypted traffic for http/ws protocols for very limited status checking.
+* If you connect to the steward via another interface, you must encrypt.
+The steward has a self-signed certificate that it used for authenticated traffic.
+However,
+once a client is registered with the steward,
+it downloads a _privacy package_ containing keys specific to the steward/client pairing.
 
 ## Client (not user) Authentication
 Clients authenticate to the steward,

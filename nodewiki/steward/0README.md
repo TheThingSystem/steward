@@ -43,7 +43,8 @@ Start by visiting
 
 which reports the status of the steward in three parts (activities, devices, and logs).
 
-__If warned about the certificate, please be sure to "permanently accept" the certificate as valid for 127.0.0.1__
+__If warned about the certificate as being untrusted,
+please be sure to "permanently accept" the certificate as valid for 127.0.0.1__
 
 
 ## Configuration
@@ -71,7 +72,8 @@ Edit the file to put the appropriate values in those variables and then visit
 
 in a browser. This will use the management API to set these variables in the steward.
 
-__If warned about the certificate, please be sure to "permanently accept" the certificate as valid for 127.0.0.1__
+__If warned about the certificate as being untrusted,
+please be sure to "permanently accept" the certificate as valid for 127.0.0.1__
 
 The changes will be reflected when you look at
 
