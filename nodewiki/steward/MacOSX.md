@@ -3,7 +3,8 @@ Here's how to get the steward running on Mac OS X 10.8 (Mountain Lion).
 
 First, make sure that _/usr/local/bin_ is before _/usr/bin_ in your $PATH.
 
-Second, make sure you have _Xcode_ installed on your system (the _Command Line Tools_ may not prove sufficient).
+Second, make sure you have _Xcode_ installed on your system,
+and after starting _Xcode_ go to the "Preferences/Downloads" window and install the _Command Line Tools_.
 
 Second, get [homebrew](http://mxcl.github.io/homebrew/) on the system:
 
