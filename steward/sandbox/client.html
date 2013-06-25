@@ -40,6 +40,13 @@ var authenticate_user = function(ws, name, code, cb) {
                          }));
 };
 
+var list_users = function(ws, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/list/'
+                         , requestID : add_callback(cb)
+                         , options   : { depth: 'all' }
+                         }));
+};
+
 
 var ws = null;
 
@@ -129,7 +136,14 @@ var validate_test = function() {
 var go = function(location, i) {
   ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
 
-  ws.onopen = function(event) {};
+  ws.onopen = function(event) {
+    ws.send(JSON.stringify({ path      : '/api/v1/user/prime/1/1'
+                           , requestID : add_callback(function(message) { console.log(message) })
+                           , fingerprint: '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
+                           }));
+
+    list_users(ws, function(message) { console.log(message) });
+  };
 
   ws.onmessage = function(event) {
     var id, message;
@@ -172,120 +186,18 @@ var main = function() {
 <div id='main'>
 <center><strong><font size='+3'>NOTE: THE TEXT ON THIS PAGE IS ACCURATE, BUT NOT USER-FACING.</font></strong></center>
 
-<h1>Welcome!</h1>
-<p>
-Welcome to the client bootstrap page for the steward.
-These instructions may seem a little cryptic.
-Our goal is to securely bootstrap a client with the steward.
-Once the bootstrap is successful,
-the client and steward will automatically use industry-standard secure
-technologies to communicate.
-</p>
-
 <h1>tl;dr</h1>
 <ul>
+<li>Be on your home network.
+
 <li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
 or some other program that implements <a href='http://tools.ietf.org/html/rfc6238'>time-based one-time passwords (TOTP)</a>.
-There are several out there for both platforms and desktops.</li>
+There are several out there for all major platforms and desktops.</li>
 
 <li>Scroll to the bottom of this page, fill-in the form, and press "Submit".</li>
 
 <li>Launch the authenticator and scan the QR code.</li>
 </ul>
-
-<h1>Start with a home browser</h1>
-<p>
-First,
-you should be using a browser on a computer on your home network.
-Preferably,
-the browser is running on the same computer as the steward.
-</p>
-
-<p>
-If the browser is running on a different computer,
-then there is a possibiity that a third device on your home network is
-intercepting and modifying traffic between your browser and the
-steward.
-</p>
-
-<p>
-Speaking plainly:
-most people don't think this is a likely possibility.
-If that's the case for you, please skip down to the section
-entitled <strong>Getting Started</strong>
-</p>
-
-<h2>If you wish to be "extra secure"</h2>
-<p>
-Congratulations: it is likely that you are conciencious, or paranoid, or both!
-</p>
-
-<p>
-When the steward first comes up,
-it creates a self-signed certificate for the client bootstrap process.
-<em>If</em> there is a "man-in-the-middle" device on your network,
-it <em>could</em> be surreptitiously capturing and modifying the
-traffic between the browser and the steward.
-</p>
-
-<p>
-When your browser first attempted to display this page,
-you probably got a dialog that your browser couldn't "verify the identity of the website".
-After clicking the "Details" button,
-you probably clicked a box that says "Always trust 'steward' when connecting to ..." -- that's how you know that 
-your browser is talking to a server (the steward) that is using a
-self-signed certificate.
-</p>
-
-<p>
-If you looked at the details for the certificate,
-you would see a "SHA1 fingerprint" for the certificate, e.g.,
-<blockquote>
-9E DF 5F C4 17 E2 3E D3 88 E2 74 17 D6 93 91 8D 96 1D 9A E1
-</blockquote>
-That fingerprint is very important.
-If someone is performing a man-in-the-middle attack,
-you can compare the fingerprint known to the steward with the one seen
-by the browser,
-and they won't match!
-</p>
-
-<p>There are several ways to determine whether the browser and the steward are talking directly to each other:
-<ul>
-<li><em>if</em> the computer running the steward, and the computer running the browser are plugged into the same hub,
-and nothing else is plugged into that hub; <em>or</em>,</li>
-
-<li><em>if</em> the SHA1 fingerprint found on the steward in the file "sandbox/startup.sha1"
-matches the SHA1 fingerprint reported by the browser</li>
-</ul>
-then no device <em>should</em> be able to capture/modify the traffic between the two.
-</p>
-
-<h1>Getting Started</h1>
-<p>
-First,
-you will need a smartphone
-with <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
-or another program that does "TOTP" on your smartphone.
-</p>
-
-<p>
-On the plus side: you don't have to remember a passphrase.
-That's good, because it's over 40-characters long and changes every 30 seconds.
-</p>
-
-<p>
-On the minus side: anyone with (unlocked) access to your phone will be able to access to the steward.
-However, since smartphone's have become the repository of the digital life;
-you are probably guarding (and locking) your smartphone zealously.
-</p>
-
-<p>
-So,
-if you haven't already downloaded Google Authenticator for your smartphone,
-please install it using these <a href='https://support.google.com/accounts/answer/1066447'>instructions</a>.
-Or find another authenticator program that is appropriate for your platform.
-</p>
 
 <h1>Creating an Account</h1>
 <p>
@@ -321,7 +233,7 @@ and the application will automatically focus on the QR code and do the rest.</li
 </table>
 </form>
 
-<h1>Testing a Client</h1>
+<h1>Authenticating a Client</h1>
 <p>
 Here is a form that asks you to enter the six-digit code from Google
 Authenticator and verify that everything's working.

@@ -1,6 +1,7 @@
 var fs          = require('fs')
   , mime        = require('mime')
   , portfinder  = require('portfinder')
+  , ssh_keygen  = require('ssh-keygen')
   , url         = require('url')
   , wsServer    = require('ws').Server
   , utility     = require('./utility')
@@ -32,6 +33,8 @@ exports.start = function() {
         options.cert = crt;
         httpsT = 'https';
         wssT = 'wss';
+
+        exports.x509 = { key: key, crt: crt };
       } else {
         logger.warning('no startup certificate', { cert: crt });
       }
@@ -39,10 +42,7 @@ exports.start = function() {
       logger.warning('no startup key', { key: key });
     }
 
-    if (err) {
-      logger.error('server', { event: 'portfinder.getPort 8888', diagnostic: err.message });
-      return;
-    }
+    if (err) return logger.error('server', { event: 'portfinder.getPort 8888', diagnostic: err.message });
 
     server = new wsServer(options).on('connection', function(ws) {
       var request = ws.upgradeReq;
@@ -154,6 +154,46 @@ exports.start = function() {
     }).listen(80);
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js/, 10, -3, ' discovery', portno);
+  });
+
+  portfinder.getPort({ port: 8889 }, function(err, portno) {
+    var key = __dirname + '/../db/server_rsa'
+      , pub = __dirname + '/../sandbox/server_rsa.pub'
+      ;
+
+    if (err) return logger.error('server', { event: 'portfinder.getPort 8889', diagnostic: err.message });
+
+    fs.exists(key, function(exists) {
+      if (exists) {
+        exports.ssh = { key: key, pub: pub };
+        return logger.info('TBD: listening on ssh -p ' + portno);
+      }
+
+      ssh_keygen({ location : key
+                 , force    : false
+                 , destroy  : false
+                 , log      : logger
+                 , quiet    : true
+                 }, function(err, sshkey) {
+        if (err) return logger.error('server', { event: 'ssh_keygen', diagnostic: err.message });
+
+        fs.chmod(key, 0400, function(err) {
+          if (err) logger.error('server', { event: 'chmod', file: key, mode: '0400', diagnostic: err.message });
+        });
+
+        fs.rename(key + '.pub', pub, function(err) {
+          if (err) logger.error('server', { event: 'rename', src: key + '.pub', dst: pub, diagnostic: err.message });
+          else sshkey.pubKey = pub;
+
+          fs.chmod(sshkey.pubKey, 0444, function(err) {
+            if (err) logger.error('server', { event: 'chmod', file: sshkey.pubKey, mode: '0444', diagnostic: err.message });
+          });
+
+          exports.sshkey = { key: sshkey.key, pub: sshkey.pubKey };
+          return logger.info('TBD: listening on ssh -p ' + portno);
+        });
+      });
+    });
   });
 
   utility.acquire(logger, __dirname + '/../routes', /^route-.*\.js/, 6, -3, ' route');

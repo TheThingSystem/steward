@@ -1,17 +1,23 @@
-var sqlite3     = require('sqlite3')
+var fs          = require('fs')
+  , fingerprint = require('ssh-fingerprint')
+  , sqlite3     = require('sqlite3')
   , speakeasy   = require('speakeasy')
+  , ssh_keygen  = require('ssh-keygen')
+  , x509_keygen = require('x509-keygen').x509_keygen
+  , server      = require('./../core/server')
   , steward     = require('./../core/steward')
   , manage      = require('./../routes/route-manage')
   ;
 
 
 
-var users = {};
+var users   = {};
 var clients = {};
+var keys    = { x509: { key: '', crt: '' }, ssh: { key: '', pub: ''} };
 
 
 var create = function(logger, ws, api, message, tag) {
-  var data, options, name, pair, results, user, uuid;
+  var client, createP, data, options, name, pair, results, user, uuid;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user creation', message.requestID, permanent, diagnostic);
@@ -66,6 +72,11 @@ var create = function(logger, ws, api, message, tag) {
     if (!!name2client(user, name))                          return error(false, 'duplicate name');
     clients[uuid] = {};
   }
+
+  client = id2user(ws.clientInfo.userID);
+  createP = ws.clientInfo.loopback
+           || ((!!client) && (client.role === 'master'))
+           || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet);
 
   results = { requestID: message.requestID };
   try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
@@ -173,7 +184,7 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
 };
 
 var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
-  var allP, client, i, id, results, suffix, treeP, user, uuid;
+  var allP, client, i, id, props, results, suffix, treeP, user, uuid;
 
   if (!exports.db) return manage.error(ws, tag, 'user listing', message.requestID, false, 'database not ready');
 
@@ -182,7 +193,8 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   suffix = message.path.slice(api.prefix.length + 1);
   if (suffix.length === 0) suffix = null;
 
-  results = { requestID: message.requestID, result: { users: {} } };
+  results = { requestID: message.requestID, result: { steward: {}, users: {} } };
+  results.result.steward.uuid = steward.uuid;
   if (allP) {
     results.result.users = {};
     results.result.clients = {};
@@ -193,7 +205,9 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
     user = users[uuid];
     id = user.userID;
     if ((!suffix) || (suffix === id)) {
-      results.result.users['user/' + user.userName] = proplist(null, user);
+      props = proplist(null, user);
+      if ((!ws.clientInfo.loopback) && (!ws.clientInfo.userID)) delete(props.role);
+      results.result.users['user/' + user.userName] = props;
 
       if (treeP) results.result.users['user/' + user.userName].clients = user.clients;
       for (i = 0; i < user.clients.length; i++) {
@@ -277,15 +291,124 @@ var authenticate = function(logger, ws, api, message, tag) {
   return true;
 };
 
+var prime = function(logger, ws, api, message, tag) {
+  var client, clientID, pair, results, user;
+
+  var error = function(permanent, diagnostic) {
+    return manage.error(ws, tag, 'user authentication', message.requestID, permanent, diagnostic);
+  };
+
+  if (!exports.db)                                          return error(false, 'database not ready');
+
+  clientID = message.path.slice(api.prefix.length + 1);
+  if (clientID.length === 0)                                return error(true,  'missing clientID');
+  pair = clientID.split('/');
+  if (pair.length !== 2)                                    return error(true,  'invalid clientID element');
+  user = name2user(pair[0]);
+
+  if (!user)                                                return error(false, 'invalid clientID/response pair');
+  client = id2client(user, pair[1]);
+  if (!client)                                              return error(false, 'invalid clientID/response pair');
+
+  if (!!message.fingerprint) {
+    message.fingerprint = message.fingerprint.split(':').join('');
+    if (message.fingerprint.search(/^[0-9a-f]{32}$/) !== 0) return error(true,  'invalid SSH fingerprint2');
+  }
+
+  results = { requestID: message.requestID };
+
+  if (true) {
+// NB: the same credentials when talking to all clients...
+
+  if (!!message.fingerprint) {
+    exports.db.run('UPDATE clients SET clientSSHPrint=$clientSSHPrint WHERE clientID=$clientID',
+                   { $clientSSHPrint: message.fingerprint.replace(/(.{2})(?=.)/g, '$1:'), $clientID: client.clientID },
+                   function(err) {
+      if (err) logger.error(tag, { event: 'UPDATE client.clientSSHPrint for ' + client.clientID, diagnostic: err.message });
+    });
+  }
+
+  results.result = { sni  : steward.uuid + '_' + user.userID + '-' + client.clientID
+                   , ssh  : { fingerprint : fingerprint(keys.ssh.pub) }
+                   , x509 : { certificate : keys.x509.crt }
+                   };
+
+  } else {
+// TBD: when we have per-client credentials...
+
+  ssh_keygen({ location : __dirname + '/../db/' + user.userID + '.' + client.clientID + '_rsa'
+             , comment  : user.userName + '/' + client.clientID
+             , password : ''
+             , log      : logger
+             , quiet    : false
+             }, function(err, sshkey) {
+    var sni;
+
+    if (err) {
+      logger.error(tag, { user: 'ssh_keygen', diagnostic: err.message });
+      results.error = { permanent: false, diagnostic: 'internal error' };
+      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      return;
+    }
+
+    sni = steward.uuid + '_' + user.userID + '-' + client.clientID;
+    x509_keygen({ location : __dirname + '/../db/' + user.userID + '.' + client.clientID + '_rsa'
+                , subject  : '/CN=' + sni
+                , logger   : { info  : function(msg, props) {/* jshint unused: false */}
+                             , error : function(msg, props) {/* jshint unused: false */}
+                             }
+                }, function(err, x509key) {
+      var sshprint, stmt, vars;
+
+      if (err) {
+        logger.error(tag, { user: 'x509_keygen', diagnostic: err.message });
+        results.error = { permanent: false, diagnostic: 'internal error' };
+        try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+        return;
+      }
+
+      sshprint = fingerprint(sshkey.pubKey);
+      stmt = 'UPDATE clients SET serverSNI=$serverSNI, serverX509Key=$serverX509Key, serverX509Cert=$serverX509Cert, '
+             + 'serverSSHKey=$serverSSHKey, serverSSHPrint=$serverSSHPrint';
+      vars = { $serverSNI      : sni
+             , $serverX509Key  : x509key.key
+             , $serverX509Cert : x509key.cert
+             , $serverSSHKey   : sshkey.key
+             , $serverSSHPrint : sshprint
+             , $clientID: client.clientID
+             };
+      if (!!message.fingerprint) {
+        stmt += ', clientSSHPrint=$clientSSHPrint ';
+        vars.$clientSSHPrint = message.fingerprint.replace(/(.{2})(?=.)/g, '$1:');
+      }
+      stmt += 'WHERE clientID=$clientID';
+
+      exports.db.run(stmt, vars, function(err) {
+        if (err) logger.error(tag, { event: 'UPDATE client.prime for ' + client.clientID, diagnostic: err.message });
+      });
+
+      results.result = { sni  : sni
+                       , ssh  : { fingerprint : sshprint }
+                       , x509 : { certificate : x509key.cert }
+                       };
+      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    });
+  });
+}
+
+  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  return true;
+};
+
 
 var name2user = function(name) {
   var uuid;
 
   if (!!name) for (uuid in users) if ((users.hasOwnProperty(uuid)) && (name === users[uuid].userName)) return users[uuid];
-  return null;
+  return id2user(name);
 };
 
-exports.id2user = function(id) {
+var id2user = exports.id2user = function(id) {
   var uuid;
 
   if (!!id) for (uuid in users) if ((users.hasOwnProperty(uuid)) && (id === users[uuid].userID)) return users[uuid];
@@ -380,6 +503,8 @@ exports.start = function() {
            + 'clientID INTEGER PRIMARY KEY ASC, clientUID TEXT, clientUserID INTEGER DEFAULT "0", '
            + 'clientName TEXT, clientComments TEXT, '
            + 'clientAuthAlg TEXT, clientAuthParams TEXT, clientAuthKey TEXT, clientLastLogin CURRENT_TIMESTAMP, '
+           + 'clientSSHPrint TEXT, '
+           + 'serverSNI TEXT, serverX509Key TEXT, serverX509Cert TEXT, serverSSHKey TEXT, serverSSHPrint TEXT, '
            + 'sortOrder INTEGER default "0", '
            + 'created CURRENT_TIMESTAMP, updated CURRENT_TIMESTAMP'
            + ')');
@@ -424,6 +549,12 @@ exports.start = function() {
                                   , clientAuthParams : JSON.parse(client.clientAuthParams)
                                   , clientAuthKey    : client.clientAuthKey
                                   , clientLastLogin  : client.clientLastLogin && (new Date(client.clientLastLogin))
+                                  , clientSSHPrint   : client.clientSSHPrint
+                                  , serverSNI        : client.serverSNI
+                                  , ServerX509Key    : client.ServerX509Key
+                                  , ServerX509Cert   : client.ServerX509Cert
+                                  , ServerSSHKey     : client.ServerSSHKey
+                                  , ServerSSHPrint   : client.ServerSSHPrint
                                   };
 
             users[userUUID].clients.push(client.clientID.toString());
@@ -435,9 +566,11 @@ exports.start = function() {
     });
   });
 
+  fetch();
+
   manage.apis.push({ prefix  : '/api/v1/user/create'
                    , route   : create
-                   , access  : manage.access.level.write
+                   , access  : manage.access.level.read    // does its own checking...
                    , required : { uuid       : true
                                 , name       : true
                                 }
@@ -470,4 +603,41 @@ exports.start = function() {
                    , comments : [ 'the clientID is specified as the path suffix, e.g., .../mrose/1'
                                 ]
                    });
+  manage.apis.push({ prefix  : '/api/v1/user/prime'
+                   , route   : prime
+                   , access  : manage.access.level.write
+                   , required : { clientID : 'id'
+                                }
+                   , optional : { fingerprint : true
+                                }
+                   , response : {}
+                   , comments : [ 'the clientID is specified as the path suffix, e.g., .../mrose/1'
+                                ]
+                   });
+};
+
+
+
+
+var fetch = function() {
+  var x, y, zP;
+
+  zP = false;
+  for (x in keys) if (keys.hasOwnProperty(x)) for (y in keys[x]) if (keys[x].hasOwnProperty(y) && (keys[x][y].length === 0)) {
+    fs.exists(server[x][y], fetchf(x,y));
+    zP = true;
+  }
+
+  if (zP) setTimeout(fetch, 1 * 1000);
+};
+
+var fetchf = function(x, y) {
+  return function(exists) {
+    if (!exists) return;
+
+    fs.readFile(server[x][y], function(err, data) {
+      if (err) return server.logger.error('server', { event: 'fs.readFile', file: server.x509.crt });
+      keys[x][y] = data.toString();
+    });
+  };
 };
