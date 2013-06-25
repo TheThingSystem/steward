@@ -152,8 +152,9 @@ _NOTE: As of the latest version of the operating system we no longer have to exp
 
 ##Installing BlueZ
 
-Development of the [noble](https://github.com/sandeepmistry/noble) library on Linux is mainly be done using BlueZ 4.x. However we've mostly tested the steward with BlueZ 5.x. If you want to continue to use/test 5.x you'll need to download the [latest version](https://www.kernel.org/pub/linux/bluetooth/) and unpack it. Then,
+The [noble](https://github.com/sandeepmistry/noble) library library is tested with BlueZ 4.100 and 4.101. The stock BlueZ available on Wheezy is 4.99. It's possible that this might work, but it's safer to go ahead and install by hand. Download the [version 4.101](https://www.kernel.org/pub/linux/bluetooth/) and then,
 
+	tar -xvf bluez
     cd bluez-5.x
     ./configure --disable-systemd --enable-library
     make
@@ -161,9 +162,7 @@ Development of the [noble](https://github.com/sandeepmistry/noble) library on Li
 
 This will take a while, although nothing like as long as the node.js installation.
 
-_TO DO: Note that we're disabling systemd integration as the Pi doesn't ship with this by default. This means we'll have to write a configuration script to start the bluetoothd deamon and put it in the /etc/init.d directory with links in the relevant /etc/rc[0-6,S].d directories. For now we'll have to manually start the daemon._
-
-_NOTE: Manual installation of BlueZ leaves a copy of the gatttool in the attrib/ directory. You can run this tool from there, or copy it into /usr/local/bin along with the other BlueZ utilities. It's not clear why it's not installed by default. However the noble library needs to have gatttool in the path at runtime._
+_NOTE: Current testing is using the [IOGEAR GBU521 Adaptor](http://www.iogear.com/product/GBU521/), however other adaptors have been tested and appear to work._
 
 ###Fixing dbus permissions
 
@@ -182,17 +181,6 @@ inside the <policy> ... </policy> block, and restarting dbus,
      sudo /etc/init.d/dbus restart
 
 _NOTE: This has security implications. This fix allows a method call from all console users, even those calls unrelated to Bluetooth. This is a temporary and sub-optimal work-around to this problem. More research needed._
-
-### Alternative BlueZ Installation
-
-The stock BlueZ available on Wheezy is currently BlueZ 4.99. This should be sufficient, so
-
-    sudo apt-get install bluetoothd
-
-_NOTE: If you plug your Bluetooth LE adaptor into your Pi before installing BlueZ 4.x via apt-get it should automatically start Bluetooth services on installation. Otherwise you may have to reboot the Pi before running the steward to start these services._
-
-_NOTE: Current testing is using the [IOGEAR GBU521 Adaptor](http://www.iogear.com/product/GBU521/), however other adaptors have been tested and appear to work._
-
 ##Installing the Steward
 
 Check out the steward from its Git repository,
@@ -288,11 +276,13 @@ and you should see any Bluetooth LE peripherals that are within range, e.g.
 
 Hit ^C to stop the scan. You can now start the _bluetoothd_ daemon by typing,
 
-    sudo /usr/local/libexec/bluetooth/bluetoothd
+    sudo bluetoothd
 
 or if you want to attach the log interface to the current console do this with,
 
-    sudo /usr/local/libexec/bluetooth/bluetoothd -n
+    sudo bluetoothd -n
+
+_NOTE: If you have installed BlueZ 5.x then bluetoothd is located in /usr/local/libexec/bluetooth/._
 
 ## Instructions for starting the Steward
 
@@ -430,6 +420,45 @@ if the above command report an error _"dd: bs: illegal numeric value"_, change *
 A disk image will be created on your Desktop. You can use this image as you would a normal install image for the Pi.
 
 _NOTE: The size of the image will be dependent on the size of the SD Card you are using on the Raspberry Pi._
+
+#Appendix - Alternative BlueZ Installation
+
+If you want to continue to test the steward with 5.x you'll need to download the [latest version](https://www.kernel.org/pub/linux/bluetooth/) and unpack it. Then,
+
+    cd bluez-5.x
+    ./configure --disable-systemd --enable-library
+    make
+    sudo make install
+
+This will take a while, although nothing like as long as the node.js installation.
+
+_NOTE: Manual installation of BlueZ 5.x leaves a copy of the gatttool in the attrib/ directory. You can run this tool from there, or copy it into /usr/local/bin along with the other BlueZ utilities. It's not clear why it's not installed by default. However the noble library needs to have gatttool in the path at runtime._
+
+###Fixing dbus permissions
+
+There is a possible problem with dbus permissions which cause the bluetoothd daemon to fail to start,
+
+    bluetoothd[18198]: Bluetooth daemon 5.4
+    D-Bus setup failed: Connection ":1.12" is not allowed to own the service "org.bluez" due to security policies in the configuration file
+    bluetoothd[18198]: Unable to get on D-Bus
+
+If this occurs for you,  the current work around is to edit /etc/dbus-1/system.d/bluetooth.conf and add the following line
+
+        <allow send_type="method_call"></allow>
+
+inside the <policy> ... </policy> block, and restarting dbus,
+
+     sudo /etc/init.d/dbus restart
+
+_NOTE: This has security implications. This fix allows a method call from all console users, even those calls unrelated to Bluetooth. This is a temporary and sub-optimal work-around to this problem. More research needed._
+
+### Alternative BlueZ 4.99 Installation
+
+If you want to try the stock BlueZ available on Wheezy (currently BlueZ 4.99). Go ahead and,
+
+    sudo apt-get install bluetoothd
+
+_NOTE: If you plug your Bluetooth LE adaptor into your Pi before installing BlueZ 4.x via apt-get it should automatically start Bluetooth services on installation. Otherwise you may have to reboot the Pi before running the steward to start these services._
 
 #Appendix - Useful Tools
 

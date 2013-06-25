@@ -203,11 +203,83 @@ Plug an Ethernet cable into the jack on the board. After a moment the two lights
 
 If your router is capable you might want to configure it so that the BeagleBone's IP address is fixed in future and that it's got a local name that you can use rather than a raw IP address.
 
-##Updating the Operating System
+##Fixing Git
+
+_NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the Internet to download new software._
+
+You'll need to configure your Git identity before checking out the source otherwise things won't go smoothly,
+
+    git config --global user.name "Alasdair Allan"
+    git config --global user.email alasdair@babilim.co.uk
+
+however there is also a problem with SSL connections and certificates for Git (and also Curl and wget). The easy way around this is to,
+
+    git config --global http.sslVerify false
+
+but this of course turns off SSL verification, which makes using HTTPS somewhat pointless, and leaves you vulnerable to man-in-the-middle attacks. What we really need to do is grab the intermediate certificate from the CA and add it into our certificates file, so
+
+    wget http://www.digicert.com/CACerts/DigiCertHighAssuranceEVRootCA.crt
+
+we have to use _http_ here not _https_ as the DigiCert site is protected by the same intermediate certificate as GitHub. Then,
+
+    openssl x509 -inform DER -in  DigiCertHighAssuranceEVRootCA.crt -out digicert.pem
+
+ignore the warning about the missing config file. Then,
+
+    cat /etc/ssl/certs/ca-certificates.crt digicert.pem > certs.crt
+    cp /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt.bak
+    cp certs.crt /etc/ssl/certs/ca-certificates.crt
+
+then
+
+    git config --global http.sslVerify true
+    git config --global http.sslCAinfo /etc/ssl/certs/ca-certificates.crt
+    git config --global http.sslCApath /etc/ssl/certs/ca-certificates.crt
+
+which should fix things and allow us to clone from _https_ repositories.
+
+_NOTE: This fix doesn't always seem to work depending on the state (updates/upgrades) of the OS. It's possible that Git is using gnutls rather than openssl which is more fussy about the state of order of chained certificates in the certificates file. If this doesn't work for you I'd recommend turing sslVerify off for now._
+
+##Installing the Python Compiler
+
+The BeagleBone doesn't come with the Python compiler, which is need for Node to build, so
+
+    opkg install python-compiler
+
+before continuing.
+
+##Installing Node.js
+
+Go ahead and checkout Node.js
+
+    git clone https://github.com/joyent/node.git
+
+change directory and switch to v0.10.12 release.
+
+    cd node
+    git checkout v0.10.12 -b v0.10.12
+
+Now go ahead and build,
+
+    ./configure
+    make
+
+This will take a long time, so go make a coffee or a toasted sandwich.
+
+
+
+
+
+
+
+
+
+
+#Appendix - Updating the Operating System
 
 _NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the package servers to download new software._
 
-_NOTE: This will generate a lot of errors. Mostly of type "404 Not Found." I'm note sure whether these are actually a problem. The board will reboot and run apparently okay. It's possible that you should avoid this step for now._
+_NOTE: This will generate a lot of errors. About one time in four the board will be unbootable after the update. I would therefore hold off doing this update at this point until more work has been done on the OS distribution._
 
 Despite installing the latest image, we should upgrade the installed packages to the latest versions. Login to BeagleBone via the local network and type,
 
@@ -220,11 +292,13 @@ then
 
 This will take some time. You might want to go make a cup of coffee and maybe a grilled cheese sandwich.
 
-##Configuring WiFi
+#Appendix - Configuring WiFi
 
 _NOTE: An external power supply is required to use WiFi, due to the power requirements. Flaky behavior, crashes, etc will result if you do not plug in a 5V 2000mA adapter. If you're still having problems, try an external powered USB hub._
 
 _NOTE: These instructions are for the [miniature WiFi (802.11b/g/n module)](http://www.adafruit.com/products/814) sold by Adafruit._
+
+_NOTE: These instructions are not guaranteed to work. At this point unless you really need it, I'd avoid trying to configure WiFi of the BeagleBone until more work is done on the OS distribution side._
 
 Login to the BeagleBone via the local network grab the latest drivers from the Realtek site,
 
