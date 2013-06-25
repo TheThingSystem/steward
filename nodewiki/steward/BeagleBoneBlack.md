@@ -331,25 +331,7 @@ make our version of Node the default
 
     nvm alias default v0.10.12
 
-##Installing node-gyp
-
-We might also need node-gyp the Node.js native addon build tool
-
-    git clone https://github.com/TooTallNate/node-gyp.git
-    cd node-gyp
-    npm install -g node-gyp
-
-this will be needed if we run into problems and need to rebuild any add on modules with code changes.
-
-
-
-
-
-#Appendix - Updating the Operating System
-
-_NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the package servers to download new software._
-
-_NOTE: This will generate a lot of errors. About one time in four the board will be unbootable after the update. I would therefore hold off doing this update at this point until more work has been done on the OS distribution._
+##Updating the Operating System
 
 Despite installing the latest image, we should upgrade the installed packages to the latest versions. Login to BeagleBone via the local network and type,
 
@@ -360,7 +342,19 @@ then
     mkdir /home/root/tmp
     opkg -t /home/root/tmp upgrade
 
-This will take some time. You might want to go make a cup of coffee and maybe a grilled cheese sandwich.
+This will take some time. You might want to go make a cup of coffee and maybe another grilled cheese sandwich.
+
+_NOTE: This can sometimes generate a lot of errors. About one time in five the board will be unbootable after the update depending on the state of the remote repositories. Unfortunately without this step you will be unable to install the additional dependencies necessary for the Javascript libraries needed by the steward._
+
+##Installing Other Dependances
+
+We'll also need some other libraries that aren't installed by default in on the Pi. You should go ahead and install these now,
+
+ --------- GOT HERE ----------
+
+_I'm currently attempting to get libpcap-dev to install without a lot of success. This is the first of a very long list of third party libraries we'll need before I even attempt a steward installation._
+
+ --------- GOT HERE ----------
 
 #Appendix - Configuring WiFi
 
