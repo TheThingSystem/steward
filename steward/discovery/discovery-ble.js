@@ -798,7 +798,6 @@ var peripheral_scan = function(peripheral, callback) {
           c.discoverDescriptors();
 
           if (!!n.fetch) {
-
             if (c.properties.indexOf('read') !== -1) {
               zero++;
               c.on('read', characteristicRead(service.characteristics[c.uuid]));
