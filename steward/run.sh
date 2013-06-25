@@ -10,15 +10,8 @@ fi
 if [ ! -f db/server.key ]; then
   rm -f sandbox/server.crt
 
-  T=/tmp/server.config$$
-echo '[ req ]
-prompt             = no
-distinguished_name = req_distinguished_name
-
-[ req_distinguished_name ]
-CN                 = steward' > $T
-
-  if openssl req -x509 -newkey rsa:2048 -keyout db/server.key -out sandbox/server.crt -days 3650 -nodes -config $T; then
+  if openssl req -x509 -newkey rsa:2048 -keyout db/server.key -out sandbox/server.crt -days 3650 -nodes -subj '/CN=steward';
+  then
     chmod 400 db/server.key
     chmod 444 sandbox/server.crt
 
@@ -28,8 +21,6 @@ CN                 = steward' > $T
     rm -f db/server.key sandbox/server.crt
     echo "unable to create self-signed server certificate" 1>&2
   fi
-
-  rm -f $T
 fi
 
 . ~/.nvm/nvm.sh

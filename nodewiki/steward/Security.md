@@ -25,6 +25,33 @@ However,
 once a client is registered with the steward,
 it downloads a _privacy package_ containing keys specific to the steward/client pairing.
 
+## The Bootstrap
+First,
+the client should be on a computer that's on the same network as the steward.
+
+Whenever a client connects to the steward for the first time,
+the client warns that the certificate being used by the steward is untrusted.
+At this point, two actions must be undertaken:
+
+* look at the "details" of the certificate and record its "SHA1 fingerprint", which will look something like this:
+
+        9E DF 5F C4 17 E2 3E D3 88 E2 74 17 D6 93 91 8D 96 1D 9A E1
+
+* click the checkbox that says something like :
+
+        Always trust 'steward' when connecting to ...
+
+Compare the fingerprint reported by the client with the fingerprint in the file:
+
+    sandbox/startup.sha1
+
+on the steward.
+
+If the two values match, then the client is talking directly to the steward;
+otherwise, there is another device on the network which is perfomring a man-in-the-middle attack.
+Find it and "fix" it as is appropriate.
+
+
 ## Client (not user) Authentication
 Clients authenticate to the steward,
 and the user associated with a client is authorized to invoke various API calls.
@@ -43,46 +70,37 @@ access.
 
 ### Privacy: HTTPS or SSH
 After a client is created,
-it may invoke an API call to upload
-
-* A self-signed public-key certificate; and,
-
-* An ssh key fingerprint.
-
-and then retrieve a _privacy package_ from the steward containing:
-
-* A self-signed public-key certificate;
+it may upload an SSH public key fingerprint and retrieve a _privacy package_ from the steward containing:
 
 * An SNI hostname; and,
 
+* A self-signed public-key certificate;
+
 * An ssh key fingerprint.
 
-After this exchange,
-both the steward and client have https and ssh materials suitable for uniquely identifying both parties.
+__Note that at present, these steward ignores the SNI hostname and uses the same private keys for all clients.
+This will likely change in a future release.__
 
 ### HTTPS access
 Whenever the client connects to the steward for API access:
 
-* The client uses the mDNS to identify the IP address and port number of the steward.
+* The client uses the mDNS ("_wss._tcp." ) to identify the IP address and port number of the steward.
 
-* The client establishes a TCP connection, and starts TLS over that connection:
+* The client establishes a TCP connection,
+starts TLS over that connection,
+and then HTTPS.
 
-    * It authenticates itself using the private-key corresponding to the PKC that it sent to the steward.
-
-    * It sends the SNI hostname during the initialization, allowing the steward to select the appropriate private-key to use.
-
-* Once the TLS is negotiated, the client does an HTTP upgrade to WebSockets.
+* Once the HTTPS is negotiated, the client does an HTTP upgrade to WebSockets, and then authenticates itself.
 
 ### SSH access
 Whenever the client connects to the steward for ssh access:
 
-* The client uses the mDNS to identify the IP address and port number of the steward.
+* The client uses the mDNS ("_ssh._tcp." )  to identify the IP address and port number of the steward.
 
 * The client starts an ssh client using its ssh private key.
 
-* Using a local extension, the client sends the SNI from the _privacy package_.
-
-* The client verifies that the fingerprint corresponding to the server matches the value provided in the _privacy package_.
+* The client verifies that the fingerprint corresponding to the server matches the value provided in the _privacy package_,
+and then authenticates itself.
 
 ## Authorization: Roles
 A user has one of five roles:
