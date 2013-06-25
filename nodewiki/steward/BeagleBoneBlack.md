@@ -203,6 +203,69 @@ Plug an Ethernet cable into the jack on the board. After a moment the two lights
 
 If your router is capable you might want to configure it so that the BeagleBone's IP address is fixed in future and that it's got a local name that you can use rather than a raw IP address.
 
+##Enabling NTP
+
+_NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the Internet to download new software._
+
+The BeagleBone ships with no _ntp_ installed, and no battery backed up clock. That means that the date is set on boot to Jan 1 2000. This causes all sort of problems, including making SSL certificates invalid.
+
+We want to install _ntp_,
+
+    okpg install ntp
+
+Next, find a NTP server that is close to your location. We need to do this as it is not a good idea to use a NTP root server. Go to [http://www.pool.ntp.org](http://www.pool.ntp.org) and find servers in your zone. I'm [in the United Kingdom](http://www.pool.ntp.org/zone/uk) so I want to use,
+
+    server 0.uk.pool.ntp.org
+    server 1.uk.pool.ntp.org
+    server 2.uk.pool.ntp.org
+    server 3.uk.pool.ntp.org
+
+Replace the default _/etc/ntp.conf_ file with the following,
+
+    #ntp configuration file
+    
+    # The driftfile must remain in a place specific to this machine
+    driftfile /etc/ntp.drift
+    logfile /var/log/ntpd.log
+    
+    # NTP Servers for United Kingdom from www.pool.ntp.org
+    server 0.uk.pool.ntp.org
+    server 1.uk.pool.ntp.org
+    server 2.uk.pool.ntp.org
+    server 3.uk.pool.ntp.org
+    
+    # Using local hardware clock as fallback
+    # Disable this when using ntpd -q -g -x as ntpdate or it will sync to itself
+    # server 127.127.1.0 
+    # fudge 127.127.1.0 stratum 14
+         
+    # Defining a default security setting
+    restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+
+Next you need to set your local time, again mine is in the United Kingdom. By default the BeagleBone is in UTC, so
+
+    rm /etc/localtime
+    ln -s /usr/share/zoneinfo/Europe/London /etc/localtime
+
+If you're not in the United Kingdom drill down into the _/usr/share/zoneinfo/_ directory structure to find your local time file.
+
+Now go ahead and setup the _ntp_ service,
+
+    systemctl enable ntpdate.service
+    systemctl enable ntpd.service
+
+You now need to go ahead and edit the _/lib/systemd/system/ntpdate.service_ file, changing the line
+
+    ExecStart=/usr/bin/ntpdate-sync silent
+
+to read
+
+    ExecStart=/usr/bin/ntpd -q -g -x
+
+since the BeagleBone doesn't have a time-of-year (TOY) chip to maintain the time during periods when the power is off, and if we don't do this _ntp_ would assume something is terribly wrong and shuts itself down.
+
+You now need to _reboot your BeagleBone_ to get _ntp_ working.
+
 ##Fixing Git
 
 _NOTE: You must be connected using the local network method, otherwise the BeagleBone won't be able to reach the Internet to download new software._
@@ -212,25 +275,7 @@ You'll need to configure your Git identity before checking out the source otherw
     git config --global user.name "Alasdair Allan"
     git config --global user.email alasdair@babilim.co.uk
 
-however there is also a problem with SSL connections and certificates for Git (and also Curl and wget). The easy way around this is to,
-
-    git config --global http.sslVerify false
-
-but this of course turns off SSL verification, which makes using HTTPS somewhat pointless, and leaves you vulnerable to man-in-the-middle attacks. What we really need to do is grab the intermediate certificate from the CA and add it into our certificates file, so
-
-    wget http://www.digicert.com/CACerts/DigiCertHighAssuranceEVRootCA.crt
-
-we have to use _http_ here not _https_ as the DigiCert site is protected by the same intermediate certificate as GitHub. Then,
-
-    openssl x509 -inform DER -in  DigiCertHighAssuranceEVRootCA.crt -out digicert.pem
-
-ignore the warning about the missing config file. Then,
-
-    cat /etc/ssl/certs/ca-certificates.crt digicert.pem > certs.crt
-    cp /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt.bak
-    cp certs.crt /etc/ssl/certs/ca-certificates.crt
-
-then
+however there is also a problem with SSL connections and certificates for Git. Go ahead and set the following options,
 
     git config --global http.sslVerify true
     git config --global http.sslCAinfo /etc/ssl/certs/ca-certificates.crt
@@ -238,7 +283,7 @@ then
 
 which should fix things and allow us to clone from _https_ repositories.
 
-_NOTE: This fix doesn't always seem to work depending on the state (updates/upgrades) of the OS. It's possible that Git is using gnutls rather than openssl which is more fussy about the state of order of chained certificates in the certificates file. If this doesn't work for you I'd recommend turing sslVerify off for now._
+_NOTE: This fix doesn't always seem to work depending on the state (updates/upgrades) of the OS at the time. It's possible that Git is using gnutls rather than openssl which is more fussy about the state of order of chained certificates in the certificates file, and I'm still poking around to see if I can get it in better order. If this doesn't work for you I'd recommend turing sslVerify off for now._
 
 ##Installing the Python Compiler
 
@@ -266,10 +311,35 @@ Now go ahead and build,
 
 This will take a long time, so go make a coffee or a toasted sandwich.
 
+Now go ahead and install node and npm,
 
+    make install
 
+You might want to install nodewiki at this point,
 
+    npm install -g nodewiki
 
+##Installing Node Version Manager
+
+Go ahead and install the [node version manager (nvm)](https://github.com/creationix/nvm),
+
+    git clone git://github.com/creationix/nvm.git ~/.nvm
+    echo ". ~/.nvm/nvm.sh" >> ~/.bashrc  
+    . ~/.nvm/nvm.sh
+
+make our version of Node the default
+
+    nvm alias default v0.10.12
+
+##Installing node-gyp
+
+We might also need node-gyp the Node.js native addon build tool
+
+    git clone https://github.com/TooTallNate/node-gyp.git
+    cd node-gyp
+    npm install -g node-gyp
+
+this will be needed if we run into problems and need to rebuild any add on modules with code changes.
 
 
 
