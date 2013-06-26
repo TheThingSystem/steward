@@ -378,8 +378,6 @@ If you installed BlueZ 4.x via _apt-get_, instead copy the _steward_4x.sh_ from 
     sudo cp steward_4x.sh /etc/init.d/steward
     chmod uog+rx /etc/init.d/steward
 
-this script only starts the steward, as the the package managed BlueZ 4.x takes care of its own startup.
-
  You then need establish symbolic links to this script in the relevant _etc/rcX.d/_ directories,
 
     cd /etc/rc0.d/
