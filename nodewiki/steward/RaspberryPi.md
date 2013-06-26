@@ -366,19 +366,19 @@ You will probably want to customize this script for yourself. When the script st
 
 #Appendix - Starting at boot time
 
-If you installed BlueZ 5.x, copy the script _steward_5x.sh_ from the _steward/init.d/_ directory into _/etc/init.d_, 
-
-    sudo cp steward_5x.sh /etc/init.d/steward
-    chmod uog+rx /etc/init.d/steward
-
-this script starts both the _bluetoothd_ daemon and the _steward_ on boot.
-
-If you installed BlueZ 4.x via _apt-get_, instead copy the _steward_4x.sh_ from the _steward/init.d/_ directory into _/etc/init.d_, 
+If you installed BlueZ 4.100 or 4.101, copy the _steward_4x.sh_ from the _steward/init.d/_ directory into _/etc/init.d_, 
 
     sudo cp steward_4x.sh /etc/init.d/steward
     chmod uog+rx /etc/init.d/steward
 
- You then need establish symbolic links to this script in the relevant _etc/rcX.d/_ directories,
+However if you installed BlueZ 5.x, copy the script _steward_5x.sh_ from the _steward/init.d/_ directory into _/etc/init.d_, 
+
+    sudo cp steward_5x.sh /etc/init.d/steward
+    chmod uog+rx /etc/init.d/steward
+
+these scripts start both the _bluetoothd_ daemon and the _steward_ at boot time.
+
+You then need establish symbolic links to this script in the relevant _etc/rcX.d/_ directories,
 
     cd /etc/rc0.d/
     sudo ln -s ../init.d/steward K02steward
