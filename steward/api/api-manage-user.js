@@ -624,7 +624,7 @@ var fetch = function() {
 
   zP = false;
   for (x in keys) if (keys.hasOwnProperty(x)) for (y in keys[x]) if (keys[x].hasOwnProperty(y) && (keys[x][y].length === 0)) {
-    if (!!server[x]) fs.exists(server[x][y], fetchf(x,y));
+    if (!!server[x]) fs.exists(server[x][y], fetchf(x, y));
     zP = true;
   }
 
