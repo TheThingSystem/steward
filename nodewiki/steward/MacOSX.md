@@ -3,7 +3,8 @@ Here's how to get the steward running on Mac OS X 10.8 (Mountain Lion).
 
 First, make sure that _/usr/local/bin_ is before _/usr/bin_ in your $PATH.
 
-Second, make sure you have _Xcode_ installed on your system (the _Command Line Tools_ may not prove sufficient).
+Second, make sure you have _Xcode_ installed on your system,
+and after starting _Xcode_ go to the "Preferences/Downloads" window and install the _Command Line Tools_.
 
 Second, get [homebrew](http://mxcl.github.io/homebrew/) on the system:
 
@@ -19,8 +20,12 @@ If homebrew suggests anything, e.g.,
 
 please do so. Keep doing this until you get
 
-    $ brew doctor
+    brew doctor
     Your system is ready to brew.
+
+Then install the USB compatibility library
+
+    brew install libusb-compat
 
 Then, put the [node version manager (nvm)](https://github.com/creationix/nvm) on the system:
 
@@ -63,10 +68,21 @@ _before proceeding as normal._
 
 _If you have problems at the npm install stage when building the steward, you should clean up your environment and try again,_
 
-	rm -f ~/.node-gyp
-	rm -f ~/.npm
-	rm -f ~/.nvm
-	rm -f ~/.npmrc
+    rm -rf node_modules
+    npm cache clean
+    rm -rf ~/.npm/_git-remotes
+    git pull upstream master
+
+And if that fails, also try:
+
+    rm -rf ~/.node-gyp
+    rm -rf ~/.npm
+    rm -rf ~/.nvm
+    rm -rf ~/.npmrc
+
+and then go back to the
+
+    npm install -l
 
 ## Instructions for starting the steward
 

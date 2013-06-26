@@ -2,4 +2,4 @@
 
 cd ../nodewiki || exit 1
 
-nodewiki --local --port 8008
+nodewiki.js --local --port 8008
