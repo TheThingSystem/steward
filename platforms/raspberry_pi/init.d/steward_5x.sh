@@ -1,13 +1,12 @@
 #! /bin/sh
 ### BEGIN INIT INFO
 # Provides:          steward
-# Required-Start:    $remote_fs $syslog
+# Required-Start:    $all
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Example initscript
-# Description:       This file should be used to construct scripts to be
-#                    placed in /etc/init.d.
+# Short-Description: Manages the Things System, Inc., steward daemon
+# Description:       Manages the Things System, Inc., steward daemon
 ### END INIT INFO
 
 # Author: Alasdair Allan <alasdair@babilim.co.uk>
@@ -41,6 +40,7 @@ start) echo "Bringing up Bluetooth LE dongle"
    echo "pid is $PID"
    echo $PID >> $BLUE_PID
 
+   sleep 5
    echo -n "Start steward services... "
    $STEWARD $STEW_ARGS >> $STEW_FILE 2>&1 &
    PID=$!
