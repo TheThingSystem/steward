@@ -154,9 +154,9 @@ _NOTE: As of the latest version of the operating system we no longer have to exp
 
 The [noble](https://github.com/sandeepmistry/noble) library library is tested with BlueZ 4.100 and 4.101. The stock BlueZ available on Wheezy is 4.99, but this does not support Bluetooth LE devices, so you need to go ahead and install by hand. Download the [version 4.101](https://www.kernel.org/pub/linux/bluetooth/) and then,
 
-	tar -xvf bluez
-    cd bluez-5.x
-    ./configure --disable-systemd --enable-library
+	tar -xvf bluez-4.101.tar.xz
+    cd bluez-4.101
+    ./configure 
     make
     sudo make install
 
