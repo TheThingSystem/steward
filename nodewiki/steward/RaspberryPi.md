@@ -380,17 +380,11 @@ these scripts start both the _bluetoothd_ daemon and the _steward_ at boot time.
 
 You then need establish symbolic links to this script in the relevant _etc/rcX.d/_ directories,
 
-    cd /etc/rc0.d/
-    sudo ln -s ../init.d/steward K02steward
-    cd /etc/rc6.d/
-    sudo ln -s ../init.d/steward K02steward
+    sudo update-rc.d steward defaults
 
-    cd /etc/rc2.d
-    sudo ln -s ../init.d/steward S98steward
-    cd /etc/rc3.d
-    sudo ln -s ../init.d/steward S98steward
-    cd /etc/rc5.d
-    sudo ln -s ../init.d/steward S98steward
+if you ever want to stop the steward starting at boot time you should do,
+
+    sudo update-rc.d steward remove
 
 #Appendix - Cloning a Bootable SD Card
 
