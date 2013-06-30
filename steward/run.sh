@@ -25,4 +25,8 @@ fi
 
 . ~/.nvm/nvm.sh
 
-node index.js
+while true; do
+  node index.js
+  sleep 3
+done
+

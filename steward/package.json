@@ -20,7 +20,7 @@
     , "mdns"                : "git://github.com/mrose17/node_mdns.git"
     , "mime"                : "1.2.9"
     , "noble"               : "git://github.com/sandeepmistry/noble.git"
-    , "node-blink1"         : "0.0.3"
+    , "node-blink1"         : "0.1.0"
     , "node-hid"            : "0.2.3"
     , "node-lsof"           : "git://github.com/mrose17/node-lsof.git"
     , "node-netatmo"        : "git://github.com/mrose17/node-netatmo.git"
