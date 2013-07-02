@@ -11,6 +11,8 @@ Starting by following the appropriate instructions for your platform:
 
 * [RaspberryPi](RaspberryPi.md)
 
+* *[BeagleBone Black](BeagleBoneBlack.md) (NOT READY)*
+
 ## Starting
 
 When the steward starts, it will automatically discover devices via a variety of mechanisms:
