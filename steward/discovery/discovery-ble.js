@@ -68,6 +68,11 @@ exports.start = function() {
         return v.toString('hex');
       };
 
+//      util = require("util");
+//      console.log( "..........GETS HERE..........");
+//      console.log( peripheral.advertisement.localName );
+//      console.log(util.inspect(ble, { depth: 4 }));
+
       manufacturer = value('180a', '2a29') || '';
       modelName = value('1800', '2a00') || '';
       deviceType = '/device/presence/fob';

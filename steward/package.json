@@ -33,7 +33,7 @@
     , "portfinder"          : "0.2.1"
     , "rfxcom"              : "git://github.com/mrose17/node-rfxcom.git"
     , "speakeasy"           : "git://github.com/mrose17/speakeasy.git"
-    , "sensortag"           : "0.0.2"
+    , "sensortag"           : "git://github.com/sandeepmistry/node-sensortag.git"
     , "soap"                : "0.2.7"
     , "sonos"               : "git://github.com/mrose17/node-sonos.git"
     , "sqlite3"             : "2.1.7"

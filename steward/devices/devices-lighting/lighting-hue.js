@@ -730,7 +730,17 @@ var scan = function() {
       }
 
       for (i = 0; i < results.length; i++) {
-        serialNo = results[i].macaddress.split(':').join('');
+	    
+	    require("util");
+	    console.log("---GETS HERE devices/lighting/lighting-hue.js---")
+	    console.log(util.inspect(results));
+	
+        if( results[i].macaddress === undefined ) {
+			serialNo = results[i].id;
+		} else {
+			serialNo = results[i].macaddress.split(':').join('');
+		}
+		
         if (serialNo.length === 16) serialNo = serialNo.substr(0, 6) + serialNo.substr(-6);
 
         info = { source     : 'nupnp'
