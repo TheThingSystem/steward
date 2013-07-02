@@ -730,11 +730,6 @@ var scan = function() {
       }
 
       for (i = 0; i < results.length; i++) {
-	    
-	    require("util");
-	    console.log("---GETS HERE devices/lighting/lighting-hue.js---")
-	    console.log(util.inspect(results));
-	
         if( results[i].macaddress === undefined ) {
 			serialNo = results[i].id;
 		} else {
