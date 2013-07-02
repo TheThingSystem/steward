@@ -71,11 +71,11 @@ var bootstrap = function(ws) {
 
     var update_place   = function() { perform_actors(ws, 'place', 'set', place_info); };
 
-    var create_prowler = function() { create_device(ws, 'prowler',     '/device/indicator/text/prowl',  prowl_info);   }
-    var create_status  = function() { create_device(ws, 'statusboard', '/device/indicator/text/status', status_info);  }   
-    var create_netatmo = function() { create_device(ws, 'netatmo',     '/device/gateway/netatmo/cloud', netatmo_info); }
-    var create_nest    = function() { create_device(ws, 'nest',        '/device/gateway/nest/cloud',    nest_info);    }
-    var create_cosm    = function() { create_device(ws, 'cosm',        '/device/indicator/text/cosm',   cosm_info);    }
+    var create_prowler = function() { create_device(ws, 'prowler',     '/device/indicator/text/prowl',  prowl_info);   };
+    var create_status  = function() { create_device(ws, 'statusboard', '/device/indicator/text/status', status_info);  };
+    var create_netatmo = function() { create_device(ws, 'netatmo',     '/device/gateway/netatmo/cloud', netatmo_info); };
+    var create_nest    = function() { create_device(ws, 'nest',        '/device/gateway/nest/cloud',    nest_info);    };
+    var create_cosm    = function() { create_device(ws, 'cosm',        '/device/indicator/text/cosm',   cosm_info);    };
 
     if ((!message.result) && (!message.error)) return false;
     if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
@@ -90,13 +90,13 @@ var bootstrap = function(ws) {
       if (actor === '/place') {
         if (!actors[actor]['place/1']) throw new Error('actor place/1 is not present');
         d = actors[actor]['place/1'];
-        if ((!d.info.coordinates) || (d.info.coordinates.length < 2)) { update_place(); break }
+        if ((!d.info.coordinates) || (d.info.coordinates.length < 2)) { update_place(); break; }
       }
 
       if ((actor === '/device/indicator/text/prowl') && (prowl_info.apikey.length > 0)) {
         for (a in actors[actor]) {
           if (!actors[actor].hasOwnProperty(a)) continue;
-           
+
           d = actors[actor][a];
           if ((!!d.info.apikey) && (d.info.apikey.length === 40)) break;
         }
@@ -162,7 +162,7 @@ var colors  = [ 'red',     'orange',  'yellow',  'blue',    'green',   'indigo',
     colors  = [ 'red',     'indigo',  'blue',    'green'   ];
 
 var blinky = function(ws, i) {
-  var r, g, b, x;
+  var r, g, b;
 
   if (i >= rainbow.length) i = 0;
   r = parseInt(rainbow[i].substr(1, 2), 16);
@@ -383,13 +383,13 @@ var delete_task = function(ws, taskID, cb) {
 };
 
 
-var go = function(host, i) {
-  var opened;
-  var tag = 'connection #' + i + ' to ws://' + host + ':8888/manage';
+var go = function(location, i) {
+  var opened, ws;
+  var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/console';
 
   notice(tag, { state: 'connecting...' });
   opened = 0;
-  var ws = new WebSocket('ws://' + host + ':8888/manage');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console');
 
   ws.onopen = function(event) {
     opened = 1;
@@ -422,8 +422,13 @@ var go = function(host, i) {
 };
 
 var main = function() {
+  var location = { hostname : window.location.hostname
+                 , port     : window.location.port
+                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 };
+
   notice('start');
-  go(window.document.location.host.replace(/:.*/, ''), 1);
+  go(location, 1);
 };
 </script>
 </head>
