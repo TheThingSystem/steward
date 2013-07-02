@@ -89,7 +89,7 @@ exports.start = function() {
       meta.event = 'request';
       logger.info(tag, meta);
 
-      if (pathname == '/') pathname= '/index.html';
+      if (pathname === '/') pathname= '/index.html';
       if ((!meta.local) || (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'not-allowed', code: 404 });
         response.writeHead(404, { 'Content-Type': 'text/plain' });
