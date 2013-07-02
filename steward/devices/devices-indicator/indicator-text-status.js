@@ -100,7 +100,11 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.directory) result.requires.push('directory');
-  else if (!fs.statSync(info.directory).isDirectory()) result.invalid.push('directory');
+  else {
+    try { if (!fs.statSync(info.directory).isDirectory()) result.invalid.push('directory'); } catch(ex) {
+      result.invalid.push('directory');
+    }
+ }
 
   return result;
 };

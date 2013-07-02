@@ -385,11 +385,11 @@ var delete_task = function(ws, taskID, cb) {
 
 var go = function(location, i) {
   var opened, ws;
-  var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/console';
+  var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/manage';
 
   notice(tag, { state: 'connecting...' });
   opened = 0;
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
 
   ws.onopen = function(event) {
     opened = 1;
