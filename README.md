@@ -51,6 +51,8 @@ PRIOR TO ALPHA RELEASE
 
    4.3. authentication/authorization (MTR: June)
 
+   4.4. logging transports
+
 5. steward "color" based on status
 
 6. steward "user assistance" queue
@@ -59,7 +61,7 @@ PRIOR TO ALPHA RELEASE
 
 7. compile/evaluate the "magic" list (AA)
 
-    7.2. intelligent bulb replacement
+    7.1. intelligent bulb replacement
 
 8. gateway implementations
 
