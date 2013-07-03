@@ -11,6 +11,7 @@
 
 var actors = {}
   , tags   = {}
+  , multiple_arcs = []
   ;
 
 var home = function(state) {
@@ -134,8 +135,10 @@ var home = function(state) {
 
 
 var device_drilldown = function(name, devices, arcs, instructions) {
-  var chart, device, div, div2, entry, i, img, labels, values;
-
+  var chart, device, div, div2, entry, i, img, trayLeft, trayWidth; //, labels, values;
+  var iconWidth = 50; // Determine this algorithmically below
+  var viewportWidth = 250;
+  
   chart = document.getElementById('chart');
   while (chart.lastChild) chart.removeChild(chart.lastChild);
   chart.style.backgroundImage = 'url(images/thing.bkg.svg)';
@@ -161,6 +164,37 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   div.setAttribute('id', 'controls');
   div.setAttribute('style', 'margin-top: 40px;');
   if (devices.length > 1) {
+    var div3, div4;
+    multiple_arcs = arcs; //Preserve for multiple-foyer redraws
+    arcs = null;
+    
+    // Arrows elements for multis > 5
+    if (devices.length > 5) {
+		div3 = document.createElement('div');
+		div3.setAttribute('id', 'left-arrow');
+		div3.setAttribute('onclick', 'javascript:handleArrow(event)');
+		div3.innerHTML = '&larr;';
+		div.appendChild(div3);
+		
+		div3 = document.createElement('div');
+		div3.setAttribute('id', 'right-arrow');
+		div3.setAttribute('onclick', 'javascript:handleArrow(event)');
+		div3.innerHTML = '&rarr;';
+		div.appendChild(div3);
+    }
+    
+    // device-viewport and image-tray needed for horizontal scrolling of icons
+    div3 = document.createElement('div');
+    div3.setAttribute('id', 'device-viewport');
+    div3.setAttribute('style', 'position: relative; left:12px; top: 12px; overflow-x: hidden; overflow-y: hidden; width: ' + viewportWidth + 'px; height: 140px;');
+    
+    div4 = document.createElement('div');
+    div4.setAttribute('id', 'image-tray');
+    trayWidth = iconWidth * devices.length;
+    trayLeft = (viewportWidth / 2) - (trayWidth / 2);
+    trayLeft = (trayLeft < 0) ? 0 : trayLeft;
+    div4.setAttribute('style', 'position: relative; height: 107px; width: ' + trayWidth + 'px; left: ' + trayLeft + 'px;');
+    
     for (i = 0; i < devices.length; i++) {
       device = devices[i];
       entry = entries[device.deviceType] || entries['default'];
@@ -171,8 +205,12 @@ var device_drilldown = function(name, devices, arcs, instructions) {
       img.setAttribute('class', 'actor-grouping');
 
       if (!!entry.single) img.setAttribute('onclick', 'javascript:goforw(' + entry.single + ', "' + device.actor + '");');
-      div.appendChild(img);
+      div4.appendChild(img);
     }
+    
+    div3.appendChild(div4);
+    div.appendChild(div3);
+    
     div2 = document.createElement('div');
     div2.setAttribute('class', 'multiple-instructions');
     div2.innerHTML = '<span class="actor-name" style="">' + name + '</span>'
@@ -190,6 +228,19 @@ var device_drilldown = function(name, devices, arcs, instructions) {
                     + '</div>';
   }
   chart.appendChild(div);
+  
+  multiple_drilldown_foyer(arcs);
+}
+
+var multiple_drilldown_foyer = function(arcs) {
+  var arcz, chart, div, i, index, limit, labels, trayLeft, values;
+    
+  chart = document.getElementById("chart");
+  if (document.getElementById("readings")) {
+    chart.removeChild(document.getElementById("labels"));
+    chart.removeChild(document.getElementById("readings"));
+    chart.removeChild(document.getElementById("arcCanvas"));
+  }
 
   div = document.createElement('div');
   div.setAttribute('id', 'labels');
@@ -197,11 +248,29 @@ var device_drilldown = function(name, devices, arcs, instructions) {
                    'position: absolute; top: 52px; left: 278px; width: 100px; text-align: right; font-weight: normal;');
   labels = '';
   values = '';
-  for (i = 0; i < arcs.length; i++) {
+  arcz = [];
+  if (!arcs) arcs = multiple_arcs;
+  
+  trayLeft = parseInt($("#image-tray").css("left"), 10);
+  if (isNaN(trayLeft)) {
+    i = 0;
+    limit = arcs.length;
+  } else {
+    i = Math.abs(trayLeft) / 50;
+    limit = ((i + 5) > arcs.length) ? arcs.length : (i + 5);
+  }
+  
+  index = 0.7; // Reassign index values for arcs subset
+  for (; i < limit; i++) {
 //  if (devices.length > 1) labels += arcs[i].id + ' - ';
     labels += arcs[i].label + '<br />';
     values += '<div class="label">' + arcs[i].cooked + '</div>';
+    arcs[i].index = index;
+    arcz.push(arcs[i]);
+    index -= 0.1;
   }
+  arcs = arcz;
+  
   div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 90px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
   chart.appendChild(div);
 
@@ -232,6 +301,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   var vis = d3.select("#chart").append("svg")
       .attr("width", w)
       .attr("height", h)
+      .attr("id", "arcCanvas")
         .append("g")
       .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
 
@@ -583,8 +653,12 @@ var tag_drilldown = function(state) {
 };
 
 
+var set_multiple_labels_and_arcs = function() {
+
+}
+
 var multiple_drilldown = function(name, members) {
-  var arc, arcs, arcz, device, devices, entry, i, index;
+  var arc, arcs, arcz, device, devices, entry, i, index; 
 
   arcs = [];
   devices = [];
@@ -603,7 +677,7 @@ var multiple_drilldown = function(name, members) {
     arcs.push(arc);
 
     devices.push(device);
-    if (devices.length >= 5) break;
+//    if (devices.length >= 5) break;
   }
 
   switch (devices.length) {
@@ -621,6 +695,53 @@ var multiple_drilldown = function(name, members) {
       break;
   }
 };
+
+// managing multi-drilldown icon display and control
+
+var handleArrowVisibility = function() {
+	var viewPortWidth = parseInt($("#image-tray").offsetParent().css("width"), 10);
+	var trayWidth = parseInt($("#image-tray").css("width"), 10);
+	var trayLeft;
+
+	trayLeft = parseInt($("#image-tray").css("left"), 10);
+	if (trayLeft >= "0") {
+		$("#right-arrow").hide();
+	} else {
+		$("#right-arrow").show();
+	}
+	if (trayWidth + trayLeft <= viewPortWidth) {
+		$("#left-arrow").hide();
+	} else {
+		$("#left-arrow").show();
+	}
+
+}
+
+var handleArrow = function(evt) {
+	var scrollAmount = $("#image-tray").children().first().outerWidth(true);
+	
+	if (evt.target.id === "left-arrow") {
+		$("#image-tray").animate({
+			"left": "-=" + scrollAmount
+		}, {
+			complete: function() {
+				multiple_drilldown_foyer();
+				handleArrowVisibility();
+			}
+		
+		});
+	} else {
+		$("#image-tray").animate({
+			"left": "+=" + scrollAmount
+		}, {
+			complete: function() {
+				multiple_drilldown_foyer();
+				handleArrowVisibility();
+			}
+		});
+	}
+}
+
 
 
 /*

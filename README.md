@@ -79,8 +79,6 @@ PRIOR TO ALPHA RELEASE
 
     10.1 json/d3 client (MTR, et. al.: July)
 
-    10.2 Client API
-
 11. remote access
 
     11.1 nodejitsu server
@@ -93,11 +91,7 @@ PRIOR TO PUBLIC RELEASE
 
 1. define missing APIs (MTR)
 
-    1.1. Client API
-
-    1.2. Remote Access API
-
-    1.3. Prefab API
+    1.1. Prefab API
 
 2. Mobile client integration
 

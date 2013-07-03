@@ -67,7 +67,7 @@
 }
 
 #controls div.multiple-instructions {
-		position: relative;
+        position: relative;
         width: 100%; 
         font-family: "Roadgeek 2005 Series D";
         font-size: 24px;
@@ -78,6 +78,30 @@
         white-space: nowrap;
         text-align: center;
 }
+
+
+#left-arrow {
+        position: absolute;
+        left: 0px;
+        top: 105px;
+        width: 0px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 10;
+}
+
+#right-arrow {
+        position: absolute;
+        left: 265px;
+        top: 105px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 10;
+        display: none;
+}
+
 
 #chart div.small-instructions {
         position: relative;
@@ -230,9 +254,9 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 .actor83         { position: absolute; top: 627px; left: 645px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
 .actor84         { position: absolute; top: 627px; left: 703px; text-align: center; width: 50px; height: 70px; overflow: hidden;}
 
-.actor-name		 { width: 100px; text-align: center; font-weight: normal; color: #fff; }
+.actor-name         { width: 100px; text-align: center; font-weight: normal; color: #fff; }
 .grouping {        
-		font-family: "Roadgeek 2005 Series D";
+        font-family: "Roadgeek 2005 Series D";
         font-size: 12px;
         line-height: 16px;
         font-weight: normal;
@@ -243,7 +267,7 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 }
 
 .wrapper {        
-		margin: 0px auto;
+        margin: 0px auto;
 }
 
 
@@ -251,7 +275,7 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 #chart div.category { text-align: center; width: 50px; position: relative; float: left; padding: 5px 4px; }
 
 #chart .wrapper {        
-		margin: 0px auto;
+        margin: 0px auto;
 }
  
 #chart div.tags { position: absolute; top: 545px; left: 180px; width: 680px; height: 50px; }
