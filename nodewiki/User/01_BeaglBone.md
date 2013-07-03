@@ -1,6 +1,6 @@
-_NOTE: These instructions refer to the BeagleBone Rev.A6 (white) rather than the newer [BeagleBone Black](BeagleBoneBlack.md). Please see the seperate instructions for bootstrapping the newer board._
+#Bootstrapping a BeagleBone (White)
 
-*Bootstrapping a BeagleBone (White)
+_NOTE: These instructions refer to the BeagleBone Rev.A6 (white) rather than the newer [BeagleBone Black](BeagleBoneBlack.md). Please see the seperate instructions for bootstrapping the newer board._
 
 Starting with a new board the first step is to plug the board into your laptop using the mini-USB cable provided. The BeagleBone has two USB ports, a full sized USB-A port, and a mini-USB port. The mini port is located on the reverse side of the board near the Ethernet jack.
 
