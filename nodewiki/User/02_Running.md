@@ -1,21 +1,6 @@
-# README
-Welcome to the steward.
+#Starting the steward
 
-This wiki is written primarily for developers.
-A second area for home hobbyists and prosumers is forthcoming.
-
-The first step is to get _node.js_ running on your box, and starting the steward.
-Starting by following the appropriate instructions for your platform:
-
-* [MacOSX](MacOSX.md)
-
-* [RaspberryPi](RaspberryPi.md)
-
-* *[BeagleBone Black](BeagleBoneBlack.md) (NOT READY)*
-
-## Starting
-
-When the steward starts, it will automatically discover devices via a variety of mechanisms:
+Welcome to the steward. When the _steward_ starts, it will automatically discover devices via a variety of mechanisms:
 
 * It will look on all attached networks for things via [SSDP](http://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol),
 [TCP port scanning](http://en.wikipedia.org/wiki/Port_scanning#TCP_scanning),
