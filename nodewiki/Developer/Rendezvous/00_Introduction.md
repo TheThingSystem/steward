@@ -2,115 +2,19 @@
 
 The [_node-rendezvous_](https://github.com/mrose17/node-rendezvous) package is a general purpose stand-alone package allowing rendezvous for 'hidden servers' (behind firewalls/NATs) and 'mobile clients' using a third-party service. The source code is [available on GitHub](https://github.com/mrose17/node-rendezvous)
 
-it is used by the _steward_ software for this purpose, however it is not tied to the _steward_ code base.
+It is used by the _steward_ software for this purpose, however it is not tied to the _steward_ code base. The package implements two different protocols:
 
-The protocol:
+* A generic protocol that will allow an arbitrary TCP path between the hidden server and the mobile client; and,
 
-1. The registration server resides at a well-known location in the Internet.
+* An HTTP-specific protocol that will allow an HTTP connection from the mobile client to the hidden server.
 
-2. The hidden server establishes an https connection to the registration server and authenticates itself.
+In both cases, the hidden server must first authenticate itself with a registration server using HTTPS, before the mobile client attempts a rendezvous.
 
-3. The registration server returns a _rendezvous triple_ containing a hostname, a TCP port, and a cookie.
+With the generic protocol: after authentication, the hidden server establishes a TCP connection to a rendezvous server and then waits for a rendezvous. Later on, the mobile client establishes an HTTPS connection, identifies the hidden server, receives information for establishing a rendezvous, and then establishes a TCP connection to a rendezvous server that moves the octets back-and-forth.
 
-4. The hidden server connects to the location in the _rendezvous triple_ (the rendezvous server),
-sends the cookie followed by '\n',
-and waits for an (eventual) status indicator before sending to/from the mobile client.
-If the connection fails, it retries accordingly.
+With the HTTP-specific protocol: the hidden server uses HTTP's CONNECT method both to authenticate itself and wait for a rendezvous. The mobile client establishes an HTTPS connection to the registration server, and specifies the identity of the hidden server as a query parameter. In this case, the rendezvous server is co-resident with the registration server and moves the octets back-and-forth.
 
-5. The mobile client establishes an https connection to the registration server,
-and identifies the hidden server that it's interested in.
+The generic protocol may be provisioned as a highly-scalable service, but requires two listening TCP ports, one for HTTPS and the other for TCP. This makes it suitable for deployment on a [VPS](http://en.wikipedia.org/wiki/Virtual_private_server).
 
-6. The registration server returns a _rendezvous triple_.
-
-7. The mobile client connects to the location in the _rendezvous triple_,
-sends the cookie followed by '\n',
-and waits for a status indicator before sending to/from the hidden server.
-
-8. When the rendezvous server server receives the cookie from the mobile client,
-it sends the '+OK...\n' status indicator to both the hidden server and the mobile client.
-
-9. Upon receiving the status indicator,
-the hidden server (in addition to processing any data from the mobile client)
-may make another connection using the _rendezvous triple_ from the registration server.
-(In this fashion,
-the hidden server should always have something listening for the next mobile client connection.)
-
-10. Regardless:
-
- * any data written from one socket is written to the other; and,
-
- * if either socket is closed, the other socket is also closed.
-
-Pictorially:
-
-
-
-
-
-                                registration server
-                                +----------------+
-                                |                |
-                                | 1:listen on    |
-                                | well-known IP  |
-                                | adddress and   |
-     "hidden" server            | TCP port       |
-     behind NAT, etc.           |                |
-    +----------------+          |                |
-    |                |          |                |
-    |2:authenticated |          |                |
-    |   https PUT of |          |                |
-    |           UUID |   ---->  |                |
-    |                |          |                |
-    |                |  <----   | 3:return triple|
-    |                |          | or error       |
-    |                |          |                |
-    |                |          |                |            mobile  client
-    |                |          |                |          +----------------+
-    |                |          |                |          |                |
-    |                |          |                |          | 5:https GET of |
-    |                |          |                |  <----   | UUID           |
-    |                |          |                |          |                |
-    |                |          |6:return triple |   ---->  |                |
-    |                |          |       or error |          |                |
-    |                |          |                |          |                |
-    |                |          |                |          |                |
-    |                |          |                |          |                |
-    |                |          |                |          |                |
-    |                |          |                |          |                |
-    |                |          |                |          |                |
-    |                |          +----------------+          |                |
-    |                |                                      |                |
-    |                |                                      |                |
-    |                |          rendezvous server           |                |
-    |  4:open TCP to |          +----------------+          |                |
-    | triple address |          |                |          |                |
-    |and send cookie |   ---->  |                |          |                |
-    |                |          |                |          |                |
-    |  keep TCP open |          |                |          |                |
-    |                |          |                |          | 7: open TCP to |
-    |                |          |                |          | triple address |
-    |                |          |                |  <----   | and send cookie|
-    |                |          |                |          |                |
-    |                |  <----   | 8:send '+OK\n' |   ---->  |                |
-    |                |          |                |          |                |
-    | 9:             |          |                |          |                |
-    | [if multiple   |          |                |          |                |
-    |  connections   |          |                |          |                |
-    |  are desired,  |          |                |          |                |
-    |  another TCP   |          |                |          |                |
-    |  connection to |          |                |          |                |
-    |  the rendezvous|          |                |          |                |
-    |  server occurs]|          |                |          |                |
-    |                |          |                |          |                |
-    |                |          |                |          |                |
-    |      10:       |          |      10:       |          |      10:       |
-    | send/recv data |  <---->  | <------------> |  <---->  | send/recv data |
-    |    until close |          |                |          | until close    |
-    |                |          |                |          |                |
-    |                |  <----   | <------------  |  <----   | close          |
-    |                |          |     and/or     |          |                |
-    |          close |   ---->  |  ------------> |   ---->  |                |
-    |                |          |                |          |                |
-    +----------------+          +----------------+          +----------------+
-
+The HTTP-specific protocol may be provisioned using a [PAAS](http://en.wikipedia.org/wiki/Platform_as_a_service) provider, if that service allows the HTTP CONNECT method.
 
