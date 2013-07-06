@@ -13,9 +13,6 @@
 		003C86A81788AB2900F02C17 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 003C86A61788AB2900F02C17 /* InfoPlist.strings */; };
 		003C86AA1788AB2900F02C17 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 003C86A91788AB2900F02C17 /* main.m */; };
 		003C86AE1788AB2900F02C17 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 003C86AD1788AB2900F02C17 /* AppDelegate.m */; };
-		003C86B01788AB2900F02C17 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86AF1788AB2900F02C17 /* Default.png */; };
-		003C86B21788AB2900F02C17 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86B11788AB2900F02C17 /* Default@2x.png */; };
-		003C86B41788AB2900F02C17 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86B31788AB2900F02C17 /* Default-568h@2x.png */; };
 		003C86B71788AB2900F02C17 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 003C86B61788AB2900F02C17 /* ViewController.m */; };
 		003C86BA1788AB2900F02C17 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 003C86B81788AB2900F02C17 /* ViewController.xib */; };
 		003C86C71788AB9300F02C17 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 003C86C11788AB9300F02C17 /* base64.c */; };
@@ -27,6 +24,11 @@
 		003C86D11788AF7700F02C17 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 003C86D01788AF7700F02C17 /* Security.framework */; };
 		003C86D31788CC6500F02C17 /* LICENCE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 003C86D21788CC6500F02C17 /* LICENCE.txt */; };
 		003C86D51788CD5000F02C17 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 003C86D41788CD5000F02C17 /* README.md */; };
+		003C86D91788D5EC00F02C17 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86D81788D5EC00F02C17 /* Icon@2x.png */; };
+		003C86DB1788D60700F02C17 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86DA1788D60700F02C17 /* Icon.png */; };
+		003C86DD1788D6BB00F02C17 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86DC1788D6BB00F02C17 /* Default-568h@2x.png */; };
+		003C86DF1788D76600F02C17 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86DE1788D76600F02C17 /* Default@2x.png */; };
+		003C86E11788D76900F02C17 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 003C86E01788D76900F02C17 /* Default.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,9 +42,6 @@
 		003C86AB1788AB2900F02C17 /* HelloLightbulb-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HelloLightbulb-Prefix.pch"; sourceTree = "<group>"; };
 		003C86AC1788AB2900F02C17 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		003C86AD1788AB2900F02C17 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		003C86AF1788AB2900F02C17 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
-		003C86B11788AB2900F02C17 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
-		003C86B31788AB2900F02C17 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		003C86B51788AB2900F02C17 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		003C86B61788AB2900F02C17 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		003C86B91788AB2900F02C17 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
@@ -58,6 +57,11 @@
 		003C86D01788AF7700F02C17 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		003C86D21788CC6500F02C17 /* LICENCE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENCE.txt; sourceTree = "<group>"; };
 		003C86D41788CD5000F02C17 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		003C86D81788D5EC00F02C17 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "../Icon@2x.png"; sourceTree = "<group>"; };
+		003C86DA1788D60700F02C17 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Icon.png; sourceTree = "<group>"; };
+		003C86DC1788D6BB00F02C17 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
+		003C86DE1788D76600F02C17 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../Default@2x.png"; sourceTree = "<group>"; };
+		003C86E01788D76900F02C17 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,14 +128,16 @@
 		003C86A41788AB2900F02C17 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				003C86DA1788D60700F02C17 /* Icon.png */,
+				003C86D81788D5EC00F02C17 /* Icon@2x.png */,
 				003C86CA1788AD3D00F02C17 /* thingLogo.png */,
 				003C86A51788AB2900F02C17 /* HelloLightbulb-Info.plist */,
 				003C86A61788AB2900F02C17 /* InfoPlist.strings */,
 				003C86A91788AB2900F02C17 /* main.m */,
 				003C86AB1788AB2900F02C17 /* HelloLightbulb-Prefix.pch */,
-				003C86AF1788AB2900F02C17 /* Default.png */,
-				003C86B11788AB2900F02C17 /* Default@2x.png */,
-				003C86B31788AB2900F02C17 /* Default-568h@2x.png */,
+				003C86E01788D76900F02C17 /* Default.png */,
+				003C86DE1788D76600F02C17 /* Default@2x.png */,
+				003C86DC1788D6BB00F02C17 /* Default-568h@2x.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -203,13 +209,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				003C86A81788AB2900F02C17 /* InfoPlist.strings in Resources */,
-				003C86B01788AB2900F02C17 /* Default.png in Resources */,
-				003C86B21788AB2900F02C17 /* Default@2x.png in Resources */,
-				003C86B41788AB2900F02C17 /* Default-568h@2x.png in Resources */,
 				003C86BA1788AB2900F02C17 /* ViewController.xib in Resources */,
 				003C86CB1788AD3D00F02C17 /* thingLogo.png in Resources */,
 				003C86D31788CC6500F02C17 /* LICENCE.txt in Resources */,
 				003C86D51788CD5000F02C17 /* README.md in Resources */,
+				003C86D91788D5EC00F02C17 /* Icon@2x.png in Resources */,
+				003C86DB1788D60700F02C17 /* Icon.png in Resources */,
+				003C86DD1788D6BB00F02C17 /* Default-568h@2x.png in Resources */,
+				003C86DF1788D76600F02C17 /* Default@2x.png in Resources */,
+				003C86E11788D76900F02C17 /* Default.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,6 +356,7 @@
 				003C86BF1788AB2900F02C17 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
