@@ -23,7 +23,6 @@ function onRequest(request, response) {
 		console.log("Opened websocket to steward.");
 		if ( pathname == "/on") {
 			response.write("Turning blinkstick on.");
-			response.end();
 			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/blinkstick', 
 		                             	requestID :'1', 
 		                             	perform   :'on', 
