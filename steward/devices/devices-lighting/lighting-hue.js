@@ -177,11 +177,11 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
             break;
 
           case 'cie1931':
-            state.xy = lighting.cie1931([ color.cie1931.x, color.cie1931.y]);
+            state.xy = lighting.colors.cie1931([ color.cie1931.x, color.cie1931.y]);
             break;
 
           case 'rgb':
-            state.xy = lighting.colors.rgbToCIE1932(color.rgb.r, color.rgb.g, color.rgb.b);
+            state.xy = lighting.colors.rgbToCIE1931(color.rgb.r, color.rgb.g, color.rgb.b);
             break;
 
           default:
