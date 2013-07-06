@@ -27,6 +27,7 @@ function onRequest(request, response) {
 			                                      color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }}})
 		                            });
 		    ws.send(json);	
+			console.log( json );
 			
 		} else if ( pathname == "/off") {
 			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting', 
@@ -35,6 +36,7 @@ function onRequest(request, response) {
 		                             parameter :''
 		                           });			
 		    ws.send(json);
+			console.log( json );
 			
 		} else {
 			response.write("<h2>Unrecognised request</h2>");
