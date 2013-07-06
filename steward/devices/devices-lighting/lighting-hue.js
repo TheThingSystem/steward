@@ -695,11 +695,11 @@ var validate_perform_bulb = function(perform, parameter) {
 
   if ((!!params.transition) && (parseInt(params.transition, 10) < 0)) result.invalid.push('transition');
 
-  if ((params.interval) && (params.interval !== 'once') && (params.interval !== 'flash') && (params.interval !== 'solid')) {
+  if ((!!params.interval) && (params.interval !== 'once') && (params.interval !== 'flash') && (params.interval !== 'solid')) {
     result.invalid.push('interval');
   }
 
-  if ((params.effect) && (params.effect !== 'colorloop') && (params.effect !== 'none')) result.invalid.push('effect');
+  if ((!!params.effect) && (params.effect !== 'colorloop') && (params.effect !== 'none')) result.invalid.push('effect');
 
   return result;
 };

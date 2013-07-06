@@ -99,7 +99,7 @@ Sonos_Audio.prototype.jumpstart = function(self, path) {
   });
 };
 
-Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {/* jshint multistr: true */
+Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
   var e, param0, params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }

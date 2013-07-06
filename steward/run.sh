@@ -7,11 +7,23 @@ if [ ! -f index.js ]; then
   exit 1
 fi
 
-if [ ! -f db/server.key ]; then
-  rm -f sandbox/server.crt
+. ~/.nvm/nvm.sh
 
-  if openssl req -x509 -newkey rsa:2048 -keyout db/server.key -out sandbox/server.crt -days 3650 -nodes -subj '/CN=steward';
-  then
+if [ ! -f db/server.key ]; then
+  rm -f sandbox/server.crt sandbox/server.sha1
+
+  node <<EOF
+require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
+                                   , keyfile  : 'db/server.key'
+                                   , certfile : 'sandbox/server.crt'
+                                   , destroy  : false }, function(err, data) {
+  if (err) return console.log('keypair generation error: ' + err.message);
+
+  console.log('keypair generated.');
+});
+EOF
+
+  if [ -f db/server.key ]; then 
     chmod 400 db/server.key
     chmod 444 sandbox/server.crt
 
@@ -22,8 +34,6 @@ if [ ! -f db/server.key ]; then
     echo "unable to create self-signed server certificate" 1>&2
   fi
 fi
-
-. ~/.nvm/nvm.sh
 
 while true; do
   node index.js

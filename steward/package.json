@@ -44,7 +44,7 @@
     , "winston"             : "0.6.2"
     , "ws"                  : "git://github.com/mrose17/ws.git"
     , "unofficial-nest-api" : "git://github.com/mrose17/unofficial_nodejs_nest.git"
-    , "x509-keygen"         : "0.0.2"
+    , "x509-keygen"         : "git://github.com/mrose17/x509-keygen.git"
     , "xml2js"              : "0.2.7"
   }
 }
