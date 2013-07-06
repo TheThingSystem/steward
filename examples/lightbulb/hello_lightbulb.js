@@ -24,9 +24,6 @@ function onRequest(request, response) {
 		                             requestID :'1', 
 		                             perform   :'on', 
 		                             parameter :JSON.stringify({ brightness: 100, 
-			                                      transition: 2, 
-			                                      interval:'once', 
-			                                      effect:'none', 
 			                                      color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }}})
 		                            });
 		    ws.send(json);	
