@@ -10,38 +10,38 @@ function onRequest(request, response) {
 	var ws;
 	
 	console.log("Request recieved.");
-	response.writeHead(200, {"Content-Type":"text/plain"});
+	response.writeHead(200, {"Content-Type":"text/html"});
 	
 	ws = new WebSocket('wss://localhost:8888/manage');
 	console.log("Created websocket.");	
 	
 	ws.onopen = function(event) {
 		console.log("Opened websocket to steward.");
-		response.write("Turning blinkstick red.");
 		
-		var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/blinkstick', 
+		var json = JSON.stringify({ path      :'/api/v1/actor/list', 
 	                             	requestID :'1', 
-	                             	perform   :'on', 
-	                             	parameter :JSON.stringify({ color: { model: 'rgb', rgb: { r: 255, g: 0, b: 0 }}})
+	                             	options   :{ depth: 'all'  }
 	                              })
 	    ws.send(json);
-		response.end();
 
   	};
 
  	ws.onmessage = function(event) {
     	console.log("Socket message: " + event.data);
+        response.write( "<h2>Actors</h2>" + util.inspect(event.data, {depth: null}));
 		ws.close(); 
 
     };
 
     ws.onclose = function(event) {
   		console.log("Socket closed: " + event.wasClean );
+		response.end();
 
     };
 
     ws.onerror = function(event) {
-  		console.log("Socket error: " + util.inspect(event, depth=4));
+  		console.log("Socket error: " + util.inspect(event, {depth: null}));
+        response.write( "<h2>Error</h2>" + util.inspect(event, {depth: null}));
 	    try { 
 			ws.close (); 
 			console.log("Closed websocket.");

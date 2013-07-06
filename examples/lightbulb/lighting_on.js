@@ -27,10 +27,9 @@ function onRequest(request, response) {
 			                                      transition: 2, 
 			                                      interval:'once', 
 			                                      effect:'none', 
-			                                      color: { model: 'rgb', rgb: { r: 255, g: 0, b: 0 }}})
+			                                      color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }}})
 	                              });
 	    ws.send(json);
-		response.end();
 
   	};
 
@@ -42,13 +41,14 @@ function onRequest(request, response) {
 
     ws.onclose = function(event) {
   		console.log("Socket closed: " + event.wasClean );
+		response.end();
 
     };
 
     ws.onerror = function(event) {
-  		console.log("Socket error: " + util.inspect(event, depth=4));
+  		console.log("Socket error: " + util.inspect(event, { depth: null}));
 	    try { 
-			ws.close (); 
+			ws.close(); 
 			console.log("Closed websocket.");
 		} catch (ex) {}
     };

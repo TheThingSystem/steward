@@ -17,12 +17,12 @@ function onRequest(request, response) {
 	
 	ws.onopen = function(event) {
 		console.log("Opened websocket to steward.");
-		response.write("Turning all lights off.");
+		response.write("Turning blinkstick off.");
 		
-		var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting', 
-	                             	requestID :'2', 
-	                             	perform   : 'off',
-									parameter : ''
+		var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/blinkstick', 
+	                             	requestID :'1', 
+	                             	perform   :'off', 
+	                             	parameter :''
 	                              })
 	    ws.send(json);
 
@@ -43,7 +43,7 @@ function onRequest(request, response) {
     ws.onerror = function(event) {
   		console.log("Socket error: " + util.inspect(event, {depth: null}));
 	    try { 
-			ws.close (); 
+			ws.close(); 
 			console.log("Closed websocket.");
 		} catch (ex) {}
     };
