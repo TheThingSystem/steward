@@ -28,7 +28,8 @@ function onRequest(request, response) {
 
  	ws.onmessage = function(event) {
     	console.log("Socket message: " + event.data);
-        response.write( "<h2>Actors</h2>" + util.inspect(event.data, {depth: null}));
+		var str = JSON.stringify(JSON.parse(event.data), null, 2);
+        response.write( "<h2>Actors</h2>" + str );
 		ws.close(); 
 
     };
