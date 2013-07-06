@@ -25,6 +25,8 @@
 		003C86CD1788AF6800F02C17 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 003C86CC1788AF6800F02C17 /* libicucore.dylib */; };
 		003C86CF1788AF7000F02C17 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 003C86CE1788AF7000F02C17 /* CFNetwork.framework */; };
 		003C86D11788AF7700F02C17 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 003C86D01788AF7700F02C17 /* Security.framework */; };
+		003C86D31788CC6500F02C17 /* LICENCE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 003C86D21788CC6500F02C17 /* LICENCE.txt */; };
+		003C86D51788CD5000F02C17 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 003C86D41788CD5000F02C17 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +56,8 @@
 		003C86CC1788AF6800F02C17 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		003C86CE1788AF7000F02C17 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		003C86D01788AF7700F02C17 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		003C86D21788CC6500F02C17 /* LICENCE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENCE.txt; sourceTree = "<group>"; };
+		003C86D41788CD5000F02C17 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +139,8 @@
 		003C86C01788AB7E00F02C17 /* SocketRocket */ = {
 			isa = PBXGroup;
 			children = (
+				003C86D41788CD5000F02C17 /* README.md */,
+				003C86D21788CC6500F02C17 /* LICENCE.txt */,
 				003C86C11788AB9300F02C17 /* base64.c */,
 				003C86C21788AB9300F02C17 /* base64.h */,
 				003C86C31788AB9300F02C17 /* SRWebSocket.h */,
@@ -202,6 +208,8 @@
 				003C86B41788AB2900F02C17 /* Default-568h@2x.png in Resources */,
 				003C86BA1788AB2900F02C17 /* ViewController.xib in Resources */,
 				003C86CB1788AD3D00F02C17 /* thingLogo.png in Resources */,
+				003C86D31788CC6500F02C17 /* LICENCE.txt in Resources */,
+				003C86D51788CD5000F02C17 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
