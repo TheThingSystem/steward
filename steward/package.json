@@ -36,6 +36,7 @@
     , "sensortag"           : "git://github.com/sandeepmistry/node-sensortag.git"
     , "soap"                : "0.2.7"
     , "sonos"               : "git://github.com/mrose17/node-sonos.git"
+    , "speakeasy"           : "git://github.com/mrose17/speakeasy.git"
     , "sqlite3"             : "2.1.7"
     , "ssh-keygen"          : "git://github.com/mrose17/ssh-keygen.git"
     , "stack-trace"         : "0.0.6"

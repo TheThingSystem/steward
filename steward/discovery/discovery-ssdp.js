@@ -175,7 +175,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
 
   setTimeout(function() { client.search('ssdp:all'); }, 30 * 1000);
 
-  portfinder.getPort({ port: 8887 }, function(err, portno) {
+  portfinder.getPort({ port: 8886 }, function(err, portno) {
     if (err) {
       logger.error('start', { event: 'portfinder.getPort 8887', diagnostic: err.message });
       return;
