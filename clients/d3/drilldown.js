@@ -135,9 +135,9 @@ var home = function(state) {
 
 
 var device_drilldown = function(name, devices, arcs, instructions) {
-  var chart, device, div, div2, entry, i, img, trayLeft, trayWidth; //, labels, values;
+  var chart, device, div, div2, entry, i, img, trayLeft, trayPages, trayWidth; //, labels, values;
   var iconWidth = 50; // Determine this algorithmically below
-  var viewportWidth = 250;
+  var viewportWidth = iconWidth * 5;
   
   chart = document.getElementById('chart');
   while (chart.lastChild) chart.removeChild(chart.lastChild);
@@ -164,7 +164,10 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   div.setAttribute('id', 'controls');
   div.setAttribute('style', 'margin-top: 40px;');
   if (devices.length > 1) {
-    var div3, div4;
+    var actor, div3, div4, pager;
+    var actorWidth = 50;
+    
+
     multiple_arcs = arcs; //Preserve for multiple-foyer redraws
     arcs = null;
     
@@ -186,11 +189,28 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     // device-viewport and image-tray needed for horizontal scrolling of icons
     div3 = document.createElement('div');
     div3.setAttribute('id', 'device-viewport');
-    div3.setAttribute('style', 'position: relative; left:12px; top: 12px; overflow-x: hidden; overflow-y: hidden; width: ' + viewportWidth + 'px; height: 140px;');
+    div3.setAttribute('style', 'position: relative; left:12px; top: 60px; overflow-x: hidden; overflow-y: hidden; width: ' + viewportWidth + 'px; height: 140px;');
     
     div4 = document.createElement('div');
     div4.setAttribute('id', 'image-tray');
     trayWidth = iconWidth * devices.length;
+    if (devices.length > 5) {
+       trayPages = Math.ceil(trayWidth / viewportWidth);
+       trayWidth = iconWidth * 5 * trayPages;
+       
+       pager = document.createElement('p');
+       pager.setAttribute('style', 'position: relative; top: -5px;');
+       var pagerElements = '';
+       for (i = 0; i < trayPages; i++) {
+          if (i == 0) {
+             pagerElements = "<span id='bullet" + i + "' class='bullet-on' onclick='javascript:gotoPage(event)'>&bull;</span>";
+          } else {
+             pagerElements += "<span id='bullet" + i + "' class='bullet-off' onclick='javascript:gotoPage(event)'>&bull;</span>";
+          }
+       }
+       pager.innerHTML = pagerElements;
+
+    }
     trayLeft = (viewportWidth / 2) - (trayWidth / 2);
     trayLeft = (trayLeft < 0) ? 0 : trayLeft;
     div4.setAttribute('style', 'position: relative; height: 107px; width: ' + trayWidth + 'px; left: ' + trayLeft + 'px;');
@@ -198,18 +218,27 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     for (i = 0; i < devices.length; i++) {
       device = devices[i];
       entry = entries[device.deviceType] || entries['default'];
-
+      
+      actor = document.createElement('div');
+      actor.setAttribute('style', 'position: absolute; top: 10px; left: ' + (i * actorWidth) + 
+        'px; text-align: center; width: ' + actorWidth + 'px; height: 107px; overflow: hidden;');
+      actor.innerHTML = '<p class="actor-name" style="color: ' + statusColor(device) + '; position: relative; left: 5px; width: 40px; ">' + device.name + '</p>';
+      
       img = document.createElement('img');
       img.setAttribute('src', entry.img);
-      img.setAttribute('style', 'background-color:' + statusColor(device) + '; padding: 0px; margin: 80px 3px 3px 3px; width: 44px; height: 44px;');
+      img.setAttribute('style', 'background-color:' + statusColor(device) + ';');
       img.setAttribute('class', 'actor-grouping');
 
       if (!!entry.single) img.setAttribute('onclick', 'javascript:goforw(' + entry.single + ', "' + device.actor + '");');
-      div4.appendChild(img);
+      
+      actor.appendChild(img)
+      div4.appendChild(actor);
     }
     
-    div3.appendChild(div4);
+    div3.appendChild(div4);    
     div.appendChild(div3);
+    
+    if (pager) div.appendChild(pager);
     
     div2 = document.createElement('div');
     div2.setAttribute('class', 'multiple-instructions');
@@ -292,6 +321,11 @@ var multiple_drilldown_foyer = function(arcs) {
       color = d3.scale.ordinal()                // based on Status Board palette
       .range(["#9b00c1", "#006be6", "#009e99", "#00ba00", "#fc6a00", "#ffc600", "#ff3000"]);
 
+  
+  for (i = 0; i < arcs.length; i++) {
+     arcz[i].start = 0;
+  }
+  
   var arc = d3.svg.arc()
       .startAngle(0)
       .endAngle(function(d) { return d.value * 2 * Math.PI; })
@@ -306,12 +340,40 @@ var multiple_drilldown_foyer = function(arcs) {
       .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
 
   var g = vis.selectAll("g")
-      .data(function() { return arcs; })
+      .data(function() { return arcz; })
     .enter().append("g");
 
+//   var path = g.selectAll("path")
+//   	  .data(arcz.filter(function(d) { return d.value; }), function(d) { return d.name; });
+//  
+//   path.enter().append("path")
+//       .transition()
+//       .ease("elastic")
+//       .duration(1000)
+//       .attrTween("d", arcTween);
+//  
+//   path.transition()
+//       .ease("elastic")
+//       .duration(1000)
+//       .attrTween("d", arcTween);
+//  
+//   path.exit().transition()
+//       .ease("bounce")
+//       .duration(1000)
+//       .attrTween("d", arcTween)
+//       .remove();
+ 
   g.append("path")
       .style("fill", function(d, i) { return ((!!d.color) ? d.color : color(i)); })
       .attr("d", arc);
+      
+//   function arcTween(b) {
+//     var i = d3.interpolate( {value: b.start}, b);
+//     return function(t) {
+//       return arc(i(t));
+//     };
+//  }
+
 };
 
 
@@ -701,9 +763,10 @@ var multiple_drilldown = function(name, members) {
 var handleArrowVisibility = function() {
 	var viewPortWidth = parseInt($("#image-tray").offsetParent().css("width"), 10);
 	var trayWidth = parseInt($("#image-tray").css("width"), 10);
-	var trayLeft;
-
-	trayLeft = parseInt($("#image-tray").css("left"), 10);
+	var trayLeft = parseInt($("#image-tray").css("left"), 10);
+    var trayPage = Math.abs(trayLeft / viewPortWidth);
+    document.getElementById("bullet" + trayPage).className = "bullet-on";
+    
 	if (trayLeft >= "0") {
 		$("#right-arrow").hide();
 	} else {
@@ -717,8 +780,38 @@ var handleArrowVisibility = function() {
 
 }
 
+var gotoPage = function(evt) {
+    if (evt.target.className == "bullet-off") {
+    	var viewPortWidth = parseInt($("#image-tray").offsetParent().css("width"), 10);
+		var pageNum = evt.target.id.slice(6);
+		var leftEnd = -(pageNum * viewPortWidth);
+		var leftStart = parseInt($("#image-tray").css("left"), 10);
+		var scrollAmount = leftStart - leftEnd;
+		//"+=" + scrollAmount
+		
+		$("#image-tray").animate({
+			"left": leftEnd + "px"
+		}, {
+			complete: function() {
+			    clearPager();
+			    multiple_drilldown_foyer();
+		        handleArrowVisibility();
+		    }
+		});
+    }
+}
+
+var clearPager = function() {
+    var i = 0;
+    while (document.getElementById("bullet" + i)) {
+       document.getElementById("bullet" + i).className = "bullet-off";
+       i++;
+    }
+}
+
 var handleArrow = function(evt) {
-	var scrollAmount = $("#image-tray").children().first().outerWidth(true);
+	var scrollAmount = $("#device-viewport").outerWidth(true);
+	clearPager();
 	
 	if (evt.target.id === "left-arrow") {
 		$("#image-tray").animate({

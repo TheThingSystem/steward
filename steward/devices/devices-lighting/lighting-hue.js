@@ -524,6 +524,7 @@ Hue.prototype.refresh2 = function(self, id, oops) {
       } else self.ping(self);
 
       self.changed();
+      self.lights[id].updated = self.updated;
       childping(self, id);
     });
   });

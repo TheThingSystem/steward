@@ -255,7 +255,9 @@ Sonos_Audio.prototype.refresh = function(self) {
   self.sonos.currentTrack(function(err, track) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'currentTrack', diagnostic: err.message });
 
-    if (track !== undefined) {
+    if ((track !== undefined)
+        && (self.info.track.position !== track.position)
+        && (self.info.track.duration !== track.duration)) {
       self.info.track = track;
       self.changed();
     }
@@ -264,7 +266,7 @@ Sonos_Audio.prototype.refresh = function(self) {
   self.sonos.getVolume(function(err, volume) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'getVolume', diagnostic: err.message });
 
-    if (volume !== undefined) {
+    if ((volume !== undefined) && (self.info.volume !== volume)) {
       self.info.volume = volume;
       self.changed();
     }
@@ -273,7 +275,7 @@ Sonos_Audio.prototype.refresh = function(self) {
   self.sonos.getMuted(function(err, muted) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'getMuted', diagnostic: err.message });
 
-    if (muted !== undefined) {
+    if ((muted !== undefined) && (self.info.muted !== (muted ? 'on' : 'off'))) {
       self.info.muted = muted ? 'on' : 'off';
       self.changed();
     }
