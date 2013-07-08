@@ -6,13 +6,13 @@ Most of these things are controlled by a special-purpose application. Every thin
 
 The Thing System is a set of software components and network protocols that changes that. Our _steward_ software is written in [node.js](http://nodejs.org) making it both portable and easily extensible. It can run on your laptop, or fit onto a small single board computer like the [Raspberry Pi](01_RaspberryPi.md).
 
-The _steward_ is at the heart of the system and connects to [Things](03_Knapsack.md) in your home, whether those things 
+The _steward_ is at the heart of the system and connects to [Things](03_Knapsack.md) in your home, whether those things are media players such as the Roku or the Apple TV, your Nest thermostat, your INSTEON home control system, or your Philips Hue lightbulbs–whether your things are connected together via Wi-Fi, Zigbee, Z-Wave, USB or Bluetooth LE. The steward will find them and bring them together so they can talk to one another and perform [magic](02_Magic.md).
 
-#Installation and Getting Started
+##Installation and Getting Started
 
 The first thing you'll need to do, whether you're a user or a developer is [install](User/00_Installation.md) and [start](User/02_Running.md) the _steward_ software.
 
-#For Developers
+###For Developers
 
 There are three main tracks for developing for the Thing System
 

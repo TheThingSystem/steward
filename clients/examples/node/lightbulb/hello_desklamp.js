@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// My desklamp is a Philips Hue bulb and is registered as Device/19 by the steward.
+// See list.js to find out how to get a full list of devices the steward knows about.
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 
 var http = require("http");
@@ -20,7 +23,7 @@ function onRequest(request, response) {
 	ws.onopen = function(event) {
 		console.log("Opened websocket to steward.");
 		if ( pathname == "/on") {
-			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/hue/led/device/', 
+			var json = JSON.stringify({ path      :'/api/v1/device/perform/19', 
 		                             requestID :'1', 
 		                             perform   :'on', 
 		                             parameter :JSON.stringify({ brightness: 100, 
@@ -29,7 +32,7 @@ function onRequest(request, response) {
 		    ws.send(json);	
 			
 		} else if ( pathname == "/off") {
-			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/hue/led/device/', 
+			var json = JSON.stringify({ path      :'/api/v1/device/perform/19', 
 		                             requestID :'2', 
 		                             perform   :'off', 
 		                             parameter :''

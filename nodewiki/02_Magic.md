@@ -5,3 +5,7 @@ If you've read our [philosophy](01_Philosophy.md) document you'll know that what
 There is very little point automating your home if you end up with a home that's harder to use afterwards than it was before. If your lights are harder to use, or you have to think about what state they're in before flipping a wall switch you've not made your life simpler, you've made it just a little bit harder.
 
 You don't want to have to think about that, you want it all to work like magic. That's our goal
+
+
+
+[developing magic](Developer/Clients/Magic.md)
