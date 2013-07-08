@@ -83,7 +83,7 @@
 #left-arrow {
         position: absolute;
         left: 0px;
-        top: 105px;
+        top: 110px;
         width: 0px;
         font-family: "Roadgeek 2005 Series D";
         font-size: 24px;
@@ -94,7 +94,7 @@
 #right-arrow {
         position: absolute;
         left: 265px;
-        top: 105px;
+        top: 110px;
         font-family: "Roadgeek 2005 Series D";
         font-size: 24px;
         cursor: pointer;
@@ -102,6 +102,17 @@
         display: none;
 }
 
+.bullet-on {
+        color: white;
+        cursor: pointer;
+        margin: 0px 3px;
+}
+
+.bullet-off {
+        color: gray;
+        cursor: pointer;
+        margin: 0px 3px;
+}
 
 #chart div.small-instructions {
         position: relative;
@@ -272,14 +283,15 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 
 
 #chart div.categories { position: absolute; top: 461px; left: 180px; text-align: center; width: 680px; height: 100px; }
-#chart div.category { text-align: center; width: 50px; position: relative; float: left; padding: 5px 4px; }
+#chart div.category { text-align: center; width: 50px; position: relative; float: left; padding: 5px 4px; cursor: pointer; }
 
 #chart .wrapper {        
         margin: 0px auto;
 }
  
 #chart div.tags { position: absolute; top: 545px; left: 180px; width: 680px; height: 50px; }
-#chart span.tag { text-align: center; position: relative; padding: 3px 8px; margin: 12px 2px; background-color: #333; 
+#chart span.tag { text-align: center; position: relative; padding: 3px 8px; margin: 12px 2px; background-color: #333;
+	cursor: pointer;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px; /* future proofing */
@@ -317,7 +329,7 @@ p.actor-name {
     text-overflow:    ellipsis;    /* IE, Safari (WebKit), Opera >= 11, FF > 6 */
     padding: 3px 0px 0px 0px;
     margin: 0px;
-    height: 23px;
+    height: 22px;
     display: cell;
     vertical-align: bottom;
     text-align: center;

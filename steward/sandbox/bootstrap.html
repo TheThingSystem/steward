@@ -317,7 +317,7 @@ var perform_actors = function(ws, prefix, perform, parameter, cb) {
 var perform_device = function(ws, deviceID, perform, parameter, cb) {
   if (parseInt(deviceID, 10) <= 0) throw new Error('deviceID must be positive integer');
 
-  ws.send(JSON.stringify({ path      : '/api/v1/group/perform/' + deviceID
+  ws.send(JSON.stringify({ path      : '/api/v1/device/perform/' + deviceID
                          , requestID : add_callback(cb)
                          , perform   : perform
                          , parameter : JSON.stringify(parameter) || ''
