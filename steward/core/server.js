@@ -1,11 +1,12 @@
 var fs          = require('fs')
   , http        = require('http')
-  , https       = require('https')
+//, https       = require('https')
   , mime        = require('mime')
   , net         = require('net')
   , portfinder  = require('portfinder')
   , speakeasy   = require('speakeasy')
 //, ssh_keygen  = require('ssh-keygen')
+  , tls         = require('tls')
   , url         = require('url')
   , wsServer    = require('ws').Server
   , steward     = require('./steward')
@@ -191,13 +192,13 @@ var start = function(port, secureP) {
 
     logger.info('listening on ' + wssT + '://0.0.0.0:' + portno);
 
-    if (httpsT === 'http') {
+    if (!secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
-        if (existsP) rendezvous(require(__dirname + '/../db/' + steward.uuid).params, portno);
+        if (existsP) rendezvous0(require(__dirname + '/../db/' + steward.uuid).params, portno);
       });
-    }
 
-    if (!secureP) return;
+      return;
+    }
 
     var hack = '0.0.0.0';
     http.createServer(function(request, response) {
@@ -217,12 +218,72 @@ var start = function(port, secureP) {
   });
 };
 
-var rendezvous = function(params, portno) {
+
+/*
+ * i have a theory:
+ *
+ *     https.request(...).on('connect', ...)
+ *
+ * is broken because the socket passed does ciphertext not plaintext.
+ */
+
+var rendezvous0 = function(params, port) {
+  portfinder.getPort({ port: 8881 }, function(err, portno) {
+    if (err) return logger.error('server', { event: 'portfinder.getPort 8881', diagnostic: err.message });
+
+    http.createServer(function(request, response) {
+      response.writehead(405, { Allow: 'CONNECT' });
+      response.end();
+    }).on('connect', function(request, socket, head) {
+      var cleartext;
+
+      cleartext = tls.connect({ host : params.server.hostname
+                              , port : params.server.port
+                              , ca   : new Buffer(params.server.ca)
+                              }, function() {
+        var h, hello, parts;
+
+        logger.info('tlsproxy connected to https://' + params.server.hostname + ':' + params.server.port);
+
+        if (!cleartext.authorized) {
+          logger.error('tlsproxy', { event: 'connect', diagnostic: cleartext.authorizationError });
+
+          socket.write('HTTP/1.1 500 + \r\n\r\n');
+          socket.end();
+          return setTimeout(function() { try { socket.destroy(); } catch(ex) {} }, 1 * 1000);
+        }
+
+        parts = url.parse(request.url);
+        hello = request.method + ' ' + parts.href + ' HTTP/' + request.httpVersion + '\r\n';
+        for (h in request.headers) if (request.headers.hasOwnProperty(h)) hello += h + ': ' + request.headers[h] + '\r\n';
+        hello += '\r\n';
+
+        cleartext.write(hello);
+        cleartext.write(head);
+        socket.pipe(cleartext).pipe(socket);
+      }).on('error', function(err) {
+        logger.error('tlsproxy', { event: 'error', diagnostic: err.message });
+
+        socket.write('HTTP/1.1 500 + \r\n\r\n');
+        socket.end();
+        setTimeout(function() { try { socket.destroy(); } catch(ex) {} }, 1 * 1000);
+      });
+
+    }).on('listening', function() {
+      logger.info('tlsproxy listening on http://127.0.0.1:' + portno);
+
+      rendezvous('127.0.0.1', portno, params, port);
+    }).on('error', function(err) {
+      logger.error('tlsproxy unable to listen on http://127.0.0.0:' + portno, { diagnostic: err.message });
+    }).listen(portno, '127.0.0.1');
+  });
+};
+
+var rendezvous = function(hostname, port, params, portno) {
   var options;
 
-  options = { hostname : params.server.hostname
-            , port     : params.server.port
-            , ca       : new Buffer(params.server.ca)
+  options = { hostname : hostname
+            , port     : port
             , path     : 'uuid:' + steward.uuid + '?response=' + speakeasy.totp({ key      : params.base32
                                                                                 , length   : 6
                                                                                 , encoding : 'base32'
@@ -231,10 +292,10 @@ var rendezvous = function(params, portno) {
             , agent    : false
             };
 
-  https.request(options).on('connect', function(response, cloud, head) {/* jshint unused: false */
+  http.request(options).on('connect', function(response, cloud, head) {/* jshint unused: false */
     var local;
 
-    logger.info('connected to https://' + options.hostname + ':' + options.port);
+    logger.info('cloud connected to http://' + options.hostname + ':' + options.port);
 
     cloud.setKeepAlive(true);
 
@@ -252,15 +313,15 @@ var rendezvous = function(params, portno) {
         logger.error('proxy', { event: 'error', diagnostic: err.message });
       }).connect(portno, '127.0.0.1');
 
-      setTimeout(function() { rendezvous(params, portno); }, 0);
+      setTimeout(function() { rendezvous(hostname, port, params, portno); }, 0);
     }).on('error', function(err) {
       logger.error('cloud', { event: 'error', diagnostic: err.message });
 
-      setTimeout(function() { rendezvous(params, portno); }, 15 * 1000);
+      setTimeout(function() { rendezvous(hostname, port, params, portno); }, 15 * 1000);
     });
   }).on('error', function(err) {
     logger.error('cloud', { event: 'connect', diagnostic: err.message, retry: '30 seconds' });
 
-    setTimeout(function() { rendezvous(params, portno); }, 30 * 1000);
+    setTimeout(function() { rendezvous(hostname, port, params, portno); }, 30 * 1000);
   }).end();
 };

@@ -9,12 +9,14 @@ var logger = utility.logger('server');
 
 
 var console = function(ws, tag) {
+/* TBD: uncomment this later on
 // NB: access control hard-coded to local clients only
   if (!ws.clientInfo.local) {
     logger.warning(tag, { event: 'route', transient: false, diagnostic: 'access control: ' + '/console' });
     ws.close(404, 'not found');
     return;
   }
+ */
 
   ws.on('message', function(data, flags) {/* jshint unused: false */});
 

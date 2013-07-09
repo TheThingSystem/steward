@@ -97,13 +97,10 @@ var accessP = function(api, clientInfo, tag) {
   }
 
   if (!(levels & api.access)) {
-// TBD: uncomment this later on
-/*
+/* TBD: uncomment this later on
     logger.warning(tag, { event: 'access', diagnostic: 'unauthorized', level: api.access, role: role });
     return false;
  */
-    logger.warning(tag,
-                   { event: 'access', diagnostic: 'unauthorized', level: api.access, role: role, recovery: 'continuing...' });
   }
 
   return true;
