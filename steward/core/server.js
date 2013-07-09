@@ -280,7 +280,14 @@ var rendezvous0 = function(params, port) {
 };
 
 var rendezvous = function(hostname, port, params, portno) {
-  var options;
+  var didP, options;
+
+  var retry = function(secs) {
+    if (didP) return;
+    didP = true;
+
+    setTimeout(function() { rendezvous(hostname, port, params, portno); }, secs * 1000);
+  };
 
   options = { hostname : hostname
             , port     : port
@@ -292,11 +299,19 @@ var rendezvous = function(hostname, port, params, portno) {
             , agent    : false
             };
 
+  didP = false;
   http.request(options).on('connect', function(response, cloud, head) {/* jshint unused: false */
     var local;
 
     logger.info('cloud connected to http://' + options.hostname + ':' + options.port);
 
+    if (response.statusCode !== 200) {
+      logger.error('proxy', { event: 'response', code: response.statusCode, retry: '30 seconds' });
+      try { cloud.destroy(); } catch(ex) {}
+      return retry(30);
+    }
+
+    cloud.setNoDelay(true);
     cloud.setKeepAlive(true);
 
     cloud.on('data', function(data) {
@@ -307,21 +322,28 @@ var rendezvous = function(hostname, port, params, portno) {
       local.on('connect', function() {
         logger.debug('proxy', { event: 'connect' });
 
+        local.setNoDelay(true);
+        local.setKeepAlive(true);
+
         local.write(head);
         cloud.pipe(local).pipe(cloud);
       }).on('error', function(err) {
         logger.error('proxy', { event: 'error', diagnostic: err.message });
       }).connect(portno, '127.0.0.1');
 
-      setTimeout(function() { rendezvous(hostname, port, params, portno); }, 0);
+      retry(0);
     }).on('error', function(err) {
-      logger.error('cloud', { event: 'error', diagnostic: err.message });
+      logger.error('cloud', { event: 'error', diagnostic: err.message, retry: '15 seconds' });
 
-      setTimeout(function() { rendezvous(hostname, port, params, portno); }, 15 * 1000);
+      retry(15);
+    }).on('close', function(errorP) {
+      if (errorP) logger.error('cloud', { event: 'close' }); else logger.debug('cloud', { event: 'close' }); 
+
+      retry(1);
     });
   }).on('error', function(err) {
     logger.error('cloud', { event: 'connect', diagnostic: err.message, retry: '30 seconds' });
 
-    setTimeout(function() { rendezvous(hostname, port, params, portno); }, 30 * 1000);
+    retry(30);
   }).end();
 };
