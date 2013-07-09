@@ -661,9 +661,9 @@ var go = function(location, i) {
       }, 5000);
     };
 
-    ws2.onclose = function(event) {};
+    ws2.onclose = function(event) { ws.close(); };
 
-    ws2.onerror = function(event) {};
+    ws2.onerror = function(event) { ws.close(); };
   };
 
   ws.onmessage = function(event) {
