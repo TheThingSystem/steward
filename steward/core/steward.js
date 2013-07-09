@@ -380,20 +380,24 @@ exports.forEachAddress = function(callback) {
   }
 };
 
-exports.clientInfo = function(connection) {
+exports.clientInfo = function(connection, secureP) {
   var ifname, props;
 
-  props = { loopback : connection.remoteAddress === '127.0.0.1'
-          , subnet   : false
-          };
+  props = { loopback : false, subnet: false, local: false };
 
+// NB: usually this is something come in over the cloud
+  if (!secureP) return props;
+
+  if (connection.remoteAddress === '127.0.0.1') props.loopback = true;
+  else {
 // TBD: in node 0.11, this should be reworked....
-  for (ifname in ifaces) {
-    if (!ifaces.hasOwnProperty(ifname)) continue;
+    for (ifname in ifaces) {
+      if (!ifaces.hasOwnProperty(ifname)) continue;
 
-    if (!!ifaces[ifname].arp[connection.remoteAddress]) {
-      props.subnet = true;
-      break;
+      if (!!ifaces[ifname].arp[connection.remoteAddress]) {
+        props.subnet = true;
+        break;
+      }
     }
   }
 

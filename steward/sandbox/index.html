@@ -617,10 +617,12 @@ var go = function(location, i) {
   var opened, ws, ws2, ws3;
   var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/console';
 
+  location.query = '?rendezvous=2f402f80-da50-11e1-9b23-000000000000';
+
   notice(tag, { state: 'connecting...' });
 
   opened = 0;
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console' + location.query);
   ws2 = null;
   ws3 = null;
 
@@ -630,7 +632,7 @@ var go = function(location, i) {
     opened = 1;
     notice(tag, { state: 'open' });
 
-    ws2 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
+    ws2 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage' + location.query);
 
     ws2.onopen = function(event) {
       x = 2;
@@ -666,7 +668,7 @@ var go = function(location, i) {
     ws2.onerror = function(event) {};
 
 
-    ws3 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/');
+    ws3 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/' + location.query);
 
     ws3.onopen = function(event) {}
 

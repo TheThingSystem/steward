@@ -103,7 +103,7 @@ var start = function(port, secureP) {
       var tag = wssT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
       var meta;
 
-      ws.clientInfo = steward.clientInfo(request.connection);
+      ws.clientInfo = steward.clientInfo(request.connection, secureP);
       meta = ws.clientInfo;
       meta.event = 'connection';
       logger.info(tag, meta);
@@ -137,13 +137,14 @@ var start = function(port, secureP) {
 
       var pathname = url.parse(request.url).pathname;
       var tag = httpsT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
-      var meta = steward.clientInfo(request.connection);
+      var meta = steward.clientInfo(request.connection, secureP);
 
       meta.event = 'request';
       logger.info(tag, meta);
 
       if (pathname === '/') pathname= '/index.html';
-      if ((!meta.local) || (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
+// TBD: uncomment this later on
+      if (/* (!meta.local) || */ (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'not-allowed', code: 404 });
         response.writeHead(404, { 'Content-Type': 'text/plain' });
         response.end('404 not found');
@@ -230,75 +231,32 @@ var rendezvous = function(params, portno) {
             , agent    : false
             };
 
-logger.debugX = logger.info;
   https.request(options).on('connect', function(response, cloud, head) {/* jshint unused: false */
-    var buffer, didP, endP, local, readyP;
+    var local;
 
-    logger.debugX('cloud', { event: 'connect' });
-
-    cloud.setKeepAlive(true);
     logger.info('connected to https://' + options.hostname + ':' + options.port);
 
-    didP = false;
-    var next = function(secs) {
-      if (didP) return;
-      didP = true;
+    cloud.setKeepAlive(true);
 
-      setTimeout(function() { rendezvous(params, portno); }, secs * 1000);
-    };
-
-    buffer = head.toString();
-    endP = readyP = false;
     cloud.on('data', function(data) {
-      logger.debugX('cloud', { event: 'data', octets: data.toString().length });
-
-      if (readyP) {
-        try { local.write(data); } catch(ex) { logger.error('local', { event: 'write', diagnostic: ex.message }); }
-        return;
-      }
-
-      buffer += data.toString();
+      head = Buffer.concat([ head, data]);
       if (!!local) return;
 
       local = new net.Socket({ allowHalfOpen: true });
       local.on('connect', function() {
-        logger.info('connected to http://127.0.0.1:' + portno);
+        logger.debug('proxy', { event: 'connect' });
 
-        try { local.write(buffer); } catch(ex) { logger.error('local', { event: 'write', diagnostic: ex.message }); }
-
-        local.setKeepAlive(true);
-        next(0);
-        readyP = true;
-
-        if (endP) try { local.end(); } catch(ex) {}
-      }).on('data', function(data) {
-        logger.debugX('local', { event: 'data', octets: data.toString().length });
-        try { cloud.write(data); } catch(ex) { logger.error('cloud', { event: 'write', diagnostic: ex.message }); }
+        local.write(head);
+        cloud.pipe(local).pipe(cloud);
       }).on('error', function(err) {
-        logger.error('local', { event: 'error', diagnostic: err.message });
-      }).on('end', function() {
-        logger.debugX('local', { event: 'end' });
-
-        try { cloud.end(); } catch(ex) {}
-      }).on('close', function(errorP) {
-        if (errorP) logger.error('local', { event: 'close '}); else logger.debugX('local', { event: 'close '});
-
-        try { cloud.destroy(); } catch(ex) {}
+        logger.error('proxy', { event: 'error', diagnostic: err.message });
       }).connect(portno, '127.0.0.1');
 
-      next(0);
+      setTimeout(function() { rendezvous(params, portno); }, 0);
     }).on('error', function(err) {
-      logger.debugX('cloud', { event: 'error', diagnostic: err.message, retry: '5 seconds' });
+      logger.error('cloud', { event: 'error', diagnostic: err.message });
 
-      if (!readyP) next(5);
-    }).on('end', function() {
-      logger.debugX('cloud', { event: 'end' });
-
-      if (!readyP) { endP = true;          } else try { local.end();     } catch(ex) {}
-    }).on('close', function(errorP) {
-      if (errorP) logger.error('cloud', { event: 'close '}); else logger.debugX('cloud', { event: 'close '});
-
-      if (!readyP) { endP = true; next(0); } else try { local.destroy(); } catch(ex) {}
+      setTimeout(function() { rendezvous(params, portno); }, 15 * 1000);
     });
   }).on('error', function(err) {
     logger.error('cloud', { event: 'connect', diagnostic: err.message, retry: '30 seconds' });
