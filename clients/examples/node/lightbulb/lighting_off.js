@@ -25,7 +25,6 @@ function onRequest(request, response) {
 									parameter : ''
 	                              })
 	    ws.send(json);
-
   	};
 
  	ws.onmessage = function(event) {
