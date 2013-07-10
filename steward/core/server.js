@@ -165,7 +165,7 @@ var start = function(port, secureP) {
         return response.end(ct);
       }
 
-      pathname = __dirname + '/../sandbox/' + pathname.slice(1);
+      pathname = __dirname + '/../sandbox/' + decodeURI(pathname.slice(1));
 
       ct = mime.lookup(pathname);
 
@@ -185,23 +185,7 @@ var start = function(port, secureP) {
           return response.end(diagnostic);
         }
 
-/* 
- * i have a theory: 
- *
- * some browsers will not send the Authorize: header to load css/js, even though they've already sent it to get html
- *
- *
- */
-        if (ct === 'text/html') {
-          data = data.toString();
-          data = data.replace(/%%UUID%%/g, '?rendezvous=' + steward.uuid);
-/*
-          data = data.replace(/<script(.)* src='([^']*)'/gi, '<script\1 src=\'\$2?rendezvous=' + steward.uuid + '\'');
-          data = data.replace(/<script(.)* src="([^"]*)"/gi, '<script src="\$2?rendezvous=' + steward.uuid + '"');
-          data = data.replace(/<link(.)* href='([^']*)'/gi, '<link\1 href=\'\$2?rendezvous=' + steward.uuid + '\'');
-          data = data.replace(/<link(.)* href="([^"]*)"/gi, '<link href="\$2?rendezvous=' + steward.uuid + '"');
- */
-        }
+        if (ct === 'text/html') data = data.toString().replace(/%%UUID%%/g, '?rendezvous=' + steward.uuid);
 
         logger.info(tag, { code: 200, octets: data.length });
         response.writeHead(200, { 'Content-Type': ct });
