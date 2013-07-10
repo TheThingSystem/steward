@@ -614,37 +614,36 @@ var notice = function(message, meta) {
 };
 
 var go = function(location, i) {
-  var opened, ws, ws2, ws3;
+  var opened, ws, ws2;
   var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/console';
 
   notice(tag, { state: 'connecting...' });
 
   opened = 0;
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console' + location.search);
   ws2 = null;
-  ws3 = null;
 
   ws.onopen = function(event) {
-    var x;
-
     opened = 1;
     notice(tag, { state: 'open' });
 
-    ws2 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
+    ws2 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage' + location.search);
 
+// when going through a cloud server, need to throttle a bit...
     ws2.onopen = function(event) {
-      x = 2;
-      ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
-      ws2.send(JSON.stringify({ path: '/api/v1/actor/list/',    requestID: 2, options: { depth: 'all'  }}));
-//    ws2.send(JSON.stringify({ path: '/api/v1/user/list/',     requestID: 3, options: { depth: 'all'  }}));
+      setTimeout(function() {
+console.log('begin');
+        ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
+      }, 1000);
     };
 
     ws2.onmessage = function(event) {
-      var message;
+      var message, requestID;
 
       try {
         message = JSON.parse(event.data);
-        switch (message.requestID.toString()) {
+        requestID = message.requestID.toString();
+        switch (requestID) {
           case '1': onactivities(message); break;
           case '2': onactors(message);     break;
           default:  console.log(message);  break;
@@ -652,31 +651,19 @@ var go = function(location, i) {
       } catch (ex) {
         onupdate({ monitor: [{ date: new Date().toISOString(), level: 'error', message: ex.message, meta: { error: ex } }] });
       };
-      if (--x <= 0) {
-        setTimeout(function() {
-          x = 2;
+      setTimeout(function() {
+console.log((requestID !== '1') ? 'list activities' : 'list actors');
+        if (requestID !== '1') {
           ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
+        } else {
           ws2.send(JSON.stringify({ path: '/api/v1/actor/list/',    requestID: 2, options: { depth: 'all'  }}));
-        }, 5000);
-      }
+        }
+      }, 5000);
     };
 
-    ws2.onclose = function(event) {};
+    ws2.onclose = function(event) { ws.close(); };
 
-    ws2.onerror = function(event) {};
-
-
-    ws3 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/');
-
-    ws3.onopen = function(event) {}
-
-    ws3.onmessage = function(event) {
-//      console.log(event.data);
-    };
-
-    ws3.onclose = function(event) {};
-
-    ws3.onerror = function(event) {};
+    ws2.onerror = function(event) { ws.close(); };
   };
 
   ws.onmessage = function(event) {
@@ -694,7 +681,6 @@ var go = function(location, i) {
     try { ws.close (); } catch (ex) {}; ws = null;
 /*
     if (!!ws2) { try { ws2.close(); } catch (ex) {}; ws2 = null; }
-    if (!!ws3) { try { ws3.close(); } catch (ex) {}; ws3 = null; }
 */
     setTimeout (function() { go(location, i + 1); }, 5000);
   };
@@ -704,6 +690,7 @@ var main = function() {
   var location = { hostname : window.location.hostname
                  , port     : window.location.port
                  , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 , search   : '%%UUID%%'
                  };
 
   notice('start');

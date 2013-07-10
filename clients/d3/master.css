@@ -170,6 +170,13 @@ text {
   font: 10px sans-serif;
 }
 
+g text {
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        font-weight: normal;
+}
+
+
 div.actor { text-align: center; float: left;  width: 50px; height: 70px; overflow: hidden;}
 img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-color: #fff; overflow: hidden; }
 

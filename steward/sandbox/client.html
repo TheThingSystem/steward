@@ -134,12 +134,12 @@ var validate_test = function() {
 };
 
 var go = function(location, i) {
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage' + location.search);
 
   ws.onopen = function(event) {
-    ws.send(JSON.stringify({ path      : '/api/v1/user/prime/1/1'
-                           , requestID : add_callback(function(message) { console.log(message) })
-                           , fingerprint: '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
+    ws.send(JSON.stringify({ path        : '/api/v1/user/prime/1/1'
+                           , requestID   : add_callback(function(message) { console.log(message) })
+                           , fingerprint : '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
                            }));
 
     list_users(ws, function(message) { console.log(message) });
@@ -175,6 +175,7 @@ var main = function() {
   var location = { hostname : window.location.hostname
                  , port     : window.location.port
                  , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 , search   : '%%UUID%%'
                  };
 
   go(location, 1);

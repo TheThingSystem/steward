@@ -123,8 +123,7 @@ var start = function(port, secureP) {
 
       if (!routes[pathname]) {
         logger.warning(tag, { event: 'route', transient: false, diagnostic: 'unknown path: ' + pathname });
-        ws.close(404, 'not found');
-        return;
+        return ws.close(404, 'not found');
       }
 
 // NB: each route is responsible for access control, both at start and per-message
@@ -141,15 +140,29 @@ var start = function(port, secureP) {
       var meta = steward.clientInfo(request.connection, secureP);
 
       meta.event = 'request';
+      meta.method = request.method;
       logger.info(tag, meta);
+
+      if (request.method !== 'GET') {
+        logger.info(tag, { event: 'not-allowed', code: 405 });
+        response.writehead(405, { Allow: 'CONNECT' });
+        return response.end();
+      }
 
       if (pathname === '/') pathname= '/index.html';
 // TBD: uncomment this later on
       if (/* (!meta.local) || */ (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'not-allowed', code: 404 });
         response.writeHead(404, { 'Content-Type': 'text/plain' });
-        response.end('404 not found');
-        return;
+        return response.end('404 not found');
+      }
+
+      if (pathname === '/uuid.js') {
+        ct = 'var uuid = "' + steward.uuid + '";\n';
+
+        logger.info(tag, { code: 200, octets: ct.length });
+        response.writeHead(200, { 'Content-Type': 'application/javascript' });
+        return response.end(ct);
       }
 
       pathname = __dirname + '/../sandbox/' + pathname.slice(1);
@@ -169,8 +182,25 @@ var start = function(port, secureP) {
           }
           logger.info(tag, { code: code, diagnostic: err.message });
           response.writeHead(code, { 'Content-Type': 'text/plain' });
-          response.end(diagnostic);
-          return;
+          return response.end(diagnostic);
+        }
+
+/* 
+ * i have a theory: 
+ *
+ * some browsers will not send the Authorize: header to load css/js, even though they've already sent it to get html
+ *
+ *
+ */
+        if (ct === 'text/html') {
+          data = data.toString();
+          data = data.replace(/%%UUID%%/g, '?rendezvous=' + steward.uuid);
+/*
+          data = data.replace(/<script(.)* src='([^']*)'/gi, '<script\1 src=\'\$2?rendezvous=' + steward.uuid + '\'');
+          data = data.replace(/<script(.)* src="([^"]*)"/gi, '<script src="\$2?rendezvous=' + steward.uuid + '"');
+          data = data.replace(/<link(.)* href='([^']*)'/gi, '<link\1 href=\'\$2?rendezvous=' + steward.uuid + '\'');
+          data = data.replace(/<link(.)* href="([^"]*)"/gi, '<link href="\$2?rendezvous=' + steward.uuid + '"');
+ */
         }
 
         logger.info(tag, { code: 200, octets: data.length });
@@ -286,7 +316,6 @@ var rendezvous = function(hostname, port, params, portno) {
     if (didP) return;
     didP = true;
 
-
     setTimeout(function() { rendezvous(hostname, port, params, portno); }, secs * 1000);
   };
 
@@ -307,9 +336,10 @@ var rendezvous = function(hostname, port, params, portno) {
     logger.info('cloud connected to http://' + options.hostname + ':' + options.port);
 
     if (response.statusCode !== 200) {
-      logger.error('proxy', { event: 'response', code: response.statusCode, retry: '30 seconds' });
+      logger.error('proxy', { event: 'response', code: response.statusCode, retry: '15 seconds' });
+
       try { cloud.destroy(); } catch(ex) {}
-      return retry(30);
+      return retry(15);
     }
 
     cloud.setNoDelay(true);
@@ -334,17 +364,17 @@ var rendezvous = function(hostname, port, params, portno) {
 
       retry(0);
     }).on('error', function(err) {
-      logger.error('cloud', { event: 'error', diagnostic: err.message, retry: '15 seconds' });
+      logger.error('cloud', { event: 'error', diagnostic: err.message, retry: '5 seconds' });
 
-      retry(15);
+      retry(5);
     }).on('close', function(errorP) {
       if (errorP) logger.error('cloud', { event: 'close' }); else logger.debug('cloud', { event: 'close' }); 
 
       retry(1);
     });
   }).on('error', function(err) {
-    logger.error('cloud', { event: 'connect', diagnostic: err.message, retry: '30 seconds' });
+    logger.error('cloud', { event: 'connect', diagnostic: err.message, retry: '10 seconds' });
 
-    retry(30);
+    retry(10);
   }).end();
 };

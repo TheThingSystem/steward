@@ -632,7 +632,7 @@ var go = function(location, i) {
 // when going through a cloud server, need to throttle a bit...
     ws2.onopen = function(event) {
       setTimeout(function() {
-
+console.log('begin');
         ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
       }, 1000);
     };
@@ -652,7 +652,7 @@ var go = function(location, i) {
         onupdate({ monitor: [{ date: new Date().toISOString(), level: 'error', message: ex.message, meta: { error: ex } }] });
       };
       setTimeout(function() {
-
+console.log((requestID !== '1') ? 'list activities' : 'list actors');
         if (requestID !== '1') {
           ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
         } else {
@@ -690,7 +690,7 @@ var main = function() {
   var location = { hostname : window.location.hostname
                  , port     : window.location.port
                  , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                 , search   : window.location.search
+                 , search   : '%%UUID%%'
                  };
 
   notice('start');

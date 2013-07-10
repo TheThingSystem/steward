@@ -389,7 +389,7 @@ var go = function(location, i) {
 
   notice(tag, { state: 'connecting...' });
   opened = 0;
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage');
+  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage' + location.search);
 
   ws.onopen = function(event) {
     opened = 1;
@@ -425,6 +425,7 @@ var main = function() {
   var location = { hostname : window.location.hostname
                  , port     : window.location.port
                  , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 , search   : '%%UUID%%'
                  };
 
   notice('start');

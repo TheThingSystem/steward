@@ -135,7 +135,7 @@ var home = function(state) {
 
 
 var device_drilldown = function(name, devices, arcs, instructions) {
-  var chart, device, div, div2, entry, i, img, trayLeft, trayPages, trayWidth; //, labels, values;
+  var chart, device, div, div2, entry, i, img, trayLeft, trayPages, trayWidth;
   var iconWidth = 50; // Determine this algorithmically below
   var viewportWidth = iconWidth * 5;
   
@@ -168,10 +168,10 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     var actorWidth = 50;
     
 
-    multiple_arcs = arcs; //Preserve for multiple-foyer redraws
+    multiple_arcs = arcs; //Preserve for redrawing arcs
     arcs = null;
     
-    // Arrows elements for multis > 5
+    // Arrow elements for multis > 5
     if (devices.length > 5) {
 		div3 = document.createElement('div');
 		div3.setAttribute('id', 'left-arrow');
@@ -258,30 +258,31 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   }
   chart.appendChild(div);
   
-  multiple_drilldown_foyer(arcs);
+  drawArcs(arcs);
 }
 
-var multiple_drilldown_foyer = function(arcs) {
-  var arcz, chart, div, i, index, limit, labels, trayLeft, values;
+var drawArcs = function(arcs) {
+  var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
     
   chart = document.getElementById("chart");
-  if (document.getElementById("readings")) {
-    chart.removeChild(document.getElementById("labels"));
-    chart.removeChild(document.getElementById("readings"));
+  if (document.getElementById("arcCanvas")) {
+//     chart.removeChild(document.getElementById("labels"));
+//     chart.removeChild(document.getElementById("readings"));
     chart.removeChild(document.getElementById("arcCanvas"));
   }
 
-  div = document.createElement('div');
-  div.setAttribute('id', 'labels');
-  div.setAttribute('style',
-                   'position: absolute; top: 52px; left: 278px; width: 100px; text-align: right; font-weight: normal;');
+// Replaced by arced text below
+//   div = document.createElement('div');
+//   div.setAttribute('id', 'labels');
+//   div.setAttribute('style',
+//                    'position: absolute; top: 52px; left: 278px; width: 100px; text-align: right; font-weight: normal;');
   labels = '';
   values = '';
   arcz = [];
   if (!arcs) arcs = multiple_arcs;
   
   trayLeft = parseInt($("#image-tray").css("left"), 10);
-  if (isNaN(trayLeft)) {
+  if (isNaN(trayLeft) | arcs.length < 5) {
     i = 0;
     limit = arcs.length;
   } else {
@@ -291,24 +292,24 @@ var multiple_drilldown_foyer = function(arcs) {
   
   index = 0.7; // Reassign index values for arcs subset
   for (; i < limit; i++) {
-//  if (devices.length > 1) labels += arcs[i].id + ' - ';
-    labels += arcs[i].label + '<br />';
-    values += '<div class="label">' + arcs[i].cooked + '</div>';
+//     labels += arcs[i].label + '<br />';
+//     values += '<div class="label">' + arcs[i].cooked + '</div>';
     arcs[i].index = index;
     arcz.push(arcs[i]);
     index -= 0.1;
   }
   arcs = arcz;
-  
-  div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 90px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
-  chart.appendChild(div);
 
-  div = document.createElement('div');
-  div.setAttribute('id', 'readings');
-  div.setAttribute('style',
-                   'position: absolute; top: 56px; left: 392px; font-size: 12px; font-weight: normal; text-align: left; color: #fff;');
-  div.innerHTML = '<div class="labels">' + values + '</div>';
-  chart.appendChild(div);
+// Replaced by arced text below
+//   div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 90px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
+//   chart.appendChild(div);
+// 
+//   div = document.createElement('div');
+//   div.setAttribute('id', 'readings');
+//   div.setAttribute('style',
+//                    'position: absolute; top: 56px; left: 392px; font-size: 12px; font-weight: normal; text-align: left; color: #fff;');
+//   div.innerHTML = '<div class="labels">' + values + '</div>';
+//   chart.appendChild(div);
 
 
 // Based on http://vis.stanford.edu/protovis/ex/chart.html
@@ -322,13 +323,15 @@ var multiple_drilldown_foyer = function(arcs) {
       .range(["#9b00c1", "#006be6", "#009e99", "#00ba00", "#fc6a00", "#ffc600", "#ff3000"]);
 
   
-  for (i = 0; i < arcs.length; i++) {
-     arcz[i].start = 0;
-  }
-  
   var arc = d3.svg.arc()
       .startAngle(0)
       .endAngle(function(d) { return d.value * 2 * Math.PI; })
+      .innerRadius(function(d) { return d.index * r; })
+      .outerRadius(function(d) { return (d.index + s) * r; });
+
+  var arc2 = d3.svg.arc()
+      .startAngle(0)
+      .endAngle(function(d) { return 1.9999 * Math.PI; })
       .innerRadius(function(d) { return d.index * r; })
       .outerRadius(function(d) { return (d.index + s) * r; });
 
@@ -340,9 +343,10 @@ var multiple_drilldown_foyer = function(arcs) {
       .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")");
 
   var g = vis.selectAll("g")
-      .data(function() { return arcz; })
+      .data(function() { return arcs; })
     .enter().append("g");
 
+// Commented code part of attempt to animate/bounce arc drawing. To be continued...
 //   var path = g.selectAll("path")
 //   	  .data(arcz.filter(function(d) { return d.value; }), function(d) { return d.name; });
 //  
@@ -363,16 +367,64 @@ var multiple_drilldown_foyer = function(arcs) {
 //       .attrTween("d", arcTween)
 //       .remove();
  
+//   var path = vis.append("path")
+//       .attr("id", function(d,i){return "a"+i;})
+//       .attr("d", circle);
+      
   g.append("path")
       .style("fill", function(d, i) { return ((!!d.color) ? d.color : color(i)); })
       .attr("d", arc);
-      
+  
+  var g2 = g.append("path")
+      .style("fill", "none")
+      .style("stroke", "none")
+      .attr("id", function(d,i){return "a"+i;})
+      .attr("d", arc2);  
+    
+    // readings
+	var text = g.append("text")
+		.attr("text-anchor", "start")
+		.attr("dx", 4)
+		.attr("dy", 24)
+		.style("font-family", "Roadgeek 2005 Series D")
+		.style("font-size", "12px")
+		.style("color", "#fff");
+		
+	text.append("textPath")
+		.attr("stroke", "none")
+		.attr("fill","white")
+		.attr("xlink:href",function(d,i){return "#a"+i;})
+		.text(function(d,i){ return degreeSymbol(d.cooked) });
+           
+	// labels
+	var text2 = g.append("text")
+		.attr("text-anchor", "end")
+		.attr("dx", 75)
+		.attr("dy", 24)
+		.style("font-family", "Roadgeek 2005 Series D")
+		.style("font-size", "12px")
+		.style("color", "#fff");
+		
+	text2.append("textPath")
+		.attr("stroke","none")
+		.attr("fill","white")
+		.attr("startOffset", "50%")
+		.attr("xlink:href",function(d,i){return "#a"+i;})
+		.text(function(d,i){ return d.label });
+	
+    
 //   function arcTween(b) {
 //     var i = d3.interpolate( {value: b.start}, b);
 //     return function(t) {
 //       return arc(i(t));
 //     };
 //  }
+
+	function degreeSymbol(txt) {
+		var re = /\&deg;/gi;
+		txt = txt.replace(re, "°");
+		return txt;
+	}
 
 };
 
@@ -794,7 +846,7 @@ var gotoPage = function(evt) {
 		}, {
 			complete: function() {
 			    clearPager();
-			    multiple_drilldown_foyer();
+			    drawArcs();
 		        handleArrowVisibility();
 		    }
 		});
@@ -818,7 +870,7 @@ var handleArrow = function(evt) {
 			"left": "-=" + scrollAmount
 		}, {
 			complete: function() {
-				multiple_drilldown_foyer();
+				drawArcs();
 				handleArrowVisibility();
 			}
 		
@@ -828,7 +880,7 @@ var handleArrow = function(evt) {
 			"left": "+=" + scrollAmount
 		}, {
 			complete: function() {
-				multiple_drilldown_foyer();
+				drawArcs();
 				handleArrowVisibility();
 			}
 		});

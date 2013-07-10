@@ -5,10 +5,11 @@ var stringify   = require('json-stringify-safe')
   ;
 
 
+/*
 var logger = utility.logger('server');
+ */
 
-
-var console = function(ws, tag) {
+var console = function(ws, tag) {/* jshint unused: false */
 /* TBD: uncomment this later on
 // NB: access control hard-coded to local clients only
   if (!ws.clientInfo.local) {
