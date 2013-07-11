@@ -1,6 +1,7 @@
 #Setting Up the Rendezvous Server
 
-You do not need to have a domain name for your VPS; however, you must have a stable IP address (e.g., 'a.b.c.d').
+You do not need to have a domain name for your VPS;
+however, you must have a stable IP address (e.g., 'a.b.c.d').
 
 1. Get a [tarball](https://github.com/mrose17/node-rendezvous/archive/master.zip) of this repostory onto your local system,
 extract it, and then:
@@ -10,25 +11,7 @@ extract it, and then:
 
     Note that until we reach Step 7, all the commands will be run on your local system.
 
-2. Create a keypair for use by the registrar.
-There are many ways to do this, e.g.,
-
-        % openssl req -x509 -newkey rsa:2048 -keyout registrar.key -nodes \
-            -out registrar.crt -days 3650 -subj '/CN=a.b.c.d'
-        
-        % chmod  a-w registrar.key registrar.crt
-        
-        % chmod go-r registrar.key
-
-    creates a self-signed certificate:
-
-        registrar.crt
-
-    and the corresponding private key:
-
-        registrar.key
-
-3. Create a file called:
+2. Create a file called:
 
         vps.js
 
@@ -38,8 +21,8 @@ There are many ways to do this, e.g.,
           ;
 
         exports.options =
-          { registrarHost  : 'a.b.c.d'
-          , registrarPort  : 8898
+          { rendezvousHost : 'a.b.c.d'
+          , rendezvousPort : 8899
         
           , keyData        : fs.readFileSync('./registrar.key')
           , crtData        : fs.readFileSync('./registrar.crt')
@@ -47,11 +30,24 @@ There are many ways to do this, e.g.,
           , redisHost      : '127.0.0.1'
           , redisPort      : 6379
           , redisAuth      : ''
-
-          , rendezvousHost : 'a.b.c.d'
-          , rendezvousPort : 8899
           };
     
+3. Create a keypair for use by the rendezvous server:
+
+        % node make-cert.js
+
+        % chmod  a-w registrar.key registrar.crt
+
+        % chmod go-r registrar.key
+
+    to create a self-signed certificate:
+
+        registrar.crt
+
+    and the corresponding private key:
+
+        registrar.key
+
 4. We're nearly ready.
 The next step is to create entries in the database for the hidden servers.
 Running:
