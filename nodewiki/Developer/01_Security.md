@@ -93,6 +93,8 @@ and then HTTPS.
 * Once the HTTPS is negotiated, the client does an HTTP upgrade to WebSockets, and then authenticates itself.
 
 ### SSH access
+__Note that at present, _ssh_ is not implemented; please use _https_ instead.__
+
 Whenever the client connects to the steward for ssh access:
 
 * The client uses the mDNS ("_ssh._tcp." )  to identify the IP address and port number of the steward.

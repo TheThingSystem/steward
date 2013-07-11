@@ -1,5 +1,3 @@
-**THIS IS FOR REVIEW, NOT YET IMPLEMENTED (BUT SOON)**
-
 # The _Simple Thing_ Protocol
 For those things that are third-party programmable but lack an effective interface for steward management,
 the _Simple Thing_ protocol provides a mechanism for adding steward management.
@@ -36,7 +34,7 @@ The basics:
 
 Here are some examples. A request:
 
-    { path              : '/api/v1/pair'
+    { path              : '/api/v1/thing/hello/1'
     , requestID         : '1'
 
       // other parameters, if any, go here...
@@ -87,42 +85,43 @@ A detailed result:
 When an implementation detects a steward advertisement via multicast DNS,
 it establishes a WebSockets connection to the '/native' resources on the steward:
 
-    wss://IP:PORT/native
+    wss://IP:PORT/manage
 
 After verifying the signature,
 the implementation sends a _pair_ or _hello_ message,
 depending on whether it has paired with the steward before.
 
-**NOTE THAT ENCRYPTION IS NOT YET ENABLED**
-
 ### Pair implementation to steward
 
 The _pair_ message is sent when the implementation has not paired with the steward before:
 
-    { path              : '/api/v1/pair'
+    { path              : '/api/v1/thing/pair/UUID'
     , requestID         : '1'
-    , uuid              : '01234567-89ab-cdef-0123-4567890abcde'
-    , display           : 'nnnnnn'
+    , name              : '...'
+    , paringCode        : 'nnnnnn'
     }
 
+If the steward is configured to require a 'pairing code',
+then an administrator queries the 'place' actor to ascertain the current code and enters that into the implementation,
+which in turn sends it as the 'paringCode' parameter.
+
 When the steward receives the _pair_ message,
-it may render the 'display' parameter and ask an administrator to verify that the same string is being displayed by the
-implementation.
-If so (or if it chooses not to do so),
-it sends a simple result containing a passcode:
+it sends a simple result containing a information for future authentication:
 
     { requestID         : '1'
     , result            :
       { status          : 'success'
-      , passCode        : '...'
+      , thingID         : '...'
+      , params          : { ... }
       }
     }
 
-The _uuid_ and _passCode_ parameters must be retained by the implementation.
+The _thingID_ and _params_ parameters must be retained by the implementation.
 
-The implementation must now issue the _hello_ message using that passcode.
+The implementation must now issue the _hello_ message using those parameters.
 
-If the steward renders the 'display' parameter and an administrator declines to authorize the pairing,
+If the steward is configured to require a 'pairing code' and it does not match the 'pairingCode' parameter
+(or the parameter is not present),
 then an error response is returned:
 
     { requestID         : '1'
@@ -134,14 +133,16 @@ then an error response is returned:
 
 ### Implementation authenticates with steward
 
-When the implementation has a _uuid/passCode_ pairing,
+When the implementation has a _thingID/params_ pairing,
 the _hello_ message is sent to the steward:
 
-    { path              : '/api/v1/hello'
+    { path              : '/api/v1/thing/hello/thingID'
     , requestID         : '2'
-    , uuid              : '01234567-89ab-cdef-0123-4567890abcde'
-    , passcode          : 'XXXXXX'
+    , response          : 'XXXXXX'
     }
+
+where the 'thingID' suffix on the path was returned during pairing,
+and the 'params' parameter returned during pairing is used to generate the 'response' parameter.
 
 When the steward receives the _hello_ message,
 a simple result indicates that authentication is successful:
@@ -180,7 +181,7 @@ you __MUST__ read the section on _Taxonomy_ in [Devices](Devices.md).
 
 The _prototype_ message is sent by the implementation to the steward to define one or more thing prototypes:
 
-    { path              : '/api/v1/prototype'
+    { path              : '/api/v1/thing/prototype'
     , requestID         : '3'
     , things            :
       { '/device/A/B/C' :
@@ -234,7 +235,7 @@ or
 
 The _register_ message is sent by the implementation to the steward to register one or more things corresponding to a prototype:
 
-    { path              : '/api/v1/register'
+    { path              : '/api/v1/thing/register'
     , requestID         : '4'
     , things            :
       { 't1'            :
@@ -310,7 +311,7 @@ The _thingID_ value is used by both the steward and implementation when referrin
 ### Update Properties
 The _update_ message is sent by the implementation to the steward to update the state of a thing:
 
-    { path              : '/api/v1/update'
+    { path              : '/api/v1/thing/update'
     , requestID         : '5'
     , things            :
       { 'thingID2'      :
@@ -358,7 +359,7 @@ or
 ### Observe and Report Events
 The _observe_ message is sent by the steward to the implementation to ask it to observe one or more events:
 
-    { path              : '/api/v1/observe'
+    { path              : '/api/v1/thing/observe'
     , requestID         : '6'
     , events            :
       { 'eventID1'      :
@@ -409,7 +410,7 @@ the _eventID_ value is used by both the steward and implementation when referrin
 
 Whenever any of the events occur in the future, will send an _report_ message to the steward:
 
-    { path              : '/api/v1/report'
+    { path              : '/api/v1/thing/report'
     , requestID         : '7'
     , events            :
       { 'eventID1'      :
@@ -450,7 +451,7 @@ or
 #### Report Event Observation Failure
 If the implementation is no longer able to observe an event:
 
-    { path              : '/api/v1/report'
+    { path              : '/api/v1/thing/report'
     , requestID         : '8'
     , events            :
       { 'eventID1'      :
@@ -478,7 +479,7 @@ and the steward responds with a detailed result response:
 #### Cancel Event Observation
 If the steward no longer wishes for the implementation to observe an event:
 
-    { path              : '/api/v1/report'
+    { path              : '/api/v1/thing/report'
     , requestID         : '9'
     , events            :
       { 'eventID1'      :
@@ -517,7 +518,7 @@ or
 ### Perform Tasks
 The _perform_ message is sent by the steward to the implementation to ask it to observe one or more tasks:
 
-    { path              : '/api/v1/perform'
+    { path              : '/api/v1/thing/perform'
     , requestID         : '10'
     , tasks             :
       { 'taskID1'       :
@@ -570,6 +571,6 @@ Security is based on these assumptions:
 
 * An authorized person is responsible for pairing the implementation to the steward.
 
-* Both the steward and the implementation keep the _uuid/passCode_ pairing secure.
+* Both the steward and the implementation keep the _userID/pairing_ pairing secure.
 
 * The cryptographic algorithms used for the secure WebSockets connection are, in fact, secure.

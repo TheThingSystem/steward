@@ -35,7 +35,7 @@ var tick = function() {
     observed.push(eventID);
 
     if (!!event.interval) {
-      try { next = event.interval.next().getTime(); } catch (ex) {
+      try { next = event.interval.next().getTime(); } catch(ex) {
         steward.report(eventID, { message: 'getTime failed', error: ex });
         delete(events[eventID]);
         continue;
@@ -129,7 +129,7 @@ var Place = exports.Place = function(info) {
 
   if (!(self instanceof Place)) return new Place(info);
 
-  if (!place1) place1 = self;
+  if (!place1) place1 = exports.place1 = self;
 
   self.whatami = info.deviceType;
 // NB: begin hack to allow us to use Device.proto.setInfo();
@@ -143,6 +143,8 @@ var Place = exports.Place = function(info) {
   delete(self.info.id);
   delete(self.info.deviceType);
   delete(self.info.device);
+  if (!self.info.pairing) self.info.pairing = 'on';
+  if (self.info.pairing !== 'code') delete(self.info.pairingCode); else self.makecode();
 
   self.proplist = function() {
     var eventID, i, info;
@@ -245,7 +247,7 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
 };
 
 Place.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
+  var params, previous;
 
   if (perform !== 'set') return false;
 
@@ -260,11 +262,24 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.coordinates) place1.info.coordinates = params.coordinates;
 // TBD: look at all 'solar' events and set the timer accordingly...
 
+  if (!!params.pairing) {
+    previous = place1.info.pairing;
+
+    if ({ off  : true
+        , on   : true
+        , code : true }[params.pairing]) place1.info.pairing = params.pairing;
+         if (place1.info.pairing !== 'code') delete(self.info.pairingCode);
+    else if ((place1.info.pairing === 'code') && (previous !== 'code')) self.makecode();
+  }
+
   self.setInfo();
 
   return steward.performed(taskID);
 };
 
+Place.prototype.makecode = function() {
+  this.info.pairingCode = ('000000' + Math.round(Math.random() * 999999)).substr(-6);
+};
 
 var scan = function() {
   var now, previous, times;
@@ -298,9 +313,11 @@ var scan = function() {
   else                                                                  place1.info.solar = 'kairos';
 
   if (previous !== place1.info.solar) place1.changed();
+
+  if (place1.info.pairing === 'code') place1.makecode();
+
   setTimeout(scan, 60 * 1000);
 };
-
 
 var validate_observe = function(observe, parameter) {
   var pair
@@ -364,6 +381,12 @@ var validate_perform = function(perform, parameter) {
     if ((params.coordinates[1] < -180) || (params.coordinates[1] > 180)) result.invalid.push('longitude');
   }
 
+  if (!!params.pairing) {
+    if (!{ off  : true
+         , on   : true
+         , code : true }[parameter]) result.invalid.push('parameter');
+  }
+
   return result;
 };
 
@@ -375,6 +398,8 @@ exports.start = function() {
                     , perform    : [ ]
                     , properties : { name        : true
                                    , status      : [ 'green', 'blue', 'indigo', 'red' ]
+                                   , pairing     : [ 'off', 'on', 'code' ]
+                                   , pairingCode : true
                                    , physical    : true
                                    , coordinates : 'latlng'
                                    , solar       : [ 'dawn'

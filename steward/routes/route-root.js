@@ -18,7 +18,7 @@ var route = function(ws, tag) {
     }
 
     message = null;
-    try { message = JSON.parse(data); } catch (ex) {
+    try { message = JSON.parse(data); } catch(ex) {
       manage.loser(ws, tag, { event: 'data', diagnostic: ex.message });
     }
     if (!message) { return; }
@@ -58,7 +58,7 @@ var route = function(ws, tag) {
     }
   }
 
-  try { ws.send(JSON.stringify({ requestID: 0, result: results })); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify({ requestID: 0, result: results })); } catch(ex) { console.log(ex); }
 };
 
 

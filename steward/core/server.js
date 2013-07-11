@@ -352,7 +352,7 @@ var rendezvous = function(hostname, port, params, portno) {
 
       retry(5);
     }).on('close', function(errorP) {
-      if (errorP) logger.error('cloud', { event: 'close' }); else logger.debug('cloud', { event: 'close' }); 
+      if (errorP) logger.error('cloud', { event: 'close' }); else logger.debug('cloud', { event: 'close' });
 
       retry(1);
     });

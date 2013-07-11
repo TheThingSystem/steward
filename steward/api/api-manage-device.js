@@ -31,7 +31,7 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.whatami.length)                              return error(true,  'empty whatami element');
   parts = message.whatami.split('/');
   actor = actors;
-  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch (ex) { actor = null; }
+  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
   if (!actor)                                               return error(false, 'invalid device ' + message.whatami);
 
   if (!message.info) message.info = {};
@@ -49,7 +49,7 @@ var create = function(logger, ws, api, message, tag) {
   devices.discover(info, function(err, deviceID) {
     var results = { requestID: message.requestID };
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
     if (err)                                                return error(false, err.message);
     if (!deviceID)                                          return error(false, 'duplicate uuid');
@@ -58,7 +58,7 @@ var create = function(logger, ws, api, message, tag) {
            { $deviceID: deviceID, $key: 'info', $value: JSON.stringify(info) });
 
     results.result = { device: deviceID };
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;
@@ -130,7 +130,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
     if (doneP) break;
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -158,7 +158,7 @@ var perform = function(logger, ws, api, message, tag) {
 
   parts = device.whatami.split('/');
   actor = actors;
-  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch (ex) { actor = null; }
+  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
   if (!actor)                                               return error(false, 'invalid device ' + device.whatami);
 
   if (!!actor.$validate.perform) {
@@ -170,7 +170,7 @@ var perform = function(logger, ws, api, message, tag) {
   performed = (!!device.perform) ? (device.perform)(device, null, message.perform, message.parameter) : false;
   results.result = { status: performed ? 'success' : 'failure' };
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -198,7 +198,7 @@ var readyP = function() {
       return;
     }
     rows.forEach(function(row) {
-      try { devices.discover(JSON.parse(row.value)); } catch (ex) {
+      try { devices.discover(JSON.parse(row.value)); } catch(ex) {
         logger.error('device/' + row.deviceID, { event: 'JSON.parse', data: row.value, diagnostic: ex.message });
       }
     });
