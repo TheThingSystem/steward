@@ -129,7 +129,7 @@ var Place = exports.Place = function(info) {
 
   if (!(self instanceof Place)) return new Place(info);
 
-  if (!place1) place1 = exports.place1 = place1;
+  if (!place1) place1 = exports.place1 = self;
 
   self.whatami = info.deviceType;
 // NB: begin hack to allow us to use Device.proto.setInfo();
