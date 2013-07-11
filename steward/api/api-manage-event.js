@@ -52,7 +52,7 @@ var create = function(logger, ws, api, message, tag) {
   events[uuid] = {};
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   db.run('INSERT INTO events(eventUID, eventName, eventComments, actorType, actorID, observe, parameter, created) '
          + 'VALUES($eventUID, $eventName, $eventComments, $actorType, $actorID, $observe, $parameter, datetime("now"))',
@@ -64,7 +64,7 @@ var create = function(logger, ws, api, message, tag) {
       delete(events[uuid]);
       logger.error(tag, { event: 'INSERT events.eventUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
       return;
     }
 
@@ -86,7 +86,7 @@ var create = function(logger, ws, api, message, tag) {
                    , lastTime      : null
                    };
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;
@@ -192,7 +192,7 @@ var list = function(logger, ws, api, message, tag) {
     }
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -212,7 +212,7 @@ var remove = function(logger, ws, api, message, tag) {
   delete(events[event.eventUID]);
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   db.run('DELETE FROM events WHERE eventID=$eventID', { $eventID: eventID }, function(err) {
     if (err) {
@@ -223,7 +223,7 @@ var remove = function(logger, ws, api, message, tag) {
       results.result = { event: eventID };
     }
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;

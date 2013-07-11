@@ -35,7 +35,7 @@ var tick = function() {
     observed.push(eventID);
 
     if (!!event.interval) {
-      try { next = event.interval.next().getTime(); } catch (ex) {
+      try { next = event.interval.next().getTime(); } catch(ex) {
         steward.report(eventID, { message: 'getTime failed', error: ex });
         delete(events[eventID]);
         continue;

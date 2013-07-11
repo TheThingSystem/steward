@@ -62,7 +62,7 @@ var create = function(logger, ws, api, message, tag) {
   tasks[uuid] = {};
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   db.run('INSERT INTO tasks(taskUID, taskName, taskComments, actorType, actorID, perform, parameter, guardType, guardID, '
          + 'created) '
@@ -77,7 +77,7 @@ var create = function(logger, ws, api, message, tag) {
       delete(tasks[uuid]);
       logger.error(tag, { task: 'INSERT tasks.taskUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
       return;
     }
 
@@ -100,7 +100,7 @@ var create = function(logger, ws, api, message, tag) {
                   , lastTime     : null
                   };
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;
@@ -229,7 +229,7 @@ var list = function(logger, ws, api, message, tag) {
     }
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -299,7 +299,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
 
     parts = entity.whatami.split('/');
     actor = actors;
-    try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch (ex) { actor = null; }
+    try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
     if (!actor) {
       results.devices[member.actor] = { status: 'failure', permanent: false, diagnostic: 'unknown performer ' + member.actor };
       continue;
@@ -317,7 +317,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
     results.devices[member.actor] = { status: performed ? 'success' : 'failure' };
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -337,7 +337,7 @@ var remove = function(logger, ws, api, message, tag) {
   delete(tasks[task.taskUID]);
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   db.run('DELETE FROM tasks WHERE taskID=$taskID', { $taskID: taskID }, function(err) {
     if (err) {
@@ -348,7 +348,7 @@ var remove = function(logger, ws, api, message, tag) {
       results.result = { task: taskID };
     }
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;

@@ -28,7 +28,7 @@ var route = function(ws, tag) {
     }
 
     message = null;
-    try { message = JSON.parse(data); } catch (ex) {
+    try { message = JSON.parse(data); } catch(ex) {
       loser(ws, tag, { event: 'data', diagnostic: ex.message });
     }
     if (!message) { return; }
@@ -72,7 +72,7 @@ var route = function(ws, tag) {
     }
 
     logger.info(tag, { message: message });
-    if (!(best.route)(logger, ws, best, message, tag)) try { ws.close(); } catch (ex) {}
+    if (!(best.route)(logger, ws, best, message, tag)) try { ws.close(); } catch(ex) {}
   });
 };
 
@@ -111,7 +111,7 @@ var error = exports.error = function(ws, tag, event, requestID, permanent, diagn
 
   if (requestID) meta.requestID = requestID;
   ws.send(JSON.stringify(meta), function(err) {
-    if (err) try { ws.terminate(); } catch (ex) {}
+    if (err) try { ws.terminate(); } catch(ex) {}
 
     meta.event = event;
     logger.warning(tag, meta);
@@ -125,7 +125,7 @@ var loser = exports.loser = function(ws, tag, meta) {
   meta.permanent = true;
   logger.error(tag, meta);
 
-  try { ws.close(); } catch (ex) {}
+  try { ws.close(); } catch(ex) {}
 };
 
 

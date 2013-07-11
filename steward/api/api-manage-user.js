@@ -7,8 +7,8 @@ var fs          = require('fs')
   , server      = require('./../core/server')
   , steward     = require('./../core/steward')
   , manage      = require('./../routes/route-manage')
+  , utility     = require('./../core/utility')
   ;
-
 
 
 var users   = {};
@@ -16,8 +16,8 @@ var clients = {};
 var keys    = { x509: { key: '', crt: '' }, ssh: { key: '', pub: ''} };
 
 
-var create = function(logger, ws, api, message, tag) {
-  var client, createP, data, options, name, pair, results, user, uuid;
+var create = exports.create = function(logger, ws, api, message, tag, internalP) {
+  var client, createP, data, options, name, pair, params, results, user, uuid;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user creation', message.requestID, permanent, diagnostic);
@@ -25,19 +25,21 @@ var create = function(logger, ws, api, message, tag) {
 
   if (!exports.db)                                          return error(false, 'database not ready');
 
+  internalP = internalP || false;
   uuid = message.path.slice(api.prefix.length + 1);
   if (uuid.length === 0)                                    return error(true,  'missing uuid');
   if (!message.name)                                        return error(true,  'missing name element');
   if (!message.name.length)                                 return error(true,  'empty name element');
+  name = message.name;
 
   if (uuid.indexOf('/') === -1) {
     user = null;
 
-    if ((message.name.search(/\s/)      !== -1)
-          || (message.name.indexOf('-') ===  0)
-          || (message.name.indexOf('/') !== -1)
-          || (message.name.indexOf('.') !== -1)
-          || (message.name.indexOf(':') !== -1))            return error(true,  'invalid name element');
+    if ((name.search(/\s/)      !== -1)
+          || (name.indexOf('-') ===  0)
+          || (name.indexOf('/') !== -1)
+          || ((name.indexOf('.') !== -1) && ((!internalP) || (name.indexOf('.') !== 0)))
+          || (name.indexOf(':') !== -1))            return error(true,  'invalid name element');
 
     if (!message.comments) message.comments = '';
 
@@ -53,7 +55,7 @@ var create = function(logger, ws, api, message, tag) {
     if (!message.clientName) message.clientName = '';
 
     if (!!users[uuid])                                      return error(false, 'duplicate uuid');
-    if (!!name2user(message.name))                          return error(false, 'duplicate name');
+    if (!!name2user(name))                                  return error(false, 'duplicate name');
     users[uuid] = {};
   } else {
     pair = uuid.split('/');
@@ -63,8 +65,6 @@ var create = function(logger, ws, api, message, tag) {
 
     uuid = pair[1];
     if (uuid.length === 0)                                  return error(true,  'invalid uuid');
-
-    name = message.name;
 
     if (!message.comments) message.comments = '';
 
@@ -76,10 +76,12 @@ var create = function(logger, ws, api, message, tag) {
   client = id2user(ws.clientInfo.userID);
   createP = ws.clientInfo.loopback
            || ((!!client) && (client.role === 'master'))
-           || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet);
+           || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet)
+           || (internalP && ws.clientInfo.local);
+/* TBD: verify permitted later on */
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   options = { length         : 40
             , random_bytes   : false
@@ -89,13 +91,17 @@ var create = function(logger, ws, api, message, tag) {
             , issuer         : 'steward'
             };
   data = speakeasy.generate_key(options);
-  results.result = { authenticatorURL : data.google_auth_qr
-                   , otpURL           : data.url()
-                   };
+  if (!internalP) results.result = { authenticatorURL: data.google_auth_qr, otpURL: data.url() };
+  else {
+    params = utility.clone(data.params);
+    params.base32 = data.base32;
+    params.protocol = 'totp';
+    results.result = { params: params };
+  }
 
   if (!!user) {
     results.result.user = user.userID;
-    create2(logger, ws, user, results, tag, uuid, name, message.comments, data);
+    create2(logger, ws, user, results, tag, uuid, name, message.comments, data, internalP);
 
     return true;
   }
@@ -110,7 +116,7 @@ var create = function(logger, ws, api, message, tag) {
       delete(users[uuid]);
       logger.error(tag, { user: 'INSERT users.userUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
       return;
     }
 
@@ -126,13 +132,13 @@ var create = function(logger, ws, api, message, tag) {
                   , clients        : []
                   };
 
-    create2(logger, ws, users[uuid], results, tag, uuid, message.clientName, '', data);
+    create2(logger, ws, users[uuid], results, tag, uuid, message.clientName, '', data, internalP);
   });
 
   return true;
 };
 
-var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientComments, data) {
+var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientComments, data, internalP) {
   var x;
 
   exports.db.run('INSERT INTO clients(clientUID, clientUserID, clientName, clientComments, clientAuthAlg, clientAuthParams, '
@@ -147,7 +153,7 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
     if (err) {
       logger.error(tag, { user: 'INSERT clients.clientUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
       return;
     }
 
@@ -165,8 +171,10 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
     });
 
     results.result.client = clientID;
-    results.result.authenticatorURL = data.google_auth_qr;
-    results.result.otpURL = data.url();
+    if (!internalP) {
+      results.result.authenticatorURL = data.google_auth_qr;
+      results.result.otpURL = data.url();
+    }
     clients[uuid] = { clientID         : clientID
                     , clientUID        : uuid
                     , clientUserID     : user.userID
@@ -179,7 +187,7 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
                   };
     user.clients.push(clientID);
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 };
 
@@ -217,11 +225,11 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
     }
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
-var authenticate = function(logger, ws, api, message, tag) {
+var authenticate = exports.authenticate = function(logger, ws, api, message, tag) {
   var client, clientID, date, meta, now, otp, pair, results, user;
 
   var error = function(permanent, diagnostic) {
@@ -287,7 +295,7 @@ var authenticate = function(logger, ws, api, message, tag) {
     });
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -347,7 +355,7 @@ var prime = function(logger, ws, api, message, tag) {
     if (err) {
       logger.error(tag, { user: 'ssh_keygen', diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
       return;
     }
 
@@ -363,7 +371,7 @@ var prime = function(logger, ws, api, message, tag) {
       if (err) {
         logger.error(tag, { user: 'x509_keygen', diagnostic: err.message });
         results.error = { permanent: false, diagnostic: 'internal error' };
-        try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+        try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
         return;
       }
 
@@ -391,17 +399,17 @@ var prime = function(logger, ws, api, message, tag) {
                        , ssh  : { fingerprint : sshprint }
                        , x509 : { certificate : x509key.cert }
                        };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
     });
   });
 }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
 
-var name2user = function(name) {
+var name2user = exports.name2user = function(name) {
   var uuid;
 
   if (!!name) for (uuid in users) if ((users.hasOwnProperty(uuid)) && (name === users[uuid].userName)) return users[uuid];
@@ -615,8 +623,6 @@ exports.start = function() {
                                 ]
                    });
 };
-
-
 
 
 var fetch = function() {

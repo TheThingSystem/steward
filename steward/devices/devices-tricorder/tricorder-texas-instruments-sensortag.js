@@ -1,4 +1,4 @@
-// 
+//
 // http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
 
 var util        = require('util')
@@ -60,6 +60,7 @@ util.inherits(SensorTag, tricorder.Device);
 
 
 SensorTag.prototype.observe = function(self, eventID, observe, parameter) {
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -72,26 +73,27 @@ SensorTag.prototype.observe = function(self, eventID, observe, parameter) {
       break;
   }
 
-}
+};
 
 SensorTag.prototype.perform = function(self, taskID, perform, parameter) {
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
     if (!!params.name) {
-		self.setName(params.name);
-	}
+                self.setName(params.name);
+        }
     return steward.performed(taskID);
   }
 
   if (perform === 'accelerometer') {
-	
+
     return steward.performed(taskID);
   }
 
   return false;
-}
+};
 
 
 var validate_observe = function(observe, parameter) {
@@ -111,10 +113,10 @@ var validate_perform = function(perform, parameter) {
     result.requires.push('parameter');
     return result;
   }
-  try { 
-	params = JSON.parse(parameter); 
-  } catch(ex) { 
-	result.invalid.push('parameter'); 
+  try {
+        params = JSON.parse(parameter);
+  } catch(ex) {
+        result.invalid.push('parameter');
   }
 
   if (perform === 'set') {
@@ -136,12 +138,12 @@ exports.start = function() {
                     , properties : { name   : true
                                    , status : [ 'present', 'absent', 'idle' ]
                                    , rssi   : 's8'
-								   , lastSample: 'timestamp'
-								   , accelerometer: 'meters/second'
+                                                                   , lastSample: 'timestamp'
+                                                                   , accelerometer: 'meters/second'
                                    }
                     }
-		, $observe : { observe    : validate_observe }
-		, $validate : { perform    : validate_perform }
+                , $observe : { observe    : validate_observe }
+                , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/tricorder/texas-instruments/sensortag'] = SensorTag;
 
@@ -151,4 +153,3 @@ exports.start = function() {
                                   }
     });
 };
-

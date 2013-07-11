@@ -94,7 +94,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
     }
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -194,7 +194,7 @@ var perform = function(logger, ws, api, message, tag) {
 
     parts = entity.whatami.split('/');
     actor = actors;
-    try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch (ex) { actor = null; }
+    try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
     if (!actor) {
       results.actors[who] = { status: 'failure', permanent: false, diagnostic: 'unknown performer ' + who };
       continue;
@@ -212,7 +212,7 @@ var perform = function(logger, ws, api, message, tag) {
     results.actors[who] = { status: performed ? 'success' : 'failure' };
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 

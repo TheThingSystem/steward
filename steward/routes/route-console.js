@@ -25,10 +25,10 @@ var console = function(ws, tag) {/* jshint unused: false */
     var data = {};
     data[category] = [ datum ];
 
-    ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch (ex) {} });
+    ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} });
   });
 
-  try { ws.send(stringify(utility.signals)); } catch (ex) {}
+  try { ws.send(stringify(utility.signals)); } catch(ex) {}
   broker.publish('actors', 'ping');
 };
 

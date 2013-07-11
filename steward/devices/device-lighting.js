@@ -26,19 +26,6 @@ exports.validRGB         = function(rgb) {
 };
 
 
-exports.cie1931 = function(coordinates) {
-  var i;
-
-  if ((!util.isArray(coordinates)) || (coordinates.length != 2)) return [ 0, 0 ];
-  for (i = 0; i < coordinates.length; i++) {
-    if (coordinates[i] < 0) coordinates[i] = 0;
-    else if (coordinates[i] > 1) coordinates[i] = 1;
-  }
-
-  return coordinates;
-};
-
-
 var Lighting = exports.Device = function() {
   var self = this;
 
@@ -273,6 +260,18 @@ var colors = function () {
      * Publicly accessible functions exposed as API.
      */
     return {
+        cie1931 : function(coordinates) {
+            var i;
+
+            if ((!util.isArray(coordinates)) || (coordinates.length != 2)) return [ 0, 0 ];
+            for (i = 0; i < coordinates.length; i++) {
+              if (coordinates[i] < 0) coordinates[i] = 0;
+              else if (coordinates[i] > 1) coordinates[i] = 1;
+            }
+
+            return coordinates;
+        },
+
         /**
          * Converts hexadecimal colors represented as a String to approximate
          * CIE 1931 coordinates. May not produce accurate values.
@@ -325,7 +324,8 @@ var colors = function () {
         hexFullRed:     "FF0000",
         hexFullGreen:   "00FF00",
         hexFullBlue:    "0000FF",
-        hexFullWhite:   "FFFFFF"
+        hexFullWhite:   "FFFFFF",
+        hexIndigo:      "4B0082" 
     };
 };
 

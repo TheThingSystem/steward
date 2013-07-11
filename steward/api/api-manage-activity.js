@@ -76,7 +76,7 @@ var create = function(logger, ws, api, message, tag) {
   activities[uuid] = {};
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   db.run('INSERT INTO activities(activityUID, activityName, activityComments, armed, eventType, eventID, taskType, '
          + 'taskID, created) '
@@ -91,7 +91,7 @@ var create = function(logger, ws, api, message, tag) {
       delete(activities[uuid]);
       logger.error(tag, { event: 'INSERT activities.activityUID for ' + uuid, diagnostic: err.message });
       results.error = { permanent: false, diagnostic: 'internal error' };
-      try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
       return;
     }
 
@@ -112,7 +112,7 @@ var create = function(logger, ws, api, message, tag) {
                        , lastTime         : null
                        };
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;
@@ -239,7 +239,7 @@ var list = function(logger, ws, api, message, tag) {
     }
   }
 
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
@@ -288,7 +288,7 @@ var remove = function(logger, ws, api, message, tag) {
   delete(activities[activity.activityUID]);
 
   results = { requestID: message.requestID };
-  try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   db.run('DELETE FROM activities WHERE activityID=$activityID', { $activityID: activityID }, function(err) {
     if (err) {
@@ -299,7 +299,7 @@ var remove = function(logger, ws, api, message, tag) {
       results.result = { activity: activityID };
     }
 
-    try { ws.send(JSON.stringify(results)); } catch (ex) { console.log(ex); }
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 
   return true;
