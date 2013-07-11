@@ -1,5 +1,7 @@
 #Protocol specifications
 
+_INSERT [IMAGE OF PROTOCOL](protocol.png) HERE_
+
 The protocols is outlined below:
 
 1. The rendezvous server resides at a well-known location in the Internet, e.g.,
