@@ -1,4 +1,5 @@
 var manage      = require('./../routes/route-manage')
+  , places      = require('./../actors/actor-place')
   , steward     = require('./../core/steward')
   , users       = require('./api-manage-user')
   ;
@@ -10,16 +11,14 @@ var pair = function(logger, ws, api, message, tag) {
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing pairing', message.requestID, permanent, diagnostic);
   };
-  
-console.log(message);
+
   if (!message.name)                                        return error(true,  'missing name element');
   if (!message.name.length)                                 return error(true,  'empty name element');
 
-/* TBD: flesh this out... */
   if (!!message.pairingCode) {
-    if ((!message.pairingCode.length))                      return error(true,  'empty pairingCode element');
-  } else {
-  }
+    if ((!!places.place1.info.pairingCode) && (places.place1.info.pairingCode != message.pairingCode))
+                                                            return error(false, 'invalid pairingCode element');
+  } else if (!!places.place1.info.pairingCode)              return error(true,  'missing pairingCode element');
 
   user = users.name2user('.things');
   return users.create(logger,
@@ -44,7 +43,7 @@ var pair2 = function(logger, ws, data, tag) {
   try { message = JSON.parse(data); } catch(ex) {
     return manage.error(ws, tag, 'thing pairing', message.requestID, true, 'internal error');
   }
-  
+
   if ((!!message) && (!!message.result) && (!message.error)) {
     message.result.success = true;
     message.result.thingID = message.result.client;
@@ -84,7 +83,7 @@ var hello2 = function(logger, ws, data, tag) {
   try { message = JSON.parse(data); } catch(ex) {
     return manage.error(ws, tag, 'thing hello', message.requestID, true, 'internal error');
   }
-  
+
   if ((!!message) && (!!message.result) && (!message.error)) {
     message.result.success = true;
     delete(message.result.userID);

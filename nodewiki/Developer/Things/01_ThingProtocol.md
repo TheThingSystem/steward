@@ -133,7 +133,7 @@ then an error response is returned:
 
 ### Implementation authenticates with steward
 
-When the implementation has a _uuid/passCode_ pairing,
+When the implementation has a _thingID/params_ pairing,
 the _hello_ message is sent to the steward:
 
     { path              : '/api/v1/thing/hello/thingID'
@@ -571,6 +571,6 @@ Security is based on these assumptions:
 
 * An authorized person is responsible for pairing the implementation to the steward.
 
-* Both the steward and the implementation keep the _uuid/passCode_ pairing secure.
+* Both the steward and the implementation keep the _userID/pairing_ pairing secure.
 
 * The cryptographic algorithms used for the secure WebSockets connection are, in fact, secure.

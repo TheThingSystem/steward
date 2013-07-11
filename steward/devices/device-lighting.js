@@ -325,7 +325,7 @@ var colors = function () {
         hexFullGreen:   "00FF00",
         hexFullBlue:    "0000FF",
         hexFullWhite:   "FFFFFF",
-        hexIndigo:      "4B0082" 
+        hexIndigo:      "4B0082"
     };
 };
 
