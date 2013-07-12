@@ -137,7 +137,13 @@ exports.start = function() {
     db.run('CREATE TRIGGER IF NOT EXISTS t26 AFTER DELETE ON groups BEGIN '
            + 'DELETE FROM activities WHERE eventType="group" AND eventID=OLD.groupID; '
            + 'DELETE FROM activities WHERE taskType="group"  AND taskID=OLD.groupID; '
-           + 'END', function(err) {
+           + 'END');
+
+    db.run('CREATE TABLE IF NOT EXISTS things(thingID INTEGER PRIMARY KEY ASC, thingUID TEXT, '
+           + 'thingName TEXT, thingComments TEXT DEFAULT "", thingDefinition TEXT'
+           + 'sortOrder INTEGER DEFAULT "0", '
+           + 'created CURRENT_TIMESTAMP, updated CURRENT_TIMESTAMP'
+           + ')', function(err) {
       if (err) return logger.error('database', { event: 'database initialization', diagnostic: err.message });
 
       exports.db = db;

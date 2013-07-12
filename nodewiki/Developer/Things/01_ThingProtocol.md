@@ -69,7 +69,7 @@ A detailed result:
     { requestID         : '10'
     , tasks             :
       { 'taskID1'       :
-        { 'status'      : 'success'
+        { status        : 'success'
         }
       , 'taskID2'       :
         { error         :
@@ -187,10 +187,10 @@ The _prototype_ message is sent by the implementation to the steward to define o
       { '/device/A/B/C' :
         { observe       : [ 'o1', 'o2', ..., 'oN' ]
         , perform       : [ 'p1', 'p2', ..., 'pN' ]
+        , name          : true
+        , status        : [ 's1', 's2', ..., 'sN' ]
         , properties    :
-          { name        : true
-          , status      : [ 's1', 's2', ..., 'sN' ]
-
+          { 
             // other properties go here...
           }
         , validate      :
@@ -238,8 +238,8 @@ The _register_ message is sent by the implementation to the steward to register 
     { path              : '/api/v1/thing/register'
     , requestID         : '4'
     , things            :
-      { 't1'            :
-        { prototype     : '/device/A/B/C' :
+      { 'thingID1'      :
+        { devicetype    : '/device/A/B/C'
         , name          : '...'
         , status        : '...'
         , device        :
@@ -283,8 +283,8 @@ e.g.,
     { requestID         : '4'
     , things            :
       { 't1'            :
-        { 'status'      : 'success'
-          'thingID'     : 'thingID1'
+        { status        : 'success'
+          thingID       : 'thingID1'
         }
 
         // other results, if any, go here...
@@ -295,9 +295,9 @@ or
 
     { requestID         : '4'
     , things            :
-      { 't1'          :
+      { 't1'            :
         { error         :
-          { permanent   : true
+          { permanent   : false
           , diagnostic  : 'UDN is already registered'
           }
         }
@@ -334,7 +334,7 @@ either a detailed result or error response is returned:
     { requestID         : '5'
     , things            :
       { 'thingID2'      :
-        { 'status'      : 'success'
+        { status        : 'success'
         }
 
         // other results, if any, go here...
@@ -363,10 +363,10 @@ The _observe_ message is sent by the steward to the implementation to ask it to 
     , requestID         : '6'
     , events            :
       { 'eventID1'      :
-        { 'thing'       : 'thingID1'
-        , 'observe'     : '...'
-        , 'parameter'   : '...'
-        , 'testOnly'    : false
+        { thingID       : 'thingID1'
+        , observe       : '...'
+        , parameter     : '...'
+        , testOnly      : false
         }
 
         // observation requests for other events, if any, go here...
@@ -378,10 +378,11 @@ if the _testOnly_ parameter is true,
 then the implementation evaluates the observation parameters, and
 either a detailed result or error response is returned:
 
-    { requestID         : '6'
+    { path              : '/api/v1/thing/report'
+    , requestID         : '6'
     , events            :
       { 'eventID1'      :
-        { 'status'      : 'success'
+        { status        : 'success'
         }
 
         // other results, if any, go here...
@@ -390,7 +391,8 @@ either a detailed result or error response is returned:
 
 or
 
-    { requestID         : '6'
+    { path              : '/api/v1/thing/report'
+    , requestID         : '6'
     , events            :
       { 'eventID1'      :
         { error         :
@@ -490,7 +492,8 @@ If the steward no longer wishes for the implementation to observe an event:
 
 and the implementation responds with either a detailed result or error response:
 
-    { requestID         : '9'
+    { path              : '/api/v1/thing/report'
+    , requestID         : '9'
     , events            :
       { 'eventID1'      :
         { status        : 'success'
@@ -502,7 +505,8 @@ and the implementation responds with either a detailed result or error response:
 
 or
 
-    { requestID         : '9'
+    { path              : '/api/v1/thing/report'
+    , requestID         : '9'
     , events            :
       { 'eventID1'      :
         { error         :
@@ -522,10 +526,10 @@ The _perform_ message is sent by the steward to the implementation to ask it to 
     , requestID         : '10'
     , tasks             :
       { 'taskID1'       :
-        { 'thing'       : 'thingID1'
-        , 'perform'     : '...'
-        , 'parameter'   : '...'
-        , 'testOnly'    : false
+        { thingID       : 'thingID1'
+        , perform       : '...'
+        , parameter     : '...'
+        , testOnly      : false
         }
 
         // performance requests for other tasks, if any, go here...
@@ -537,10 +541,11 @@ if the _testOnly parameter is true,
 then the implementation evaluates the performance parameters, and
 either a detailed result or error response is returned:
 
-    { requestID         : '10'
+    { path              : '/api/v1/thing/report'
+    , requestID         : '10'
     , tasks             :
       { 'taskID1'       :
-        { 'status'      : 'success'
+        { status        : 'success'
         }
 
         // other results, if any, go here...
@@ -549,7 +554,8 @@ either a detailed result or error response is returned:
 
 or
 
-    { requestID         : '10'
+    { path              : '/api/v1/thing/report'
+    , requestID         : '10'
     , tasks             :
       { 'taskID1'       :
         { error         :

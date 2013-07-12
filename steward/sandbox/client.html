@@ -133,8 +133,8 @@ var validate_test = function() {
   return false;
 };
 
-var go = function(location, i) {
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage' + location.search);
+var go = function(steward, i) {
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage' + steward.search);
 
   ws.onopen = function(event) {
     ws.send(JSON.stringify({ path        : '/api/v1/user/prime/1/1'
@@ -160,25 +160,25 @@ var go = function(location, i) {
   ws.onclose = function(event) {
     console.log('onclose'); console.log(event);
 
-    setTimeout (function() { go(location, i + 1); }, 2500);
+    setTimeout (function() { go(steward, i + 1); }, 2500);
   };
 
   ws.onerror = function(event) {
     console.log('onerror'); console.log(event);
 
     try { ws.close (); } catch (ex) {}; ws = null;
-    setTimeout (function() { go(location, i + 1); }, 5000);
+    setTimeout (function() { go(steward, i + 1); }, 5000);
   };
 };
 
 var main = function() {
-  var location = { hostname : window.location.hostname
+  var steward = { hostname : window.location.hostname
                  , port     : window.location.port
                  , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
                  , search   : '%%UUID%%'
                  };
 
-  go(location, 1);
+  go(steward, 1);
 };
 </script>
 </head>

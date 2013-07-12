@@ -394,7 +394,7 @@ var drawArcs = function(arcs) {
 		.attr("stroke", "none")
 		.attr("fill","white")
 		.attr("xlink:href",function(d,i){return "#a"+i;})
-		.text(function(d,i){ return degreeSymbol(d.cooked) });
+		.text(function(d,i){ return convertSymbol(d.cooked) });
            
 	// labels
 	var text2 = g.append("text")
@@ -410,7 +410,7 @@ var drawArcs = function(arcs) {
 		.attr("fill","white")
 		.attr("startOffset", "50%")
 		.attr("xlink:href",function(d,i){return "#a"+i;})
-		.text(function(d,i){ return d.label });
+		.text(function(d,i){ return convertSymbol(d.label) });
 	
     
 //   function arcTween(b) {
@@ -420,9 +420,13 @@ var drawArcs = function(arcs) {
 //     };
 //  }
 
-	function degreeSymbol(txt) {
+	function convertSymbol(txt) {
 		var re = /\&deg;/gi;
 		txt = txt.replace(re, "°");
+		re = /\<sup\>2\<\/sup\>/gi;
+		txt = txt.replace(re, "²");
+		re = /\<sub\>2\<\/sub\>/gi;
+		txt = txt.replace(re, "₂");
 		return txt;
 	}
 
