@@ -1,6 +1,6 @@
 var util       = require('util')
   , database   = require('./../core/database')
-  , devices    = require('./../core/devices')
+  , devices    = require('./../core/device')
   , manage     = require('./../routes/route-manage')
   , places     = require('./../actors/actor-place')
   , steward    = require('./../core/steward')
@@ -487,7 +487,7 @@ var Thing = function(deviceID, deviceUID, info) {
     else if (request === 'perform') self.perform(self, eventID, observe, parameter);
   });
 };
-util.inherits(Thing, require('./../device-gateway').Device);
+util.inherits(Thing, require('./../devices/device-gateway').Device);
 
 
 var requestID = 0;
