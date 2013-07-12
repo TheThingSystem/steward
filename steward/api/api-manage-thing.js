@@ -148,7 +148,7 @@ var prototype = function(logger, ws, api, message, tag) {
 };
 
 var addprototype = function(thingUUID, props) {
-  var actors, i, path;
+  var actors, i, path, info;
 
     path = thingUUID.split('/');
     actors = steward.actors;
@@ -159,17 +159,24 @@ console.log('actors.'+path[i]+' = ' + path.slice(0, i).join('/'));
     }
 
 console.log('actors.'+path[i]+' = ' + props);
-    props = utility.clone(props);
-/* TBD: see note below on these two functions
-    if (!!props.$validate.observe) props.$validate.observe = validate_observe;
-    if (!!props.$validate.perform) props.$validate.perform = validate_perform;
- */
+    info = utility.clone(props);
+    info.name = props.name;
+    info.status = props.status;
+    delete(info.type);
+    delete(info.observe);
+    delete(info.perform);
 
 console.log('!!actors[path[i]]'+!!actors[path[i]]);
     if (!!actors[path[i]]) return false;
 console.log(props);
 
-    actors[path[i]] = props;
+
+    actors[path[i]] = { $info: { type       : thingUUID
+                               , observe    : props.observe
+                               , perform    : props.perform
+                               , properties : info
+                               }
+                      };
     devices.makers[thingUUID] = Thing;
     return true;
 };
@@ -212,8 +219,7 @@ var register = function(logger, ws, api, message, tag) {
     for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
          !!thingIDs[id];
          id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-// NB: should set clientID here too...
-    thingIDs[id] = { udn: udn };
+    thingIDs[id] = { udn: udn, clientID: ws.clientInfo.clientID };
     thingUDNs[udn] = id;
 
 // NB: should make sure that all of info is defined in props...
@@ -346,6 +352,7 @@ var report = function(logger, ws, api, message, tag) {
 
       task = message.tasks[taskID];
       logger.info(tag, { event: 'task', taskID: taskIDs[taskID].taskID, results: task });
+      delete(taskIDs[taskID]);
     }
   }
 
@@ -491,7 +498,7 @@ Thing.prototype.observe = function(self, eventID, observe, parameter) {
   for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
        !!eventIDs[id];
        id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-  eventIDs[id] = { eventID: eventID };
+  eventIDs[id] = { eventID: eventID, clientID: self.ws.clientInfo.clientID };
 
   requestID++;
   message = { path: '/api/v1/thing/observe', requestID: requestID.toString(), events: {} };
@@ -509,7 +516,7 @@ Thing.prototype.perform = function(self, taskID, perform, parameter) {
   for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
        !!taskIDs[id];
        id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-  taskIDs[id] = { taskID: taskID };
+  taskIDs[id] = { taskID: taskID, clientID: self.ws.clientInfo.clientID };
 
   requestID++;
   message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), events: {} };
