@@ -140,7 +140,7 @@ exports.start = function() {
            + 'END');
 
     db.run('CREATE TABLE IF NOT EXISTS things(thingID INTEGER PRIMARY KEY ASC, thingUID TEXT, '
-           + 'thingName TEXT, thingComments TEXT DEFAULT "", thingDefinition TEXT'
+           + 'thingName TEXT, thingComments TEXT DEFAULT "", thingDefinition TEXT, '
            + 'sortOrder INTEGER DEFAULT "0", '
            + 'created CURRENT_TIMESTAMP, updated CURRENT_TIMESTAMP'
            + ')', function(err) {
