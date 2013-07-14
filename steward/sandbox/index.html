@@ -287,7 +287,9 @@ var pretty_msg = function(category, message) {
 
   parts = message.split(' ');
   if ((parts.length >= 4)
-        && ((parts[0] === 'http') || (parts[0] === 'https') || (parts[0] === 'ws') || (parts[0] === 'ws'))) {
+        && (   (parts[0] === 'http') || (parts[0] === 'https')
+            || (parts[0] === 'ws')   || (parts[0] === 'wss')
+            || (parts[0] === 'tls')  || (parts[0] === 'cloud'))) {
     var scheme = '      ' + parts[0]
       , host   = parts[1] + '    '
       , port   = '      ' + parts[2]
