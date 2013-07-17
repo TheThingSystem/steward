@@ -20,7 +20,7 @@ The basics:
 
   1. _Intermediate_ responses (containing only a _requestID_ parameter) indicating that the peer has received the message,
       but that processing may take a while.
-  __(Note that version 1 of the _Simple Thing_ protocol does not use intermediate responses.)__
+  __(Note that version 1 of the _Simple Thing_ protocol uses intermediate responses for the _pair_ and _hello_ messages.)__
 
   2. _Error_ responses (containing a _requestID_ and _error_ parameter) indicating whether the failure is permanent and
      containing a textual diagnostic.
@@ -106,7 +106,7 @@ then an administrator queries the 'place' actor to ascertain the current code an
 which in turn sends it as the 'paringCode' parameter.
 
 When the steward receives the _pair_ message,
-it sends a simple result containing a information for future authentication:
+it sends a simple result containing information for future authentication:
 
     { requestID         : '1'
     , result            :
@@ -577,6 +577,6 @@ Security is based on these assumptions:
 
 * An authorized person is responsible for pairing the implementation to the steward.
 
-* Both the steward and the implementation keep the _userID/pairing_ pairing secure.
+* Both the steward and the implementation keep the _thingID/params_ pairing secure.
 
 * The cryptographic algorithms used for the secure WebSockets connection are, in fact, secure.
