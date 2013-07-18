@@ -26,7 +26,7 @@ BLUE_FILE="/var/log/bluetoothd.log"
 
 STEWARD=/usr/local/bin/node
 STEW_PID=/var/run/steward.pid
-STEW_ARGS="/home/pi/steward/steward/server.js"
+STEW_ARGS="/home/pi/steward/platforms/raspberry_pi/server.js"
 STEW_FILE="/var/log/steward.log"
 
 PID=
