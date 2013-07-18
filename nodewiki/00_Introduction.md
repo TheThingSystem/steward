@@ -12,6 +12,8 @@ The _steward_ is at the heart of the system and connects to [Things](03_Knapsack
 
 The first thing you'll need to do, whether you're a user or a developer is [install](User/00_Installation.md) and [start](User/02_Running.md) the _steward_ software.
 
+If you are a _prosumer_ or a developer, then you may find the [Thing Philosophy](01_Philosophy.md) enlightening.
+
 ###For Developers
 
 There are three main tracks for developing for the Thing System
@@ -21,3 +23,5 @@ There are three main tracks for developing for the Thing System
 * Developing [third-party "things"](Developer/Things/00_Introduction.md) which talk to the steward
 
 * Developing [client software](Developer/Clients/00_Introduction.md), and [magic](Developer/Clients/02_Magic.md).
+
+However, before getting started, you should probably read about the [architecture](02_Architecture.md).

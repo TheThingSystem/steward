@@ -64,7 +64,7 @@ real-world activities tend to be more complex in the sense that we might want mu
 So, the steward supports _groups_ (discussed later on).
 
 ## Taxonomy
-A **key concept** in the steward is that when a thing observes an event,
+A __key concept__ in the steward is that when a thing observes an event,
 then another thing performs an task.
 Events and tasks either refer to a single actor (e.g., a particular device),
 or may refer to a group of actors combined by either boolean (event) or temporal (task) logic.

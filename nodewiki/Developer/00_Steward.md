@@ -159,8 +159,7 @@ Then,
 the _scan_function then looks through the list of all tasks known to the steward,
 and constructs a list of tasks to be performed.
 For each task it publishes a request for the task to be performed.
-
-**NOTE THAT THIS ALGORITHM DOES NOT IMPLEMENT TEMPORAL EVALUATION**
+**NOTE THAT TEMPORAL EVALUATION IS NOT YET IMPLEMENTED**
 
 ## Server module
 On startup,
@@ -314,13 +313,3 @@ Authorized clients connect to the
     /manage
 
 resource in order to manage [devices](Devices.md) or [activities, events, tasks, and groups](Activities.md).
-
-
-## To be implemented
-* Temporal Ordering
-
-* Tags
-
-* Access Control
-
-* The _tap_

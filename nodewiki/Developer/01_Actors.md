@@ -16,7 +16,7 @@ there are two types of pseudo-actors: the clipboard and the place.
 
 ### Clipboard
 
-**NOTE THAT THE CLIPBOARD ACTOR IS EXPERIMENTAL (IT MAY BE A SOLUTION IN SEARCH OF A PROBLEM) **
+__Note that the clipboard actor is experimental (it may be a solution in search of a problem).__
 
 ### Place
 At present, there is one place actor, 'place/1', which refers to the steward's physical location:

@@ -20,7 +20,7 @@ The basics:
 
   1. _Intermediate_ responses (containing only a _requestID_ parameter) indicating that the peer has received the message,
       but that processing may take a while.
-  __(Note that version 1 of the _Simple Thing_ protocol uses intermediate responses for the _pair_ message.)__
+  __Note that version 1 of the _Simple Thing_ protocol uses intermediate responses for the _pair_ message.__
 
   2. _Error_ responses (containing a _requestID_ and _error_ parameter) indicating whether the failure is permanent and
      containing a textual diagnostic.
@@ -171,8 +171,8 @@ __Note that requests may be originated both by the implementation and the stewar
 State is maintained over the duration of a session.
 If the underlying connection is broken,
 then any mappings of _thingIDs_, _eventIDs_, and _taskIDs_ should be deleted by both peers.
-**(Note that in version 1 of the _Simple Thing_ protocol,
-_taskID_ values have no significance outside of a single message exchange.)**
+__(Note that in version 1 of the _Simple Thing_ protocol,
+_taskID_ values have no significance outside of a single message exchange.__
 
 ### Define Prototypes
 

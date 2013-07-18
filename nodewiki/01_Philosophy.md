@@ -285,8 +285,6 @@ but you need to use a real passphrase manager,
 such as [1Password](https://agilebits.com/onepassword),
 with your clients.
 
-**NOTE THAT ENCRYPTION IS NOT YET ENABLED**
-
 The steward will use whatever "security" is available with the device,
 but speaking candidly: given the state of today's device security, that's not saying much.
 

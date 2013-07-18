@@ -5,7 +5,7 @@ An *actor* refers to an entity that participates in an activity. Typically, thes
 ## Architecture
 Support for devices is added by creating a module with a path and name that conform to the Device Taxonomy.
 This module is detected and loaded by the steward during startup.
-**(At present, if you add a module to a running steward, you must restart the steward.)**
+__(Note that whenever you add a module to a running steward, you must restart the steward.)__
 
 When the module is loaded,
 the _start()_ function is invoked which does two things:
@@ -509,7 +509,7 @@ three properties must be present in all devices:
 * _updated_ - a timestamp
 
 Now let's look at the twelve categories of devices.
-**(There's nothing _magical_ about this number, and it will probably drop to ten.)**
+__(There's nothing _magical_ about this number, and it will probably drop to ten.)__
 
 ### Climate
 These are devices that monitor or control the "breathable environment".
