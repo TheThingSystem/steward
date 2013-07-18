@@ -133,25 +133,125 @@ var validate_test = function() {
   return false;
 };
 
+var events = {};
+
 var go = function(steward, i) {
   ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage' + steward.search);
 
   ws.onopen = function(event) {
+
     ws.send(JSON.stringify({ path        : '/api/v1/user/prime/1/1'
-                           , requestID   : add_callback(function(message) { console.log(message) })
                            , fingerprint : '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
+                           , requestID   : add_callback(function(message) { console.log(message); })
                            }));
 
-    list_users(ws, function(message) { console.log(message) });
+    list_users(ws, function(message) { console.log(message); });
+    return;
+
+/*
+    ws.send(JSON.stringify({ path         : '/api/v1/thing/pair/testing123'
+                           , name         : 'testing456'
+                           , requestID    : add_callback(function(message) { console.log(message); })
+                           }));
+    ws.send(JSON.stringify({ path         : '/api/v1/thing/hello/4'
+                           , response     : '441587'
+                           , requestID    : add_callback(function(message) { 
+      console.log(message);
+ */
+
+      ws.send(JSON.stringify({ path       : '/api/v1/thing/prototype'
+                             , things     :
+                               { '/device/presence/mobile/iOS' :
+                                 { name                        : true
+                                 , status                      : [ 'present', 'absent', 'recent' ]
+                                 }
+                               }
+                             , requestID  : add_callback(function(message) {
+        console.log(message);
+
+        ws.send(JSON.stringify({ path     : '/api/v1/thing/register'
+                               , things   :
+                                 { 'thingID1'   :
+                                   { devicetype : '/device/presence/mobile/iOS'
+                                   , name       : 'MTR\'s iPhone5'
+                                   , status     : 'present'
+                                   , device     :
+                                     { name     : 'iPhone5'
+                                     , maker    : 'Apple Inc.'
+                                     , model    :
+                                       { name   : 'iPhone5'
+                                       , number : 'MD665LL/A'
+                                       }
+                                     , unit     :                                       { serial : 'C39JD3PLF8H8'
+                                       , udn    : '195a42b0-ef6b-11e2-99d0-f23c91aec05e'
+                                       }
+                                     }
+                                   , updated    : new Date().getTime()
+                                   }
+                                 }
+                               , requestID  : add_callback(function(message) {
+            var thingID;
+
+            console.log(message);
+            if (!message.things.thingID1) return console.log('no response for thingID1');
+            if (!message.things.thingID1.success) return console.log('not successful for thingID1');
+            if (!message.things.thingID1.thingID) return console.log('no thingID for thingID1');
+            thingID = message.things.thingID1.thingID;
+
+            setInterval(function() {
+              var eventID
+                , report = { path      : '/api/v1/thing/report'
+                           , events    : {}
+                           , requestID : add_callback(function(message) { console.log(message); })
+                           }
+                , update = { path      : '/api/v1/thing/update'
+                           , things    : {}
+                           , requestID : add_callback(function(message) { console.log(message); })
+                           };
+
+              for (eventID in events) if (events.hasOwnProperty(eventID)) report.events[eventID] = { reason : 'observe' };
+              ws.send(JSON.stringify(report));
+
+              update.things[thingID] = { name    : reqno.toString()
+                                       , status  : 'present'
+                                       , updated : new Date().getTime()
+                                       };
+              ws.send(JSON.stringify(update));
+            }, 30 * 1000);
+          })
+        }));
+      })
+                             }));
+/*
+      })}));
+ */
   };
 
   ws.onmessage = function(event) {
-    var id, message;
+    var eventID, id, message;
 
     try {
       message = JSON.parse(event.data);
       id = message.requestID.toString();
-      if ((!!callbacks[id]) && ((callbacks[id])(message))) delete(callbacks[id]);
+      if ((!!message.events) || (!!message.tasks)) {
+        switch(message.path) {
+          case '/api/v1/thing/observe':
+            for (eventID in message.events) {
+              if (!message.events.hasOwnProperty(eventID)) continue;
+              if (message.events[eventID].testOnly) console.log('testOnly');
+              else events[eventID] = { observe: message.events[eventID].observe, parameter: message.events[eventID].parameter };
+              message.events[eventID].status = 'success';
+            }
+            message.path = '/api/v1/thing/report';
+            ws.send(JSON.stringify(message));
+            break;
+
+          default:
+            console.log('unsolicited');
+            console.log(message);
+            break;
+        }
+      } else if ((!!callbacks[id]) && ((callbacks[id])(message))) delete(callbacks[id]);
     } catch(ex) {
       console.log(ex.message);
     }

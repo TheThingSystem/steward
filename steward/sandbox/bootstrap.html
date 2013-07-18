@@ -83,7 +83,7 @@ var bootstrap = function(ws) {
     actors = message.result;
     z = {};
     for (actor in actors) {
-        z[actor] = true;
+      z[actor] = true;
 
       if ((!actors.hasOwnProperty(actor)) || (actor === 'actors')) continue;
 

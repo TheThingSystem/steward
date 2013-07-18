@@ -15,7 +15,7 @@ var db;
 
 
 var create = function(logger, ws, api, message, tag) {
-  var actor, entity, guard, results, uuid, v;
+  var actor, actorID, actorType, entity, guard, p, parts, results, uuid, v;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'task creation', message.requestID, permanent, diagnostic);
@@ -34,15 +34,22 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.actor)             return error(true,  'missing actor element');
   entity = message.actor.split('/');
   if (entity.length !== 2)        return error(true,  'invalid actor element');
-  entity[1] = entity[1].toString();
-  actor = actors[entity[0]];
+  actorType = entity[0];
+  actorID = entity[1].toString();
+  actor = actors[actorType];
   if (!actor)                     return error(true,  'invalid actor ' + message.actor);
-  if (!actor.$lookup(entity[1]))  return error(false, 'unknown actor ' + message.actor);
+  entity = actor.$lookup(actorID);
+  if (!entity)                    return error(false, 'unknown entity ' + message.actor);
 
   if (!message.perform)           return error(true,  'missing perform element');
   if (!message.perform.length)    return error(true,  'empty perform element');
 
   if (!message.parameter) message.parameter = '';
+
+  parts = entity.whatami.split('/');
+  actor = actors;
+  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
+  if (!actor)                     return error(false,  'internal error');
   if (!!actor.$validate.perform) {
     v = actor.$validate.perform(message.perform, message.parameter);
     if ((v.invalid.length > 0) || (v.requires.length > 0)) return error(false, 'invalid parameters ' + stringify(v));
@@ -68,8 +75,8 @@ var create = function(logger, ws, api, message, tag) {
          + 'created) '
          + 'VALUES($taskUID, $taskName, $taskComments, $actorType, $actorID, $perform, $parameter, $guardType, $guardID, '
          + 'datetime("now"))',
-         { $taskUID: uuid, $taskName: message.name, $taskComments: message.comments, $actorType: entity[0],
-           $actorID: entity[1], $perform: message.perform, $parameter: message.parameter, $guardType: guard[0],
+         { $taskUID: uuid, $taskName: message.name, $taskComments: message.comments, $actorType: actorType,
+           $actorID: actorID, $perform: message.perform, $parameter: message.parameter, $guardType: guard[0],
            $guardID: guard[1] }, function(err) {
     var taskID;
 

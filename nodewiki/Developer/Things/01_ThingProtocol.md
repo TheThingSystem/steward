@@ -20,7 +20,7 @@ The basics:
 
   1. _Intermediate_ responses (containing only a _requestID_ parameter) indicating that the peer has received the message,
       but that processing may take a while.
-  __(Note that version 1 of the _Simple Thing_ protocol uses intermediate responses for the _pair_ and _hello_ messages.)__
+  __(Note that version 1 of the _Simple Thing_ protocol uses intermediate responses for the _pair_ message.)__
 
   2. _Error_ responses (containing a _requestID_ and _error_ parameter) indicating whether the failure is permanent and
      containing a textual diagnostic.
@@ -238,7 +238,7 @@ The _register_ message is sent by the implementation to the steward to register 
     { path              : '/api/v1/thing/register'
     , requestID         : '4'
     , things            :
-      { 'thingID1'      :
+      { 't1'            :
         { devicetype    : '/device/A/B/C'
         , name          : '...'
         , status        : '...'
@@ -355,6 +355,9 @@ or
         // other results, if any, go here...
       }
     }
+
+__Note that if an implementation does not send an update for a thing at least every 60 seconds,
+then the steward will automatically change the thing's status to 'absent'.__
 
 ### Observe and Report Events
 The _observe_ message is sent by the steward to the implementation to ask it to observe one or more events:

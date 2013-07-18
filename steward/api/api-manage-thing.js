@@ -12,6 +12,7 @@ var util       = require('util')
 var things = {};
 
 var eventIDs  = {};
+var eventUIDs = {};
 var taskIDs   = {};
 var thingIDs  = {};
 var thingUDNs = {};
@@ -107,7 +108,7 @@ var hello2 = function(logger, ws, data, tag) {
 };
 
 var prototype = function(logger, ws, api, message, tag) {
-  var path, props, results, thingUUID;
+  var path, props, results, thingPath;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing definition', message.requestID, permanent, diagnostic);
@@ -118,74 +119,76 @@ var prototype = function(logger, ws, api, message, tag) {
   if (!message.things)                                      return error(true,  'missing things element');
 
   results = { requestID: message.requestID, things: {} };
-  for (thingUUID in message.things) {
-    if (!message.things.hasOwnProperty(thingUUID)) continue;
+  for (thingPath in message.things) {
+    if (!message.things.hasOwnProperty(thingPath)) continue;
 
-    path = thingUUID.split('/');
+    path = thingPath.split('/');
     if ((path.length < 3) || (path[0] !== '') || (path[1] !== 'device')) {
-      results.things[thingUUID] = { error: { permanent: false, diagnostic: 'invalid thingUUID' } };
+      results.things[thingPath] = { error: { permanent: false, diagnostic: 'invalid thingPath' } };
       continue;
     }
 
-    props = message.things[thingUUID];
+    props = message.things[thingPath];
     if (!util.isArray(props.observe)) props.observe = [];
     if (!util.isArray(props.perform)) props.perform = [];
-    if (!props.name)                                        return error(true,  'missing name in ' + thingUUID);
+    if (!props.name)                                        return error(true,  'missing name in ' + thingPath);
     props.name = true;
-    if (!props.status)                                      return error(true,  'missing status in ' + thingUUID);
+    if (!props.status)                                      return error(true,  'missing status in ' + thingPath);
     if (!props.properties) props.properties = {};
     if (!props.validate) props.validate = { observe: false, perform: false };
     props.validate.observe = !!props.validate.observe;
     props.validate.perform = !!props.validate.perform;
 
-    results.things[thingUUID] = { success: true };
-    if (!addprototype(thingUUID, props)) results.things[thingUUID].diagnostic = 'previously defined';
-    else insprototype(logger, thingUUID, '', '', props, tag);
+    results.things[thingPath] = { success: true };
+    if (!addprototype(thingPath, props)) results.things[thingPath].diagnostic = 'previously defined';
+    else insprototype(logger, thingPath, '', '', props, tag);
   }
 
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
-var addprototype = function(thingUUID, props) {
-  var actors, i, path, info;
+var addprototype = function(thingPath, props) {
+  var actors, i, info, path, validate;
 
-    path = thingUUID.split('/');
-    actors = steward.actors;
-    for (i = 1; i < path.length - 1; i++) {
-console.log('actors.'+path[i]+' = ' + path.slice(0, i).join('/'));
-      if (!actors[path[i]]) actors[path[i]] = { $info : { type : path.slice(0, i).join('/') } };
-      actors = actors[path[i]];
-    }
+  path = thingPath.split('/');
+  actors = steward.actors;
+  for (i = 1; i < path.length - 1; i++) {
+    if (!actors[path[i]]) actors[path[i]] = { $info : { type : path.slice(0, i + 1).join('/') } };
+    actors = actors[path[i]];
+  }
 
-console.log('actors.'+path[i]+' = ' + props);
-    info = utility.clone(props);
-    info.name = props.name;
-    info.status = props.status;
-    delete(info.type);
-    delete(info.observe);
-    delete(info.perform);
+  info = utility.clone(props);
+  info.name = props.name;
+  info.status = props.status;
+  validate = {};
+  if (!!info.validate.observe) validate.observe = validate_observe;
+  if (!!info.validate.perform) validate.perform = validate_perform;
+  delete(info.type);
+  delete(info.observe);
+  delete(info.perform);
+  delete(info.properties);
+  delete(info.validate);
 
-console.log('!!actors[path[i]]'+!!actors[path[i]]);
-    if (!!actors[path[i]]) return false;
-console.log(props);
+  if (!!actors[path[i]]) return false;
 
-
-    actors[path[i]] = { $info: { type       : thingUUID
-                               , observe    : props.observe
-                               , perform    : props.perform
-                               , properties : info
-                               }
-                      };
-    devices.makers[thingUUID] = Thing;
-    return true;
+  actors[path[i]] = { $info     : { type       : thingPath
+                                  , observe    : props.observe
+                                  , perform    : props.perform
+                                  , properties : info
+                                  }
+                    , $validate : validate
+                    };
+  devices.makers[thingPath] = Thing;
+  return true;
 };
 
-var insprototype = function(logger, thingUUID, name, comments, props, tag) {
+var insprototype = function(logger, thingPath, name, comments, props, tag) {
   db.run('INSERT INTO things(thingUID, thingName, thingComments, thingDefinition, created) '
          + ' VALUES($thingUID, $thingName, $thingComments, $thingDefinition, datetime("now"))',
-         { $thingUID: thingUUID, $thingName: name, $thingComments: comments, $thingDefinition: props }, function(err) {
-    logger.error(tag, { user: 'INSERT things.thingUID for ' + thingUUID, diagnostic: err.message });
+         { $thingUID: thingPath, $thingName: name, $thingComments: comments, $thingDefinition: JSON.stringify(props) },
+         function(err) {
+    if (err) logger.error(tag, { user: 'INSERT things.thingUID for ' + thingPath, diagnostic: err.message });
   });
 };
 
@@ -237,16 +240,17 @@ var register = function(logger, ws, api, message, tag) {
                                    , udn         : udn
                                    }
                   };
-    info.deviceType = props.deviceType;
+    info.deviceType = props.devicetype;
     info.id = info.device.unit.udn;
 
+// TBD: see if we still have a connection to the thing...
     if (devices.devices[info.id]) {
       results.things[thingID] = { error: { permanent: false, diagnostic: 'UDN is already registered' } };
       continue;
     }
     results.things[thingID] = { success: true, thingID: id };
 
-    logger.info(info.device.name, { id: info.device.unit.serial, params: info.params });
+    logger.info(info.device.name, { id: info.device.unit.serial, params: thingIDs[id] });
     devices.discover(info);
   }
 
@@ -255,7 +259,7 @@ var register = function(logger, ws, api, message, tag) {
 };
 
 var update = function(logger, ws, api, message, tag) {
-  var child, prop, props, results, thingID;
+  var child, device, prop, props, results, thingID;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing updating', message.requestID, permanent, diagnostic);
@@ -273,15 +277,21 @@ var update = function(logger, ws, api, message, tag) {
     }
 // NB: should check clientID here too...
 
-    child = devices[thingIDs[thingID].udn];
+    child = devices.devices[thingIDs[thingID].udn];
     if (!child)                                             return error(true, 'internal error');
+    device = child.device;
 
     props = message.things[thingID];
-    if (!!props.name) child.name = props.name.toStrin();
-    if (!!props.status) child.status = props.status;
-    child.updated = props.updated || new Date().getTime();
+    if (!!props.name) device.name = props.name.toString();
+    if (!!props.status) device.status = props.status.toString();
+    try {
+      device.updated = new Date(props.updated).getTime();
+      if (isNaN(device.updated)) device.changed();
+    } catch(ex) { device.changed(); }
+    device.ping(device);
+    if (!!props.uptime) device.bootime = device.updated - props.uptime;
 // NB: should make sure that prop is defined in props...
-    for (prop in props.info) if (props.info.hasOwnProperty(prop)) child.info[prop] = props.info[prop];
+    for (prop in props.info) if (props.info.hasOwnProperty(prop)) device.info[prop] = props.info[prop];
 
     results.things[thingID] = { success: true };
   }
@@ -291,70 +301,56 @@ var update = function(logger, ws, api, message, tag) {
 };
 
 var report = function(logger, ws, api, message, tag) {
-  var didP, event, eventID, task, taskID, results;
+  var event, eventID, results;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing reporting', message.requestID, permanent, diagnostic);
   };
 
-  if ((!message.events) && (!message.tasks))                return error(true,  'missing events element');
+  if (!message.events)                                      return error(true,  'missing event element');
 
-  if (!!message.events) {
-    results = { requestID: message.requestID, events: {} };
+  results = { requestID: message.requestID, events: {} };
 
-    didP = false;
-    for (eventID in message.events) {
-      if (!message.events.hasOwnProperty(eventID)) continue;
+  for (eventID in message.events) {
+    if (!message.events.hasOwnProperty(eventID)) continue;
 
-      if (!eventIDs[eventID]) {
-        results.events[eventID] = { error : { permanent: false, diagnostic: 'invalid eventID' } };
-        continue;
-      }
+    if (!eventIDs[eventID]) {
+      results.events[eventID] = { error : { permanent: false, diagnostic: 'invalid eventID' } };
+      continue;
+    }
 // NB: should check clientID here too...
 
-      event = message.events[eventID];
-      if (!event.reason)                                    return error(true,  'missing reason in ' + eventID);
-
-      switch (event.reason) {
-        case 'observe':
-          steward.report(eventIDs[eventID].eventID, {});
-          results.events[eventID] = { success: true };
-          break;
-
-        case 'failure':
-          steward.report(eventIDs[eventID].eventID, { error: true, message: event.diagnostic || 'unspecified' });
-          delete(eventIDs[eventID]);
-          results.events[eventID] = { success: true };
-          break;
-
-        case 'success':
-          continue;
-
-        default:
-          results.events[eventID] = { error : { permanent: true, diagnostic: 'invalid reason' } };
-          break;
-      }
-      didP = true;
+    event = message.events[eventID];
+    if (!!event.status) {
+      if (event.status === 'success') return steward.report(eventIDs[eventID].eventID, {});
+                                                          return error(true,  'invalid status for ' + eventID);
+    }
+    if (!!event.error) {
+      steward.report(eventIDs[eventID].eventID, { error: true, message: event.error.diagnostic || 'unspecified' });
+      delete(eventIDs[eventID]);
     }
 
-    if (didP) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
-  }
+    if (!event.reason)                                    return error(true,  'missing reason in ' + eventID);
 
-  if (!!message.tasks) {
-    for (taskID in message.tasks) {
-      if (!message.tasks.hasOwnProperty(taskID)) continue;
+    switch (event.reason) {
+      case 'observe':
+        steward.report(eventIDs[eventID].eventID, {});
+        results.events[eventID] = { success: true };
+        break;
 
-      if (!taskIDs[taskID]) {
-        logger.error(tag, { event: 'task', taskID: taskID, results: task } );
-        continue;
-      }
-// NB: should check clientID here too...
+      case 'failure':
+        steward.report(eventIDs[eventID].eventID, { error: true, message: event.diagnostic || 'unspecified' });
+        delete(eventIDs[eventID]);
+        results.events[eventID] = { success: true };
+        break;
 
-      task = message.tasks[taskID];
-      logger.info(tag, { event: 'task', taskID: taskIDs[taskID].taskID, results: task });
-      delete(taskIDs[taskID]);
+      default:
+        results.events[eventID] = { error : { permanent: true, diagnostic: 'invalid reason' } };
+        break;
     }
   }
+
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   return true;
 };
@@ -380,16 +376,17 @@ var readyP = function() {
       return;
     }
     rows.forEach(function(thing) {
-      var thingUUID = thing.thingUID;
+      var thingPath = thing.thingUID;
 
-      things[thingUUID] = { thingID        : thing.thingID.toString()
-                          , thingUID       : thingUUID
+      things[thingPath] = { thingID        : thing.thingID.toString()
+                          , thingUID       : thingPath
                           , thingName      : thing.thingName
                           , thingComments  : thing.thingComments
                           , thingDefinition : JSON.parse(thing.thingDefinition)
                           };
 
-      addprototype(thingUUID, things[thingUUID].thingDefinition);
+      thing.thingDefinition.status = 'absent';
+      addprototype(thingPath, things[thingPath].thingDefinition);
     });
 
     loadedP = true;
@@ -465,15 +462,17 @@ var Thing = function(deviceID, deviceUID, info) {
   self.name = info.params.name;
   self.ws = info.params.ws;
   self.thingID = info.params.thingID;
+  self.status = info.params.status;
+  delete(info.params);
   self.logger = devices.logger;
 
   self.info = utility.clone(info);
   delete(self.info.id);
   delete(self.info.device);
   delete(self.info.deviceType);
-  delete(self.info.params);
+  delete(self.info.source);
+  delete(self.info.status);
 
-  self.status = info.params.status;
   self.changed();
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
@@ -486,8 +485,16 @@ var Thing = function(deviceID, deviceUID, info) {
     else if (request === 'observe') self.observe(self, eventID, observe, parameter);
     else if (request === 'perform') self.perform(self, eventID, observe, parameter);
   });
+
+  self.ping(self);
 };
-util.inherits(Thing, require('./../devices/device-gateway').Device);
+util.inherits(Thing, devices.Device);
+
+
+Thing.prototype.ping = function(self) {
+  if (!!self.timer) clearTimeout(self.timer);
+  self.timer = setTimeout (function () { self.status = 'absent'; self.changed(); }, 60 * 1000);
+};
 
 
 var requestID = 0;
@@ -495,15 +502,19 @@ var requestID = 0;
 Thing.prototype.observe = function(self, eventID, observe, parameter) {
   var id, message;
 
-  for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
-       !!eventIDs[id];
-       id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-  eventIDs[id] = { eventID: eventID, clientID: self.ws.clientInfo.clientID };
+  if (!!eventUIDs[eventID]) id = eventUIDs[eventID];
+  else {
+    for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
+         !!eventIDs[id];
+         id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
+    eventIDs[id] = { eventID: eventID, clientID: self.ws.clientInfo.clientID };
+    eventUIDs[eventID] = id;
+  }
 
   requestID++;
   message = { path: '/api/v1/thing/observe', requestID: requestID.toString(), events: {} };
   message.events[id] = { thingID   : thingUDNs[self.id]
-                       , observe   : 'observe'
+                       , observe   : observe
                        , parameter : typeof parameter !== 'string' ? JSON.stringify(parameter) : parameter
                        , testOnly  : false };
 
@@ -521,21 +532,19 @@ Thing.prototype.perform = function(self, taskID, perform, parameter) {
   requestID++;
   message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), events: {} };
   message.tasks[id] = { thingID   : thingUDNs[self.id]
-                      , perform   : 'perform'
+                      , perform   : perform
                       , parameter : typeof parameter !== 'string' ? JSON.stringify(parameter) : parameter
                       , testOnly  : false };
 
   try { self.ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
 };
 
-/* TBD: later, not sure how to deal with async/sync interaction
+// TBD: later, not sure how to deal with async/sync interaction
 
-var validate_observe = function(info) {
-  var result = { invalid: [], requires: [] };
+var validate_observe = function(info) {/* jshint unused: false */
+  return { invalid: [], requires: [] };
 };
 
-var validate_perform = function(info) {
-  var result = { invalid: [], requires: [] };
+var validate_perform = function(info) {/* jshint unused: false */
+  return { invalid: [], requires: [] };
 };
-
-*/

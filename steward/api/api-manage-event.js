@@ -15,7 +15,7 @@ var db;
 
 
 var create = function(logger, ws, api, message, tag) {
-  var actor, entity, results, uuid, v;
+  var actor, actorID, actorType, entity, p, parts, results, uuid, v;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'event creation', message.requestID, permanent, diagnostic);
@@ -34,15 +34,22 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.actor)             return error(true,  'missing actor element');
   entity = message.actor.split('/');
   if (entity.length !== 2)        return error(true,  'invalid actor element');
-  entity[1] = entity[1].toString();
-  actor = actors[entity[0]];
+  actorType = entity[0];
+  actorID = entity[1].toString();
+  actor = actors[actorType];
   if (!actor)                     return error(true,  'invalid actor ' + message.actor);
-  if (!actor.$lookup(entity[1]))  return error(false, 'unknown actor ' + message.actor);
+  entity = actor.$lookup(actorID);
+  if (!entity)                    return error(false, 'unknown entity ' + message.actor);
 
   if (!message.observe)           return error(true,  'missing observe element');
   if (!message.observe.length)    return error(true,  'empty observe element');
 
   if (!message.parameter) message.parameter = '';
+
+  parts = entity.whatami.split('/');
+  actor = actors;
+  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
+  if (!actor)                     return error(false,  'internal error');
   if (!!actor.$validate.observe) {
     v = actor.$validate.observe(message.observe, message.parameter);
     if ((v.invalid.length > 0) || (v.requires.length > 0))  return error(false, 'invalid parameters ' + stringify(v));
@@ -56,8 +63,8 @@ var create = function(logger, ws, api, message, tag) {
 
   db.run('INSERT INTO events(eventUID, eventName, eventComments, actorType, actorID, observe, parameter, created) '
          + 'VALUES($eventUID, $eventName, $eventComments, $actorType, $actorID, $observe, $parameter, datetime("now"))',
-         { $eventUID: uuid, $eventName: message.name, $eventComments: message.comments, $actorType: entity[0],
-           $actorID: entity[1], $observe: message.observe, $parameter: message.parameter }, function(err) {
+         { $eventUID: uuid, $eventName: message.name, $eventComments: message.comments, $actorType: actorType,
+           $actorID: actorID, $observe: message.observe, $parameter: message.parameter }, function(err) {
     var eventID;
 
     if (err) {

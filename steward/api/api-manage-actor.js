@@ -5,11 +5,8 @@ var stringify  = require('json-stringify-safe')
   ;
 
 
-var actors = steward.actors;
-
-
 var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
-  var actor, againP, allP, child, entity, entities, i, id, info, p, parts, props, results, suffix, treeP, what, who;
+  var actor, actors, againP, allP, child, entity, entities, i, id, info, p, parts, props, results, suffix, treeP, what, who;
 
   allP = message.options.depth === 'all';
   treeP = allP || (message.options.depth === 'tree');
@@ -17,6 +14,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   if (suffix.length === 0) suffix = null;
 
   results = { requestID: message.requestID, result: { actors: {} } };
+  actors = steward.actors;
   for (actor in actors) {
     if (!actors.hasOwnProperty(actor)) continue;
 
@@ -99,7 +97,8 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 };
 
 var perform = function(logger, ws, api, message, tag) {
-  var actor, againP, child, entity, entities, i, id, info, p, parts, performed, props, present, results, suffix, v, what, who;
+  var actor, actors, againP, child, entity, entities, i, id, info, p, parts, performed, props, present, results, suffix, v,
+      what, who;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'actor performance', message.requestID, permanent, diagnostic);
@@ -113,6 +112,7 @@ var perform = function(logger, ws, api, message, tag) {
   if (!message.perform.length)                           return error(true,  'empty perform element');
 
   present = { actors: {}, who: {} };
+  actors = steward.actors;
   for (actor in actors) {
     if (!actors.hasOwnProperty(actor)) continue;
 

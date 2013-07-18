@@ -98,7 +98,7 @@ var solarEvent = function(date, event) {
     case 'night':            return [times.night,         times.nightEnd];
 
     case 'noon':             return [times.solarNoon,     0];
-    case 'nadir':            return [times.nadar,         0];
+    case 'nadir':            return [times.nadir,         0];
 
     default:
       return 'unknown solar event: ' + event;

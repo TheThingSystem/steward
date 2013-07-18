@@ -37,6 +37,7 @@ fi
 
 while true; do
   node index.js
-  sleep 3
+
+  sleep 15
 done
 

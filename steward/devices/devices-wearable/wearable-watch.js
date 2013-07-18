@@ -110,6 +110,8 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var watch;
+
   steward.actors.device.wearable.watch =
       { $info     : { type       : '/device/wearable/watch'
                     , observe    : [ ]
@@ -122,13 +124,14 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
+  watch = utility.clone(steward.actors.device.wearable.watch);
   devices.makers['/device/wearable/watch'] = Watch;
 
-  steward.actors.device.wearable.watch.cookoo = utility.clone(steward.actors.device.wearable.watch);
+  steward.actors.device.wearable.watch.cookoo = utility.clone(watch);
   steward.actors.device.wearable.watch.cookoo.$info.type = '/device/wearable/watch/cookoo';
   devices.makers['/device/wearable/watch/cookoo'] = Watch;
 
-  steward.actors.device.wearable.watch.metawatch = utility.clone(steward.actors.device.wearable.watch);
+  steward.actors.device.wearable.watch.metawatch = utility.clone(watch);
   steward.actors.device.wearable.watch.metawatch.$info.type = '/device/wearable/watch/metawatch';
   devices.makers['/device/wearable/watch/metawatch'] = Watch;
 

@@ -111,6 +111,8 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var fob;
+
   steward.actors.device.presence.fob =
       { $info     : { type       : '/device/presence/fob'
                     , observe    : [ ]
@@ -123,13 +125,14 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
+  fob = utility.clone(steward.actors.device.presence.fob);
   devices.makers['/device/presence/fob'] = Fob;
 
-  steward.actors.device.presence.fob.inrange = utility.clone(steward.actors.device.presence.fob);
+  steward.actors.device.presence.fob.inrange = utility.clone(fob);
   steward.actors.device.presence.fob.inrange.$info.type = '/device/presence/fob/inrange';
   devices.makers['/device/presence/fob/inrange'] = Fob;
 
-  steward.actors.device.presence.fob.hone = utility.clone(steward.actors.device.presence.fob);
+  steward.actors.device.presence.fob.hone = utility.clone(fob);
   steward.actors.device.presence.fob.hone.$info.type = '/device/presence/fob/hone';
   devices.makers['/device/presence/fob/hone'] = Fob;
 
