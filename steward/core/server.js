@@ -257,7 +257,7 @@ var rendezvous0 = function(params, port) {
                               }, function() {
         var h, hello, parts;
 
-        logger.info('tlsproxy connected to https://' + params.server.hostname + ':' + params.server.port);
+        logger.info('tls ' + params.server.hostname + ' ' + params.server.port);
 
         if (!cleartext.authorized) {
           logger.error('tlsproxy', { event: 'connect', diagnostic: cleartext.authorizationError });
@@ -317,7 +317,7 @@ var rendezvous = function(hostname, port, params, portno) {
   http.request(options).on('connect', function(response, cloud, head) {/* jshint unused: false */
     var local;
 
-    logger.info('cloud connected to http://' + options.hostname + ':' + options.port);
+    logger.info('cloud ' + options.hostname + ' ' + options.port);
 
     if (response.statusCode !== 200) {
       logger.error('proxy', { event: 'response', code: response.statusCode, retry: '15 seconds' });

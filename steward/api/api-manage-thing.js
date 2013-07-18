@@ -1,9 +1,22 @@
-var manage      = require('./../routes/route-manage')
-  , places      = require('./../actors/actor-place')
-  , steward     = require('./../core/steward')
-  , users       = require('./api-manage-user')
+var util       = require('util')
+  , database   = require('./../core/database')
+  , devices    = require('./../core/device')
+  , manage     = require('./../routes/route-manage')
+  , places     = require('./../actors/actor-place')
+  , steward    = require('./../core/steward')
+  , users      = require('./api-manage-user')
+  , utility    = require('./../core/utility')
   ;
 
+
+var things = {};
+
+var eventIDs  = {};
+var taskIDs   = {};
+var thingIDs  = {};
+var thingUDNs = {};
+
+var db;
 
 var pair = function(logger, ws, api, message, tag) {
   var user;
@@ -38,20 +51,20 @@ var pair = function(logger, ws, api, message, tag) {
 };
 
 var pair2 = function(logger, ws, data, tag) {
-  var message;
+  var results;
 
-  try { message = JSON.parse(data); } catch(ex) {
-    return manage.error(ws, tag, 'thing pairing', message.requestID, true, 'internal error');
+  try { results = JSON.parse(data); } catch(ex) {
+    return manage.error(ws, tag, 'thing pairing', results.requestID, true, 'internal error');
   }
 
-  if ((!!message) && (!!message.result) && (!message.error)) {
-    message.result.success = true;
-    message.result.thingID = message.result.client;
-    delete(message.result.user);
-    delete(message.result.client);
+  if ((!!results) && (!!results.result) && (!results.error)) {
+    results.result.success = true;
+    results.result.thingID = results.result.client;
+    delete(results.result.user);
+    delete(results.result.client);
   }
 
-  try { ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 };
 
 var hello = function(logger, ws, api, message, tag) {
@@ -77,56 +90,318 @@ var hello = function(logger, ws, api, message, tag) {
 };
 
 var hello2 = function(logger, ws, data, tag) {
-  var message;
+  var results;
 
   data = data.replace(/clientID/g, 'thingID');
-  try { message = JSON.parse(data); } catch(ex) {
-    return manage.error(ws, tag, 'thing hello', message.requestID, true, 'internal error');
+  try { results = JSON.parse(data); } catch(ex) {
+    return manage.error(ws, tag, 'thing hello', results.requestID, true, 'internal error');
   }
 
-  if ((!!message) && (!!message.result) && (!message.error)) {
-    message.result.success = true;
-    delete(message.result.userID);
-    delete(message.result.role);
+  if ((!!results) && (!!results.result) && (!results.error)) {
+    results.result.success = true;
+    delete(results.result.userID);
+    delete(results.result.role);
   }
 
-  try { ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 };
 
 var prototype = function(logger, ws, api, message, tag) {
+  var path, props, results, thingUUID;
+
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing definition', message.requestID, permanent, diagnostic);
   };
 
+  if (!readyP())                                            return error(false, 'database not ready');
+
+  if (!message.things)                                      return error(true,  'missing things element');
+
+  results = { requestID: message.requestID, things: {} };
+  for (thingUUID in message.things) {
+    if (!message.things.hasOwnProperty(thingUUID)) continue;
+
+    path = thingUUID.split('/');
+    if ((path.length < 3) || (path[0] !== '') || (path[1] !== 'device')) {
+      results.things[thingUUID] = { error: { permanent: false, diagnostic: 'invalid thingUUID' } };
+      continue;
+    }
+
+    props = message.things[thingUUID];
+    if (!util.isArray(props.observe)) props.observe = [];
+    if (!util.isArray(props.perform)) props.perform = [];
+    if (!props.name)                                        return error(true,  'missing name in ' + thingUUID);
+    props.name = true;
+    if (!props.status)                                      return error(true,  'missing status in ' + thingUUID);
+    if (!props.properties) props.properties = {};
+    if (!props.validate) props.validate = { observe: false, perform: false };
+    props.validate.observe = !!props.validate.observe;
+    props.validate.perform = !!props.validate.perform;
+
+    results.things[thingUUID] = { success: true };
+    if (!addprototype(thingUUID, props)) results.things[thingUUID].diagnostic = 'previously defined';
+    else insprototype(logger, thingUUID, '', '', props, tag);
+  }
+
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
+var addprototype = function(thingUUID, props) {
+  var actors, i, path, info;
+
+    path = thingUUID.split('/');
+    actors = steward.actors;
+    for (i = 1; i < path.length - 1; i++) {
+console.log('actors.'+path[i]+' = ' + path.slice(0, i).join('/'));
+      if (!actors[path[i]]) actors[path[i]] = { $info : { type : path.slice(0, i).join('/') } };
+      actors = actors[path[i]];
+    }
+
+console.log('actors.'+path[i]+' = ' + props);
+    info = utility.clone(props);
+    info.name = props.name;
+    info.status = props.status;
+    delete(info.type);
+    delete(info.observe);
+    delete(info.perform);
+
+console.log('!!actors[path[i]]'+!!actors[path[i]]);
+    if (!!actors[path[i]]) return false;
+console.log(props);
+
+
+    actors[path[i]] = { $info: { type       : thingUUID
+                               , observe    : props.observe
+                               , perform    : props.perform
+                               , properties : info
+                               }
+                      };
+    devices.makers[thingUUID] = Thing;
+    return true;
+};
+
+var insprototype = function(logger, thingUUID, name, comments, props, tag) {
+  db.run('INSERT INTO things(thingUID, thingName, thingComments, thingDefinition, created) '
+         + ' VALUES($thingUID, $thingName, $thingComments, $thingDefinition, datetime("now"))',
+         { $thingUID: thingUUID, $thingName: name, $thingComments: comments, $thingDefinition: props }, function(err) {
+    logger.error(tag, { user: 'INSERT things.thingUID for ' + thingUUID, diagnostic: err.message });
+  });
+};
+
+
 var register = function(logger, ws, api, message, tag) {
+  var info, props, id, results, thingID, udn;
+
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing registration', message.requestID, permanent, diagnostic);
   };
 
+  if (!message.things)                                      return error(true,  'missing things element');
+
+  results = { requestID: message.requestID, things: {} };
+  for (thingID in message.things) {
+    if (!message.things.hasOwnProperty(thingID)) continue;
+
+    props = message.things[thingID];
+    if (!props.devicetype)                                  return error(true,  'missing devicetype property in ' + thingID);
+    if (!devices.makers[props.devicetype])                  return error(true,  'unknown devicetype in ' + thingID);
+    if (!props.name)                                        return error(true,  'missing name in ' + thingID);
+    if (!props.status)                                      return error(true,  'missing status in ' + thingID);
+    if (!props.device)                                      return error(true,  'missing device in ' + thingID);
+    if (!props.device.name)                                 return error(true,  'missing device name in ' + thingID);
+    if (!props.device.model) props.device.model = {};
+    if (!props.device.unit)                                 return error(true,  'missing device unit property in ' + thingID);
+    if (!props.device.unit.udn)                             return error(true,  'missing device unit UDN in ' + thingID);
+    if (!props.updated) props.updated = new Date().getTime();
+
+    udn = props.device.unit.udn;
+    for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
+         !!thingIDs[id];
+         id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
+    thingIDs[id] = { udn: udn, clientID: ws.clientInfo.clientID };
+    thingUDNs[udn] = id;
+
+// NB: should make sure that all of info is defined in props...
+    info = (!!props.info) ? utility.clone(props.info) : {};
+    info.source = ws.clientInfo;
+    info.params = { ws: ws, thingID: id, name: props.name, status: props.status };
+    info.device = { url                          : null
+                  , name                         : props.device.name
+                  , manufacturer                 : props.device.maker
+                  , model        : { name        : props.device.model.name
+                                   , description : props.device.model.descr
+                                   , number      : props.device.model.number
+                                   }
+                  , unit         : { serial      : props.device.unit.serial
+                                   , udn         : udn
+                                   }
+                  };
+    info.deviceType = props.deviceType;
+    info.id = info.device.unit.udn;
+
+    if (devices.devices[info.id]) {
+      results.things[thingID] = { error: { permanent: false, diagnostic: 'UDN is already registered' } };
+      continue;
+    }
+    results.things[thingID] = { success: true, thingID: id };
+
+    logger.info(info.device.name, { id: info.device.unit.serial, params: info.params });
+    devices.discover(info);
+  }
+
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
 var update = function(logger, ws, api, message, tag) {
+  var child, prop, props, results, thingID;
+
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing updating', message.requestID, permanent, diagnostic);
   };
 
+  if (!message.things)                                      return error(true,  'missing things element');
+
+  results = { requestID: message.requestID, things: {} };
+  for (thingID in message.things) {
+    if (!message.things.hasOwnProperty(thingID)) continue;
+
+    if (!thingIDs[thingID]) {
+      results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid thingID' } };
+      continue;
+    }
+// NB: should check clientID here too...
+
+    child = devices[thingIDs[thingID].udn];
+    if (!child)                                             return error(true, 'internal error');
+
+    props = message.things[thingID];
+    if (!!props.name) child.name = props.name.toStrin();
+    if (!!props.status) child.status = props.status;
+    child.updated = props.updated || new Date().getTime();
+// NB: should make sure that prop is defined in props...
+    for (prop in props.info) if (props.info.hasOwnProperty(prop)) child.info[prop] = props.info[prop];
+
+    results.things[thingID] = { success: true };
+  }
+
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
 };
 
 var report = function(logger, ws, api, message, tag) {
+  var didP, event, eventID, task, taskID, results;
+
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing reporting', message.requestID, permanent, diagnostic);
   };
+
+  if ((!message.events) && (!message.tasks))                return error(true,  'missing events element');
+
+  if (!!message.events) {
+    results = { requestID: message.requestID, events: {} };
+
+    didP = false;
+    for (eventID in message.events) {
+      if (!message.events.hasOwnProperty(eventID)) continue;
+
+      if (!eventIDs[eventID]) {
+        results.events[eventID] = { error : { permanent: false, diagnostic: 'invalid eventID' } };
+        continue;
+      }
+// NB: should check clientID here too...
+
+      event = message.events[eventID];
+      if (!event.reason)                                    return error(true,  'missing reason in ' + eventID);
+
+      switch (event.reason) {
+        case 'observe':
+          steward.report(eventIDs[eventID].eventID, {});
+          results.events[eventID] = { success: true };
+          break;
+
+        case 'failure':
+          steward.report(eventIDs[eventID].eventID, { error: true, message: event.diagnostic || 'unspecified' });
+          delete(eventIDs[eventID]);
+          results.events[eventID] = { success: true };
+          break;
+
+        case 'success':
+          continue;
+
+        default:
+          results.events[eventID] = { error : { permanent: true, diagnostic: 'invalid reason' } };
+          break;
+      }
+      didP = true;
+    }
+
+    if (didP) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+  }
+
+  if (!!message.tasks) {
+    for (taskID in message.tasks) {
+      if (!message.tasks.hasOwnProperty(taskID)) continue;
+
+      if (!taskIDs[taskID]) {
+        logger.error(tag, { event: 'task', taskID: taskID, results: task } );
+        continue;
+      }
+// NB: should check clientID here too...
+
+      task = message.tasks[taskID];
+      logger.info(tag, { event: 'task', taskID: taskIDs[taskID].taskID, results: task });
+      delete(taskIDs[taskID]);
+    }
+  }
 
   return true;
 };
 
 
+var loadedP = false;
+
+var readyP = function() {
+  if (loadedP) return true;
+
+  if (!database.db) {
+    setTimeout(readyP, 1000);
+    return false;
+  }
+  db = database.db;
+
+  var logger = devices.logger;
+
+  db.all('SELECT * FROM things ORDER BY sortOrder', function(err, rows) {
+    if (err) {
+      logger.error('devices', { event: 'SELECT things.*', diagnostic: err.message });
+      loadedP = false;
+      return;
+    }
+    rows.forEach(function(thing) {
+      var thingUUID = thing.thingUID;
+
+      things[thingUUID] = { thingID        : thing.thingID.toString()
+                          , thingUID       : thingUUID
+                          , thingName      : thing.thingName
+                          , thingComments  : thing.thingComments
+                          , thingDefinition : JSON.parse(thing.thingDefinition)
+                          };
+
+      addprototype(thingUUID, things[thingUUID].thingDefinition);
+    });
+
+    loadedP = true;
+  });
+
+  return false;
+};
+
+
 exports.start = function() {
+  readyP();
+
   manage.apis.push({ prefix  : '/api/v1/thing/pair'
                    , route   : pair
                    , access  : manage.access.level.read    // does its own checking...
@@ -179,3 +454,88 @@ exports.start = function() {
                    , comments : []
                    });
 };
+
+
+var Thing = function(deviceID, deviceUID, info) {
+  var self = this;
+
+  self.whatami = info.deviceType;
+  self.deviceID = deviceID.toString();
+  self.deviceUID = deviceUID;
+  self.name = info.params.name;
+  self.ws = info.params.ws;
+  self.thingID = info.params.thingID;
+  self.logger = devices.logger;
+
+  self.info = utility.clone(info);
+  delete(self.info.id);
+  delete(self.info.device);
+  delete(self.info.deviceType);
+  delete(self.info.params);
+
+  self.status = info.params.status;
+  self.changed();
+
+  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+    if (request === 'ping') {
+      self.logger.info('device/' + self.deviceID, { status: self.status });
+      return;
+    }
+
+         if (actor !== ('device/' + self.deviceID)) return;
+    else if (request === 'observe') self.observe(self, eventID, observe, parameter);
+    else if (request === 'perform') self.perform(self, eventID, observe, parameter);
+  });
+};
+util.inherits(Thing, require('./../devices/device-gateway').Device);
+
+
+var requestID = 0;
+
+Thing.prototype.observe = function(self, eventID, observe, parameter) {
+  var id, message;
+
+  for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
+       !!eventIDs[id];
+       id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
+  eventIDs[id] = { eventID: eventID, clientID: self.ws.clientInfo.clientID };
+
+  requestID++;
+  message = { path: '/api/v1/thing/observe', requestID: requestID.toString(), events: {} };
+  message.events[id] = { thingID   : thingUDNs[self.id]
+                       , observe   : 'observe'
+                       , parameter : typeof parameter !== 'string' ? JSON.stringify(parameter) : parameter
+                       , testOnly  : false };
+
+  try { self.ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
+};
+
+Thing.prototype.perform = function(self, taskID, perform, parameter) {
+  var id, message;
+
+  for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
+       !!taskIDs[id];
+       id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
+  taskIDs[id] = { taskID: taskID, clientID: self.ws.clientInfo.clientID };
+
+  requestID++;
+  message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), events: {} };
+  message.tasks[id] = { thingID   : thingUDNs[self.id]
+                      , perform   : 'perform'
+                      , parameter : typeof parameter !== 'string' ? JSON.stringify(parameter) : parameter
+                      , testOnly  : false };
+
+  try { self.ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
+};
+
+/* TBD: later, not sure how to deal with async/sync interaction
+
+var validate_observe = function(info) {
+  var result = { invalid: [], requires: [] };
+};
+
+var validate_perform = function(info) {
+  var result = { invalid: [], requires: [] };
+};
+
+*/

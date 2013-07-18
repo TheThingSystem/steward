@@ -287,7 +287,9 @@ var pretty_msg = function(category, message) {
 
   parts = message.split(' ');
   if ((parts.length >= 4)
-        && ((parts[0] === 'http') || (parts[0] === 'https') || (parts[0] === 'ws') || (parts[0] === 'ws'))) {
+        && (   (parts[0] === 'http') || (parts[0] === 'https')
+            || (parts[0] === 'ws')   || (parts[0] === 'wss')
+            || (parts[0] === 'tls')  || (parts[0] === 'cloud'))) {
     var scheme = '      ' + parts[0]
       , host   = parts[1] + '    '
       , port   = '      ' + parts[2]
@@ -613,21 +615,21 @@ var notice = function(message, meta) {
   onupdate({ monitor: [{ date: new Date().toISOString(), level: 'notice', message: message, meta: (meta || {}) }] });
 };
 
-var go = function(location, i) {
+var go = function(steward, i) {
   var opened, ws, ws2;
-  var tag = 'connection #' + i + ' to ' + location.protocol + '//' + location.hostname + ':' + location.port + '/console';
+  var tag = 'connection #' + i + ' to ' + steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console';
 
   notice(tag, { state: 'connecting...' });
 
   opened = 0;
-  ws = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/console' + location.search);
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console' + steward.search);
   ws2 = null;
 
   ws.onopen = function(event) {
     opened = 1;
     notice(tag, { state: 'open' });
 
-    ws2 = new WebSocket(location.protocol + '//' + location.hostname + ':' + location.port + '/manage' + location.search);
+    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage' + steward.search);
 
 // when going through a cloud server, need to throttle a bit...
     ws2.onopen = function(event) {
@@ -673,7 +675,7 @@ console.log((requestID !== '1') ? 'list activities' : 'list actors');
 
   ws.onclose = function(event) {
     notice(tag, { state: (opened ? 'closed' : 'error'), code: event.code, message: event.reason });
-    setTimeout (function() { go(location, i + 1); }, 2500);
+    setTimeout (function() { go(steward, i + 1); }, 2500);
   };
 
   ws.onerror = function(event) {
@@ -682,19 +684,19 @@ console.log((requestID !== '1') ? 'list activities' : 'list actors');
 /*
     if (!!ws2) { try { ws2.close(); } catch (ex) {}; ws2 = null; }
 */
-    setTimeout (function() { go(location, i + 1); }, 5000);
+    setTimeout (function() { go(steward, i + 1); }, 5000);
   };
 };
 
 var main = function() {
-  var location = { hostname : window.location.hostname
-                 , port     : window.location.port
-                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                 , search   : '%%UUID%%'
-                 };
+  var steward = { hostname : window.location.hostname
+                , port     : window.location.port
+                , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                , search   : '%%UUID%%'
+                };
 
   notice('start');
-  go(location, 1);
+  go(steward, 1);
   setInterval(onupdate, 10000);
 };
 </script>

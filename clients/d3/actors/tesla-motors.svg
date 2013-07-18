@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:version="0.48.1 r9760" sodipodi:docname="insteon_LED.svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<sodipodi:namedview  borderopacity="1" bordercolor="#666666" pagecolor="#ffffff" objecttolerance="10" id="namedview11726" guidetolerance="10" inkscape:pageopacity="0" gridtolerance="10" inkscape:pageshadow="2" inkscape:window-width="1910" inkscape:zoom="21.013957" inkscape:window-height="1156" inkscape:cy="22.318501" inkscape:cx="22.318501" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="0" showgrid="false" inkscape:current-layer="Layer_1">
+	</sodipodi:namedview>
+<g id="g11706">
+	<g id="g11708">
+	</g>
+	<g id="g11712">
+	</g>
+	<g id="g11716">
+	</g>
+	<g id="g11720">
+	</g>
+</g>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M41.61,22.248c-0.001,10.571-8.57,19.143-19.145,19.143
+	c-10.573,0-19.146-8.572-19.146-19.143c0-10.574,8.573-19.146,19.146-19.146C33.039,3.102,41.61,11.673,41.61,22.248z M44.637,0
+	v44.637H0V0H44.637z M43.136,22.249c0-11.5-9.32-20.821-20.816-20.821c-11.498,0-20.817,9.321-20.817,20.821
+	c0,11.495,9.319,20.814,20.817,20.814C33.816,43.064,43.136,33.743,43.136,22.249z"/>
+<g>
+	<path fill-rule="evenodd" clip-rule="evenodd" fill="#FFFFFF" d="M35.321,13.833c-0.066,0.33-0.365,0.993-0.758,1.073
+		c-0.383,0.076-2.152-0.583-2.709-0.694c-6.561-1.316-15.789-1.078-21.418,0.756c-0.271-0.326-0.754-0.75-0.757-1.135
+		C16.775,11.793,28.223,11.789,35.321,13.833z"/>
+	<path fill-rule="evenodd" clip-rule="evenodd" fill="#FFFFFF" d="M22.467,16.291c0.526-0.504,0.938-1.121,1.45-1.639
+		c3.768-0.027,7.268,0.211,10.08,1.135c-0.51,0.982-1.906,1.621-3.148,2.078c-0.354-1.662-2.404-1.627-4.285-1.764
+		c-1.447,6.449-2.676,13.114-4.033,19.655c-1.423-6.473-2.634-13.157-4.032-19.655c-1.857,0.158-3.988,0.043-4.283,1.764
+		c-1.309-0.453-2.521-1.006-3.213-2.078c1.744-0.66,4.691-0.949,7.309-1.07c0.784-0.037,1.957-0.291,2.709-0.064
+		C21.66,14.847,21.955,15.92,22.467,16.291z"/>
+</g>
+</svg>

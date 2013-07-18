@@ -78,10 +78,10 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   }
 
   self.cosm.create(params, function(err, id) {
-    if (err) {
+    if (!!err) {
       self.status = 'error';
       self.setInfo();
-      return logger.error('device/' + self.deviceID, { event: 'cosm.create', diagnostic: err.message });
+      return logger.error('device/' + self.deviceID, { event: 'cosm.create', diagnostic: err.message || err.errors });
     }
 
     self.info.feed = id.toString();
@@ -96,20 +96,20 @@ util.inherits(Cosm, indicator.Device);
 
 Cosm.prototype.getfeed = function(self) {
   self.cosm.get(self.info.feed, function(err, feed) {
-    if (err) {
+    if (!!err) {
       self.status = 'error';
       self.setInfo();
-      return logger.error('device/' + self.deviceID, { event: 'cosm.get', diagnostic: err.message });
+      return logger.error('device/' + self.deviceID, { event: 'cosm.get', diagnostic: err.message || err.errors });
     }
 
     self.feed = feed;
     self.feed.get(function(err, data) {
       var deviceID, i, id;
 
-      if (err) {
+      if (!!err) {
         self.status = 'error';
         self.setInfo();
-        return logger.error('device/' + self.deviceID, { event: 'feed.get', diagnostic: err.message });
+        return logger.error('device/' + self.deviceID, { event: 'feed.get', diagnostic: err.message || err.errors });
       }
 
       self.status = 'ready';
@@ -150,7 +150,8 @@ Cosm.prototype.update = function(self, deviceID, point) {
     return self.datastreams[point.streamID].addPoint(point.value, new Date(point.timestamp), function(err, response, body) {
       /* jshint unused: false */
 
-      if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addPoint', diagnostic: err.message });
+      if (!!err) return logger.error('device/' + self.deviceID,
+                                     { event: 'feed.addPoint', diagnostic: err.message || err.errors });
     });
   }
 
@@ -167,13 +168,15 @@ Cosm.prototype.update = function(self, deviceID, point) {
                       , tags   : tags
                       , unit   : { type: point.measure.type, label: point.measure.label, symbol: point.measure.symbol }
                       }, function(err, body) {/* jshint unused: false */
-    if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addStream', diagnostic: err.message });
+    if (!!err) return logger.error('device/' + self.deviceID,
+                                   { event: 'feed.addStream', diagnostic: err.message || err.errors });
 
     self.datastreams[point.streamID] = new cosm.Datastream(self.cosm, self.feed, { id : point.streamID });
     self.datastreams[point.streamID].addPoint(point.value, new Date(point.timestamp), function(err, response, body) {
       /* jshint unused: false */
 
-      if (err) return logger.error('device/' + self.deviceID, { event: 'feed.addPoint', diagnostic: err.message });
+      if (!!err) return logger.error('device/' + self.deviceID,
+                                     { event: 'feed.addPoint', diagnostic: err.message || err.errors });
     });
   });
 };
@@ -203,7 +206,7 @@ Cosm.prototype.perform = function(self, taskID, perform, parameter) {
     if (self.feed.private != onoff) {
       self.feed.private = onoff;
       self.feed.save(function(err, response, body) {/* jshint unused: false */
-        if (err) return logger.error('device/' + self.deviceID, { event: 'feed.save', diagnostic: err.message });
+        if (err) return logger.error('device/' + self.deviceID, { event: 'feed.save', diagnostic: err.message || err.errors });
       });
     }
   }

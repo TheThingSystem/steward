@@ -59,7 +59,7 @@ Cloud.prototype.login = function(self) {
     if (self.timer) { clearInterval(self.timer); self.timer = null; }
     self.login(self);
   }).setConfig(client1, client2, self.info.email, self.info.passphrase).getToken(function(err) {
-    if (err) { self.netatmo = null; return self.error(self, err); }
+    if (!!err) { self.netatmo = null; return self.error(self, err); }
 
     self.status = 'ready';
     self.changed();
@@ -80,7 +80,7 @@ Cloud.prototype.scan = function(self) {
   self.netatmo.getDevices(function(err, results) {
     var coordinates, i, id, j, modules, place, station, stations;
 
-    if (err) return self.error(self, err);
+    if (!!err) return self.error(self, err);
 
     if (results.status !== 'ok') {
       return logger.error('device/' + self.deviceID, { operation: 'getDevices', results: results });
