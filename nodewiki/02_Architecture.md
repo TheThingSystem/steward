@@ -108,3 +108,12 @@ A [prefab](Developer/Clients/02_PreFabs.md) is an internal structure used by the
 For example,
 a "lighting apprentice" might start by asking you to group the lights in your home into natural units
 (such as "living room", "entry way", and so on).
+
+## Communicating with the Cloud
+
+The steward implements the _hidden server_ side of a [rendezvous protocol](https://github.com/mrose17/node-rendezvous).
+What that means is that you can have the steward listen for traffic on the Internet while sitting behind your home firewall.
+The steward implements a (hopefully) robust [security](Developer/01_Security.md) model,
+so clients are required to use either _https_ or _wss_ (secure web sockets) to connect to the steward,
+and then authenticate themselves using a time-based OTP system.
+Future implementations of the steward are planned to support _ssh_ in addition to _https_ and _wss_.

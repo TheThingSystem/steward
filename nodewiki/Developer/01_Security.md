@@ -93,7 +93,7 @@ and then HTTPS.
 * Once the HTTPS is negotiated, the client does an HTTP upgrade to WebSockets, and then authenticates itself.
 
 ### SSH access
-__Note that at present, _ssh_ is not implemented; please use _https_ instead.__
+**Note that at present, _ssh_ is not implemented; please use _https_ instead.**
 
 Whenever the client connects to the steward for ssh access:
 

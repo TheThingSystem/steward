@@ -258,8 +258,8 @@ it's up to you to decide whether to turn it on and which sensors to feed to it.
 Similarly,
 you may not always be home and you may wish to have remote access to your steward.
 The steward defines an API for third-party services to use for this purpose.
-The steward also comes with a module that talks to [Nodejitsu](http://en.wikipedia.org/wiki/Nodejitsu) so you can run your own
-remote access server in the cloud.
+The steward also comes with a module that talks to a [rendezvous server](https://github.com/mrose17/node-rendezvous),
+so you can run your own remote access server in the cloud.
 
 The guiding principle here is that the steward focuses on the home and stays in the home.
 If you want to let data out, or take allow access in, you decide the "who" and the "how much".
