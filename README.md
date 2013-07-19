@@ -77,4 +77,4 @@ PRIOR TO ALPHA RELEASE
 
     6.1. json/d3 client (Becky, Danny: July)
 
-    6.2. arduino: LED blinking on/off, DHT-22 sensor, pressure mat
+    6.2. arduino: LED blinking on/off, DHT-22 sensor (temperature/humidity), pressure mat, MQ-7 (carbon monoxide), MD0550 (wind)

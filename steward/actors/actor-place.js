@@ -397,7 +397,7 @@ exports.start = function() {
                     , observe    : [ 'cron', 'solar' ]
                     , perform    : [ ]
                     , properties : { name        : true
-                                   , status      : [ 'green', 'blue', 'indigo', 'red' ]
+                                   , status      : [ 'green', 'blue', 'orange', 'red' ]
                                    , pairing     : [ 'off', 'on', 'code' ]
                                    , pairingCode : true
                                    , physical    : true

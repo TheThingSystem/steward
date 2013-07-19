@@ -504,7 +504,7 @@ three properties must be present in all devices:
 
     * _present_, _absent_, or _recent_ - for presence and sensors
 
-    * _green_, _blue_, _indigo_, or _red_ - for reporting steward health
+    * _green_, _blue_, _orange_, or _red_ - for reporting steward health
 
 * _updated_ - a timestamp
 

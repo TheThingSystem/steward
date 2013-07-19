@@ -12,7 +12,7 @@
 
 // you may change the name field, if you wish
 // you may change the physical address field, if you wish
-// please change the latitude and longitude in the coordinates below
+// please change the latitude and longitude in the coordinates below (needed to calculate solar time, e.g., dawn)
 
 var place_info   = { name        : 'Home'
                    , physical    : ''
@@ -20,44 +20,56 @@ var place_info   = { name        : 'Home'
                    };
 
 
-// please go to http://www.prowlapp.com and login (if need be, please register for an account)
-// then go to https://www.prowlapp.com/api_settings.php and generate an API key
-// fill-in the apikey field below
+// if you have any of these products/services, please fill-in the relevant 'info' fields...
 
-var prowl_info   = { name        : 'prowler'
-                   , apikey      : ''
-                   };
-
-
-// if you want to have status snapshots written to a directory (e.g., for use by the d3 client),
-// please fill-in the directory here (or leave it be to disable this feature)
-
-var status_info  = { name       : 'statusboard'
-                   , directory  : ''
-                   };
-
-
-// if you have a netatmo account,
-// please enter the email address and passphrase here
-
-var netatmo_info = { email       : 'user@example.com'
-                   , passphrase  : ''
-                   };
-
-
-// if you have a Nest account,
-// please enter the email address and passphrase here
-
-var nest_info =    { email       : 'user@example.com'
-                   , passphrase  : ''
-                   };
-
-
-// if you have a cosm account,
-// please enter the api key here
-
-var cosm_info =    { apikey      : ''
-                   };
+var bootable = { prowl          :
+                 { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
+                 , instructions : 'Generate an API key.'
+                 , site         : 'https://prowlapp.com/login.php'
+                 , icon         : ''
+                 , name         : 'prowler'
+                 , actor        : '/device/indicator/text/prowl'
+                 , info         :
+                   { name       : 'prowler'
+                   , apikey     : ''
+                   }
+                 }
+               , netatmo        :
+                 { text         : 'If you have a Netatmo weather station, the steward can manage it for you.'
+                 , instructions : 'Enter your email and password.'
+                 , site         : 'http://my.netatmo.com'
+                 , icon         : ''
+                 , name         : 'netatmo'
+                 , actor        :'/device/gateway/netatmo/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
+                   }
+                 }
+               , nest           :
+                 { text         : 'If you have a Nest thermostat, the steward can manage it for you.'
+                 , instructions : 'Enter your email address and password.'
+                 , site         : 'https://home.nest.com'
+                 , icon         : ''
+                 , name         : 'nest'
+                 , actor        : '/device/gateway/nest/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
+                   }
+                 }
+               , xively         :
+                 { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
+                 , instructions : 'Create an API key with READ, UPDATE, and CREATE permissions.'
+                 , site         : 'https://xively.com/login'
+                 , icon         : ''
+                 , name         : 'xively'
+                 , actor        : '/device/indicator/text/cosm'
+                 , info         :
+                   { apikey     : ''
+                   }
+                 }
+               };
 
 
 // END: BOOTSTRAP
@@ -67,15 +79,9 @@ var bootstrap = function(ws) {
   blinky(ws, 0);
 
   list_actors(ws, '', { depth : 'all' }, function(message) {
-    var a, actor, actors, d, z;
+    var a, actor, actors, d, emptyP, entry, info, name, prop, z;
 
     var update_place   = function() { perform_actors(ws, 'place', 'set', place_info); };
-
-    var create_prowler = function() { create_device(ws, 'prowler',     '/device/indicator/text/prowl',  prowl_info);   };
-    var create_status  = function() { create_device(ws, 'statusboard', '/device/indicator/text/status', status_info);  };
-    var create_netatmo = function() { create_device(ws, 'netatmo',     '/device/gateway/netatmo/cloud', netatmo_info); };
-    var create_nest    = function() { create_device(ws, 'nest',        '/device/gateway/nest/cloud',    nest_info);    };
-    var create_cosm    = function() { create_device(ws, 'cosm',        '/device/indicator/text/cosm',   cosm_info);    };
 
     if ((!message.result) && (!message.error)) return false;
     if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
@@ -93,63 +99,43 @@ var bootstrap = function(ws) {
         if ((!d.info.coordinates) || (d.info.coordinates.length < 2)) { update_place(); break; }
       }
 
-      if ((actor === '/device/indicator/text/prowl') && (prowl_info.apikey.length > 0)) {
+      for (name in bootable) {
+        if (!bootable.hasOwnProperty(name)) continue;
+
+        entry = bootable[name];
+        if (entry.actor !== actor) continue;
+
+        info = entry.info;
+        emptyP = false;
+        for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
+        if (emptyP) continue;
+
         for (a in actors[actor]) {
           if (!actors[actor].hasOwnProperty(a)) continue;
 
           d = actors[actor][a];
-          if ((!!d.info.apikey) && (d.info.apikey.length === 40)) break;
+
+          emptyP = false;
+          for (prop in info) if ((info.hasOwnProperty(prop)) && (d.info[prop] === '')) emptyP = true;
+          if (emptyP) break;
         }
-        if (!a) create_prowler();
+       
+        if (!a) create_device(ws, name, entry.actor, info);
       }
-
-      if ((actor === '/device/indicator/text/status') && (status_info.directory.length > 0)) {
-        for (a in actors[actor]) if (actors[actor].hasOwnProperty(a)) break;
-        if (!a) create_status();
-      }
-
-      if ((actor === '/device/gateway/netatmo/cloud') && (netatmo_info.passphrase.length > 0)) {
-        for (a in actors[actor]) {
-          if (!actors[actor].hasOwnProperty(a)) continue;
-
-          d = actors[actor][a];
-          if ((!!d.info.username) && (!!d.info.phassphrase)) break;
-        }
-        if (!a) create_netatmo();
-      }
-
-      if ((actor === '/device/gateway/nest/cloud') && (nest_info.passphrase.length > 0)) {
-        for (a in actors[actor]) {
-          if (!actors[actor].hasOwnProperty(a)) continue;
-
-          d = actors[actor][a];
-          if ((!!d.info.username) && (!!d.info.phassphrase)) break;
-        }
-        if (!a) create_nest();
-      }
-
-      if ((actor === '/device/gateway/text/cosm') && (cosm_info.apikey.length > 0)) {
-        for (a in actors[actor]) {
-          if (!actors[actor].hasOwnProperty(a)) continue;
-
-          d = actors[actor][a];
-          if ((!!d.info.username) && (!!d.info.phassphrase)) break;
-        }
-        if (!a) create_cosm();
-      }
-
-// more bootstrapping goes above this line...
     }
 
-    actors = message.result.actors;
-    for (actor in actors) {
-      if ((!actors.hasOwnProperty(actor)) || (!!z[actor])) continue;
+    for (name in bootable) {
+      if (!bootable.hasOwnProperty(name)) continue;
 
-      if ((actor === '/device/indicator/text/prowl')  && (prowl_info.apikey.length > 0))       create_prowler();
-      if ((actor === '/device/indicator/text/status') && (status_info.directory.length > 0))   create_status();
-      if ((actor === '/device/gateway/netatmo/cloud') && (netatmo_info.passphrase.length > 0)) create_netatmo();
-      if ((actor === '/device/gateway/nest/cloud')    && (nest_info.passphrase.length > 0))    create_nest();
-      if ((actor === '/device/indicator/text/cosm')   && (cosm_info.apikey.length > 0))        create_cosm();
+      entry = bootable[name];
+      if (!z[entry.actor]) continue;
+
+      info = entry.info;
+      emptyP = false;
+      for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
+      if (emptyP) continue;
+
+      if (!z[entry.actor]) create_device(ws, name, entry.actor, info);
     }
 
     return true;
@@ -157,9 +143,7 @@ var bootstrap = function(ws) {
 };
 
 var rainbow = [ '#ff0000', '#ff8300', '#fff800', '#0000ff', '#00ff00', '#4b0082', '#ee82ee' ];
-    rainbow = [ '#ff0000', '#4b0082', '#0000ff', '#00ff00' ];
 var colors  = [ 'red',     'orange',  'yellow',  'blue',    'green',   'indigo',  'violet'  ];
-    colors  = [ 'red',     'indigo',  'blue',    'green'   ];
 
 var blinky = function(ws, i) {
   var r, g, b;
