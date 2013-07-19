@@ -107,7 +107,7 @@ var hello2 = function(logger, ws, data, tag) {
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 };
 
-var prototype = function(logger, ws, api, message, tag) {
+var prototype = exports.protodef = function(logger, ws, api, message, tag) {
   var path, props, results, thingPath;
 
   var error = function(permanent, diagnostic) {
@@ -193,7 +193,7 @@ var insprototype = function(logger, thingPath, name, comments, props, tag) {
 };
 
 
-var register = function(logger, ws, api, message, tag) {
+var register = exports.register = function(logger, ws, api, message, tag) {
   var info, props, id, results, thingID, udn;
 
   var error = function(permanent, diagnostic) {
@@ -280,6 +280,9 @@ var update = function(logger, ws, api, message, tag) {
     child = devices.devices[thingIDs[thingID].udn];
     if (!child)                                             return error(true, 'internal error');
     device = child.device;
+    if (!device.thingID) {
+      results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid thing' } };
+    }
 
     props = message.things[thingID];
     if (!!props.name) device.name = props.name.toString();

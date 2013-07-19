@@ -126,7 +126,7 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
         });
       }
       if (!!params.position) {
-        self.sonos.seek(params.position, function(err, data) {/* jshint unused: false */
+        self.sonos.seek(Math.round(params.position / 1000), function(err, data) {/* jshint unused: false */
           if (err) return logger.error('device/' + self.deviceID, { event: 'seek', diagnostic: err.message });
         });
       }
@@ -256,9 +256,11 @@ Sonos_Audio.prototype.refresh = function(self) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'currentTrack', diagnostic: err.message });
 
     if ((track !== undefined)
-        && (self.info.track.position !== track.position)
-        && (self.info.track.duration !== track.duration)) {
+          && (self.info.track.position !== (track.position * 1000))
+          && (self.info.track.duration !== (track.duration * 1000))) {
       self.info.track = track;
+      self.info.track.position *= 1000;
+      self.info.track.duration *= 1000;
       self.changed();
     }
   });
@@ -373,7 +375,7 @@ exports.start = function() {
                                    , status  : [ 'idle', 'playing', 'paused', 'busy' ]
                                    , track   : { title: true, artist: true, album: true, albumArtURI: true }
                                    , mode    : [ 'normal', 'repeat' , 'shuffle', 'shuffle1' ]
-                                   , position: 'seconds'
+                                   , position: 'milliseconds'
                                    , volume  : 'percentage'
                                    , muted   : [ 'on', 'off' ]
                                    }

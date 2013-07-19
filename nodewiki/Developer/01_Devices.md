@@ -466,7 +466,7 @@ Properties are expressed in a consistent set of units:
 * _meters/second_ - [0 .. N]
 * _latlng_        - [latitude, longitude] -or- [latitude, longitude, elevation]
 * _meters_        - [0 .. N]
-* _seconds_       - [0 .. N]
+* _milliseconds_  - [0 .. N]
 * _id_            - [1 .. N]
 * _u8_            - [0 .. 255]
 * _s8_            - [-127 .. 128]
@@ -626,7 +626,7 @@ Any of these properties may be present, which are set with the _on_ task:
 
 * _brightness_ - an integer-value percentage of the bulb's possible output
 
-* _transition_ - how many seconds should elapse as the bulb transitions to the new color and/or brightness
+* _transition_ - how many milliseconds should elapse as the bulb transitions to the new color and/or brightness
 
 * _interval_ - whether the bulb should change and remain (_solid_),
 change and return (_once_),
@@ -654,7 +654,7 @@ At a minimum, these properties must be present:
 
     * _albumArtURI_ - a URI
 
-* _position_ - an integer-value indicating the number of seconds
+* _position_ - an integer-value indicating the number of milliseconds
 
 * _volume_ - an integer-value percentage of the device's possible output
 

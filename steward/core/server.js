@@ -204,7 +204,7 @@ var start = function(port, secureP) {
           .start();
     }
 
-    logger.info('listening on ' + wssT + '://0.0.0.0:' + portno);
+    logger.info('listening on ' + wssT + '://*:' + portno);
 
     if (!secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
@@ -223,9 +223,9 @@ var start = function(port, secureP) {
     }).on('connection', function(socket) {
       hack = socket.localAddress;
     }).on('listening', function() {
-      logger.info('listening on http://0.0.0.0:80');
+      logger.info('listening on http://*:80');
     }).on('error', function(err) {
-      logger.info('unable to listen on http://0.0.0.0:80', { diagnostic: err.message });
+      logger.info('unable to listen on http://*:80', { diagnostic: err.message });
     }).listen(80);
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js/, 10, -3, ' discovery', portno);

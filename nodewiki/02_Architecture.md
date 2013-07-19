@@ -7,7 +7,7 @@ then it's useful to appreciate the philosophy.
 
 In terms of ASCII art:
 
-            native clients                browsers               apprentices     
+             native clients               browsers               apprentices     
 
               +-----------+            +-----------+            +-----------+
               |   client  |            |   client  |            |   client  |
@@ -46,9 +46,9 @@ In terms of ASCII art:
               |           |            |           |            |           |
               +-----------+            +-----------+            +-----------+
 
-        consumer equipment            smart devices            small sensors
+           consumer equipment          smart devices            small sensors
 
-__Developers: the links in the remainder of this document will take you to the relevant API information__
+__Developers: the links in the remainder of this document will take you to the relevant API information!__
 
 The [steward](Developer/00_Steward.md) is the center of the system, monitoring and controlling all sorts of 
 [things](Developer/Things/00_Introduction,

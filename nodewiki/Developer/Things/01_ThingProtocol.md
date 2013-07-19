@@ -177,7 +177,7 @@ _taskID_ values have no significance outside of a single message exchange.__
 ### Define Prototypes
 
 In order to understand the properties which are used to describe the state of a thing,
-you __MUST__ read the section on _Taxonomy_ in [Devices](Devices.md).
+you __MUST__ read the section on _Taxonomy_ in [Devices](../01_Devices.md).
 
 The _prototype_ message is sent by the implementation to the steward to define one or more thing prototypes:
 
@@ -258,7 +258,7 @@ The _register_ message is sent by the implementation to the steward to register 
         , updated       : timestamp
         , info          :
           {
-          // per-instance properties go here...
+          // per-instance properties values go here...
           }
         }
 
@@ -272,8 +272,8 @@ For example,
 if the thing is a PTZ mount for a mobile device,
 the _udn_ parameter must uniquely identify the PTZ mount,
 regardless of whatever mobile device is providing the implementation.
-(Think of the _udn_ parameter as the MAC address, and not the IP address, of the thing:
-the IP address of a thing may change, but its MAC address never will.)
+(Think of the _udn_ parameter as the serial number of the care function, and not the IP or MAC address of the platform:
+the IP or MAC address of a thing may change, but its serial number never will.)
 
 When the steward receives the _register_ message,
 either a detailed result or error response is returned.

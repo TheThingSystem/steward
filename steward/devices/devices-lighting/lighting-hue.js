@@ -191,7 +191,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
 
       if (!!params.transition) {
         params.transition = parseInt(params.transition, 10);
-        if (params.transition >= 0) state.transitiontime = params.transition * 10;
+        if (params.transition >= 0) state.transitiontime = Math.round(params.transition / 100);
       }
 
       switch (params.interval) {
@@ -731,12 +731,12 @@ var scan = function() {
       }
 
       for (i = 0; i < results.length; i++) {
-        if( results[i].macaddress === undefined ) {
-			serialNo = results[i].id;
-		} else {
-			serialNo = results[i].macaddress.split(':').join('');
-		}
-		
+        if (results[i].macaddress === undefined) {
+          serialNo = results[i].id;
+        } else {
+          serialNo = results[i].macaddress.split(':').join('');
+        }
+
         if (serialNo.length === 16) serialNo = serialNo.substr(0, 6) + serialNo.substr(-6);
 
         info = { source     : 'nupnp'
@@ -817,7 +817,7 @@ exports.start = function() {
                                                            ]
                                                   }
                                    , brightness : 'percentage'
-                                   , transition : 'seconds'
+                                   , transition : 'milliseconds'
                                    , interval   : [ 'once', 'flash', 'solid' ]
                                    , effect     : [ 'none', 'colorloop' ]
                                    }
