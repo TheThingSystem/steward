@@ -110,7 +110,7 @@ Roku_Video.prototype.notify = function() {
 
 exports.start = function() {
   steward.actors.device.media.roku = steward.actors.device.media.roku ||
-      { $info     : { type: '/device/media/roku/video' } };
+      { $info     : { type: '/device/media/roku' } };
 
   steward.actors.device.media.roku.video =
       { $info     : { type       : '/device/media/roku/video'
