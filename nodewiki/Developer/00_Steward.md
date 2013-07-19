@@ -212,6 +212,12 @@ Whenever the _steward_ module captures an ARP request,
 it invokes a method in this module to see if either MAC address has not previously been examined and whether the device-specific
 callback should be invoked.
 
+### Simple Thing Reporting Protocol discovery
+This module listens on traffic for UDP port 22602 on multicast address '224.192.32.19' which is where devices report
+information via the [Simple Thing Reporting Protocol](Things/01_ThingReporting.md).
+Upon receipt of a report,
+the module updates the steward accordingly.
+
 ## Routing modules
 At present, the _steward_ has three API modules.
 

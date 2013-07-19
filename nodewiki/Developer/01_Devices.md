@@ -508,6 +508,39 @@ three properties must be present in all devices:
 
 * _updated_ - a timestamp
 
+#### Measurement Properties
+
+Certain properties are termed _measurement properties_ in that model a physical characteristic that:
+
+* is measured in a particular set of units (e.g., 'celsius');
+
+* that may be related to the [SI](http://en.wikipedia.org/wiki/International_System_of_Units) system; and,
+
+* and often expressed using a symbol (e.g., 'C').
+
+If you wish for a measurement property to be automatically archived,
+then examine the file
+
+    steward/devices/device-sensor.js
+
+to see which measurement properties are currently defined in the _measures_ object, e.g.,
+
+    var measures = { temperature: { symbol: 'C', units: 'celsius', type: 'derivedSI' }
+                     ...
+                   };
+
+Add to this object as appropriate.
+The valid values for the _type_ field are:
+
+* _baseSI_ - one of the seven [SI base units](http://en.wikipedia.org/wiki/SI_base_unit);
+
+* _derivedSI_ - formed by the juxtaposition of [two or more base units](http://en.wikipedia.org/wiki/SI_derived_unit);
+
+* _derivedUnits_ - a unit derived not derived from the SI, but [frequently used in conjunction with the SI](http://en.wikipedia.org/wiki/Non-SI_units_mentioned_in_the_SI); and,
+
+* _contextDependentUnits_ - anything else.
+
+
 Now let's look at the twelve categories of devices.
 __(There's nothing _magical_ about this number, and it will probably drop to ten.)__
 

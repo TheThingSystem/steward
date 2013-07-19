@@ -81,7 +81,9 @@ from the Simple Thing Protocol.
 
 Accordingly before deciding how to construct a reporting message,
 you __MUST__ read the section on _Taxonomy_ in [Devices](../01_Devices.md).
-It is also worthwhile to restate a cauthion from the documentation on the Simple Thing Protocol:
+Please pay particular attention to the section on _Measurement Properties_.
+
+It is also worthwhile to restate a caution from the documentation on the Simple Thing Protocol:
 __It is imperative that the choice of the _udn_ parameter be both globally-unique and specific to the thing being registered.
 For example,
 if the thing is a CO sensor with an [Arduino shield](http://en.wikipedia.org/wiki/Arduino#Shields),

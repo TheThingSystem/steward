@@ -7,7 +7,7 @@ That will change soon.
 
 My next step is to update the files in nodewiki so that the documentation reflects the current code base.
 
-Your first step is to read the file nodewiki/0README.md
+Your first step is to read the file nodewiki/00_Introduction.md
 
 Enjoy!
 
@@ -15,89 +15,66 @@ Enjoy!
 PRIOR TO ALPHA RELEASE
 ======================
 
-0. platform ports
+1. platform ports
 
-    0.1. RPi (AA) ... needs BLE
+    1.1. RPi: needs BLE
 
-    0.2. BBB (AA) ... needs WiFi
+    1.2. BBB: needs WiFi
 
-1. initial documentation
+2. documentation
 
-    1.1. review (AA)
+    2.1. review (AA: July)
 
-2. device implementations
+    2.2. how to write a client
 
-    2.1. swivl ptz (MTR: July)
+    2.3. how to add a thing to the steward
 
-    2.2. appleTV
+    2.4. how to write magic
 
-    2.3. TI sensortag (AA)
+3. device implementations
 
-    2.4. nest goal temperature, fan status, heating/cooling status, and control functions
+    3.1. roku (EI: July)
 
-    2.5. romo
+    3.2. appleTV (EI: July)
 
-    2.6. galileo
+    3.3. nest goal temperature, fan status, heating/cooling status, and control functions (EI: July)
 
-    2.7. webcam
+    3.4. webcam (EI: August)
 
-    2.8. ecobee
+    3.5. ecobee (EI: August)
+
+    3.6. TI sensortag
+
+    3.7. swivl ptz
+
+    3.8. romo
+
+    3.9. galileo
 
 4. internals
 
-   4.1. device/group tags (MTR: July)
+    4.1. device/group tags (MTR: July)
 
-   4.2. temporal relations
+    4.2. logging transports
 
-   4.3. authentication/authorization (MTR: June)
+    4.3. temporal relations
 
-   4.4. logging transports
+    4.4. steward "color" based on status (MTR)
 
-5. steward "color" based on status
+    4.5. steward "user assistance" queue (MTR)
 
-6. steward "user assistance" queue
+    4.6. API to access historical data
 
-    6.1. "press the button on the controller"
+    4.7. json dump using API
 
-7. compile/evaluate the "magic" list (AA)
+5. gateway implementations
 
-    7.1. intelligent bulb replacement
+    5.1. complete zigbee gateway
 
-8. gateway implementations
+    5.2. implement z-wave gateway
 
-    8.1. complete zigbee gateway (MTR: July)
+6. clients
 
-    8.2. implement z-wave gateway (MTR: July)
+    6.1. json/d3 client (Becky, Danny: July)
 
-9. measurement samples
-
-    9.1. API to access historical data
-
-    9.2 json dump using API
-
-10. clients
-
-    10.1 json/d3 client (MTR, et. al.: July)
-
-11. remote access
-
-    11.1 nodejitsu server
-
-    11.2 Remote API
-
-
-PRIOR TO PUBLIC RELEASE
-=======================
-
-1. define missing APIs (MTR)
-
-    1.1. Prefab API
-
-2. Mobile client integration
-
-    2.1. client bootstrapping using NFC
-
-3. miscellaneous
-
-    3.1 backup/restore steward from client
-
+    6.2. arduino: LED blinking on/off, DHT-22 sensor, pressure mat
