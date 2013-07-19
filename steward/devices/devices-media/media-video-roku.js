@@ -45,49 +45,49 @@ util.inherits(Roku_Video, media.Device);
 
 
 Roku_Video.prototype.operations = {
-  'back' : function(params) {
-    this.roku.press(Roku.BACK);
-    this.roku.delay(500);
+  'back' : function(device, params) {
+    device.roku.press(Roku.BACK);
+    device.roku.delay(500);
   }
-, 'home' : function(params) {
-    this.roku.press(Roku.HOME);
-    this.roku.delay(1500);
+, 'home' : function(device, params) {
+    device.roku.press(Roku.HOME);
+    device.roku.delay(1500);
   }
-, 'up' : function(params) {
-    this.roku.press(Roku.UP);
+, 'up' : function(device, params) {
+    device.roku.press(Roku.UP);
   }
-, 'left' : function(params) {
-    this.roku.press(Roku.LEFT);
+, 'left' : function(device, params) {
+    device.roku.press(Roku.LEFT);
   }
-, 'right' : function(params) {
-    this.roku.press(Roku.RIGHT)
+, 'right' : function(device, params) {
+    device.roku.press(Roku.RIGHT);
   }
-, 'down' : function(params) {
-    this.roku.press(Roku.DOWN)
+, 'down' : function(device, params) {
+    device.roku.press(Roku.DOWN);
   }
-, 'replay' : function(params) {
-    this.roku.press(Roku.INSTANTREPLAY)
+, 'replay' : function(device, params) {
+    device.roku.press(Roku.INSTANTREPLAY);
   }
-, 'info' : function(params) {
-    this.roku.press(Roku.INFO)
+, 'info' : function(device, params) {
+    device.roku.press(Roku.INFO);
   }
-, 'select' : function(params) {
-    this.roku.press(Roku.SELECT)
+, 'select' : function(device, params) {
+    device.roku.press(Roku.SELECT);
   }
-, 'rewind' : function(params) {
-    this.roku.press(Roku.REV)
+, 'rewind' : function(device, params) {
+    device.roku.press(Roku.REV);
   }
-, 'play-pause' : function(params) {
-    this.roku.press(Roku.PLAY)
+, 'play-pause' : function(device, params) {
+    device.roku.press(Roku.PLAY);
   }
-, 'forward' : function(params) {
-    this.roku.press(Roku.FWD)
+, 'forward' : function(device, params) {
+    device.roku.press(Roku.FWD);
   }
-, 'type' : function(params) {
-    this.roku.type(params.string);
+, 'type' : function(device, params) {
+    device.roku.type(params.string);
   }
-, 'launch' : function(params) {
-    this.roku.launch(params.application)
+, 'launch' : function(device, params) {
+    device.roku.launch(params.application);
   }
 };
 
@@ -98,7 +98,7 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
 
 
   if (self.ops[perform]) {
-    self.operations[perform](params);
+    self.operations[perform](self, params);
     return steward.performed(taskID);
   }
   return false;
