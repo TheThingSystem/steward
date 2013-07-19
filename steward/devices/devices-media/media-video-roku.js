@@ -94,7 +94,7 @@ Roku_Video.prototype.operations = {
 
 Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
-  try { params = JSON.parse(parameter); } catch() {}
+  try { params = JSON.parse(parameter); } catch(e) {}
 
 
   if (self.ops[perform]) {
