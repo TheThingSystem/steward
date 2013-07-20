@@ -16,7 +16,7 @@ var logger = indicator.logger;
 
 var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   var self = this
-    , previous = null;
+    , previous = [];
 
   self.growl = function(err, remaining) {
     if (err) {
@@ -55,15 +55,22 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'apikey' ];
 
   utility.broker.subscribe('beacon-egress', function(category, datum) {
-    var parameter;
+    var parameter, x;
 
     if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) return;
 
     parameter = category + ': ' + datum.message;
     if (!!datum.meta) parameter += ' ' + stringify(datum.meta);
 
-    if (parameter === previous) return;
-    previous = parameter;
+    x = previous.indexOf(parameter);
+    if (x !== -1) {
+      if ((x + 1) !== previous.length) {
+        previous.splice(x, 1);
+        previous.push(parameter);
+      }
+      return;
+    }
+    if (previous.push(parameter) > 3) previous.shift();
 
     self.prowl.push(self.prefix2 + parameter, self.appname, self.growl);
   });

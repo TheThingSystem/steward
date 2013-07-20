@@ -375,7 +375,6 @@ exports.start = function() {
                                    , status  : [ 'idle', 'playing', 'paused', 'busy' ]
                                    , track   : { title: true, artist: true, album: true, albumArtURI: true }
                                    , mode    : [ 'normal', 'repeat' , 'shuffle', 'shuffle1' ]
-                                   , position: 'milliseconds'
                                    , volume  : 'percentage'
                                    , muted   : [ 'on', 'off' ]
                                    }

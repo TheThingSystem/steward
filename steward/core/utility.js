@@ -111,22 +111,21 @@ exports.logger = function(x) {
 
 exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
   fs.readdir(directory, function(err, files) {
-    var file, i;
+    var didP, file, i;
 
-    if (err) {
-      log.error('readdir', { diagnostic: err.message });
-      return;
-    }
+    if (err) return log.error('readdir', { diagnostic: err.message });
 
+    didP = false;
     for (i = 0; i < files.length; i++) {
       file = files[i];
       if (file.match(pattern)) {
+        didP = true;
         log.info('loading ' + file.slice(start, stop) + suffix);
         require(directory + '/' + file).start(arg);
-       }
+      }
     }
+    if (!didP) return log.warning('no loadable modules found');
   });
-
 };
 
 
