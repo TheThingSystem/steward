@@ -12,7 +12,7 @@ Your first step is to read the file nodewiki/00_Introduction.md
 Enjoy!
 
 
-PRIOR TO ALPHA RELEASE
+PRIOR TO BETA RELEASE
 ======================
 
 1. platform ports
@@ -57,9 +57,9 @@ PRIOR TO ALPHA RELEASE
 
     4.2. logging transports
 
-    4.5. steward "user assistance" queue (MTR)
+    4.5. steward "user assistance" queue (MTR: July)
 
-    4.6. API to access historical data
+    4.6. API to access historical data (MTR: August)
 
 5. gateway implementations
 
