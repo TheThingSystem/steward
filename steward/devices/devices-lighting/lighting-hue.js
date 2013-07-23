@@ -240,38 +240,9 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
 };
 
 
-Hue.prototype.ping = function(self) {
-  var light, meta, props;
-
-  var bright      = []
-    , dark        = []
-    , unreachable = []
-    ;
-
-  for (light in self.lights) {
-    if (!self.lights.hasOwnProperty(light)) continue;
-
-    props = self.lights[light];
-    if (!props.state) continue;
-
-    if (!props.state.reachable) unreachable.push(props.name);
-    else if (props.state.on) bright.push(props.name);
-    else dark.push(props.name);
-  }
-
-  self.status = self.waitingP ? 'waiting' : (!self.username) ? 'reset' : 'ready';
-  if ((!self.username) || ((bright.length === 0) && (dark.length === 0) && (unreachable.length === 0))) {
-    logger.info('device/' + self.deviceID, { status: self.status });
-    return;
-  }
-
-  meta = { on: bright, off: dark };
-  if (unreachable.length > 0) meta.unreachable = unreachable;
-  logger.info('device/' + self.deviceID, meta);
-};
-
-
 Hue.prototype.heartbeat = function(self) {
+  self.status = self.waitingP ? 'waiting' : (!self.username) ? 'reset' : 'ready';
+
   if (!!self.username) {
     self.refresh(self);
   } else {

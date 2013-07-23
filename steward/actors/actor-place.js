@@ -1,6 +1,7 @@
 var parser      = require('cron-parser')
   , suncalc     = require('suncalc')
   , util        = require('util')
+  , actors      = require('./../api/api-manage-actor')
   , database    = require('./../core/database')
   , devices     = require('./../core/device')
   , steward     = require('./../core/steward')
@@ -138,6 +139,7 @@ var Place = exports.Place = function(info) {
   self.deviceUID = '/place/home';
 // NB: end hack
   self.name = info.name;
+  self.status = 'red';
   self.changed();
 
   self.info = utility.clone(info);
@@ -159,8 +161,7 @@ var Place = exports.Place = function(info) {
     return { whatami : self.whatami
            , whoami  : 'place/1'
            , name    : self.name
-// TBD: dynamically calculate status, one of the colors in devices.rainbow
-           , status  : 'green'
+           , status  : self.status
            , info    : info
            , updated : new Date(devices.lastupdated)
            };
@@ -280,6 +281,27 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
 Place.prototype.makecode = function() {
   this.info.pairingCode = ('000000' + Math.round(Math.random() * 999999)).substr(-6);
+};
+
+var review = function() {
+  var color, state, states;
+
+  states = devices.review();
+
+  state = (states.error       !== 0) ? 'error'
+          : (states.attention !== 0) ? 'attention'
+          : (states.warning   !== 0) ? 'warning' : 'normal';
+  color = devices.rainbow[state].color;
+  if ((state === 'attention') && (states.warning > 0) && (color === place1.status)) color = devices.rainbow.warning.color;
+
+  if (place1.status !== color) {
+    place1.status = color;
+    place1.changed();
+
+// TBD: decide which lights to perform 'on' JSON.stringify({ color: { model: 'rgb', rgb: devices.rainbow[state].rgb } })
+  }
+
+  setTimeout(review, 15 * 1000);
 };
 
 var scan = function() {
@@ -456,6 +478,7 @@ var readyP = function() {
       }
       if (!!params) {
         new Place(JSON.parse(row.value));
+        review();
         scan();
         return;
       }
@@ -467,6 +490,7 @@ var readyP = function() {
     });
 
     new Place({ deviceType: '/place' });
+    review();
     scan();
   });
 };

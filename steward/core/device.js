@@ -91,6 +91,26 @@ exports.start = function() {
 };
 
 
+exports.review = function() {
+  var state, states, d, i, ids;
+
+  ids = idlist();
+  states = { warning: 0, attention: 0, error: 0 };
+  for (i = 0; i < ids.length; i++) {
+    d = id2device(ids[i]);
+    if (!d) continue;
+
+    state = { waiting : 'warning'
+            , busy    : 'warning'
+            , reset   : 'attention'
+            , error   : 'error'
+            }[d.status];
+    if (!!state) states[state]++;
+  }
+
+  return states;
+};
+
 exports.discover = function(info, callback) {
   var deviceType, deviceUID;
 
@@ -301,10 +321,10 @@ exports.validate_perform = function(perform, parameter) {
 };
 
 exports.rainbow =
-{ error:     { color: 'red',    rgb: '#ff0000' }
-, attention: { color: 'orange', rgb: '#ff8300' }
-, warning:   { color: 'blue',   rgb: '#0000ff' }
-, normal:    { color: 'green',  rgb: '#00ff00' }
+{ error:     { color: 'red',    rgb: { r: 255, g:   0, b:   0 } }
+, attention: { color: 'orange', rgb: { r: 255, g: 131, b:   0 } }
+, warning:   { color: 'blue',   rgb: { r:   0, g:   0, b: 255 } }
+, normal:    { color: 'green',  rgb: { r:   0, g: 255, b:   0 } }
 
 };
 

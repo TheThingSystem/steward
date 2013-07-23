@@ -57,15 +57,9 @@ PRIOR TO ALPHA RELEASE
 
     4.2. logging transports
 
-    4.3. temporal relations
-
-    4.4. steward "color" based on status (MTR)
-
     4.5. steward "user assistance" queue (MTR)
 
     4.6. API to access historical data
-
-    4.7. json dump using API
 
 5. gateway implementations
 

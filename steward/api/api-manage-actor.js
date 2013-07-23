@@ -96,7 +96,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   return true;
 };
 
-var perform = function(logger, ws, api, message, tag) {
+var perform = exports.perform = function(logger, ws, api, message, tag) {
   var actor, actors, againP, child, entity, entities, i, id, info, p, parts, performed, props, present, results, suffix, v,
       what, who;
 
