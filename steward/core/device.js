@@ -149,7 +149,7 @@ var Device = exports.Device = function() {
   var self = this;
 
   self.whatami = '/device';
-  self.state = 'unknown';
+  self.status = 'unknown';
   self.elide = [];
 };
 util.inherits(Device, events.EventEmitter);
@@ -302,7 +302,7 @@ exports.validate_perform = function(perform, parameter) {
 
 exports.rainbow =
 { error:     { color: 'red',    rgb: '#ff0000' }
-, attention: { color: 'indigo', rgb: '#4b0082' }
+, attention: { color: 'orange', rgb: '#ff8300' }
 , warning:   { color: 'blue',   rgb: '#0000ff' }
 , normal:    { color: 'green',  rgb: '#00ff00' }
 

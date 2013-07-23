@@ -5,6 +5,7 @@ var parser      = require('cron-parser')
   , devices     = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
+  , broker      = utility.broker
   , logger      = steward.logger
   ;
 
@@ -166,6 +167,10 @@ var Place = exports.Place = function(info) {
   };
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+    if (request === 'ping') {
+      if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', self.proplist());
+      return;
+    }
     if (actor !== 'place/1') return;
 
     if (request === 'observe') return self.observe(self, eventID, observe, parameter);
@@ -388,12 +393,17 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var colors, status;
+
+  colors = [];
+  for (status in devices.rainbow) if (devices.rainbow.hasOwnProperty(status)) colors.push(devices.rainbow[status].color);
+
   steward.actors.place =
       { $info     : { type       : '/place'
                     , observe    : [ 'cron', 'solar' ]
                     , perform    : [ ]
                     , properties : { name        : true
-                                   , status      : [ 'green', 'blue', 'orange', 'red' ]
+                                   , status      : colors
                                    , pairing     : [ 'off', 'on', 'code' ]
                                    , pairingCode : true
                                    , physical    : true

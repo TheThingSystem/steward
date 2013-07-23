@@ -30,10 +30,9 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.deviceType);
 
   self.status = 'waiting';
+  self.elide = [ 'passphrase' ];
   self.changed();
   self.timer = null;
-
-  self.elide = [ 'passphrase' ];
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;

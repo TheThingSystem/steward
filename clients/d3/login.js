@@ -83,7 +83,7 @@ var login = function(state) {
   txtbox.setAttribute('type', 'text');
   txtbox.setAttribute('id', 'localURL');
   txtbox.setAttribute('size', '40');
-  txtbox.setAttribute('value', (storage != null) ? storage['hostname'] : '');
+  txtbox.setAttribute('value', (storage != null) ? storage['hostname'] : '127.0.0.1');
   lbl.appendChild(txtbox);
   form.appendChild(lbl);
 
@@ -161,17 +161,25 @@ var setConnStatus = function(txt) {
 var signIn = function() {
   var steward, type;
   setConnStatus("Connecting...");
+  type = (document.getElementById("local").checked) ? "local" : "remote";
   
   if (hasLocalStorage) {
     steward = {"hostname"   : document.getElementById("localURL").value,
-               "port"       : (document.getElementById("secure").checked) ? "8899" : "8888",
+               "port"       : getPort(),
                "protocol"   : (document.getElementById("secure").checked) ? "wss:" : "ws:",
                "search"     : document.getElementById("uuid").value,
                "remoteHost" : "199.223.216.16"};
       
     setStorage("steward.location", JSON.stringify(steward));
   }
-  
-  type = (document.getElementById("local").checked) ? "local" : "remote";
+
   ringSteward(type);
+  
+  function getPort() {
+  	if (type === "local") {
+  		return (document.getElementById("secure").checked) ? "8888" : "8887";
+  	} else {
+  		return (document.getElementById("secure").checked) ? "8899" : "8888";
+  	}
+  }
 }

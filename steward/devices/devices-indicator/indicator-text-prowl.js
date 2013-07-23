@@ -50,9 +50,8 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.info.priority = utility.value2key(winston.config.syslog.levels, self.priority);
   self.prowl = new prowler(self.info.apikey);
   self.status = 'ready';
-  self.changed();
-
   self.elide = [ 'apikey' ];
+  self.changed();
 
   utility.broker.subscribe('beacon-egress', function(category, datum) {
     var parameter, x;

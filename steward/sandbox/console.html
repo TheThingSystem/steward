@@ -105,6 +105,8 @@
   td.info {
   }
 
+  tr.updates {
+  }
   tr.notice {
   }
   tr.warning {
@@ -559,6 +561,17 @@ var onupdate = function(update) {
     for (i = 0; i < update[category].length; i++) {
       datum = update[category][i];
 
+      if (category === '.updates') {
+        datum.level = 'updates';
+        datum.date = datum.updated;
+        datum.message = datum.whoami + ': ' + datum.name;
+        datum.meta = { status: datum.status };
+        for (j in datum.info) if (datum.info.hasOwnProperty(j)) datum.meta[j] = datum.info[j];
+        
+        data.push(datum);
+        continue;
+      }
+
       prev = datum.meta || {};
       meta = {};
       for (j in prev) if ((prev.hasOwnProperty(j)) && (prev[j])) meta[j] = prev[j];
@@ -593,6 +606,14 @@ var onupdate = function(update) {
   rows = '';
   for (category in signals) {
     if (!signals.hasOwnProperty(category)) continue;
+
+    if (category ===  '.updates') {
+      if (signals[category].length > 10) {
+        signals[category] = signals[category].sort(function(a, b) { return (b.updated - a.updated); });
+        signals[category] = signals[category].slice(0, 10);
+      }
+      signals[category] = signals[category].sort(function(a, b) { return (a.updated - b.updated) });
+    }
 
     rows += filler;
     filler = '<tr class="filler"><td colspan="4"/></tr>';
