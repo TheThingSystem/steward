@@ -851,7 +851,6 @@ var sixtoid = function(six) { return six.substr(0, 2) + ':' + six.substr(2, 2) +
 // TBD: discover
 
 exports.start = function() {
-return;
   steward.actors.device.gateway.insteon = steward.actors.device.gateway.insteon ||
       { $info     : { type: '/device/gateway/insteon' } };
 

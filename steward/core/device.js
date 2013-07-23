@@ -365,7 +365,7 @@ exports.traverse = function(actors, prefix, depth) {
   for (actor in actors) {
     if (!actors.hasOwnProperty(actor)) continue; if (actor.indexOf('$') !== -1) continue;
 
-    console.log('          '.substr(-(2*depth)) + prefix + actor + ': ' + (!!devices.makers[prefix + actor]));
+    console.log('          '.substr(-(2*depth)) + prefix + actor + ': ' + (!!makers[prefix + actor]));
     exports.traverse(actors[actor], prefix + actor + '/', depth + 1);
   }
 };

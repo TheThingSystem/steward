@@ -49,8 +49,9 @@ util.inherits(ModelS, motive.Device);
 
 
 ModelS.prototype.newstate = function(self, enabled) {
-  var status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'enabled' : 'disabled');
+  var status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'ready' : 'reset');
 
+  if (status === 'asleep') status = 'waiting';
   if (self.status == status) return;
   self.status = status;
   self.changed();
@@ -59,7 +60,7 @@ ModelS.prototype.newstate = function(self, enabled) {
 ModelS.prototype.refresh = function(self) {
   if (!self.timer) self.timer = null;
 
-  if ((self.vehicle.state !== 'asleep') && (self.vehicle.tokens.length !== 0)) return self.scan(self);
+  if ((self.vehicle.state !== 'waiting') && (self.vehicle.tokens.length !== 0)) return self.scan(self);
 
   tesla.wake_up(self.vehicle.id, function(data) {
     if (utility.toType(data) === 'error') {
@@ -464,8 +465,7 @@ exports.start = function() {
                                    , 'sunroof'  // open, comfort, vent, or closed
                                    ]
                     , properties : { name           : true
-                                   , status         : [ 'asleep', 'disabled', 'enabled' ]
-
+                                   , status         : [ 'ready', 'reset', 'waiting' ]
                                    , charger        : [ 'completed'
                                                       , 'charging'
                                                       , 'drawing'

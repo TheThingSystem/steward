@@ -252,15 +252,17 @@ The _$validate_ field contains an object, with these sub-fields:
 #### The start() function: Discovery
 
 The second task performed by the _start()_ function is to register with the appropriate discovery module.
-There are presently four modules:
+There are presently five modules:
 
 * SSDP: LAN multicast (not necessarily UPnP)
 
 * BLE: Bluetooth Low Energy
 
-* TCP port: TCP port number:
+* TCP port: TCP port number
 
 * MAC OUI: MAC prefix
+
+* STRP: Simple Thing Reporting Protocol
 
 For the first two discovery modules,
 the steward will automatically (re-)create device instances as appropriate.
@@ -316,6 +318,8 @@ prefix:
       utility.logger('discovery').info(tag, { ... });
       devices.discover(info);
     });
+
+Discovery via SRTP occurs when the steward receives a multicast message on the [SRTP](Things/01_Reporting.md) port.
 
 
 ## Design Patterns
@@ -464,8 +468,9 @@ Properties are expressed in a consistent set of units:
 * _degrees_       - [0 .. 360)
 * _mireds_        - [154 .. 500] (philips hue, aka 2000-6500K)
 * _meters/second_ - [0 .. N]
-* _latlng_        - [latitude, longitude] -or- [latitude, longitude, elevation]
+* _coordinates_   - [latitude, longitude] -or- [latitude, longitude, elevation]
 * _meters_        - [0 .. N]
+* _kilometers_    - [0 .. N]
 * _milliseconds_  - [0 .. N]
 * _id_            - [1 .. N]
 * _u8_            - [0 .. 255]

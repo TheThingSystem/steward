@@ -1,7 +1,6 @@
 var parser      = require('cron-parser')
   , suncalc     = require('suncalc')
   , util        = require('util')
-  , actors      = require('./../api/api-manage-actor')
   , database    = require('./../core/database')
   , devices     = require('./../core/device')
   , steward     = require('./../core/steward')
@@ -110,15 +109,15 @@ var solarEvent = function(date, event) {
 var solarTimes = function(date) {
   var times, z;
 
-  if ((!place1.info.coordinates) || (!util.isArray(place1.info.coordinates))) return 'place/1: no coordinates';
+  if ((!place1.info.location) || (!util.isArray(place1.info.location))) return 'place/1: no location';
 
   z = new Date(date.getTime());
-  times = suncalc.getTimes(z, place1.info.coordinates[0], place1.info.coordinates[1]);
+  times = suncalc.getTimes(z, place1.info.location[0], place1.info.location[1]);
   if (!times) return 'suncalc.getTimes failed';
 
   if (times.solarNoon.getDate() != date.getDate()) {
     z.setDate(z.getDate() + 1);
-    times = suncalc.getTimes(z, place1.info.coordinates[0], place1.info.coordinates[1]);
+    times = suncalc.getTimes(z, place1.info.location[0], place1.info.location[1]);
     if (!times) return 'suncalc.getTimes failed';
   }
 
@@ -148,6 +147,12 @@ var Place = exports.Place = function(info) {
   delete(self.info.device);
   if (!self.info.pairing) self.info.pairing = 'on';
   if (self.info.pairing !== 'code') delete(self.info.pairingCode); else self.makecode();
+// temporary
+  if (!!self.info.coordinates) {
+    self.info.location = self.info.coordinates;
+    delete(self.info.coordinates);
+    self.setInfo();
+  }
 
   self.proplist = function() {
     var eventID, i, info;
@@ -259,9 +264,9 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.name) self.name = self.info.name = params.name;
 
   if (!!params.physical) place1.info.physical = params.physical;
-// TBD: re-calculate coordinates...
+// TBD: re-calculate location...
 
-  if (!!params.coordinates) place1.info.coordinates = params.coordinates;
+  if (!!params.location) place1.info.location = params.location;
 // TBD: look at all 'solar' events and set the timer accordingly...
 
   if (!!params.pairing) {
@@ -307,14 +312,14 @@ var review = function() {
 var scan = function() {
   var now, previous, times;
 
-  if ((!place1.info.coordinates) || (!util.isArray(place1.info.coordinates))) {
-    place1.info.solar = 'no coordinates';
+  if ((!place1.info.location) || (!util.isArray(place1.info.location))) {
+    place1.info.solar = 'no location';
     setTimeout(scan, 5 * 1000);
     return;
   }
 
   now = new Date();
-  times = solarTimes(now, place1.info.coordinates[0], place1.info.coordinates[1]);
+  times = solarTimes(now, place1.info.location[0], place1.info.location[1]);
   if ((typeof times) !== 'object') {
     place1.info.solar = 'unknown';
     setTimeout(scan, 60 * 1000);
@@ -392,16 +397,16 @@ var validate_perform = function(perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if ((!params.name) && (!params.physical) && (!params.coordinates)) result.requires.push('name');
+  if ((!params.name) && (!params.physical) && (!params.location)) result.requires.push('name');
 
   if (!!params.physical) {
 // NB: there is no meaningful test that doesn't require an asynchronous dive...
   }
 
-  if (!!params.coordinates) {
-    if ((!util.isArray(params.coordinates)) || (params.coordinates.length < 2)) result.invalid.push('coordinates');
-    if ((params.coordinates[0] <  -90) || (params.coordinates[0] >  90)) result.invalid.push('latitude');
-    if ((params.coordinates[1] < -180) || (params.coordinates[1] > 180)) result.invalid.push('longitude');
+  if (!!params.location) {
+    if ((!util.isArray(params.location)) || (params.location.length < 2)) result.invalid.push('location');
+    if ((params.location[0] <  -90) || (params.location[0] >  90)) result.invalid.push('latitude');
+    if ((params.location[1] < -180) || (params.location[1] > 180)) result.invalid.push('longitude');
   }
 
   if (!!params.pairing) {
@@ -429,7 +434,7 @@ exports.start = function() {
                                    , pairing     : [ 'off', 'on', 'code' ]
                                    , pairingCode : true
                                    , physical    : true
-                                   , coordinates : 'latlng'
+                                   , location    : 'coordinates'
                                    , solar       : [ 'dawn'
                                                    , 'morning-twilight'
                                                    , 'sunrise'

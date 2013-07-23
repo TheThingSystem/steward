@@ -444,7 +444,7 @@ Hue.prototype.refresh2 = function(self, id, oops) {
     db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
            { $deviceType: results.type, $deviceName: results.name, $deviceID: self.lights[id].deviceID },
            function(err) {
-      var prev, prop, props;
+      var child, info, prev, prop;
 
       if (err) {
         logger.error('device/' + self.deviceID, { event: 'REPLACE type/name for light ' + id, diagnostic: err.message });
