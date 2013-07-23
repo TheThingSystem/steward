@@ -37,6 +37,7 @@ fi
 
 while true; do
   node index.js
+exit
 
   sleep 15
 done

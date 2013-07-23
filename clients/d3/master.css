@@ -47,8 +47,8 @@
 #labels {
         position: absolute;
         top: 52px;
-        left: 278px;
-        width: 100px;
+        left: 178px;
+        width: 200px;
         text-align: right;
         font-weight: normal;
 }
@@ -343,3 +343,26 @@ p.actor-name {
 }
 
 .actor-grouping {  }
+
+/* log in screen elements */
+#login {
+        position: absolute;
+        top: 250px;
+        left: 208px;
+        width: 500px;
+        text-align: left;
+}
+
+#login-form {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        color: #fff;
+        font-weight: normal;
+
+}
+
+#login label {
+        margin-right: 30px;
+        line-height: 24px;
+}

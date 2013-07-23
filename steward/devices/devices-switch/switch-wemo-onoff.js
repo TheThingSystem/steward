@@ -28,14 +28,9 @@ var WeMo_Switch = exports.Device = function(deviceID, deviceUID, info) {
   self.logger = plug.logger;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      self.logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   utility.broker.subscribe('discovery', function(method, headers, content) {

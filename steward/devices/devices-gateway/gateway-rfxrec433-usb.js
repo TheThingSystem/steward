@@ -26,13 +26,9 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.info = {};
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') devices.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 
   self.rfx.logger = logger;

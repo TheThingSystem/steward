@@ -37,15 +37,10 @@ var Axis_Camera = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, observe, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
 
-         if (request === 'observe') self.observe(self, taskID, observe, parameter);
-    else if (request === 'perform') self.perform(self, taskID, observe, parameter);
+    if (request === 'observe') return self.observe(self, taskID, observe, parameter);
+    if (request === 'perform') return self.perform(self, taskID, observe, parameter);
   });
 
 };

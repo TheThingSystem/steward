@@ -9,6 +9,7 @@ var http        = require('http')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , lighting    = require('./../device-lighting')
   ;
 
@@ -35,7 +36,6 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var light;
 
-    if (request === 'ping') self.ping(self);
     if (request !== 'perform') return;
 
     deviceID = actor.split('/')[1];
@@ -55,7 +55,7 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
     }
     if (row !== undefined) {
       self.username = row.value;
-      self.ping(self);
+      self.changed();
     }
     self.heartbeat(self);
   });
@@ -72,15 +72,6 @@ Hue.prototype.children = function() {
   for (light in self.lights) if (self.lights.hasOwnProperty(light)) children.push(childprops(self, light));
 
   return children;
-};
-
-var childping = function(self, light) {
-  var props = childprops(self, light);
-
-  if (props.status !== 'on')
-    logger.info(self.lights[light].name, { status: props.status });
-  else
-    logger.info(self.lights[light].name, { status: props.status, info: props.info });
 };
 
 var childprops = function(self, light) {
@@ -305,7 +296,6 @@ Hue.prototype.pair = function(self) {
         if (results[i].success) {
           self.username = results[i].success.username;
           self.changed();
-          self.ping(self);
           db.run('INSERT INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
                          { $deviceID: self.deviceID, $key: 'username', $value: self.username });
           return;
@@ -322,7 +312,6 @@ Hue.prototype.pair = function(self) {
       logger.error('device/' + self.deviceID, { event: 'controller', parameter: 'pair', diagnostic: stringify(errors[i]) });
     }
     self.changed();
-    self.ping(self);
   });
 };
 
@@ -340,7 +329,6 @@ Hue.prototype.unpair = function(self) {
       if (err) logger.error('device/' + self.deviceID, { event: 'DELETE username', diagnostic: err.message });
     });
     self.changed();
-    self.ping(self);
   });
 };
 
@@ -366,8 +354,7 @@ Hue.prototype.refresh = function(self) {
              { $deviceID: self.deviceID, $key: 'username' }, function(err) {
         if (err) logger.error('device/' + self.deviceID, { event: 'DELETE username', diagnostic: err.message });
       });
-      self.changed();
-      return self.ping(self);
+      return self.changed();
     }
 
     if (!(results = result.results)) return;
@@ -493,39 +480,19 @@ Hue.prototype.refresh2 = function(self, id, oops) {
         return;
       }
 
-      prev = childprops(self, id);
       for (prop in results) if (results.hasOwnProperty(prop)) self.lights[id][prop] = results[prop];
-      props = childprops(self, id);
-      if (props.status === prev.status) {
-        if ((!props.info) && (!prev.info)) return;
-
-        if ((!!props.info) && (!!prev.info) && (props.info.brightness === prev.info.brightness)) {
-          if (props.info.color.model === prev.info.color.model) {
-            switch (props.info.color.model) {
-              case 'temperature':
-                if (props.info.color.temperature === prev.info.color.temperature) return;
-                break;
-
-              case 'hue':
-                if ((props.info.color.hue === prev.info.color.hue)
-                        && (props.info.color.saturation === prev.info.color.saturation)) return;
-                break;
-
-              case 'cie1931':
-                if ((props.info.color.cie1931.x === prev.info.color.cie1931.x)
-                        && (props.info.color.cie1931.y === prev.info.color.cie1931.y)) return;
-                break;
-
-              default:
-                return;
-            }
-          }
-        }
-      } else self.ping(self);
+      child = childprops(self, id);
+      info = child.proplist();
+      delete(info.updated);
+      prev = JSON.stringify(info);
+      if (self.lights[id].prev === prev) return;
 
       self.changed();
+      self.lights[id].prev = prev;
       self.lights[id].updated = self.updated;
-      childping(self, id);
+      info.updated = self.updated;
+
+      if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', info);
     });
   });
 };
@@ -622,7 +589,8 @@ Hue.prototype.roundtrip = function(self, tag, params) {
       self.inflight--;
     });
   }).on('error', function(err) {
-    logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
+    if (err.message === 'read ECONNRESET') logger.debug(tag, { event: 'http', options: options, diagnostic: err.message });
+    else logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'busy' });
     self.inflight--;
   }).end(body);

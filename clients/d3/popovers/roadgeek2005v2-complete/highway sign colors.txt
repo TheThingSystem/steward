@@ -1,0 +1,29 @@
+The colors I've traditionally used in creating highway sign graphics
+are based on the Panose colors specified in the FHWA SHS text, as 
+converted to RGB by Photoshop 7.
+
+They are:
+
+Brown  -- Panose 469 -- RGB 97,54,29
+Green  -- Panose 342 -- RGB 0,110,85
+Red    -- Panose 187 -- RGB 181,39,60
+Blue   -- Panose 294 -- RGB 0,62,134
+Yellow -- Panose 116 -- RGB 255,277,0
+Orange -- Panose 152 -- RGB 230,113,0
+
+The Nebraska DOT uses somewhat different colors in the sign specifications
+they've placed on their website:
+
+Brown  -- CMYK 38/63/93/36 -- RGB 119,78,36
+Green  -- CMYK 100/0/79/9  -- RGB 0,155,103
+Red    -- CMYK 0/100/65/0  -- RGB 237,23,36
+Blue   -- CMYK 93/57/2/0   -- RGB 0,107,177
+Yellow -- CMYK 0/0/100/0   -- RGB 255,242,0
+Orange -- CMYK 0/51/87/0   -- RGB 247,146,51
+
+...or at least that's what I get when I open the pdfs in Photoshop, and
+use the color picker tool on them.
+
+Personally, I like the Nebraska colors better, but they're inferred.
+The FHWA are at least semiformal specifications.
+

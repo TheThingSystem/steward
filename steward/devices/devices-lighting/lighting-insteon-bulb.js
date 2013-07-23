@@ -27,13 +27,9 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }, fixed: true } };
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') self.perform(self, taskID, perform, parameter);
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   self.gateway.upstream[self.insteon] = self;

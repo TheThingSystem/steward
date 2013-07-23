@@ -43,38 +43,73 @@ body {
 <script type='text/javascript' src='onactors.js'></script>
 
 <link rel="stylesheet" href="master.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="popover.css" type="text/css" media="screen" />
+<script type='text/javascript' src='login.js'></script>
 <script type='text/javascript' src='drilldown.js'></script>
+<script type='text/javascript' src='popover.js'></script>
 
 <script type='text/javascript'>
 var stack = [];
+var ws;
 
 var main = function() {
-  stack.push({ page: home });
-  go();
+  var state = { page: login };
+  (state.page)(state);
 };
 
-var go = function() {
-  var req = new XMLHttpRequest();
-  req.onreadystatechange = function() {
-    var message, state;
+var ringSteward = function(type) {
+  var steward, storage, ws;
+  
+  storage = JSON.parse(getStorage("steward.location"));
 
+  if (type === "local") {
+    steward = storage.protocol + "//" + storage.hostname + ":" + storage.port + "/manage";
+  } else {
+    steward = storage.protocol + "//" + storage.remoteHost + ":" + storage.port + 
+      "/manage?rendezvous=" + storage.search;
+  }
+  
+  ws = new WebSocket(steward);
+  
+  ws.onopen = function(evt) {
+    setConnStatus("Connected");
+    stack.push({ page: home });
+    setTimeout(function() {
+      setConnStatus("Retrieving Steward Info...");
+      ws.send(JSON.stringify({ path: '/api/v1/actor/list/', requestID: 1, options: { depth: 'all' }}));
+      }, 1000);
+  }
+  
+  ws.onmessage = function(evt) {
+    var message, requestID, state;
+    
     try {
-      if (this.readyState === 4) {
-        message = JSON.parse(this.responseText);
-        if (!message) throw new Error('invalid JSON: ' + this.responseText);
-
-        state = stack.pop();
-        state.message = message;
-        stack.push(state);
-        (state.page)(state);
-      }
-    } catch(ex) { console.log(ex); }
-  }.bind(req);
-  req.open('GET', 'actors.json', true);
-  req.send(null);
-
-// LATER: schedule the next fetch
-};
+      message = JSON.parse(evt.data);
+      if (!message) throw new Error("invalid JSON: " + this.responseText);
+      
+      requestID = message.requestID.toString();
+      
+      state = stack.pop();
+      state.message = message;
+      stack.push(state);
+      (state.page)(state);
+      
+    } catch(e) {
+      console.log(e.message);
+    }
+  }
+  
+  ws.onclose = function(evt) {
+    ws.close();
+    setConnStatus("Connection Closed");
+  }
+  
+  ws.onerror = function(evt) {
+    console.log("WebSocket Error: " + evt.reason);
+    setConnStatus("Connection Closed");
+  }
+  
+}
 
 var goback = function() {
   var state = stack.pop();

@@ -255,6 +255,12 @@ var device_drilldown = function(name, devices, arcs, instructions) {
                     + '<span class="actor-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
                     + instructions
                     + '</div>';
+    div3 = document.createElement('div');
+    div3.setAttribute('class', 'small-instructions');
+    div3.setAttribute('style', 'cursor: pointer');
+    div3.setAttribute('onclick', 'javascript:showPop(' + JSON.stringify(device) + ',' + JSON.stringify(entry) + ');');
+    div3.innerHTML = 'Adjust device settings...';
+    div.appendChild(div3);
   }
   chart.appendChild(div);
   
@@ -266,18 +272,17 @@ var drawArcs = function(arcs) {
     
   chart = document.getElementById("chart");
   if (document.getElementById("arcCanvas")) {
-//     chart.removeChild(document.getElementById("labels"));
+     chart.removeChild(document.getElementById("labels"));
 //     chart.removeChild(document.getElementById("readings"));
     chart.removeChild(document.getElementById("arcCanvas"));
   }
 
-// Replaced by arced text below
-//   div = document.createElement('div');
-//   div.setAttribute('id', 'labels');
-//   div.setAttribute('style',
-//                    'position: absolute; top: 52px; left: 278px; width: 100px; text-align: right; font-weight: normal;');
+  div = document.createElement('div');
+  div.setAttribute('id', 'labels');
+  div.setAttribute('style',
+                   'position: absolute; top: 52px; left: 178px; width: 200px; height: 240px; text-align: right; font-weight: normal;');
   labels = '';
-  values = '';
+//  values = '';
   arcz = [];
   if (!arcs) arcs = multiple_arcs;
   
@@ -292,7 +297,7 @@ var drawArcs = function(arcs) {
   
   index = 0.7; // Reassign index values for arcs subset
   for (; i < limit; i++) {
-//     labels += arcs[i].label + '<br />';
+     labels += arcs[i].label + '<br />';
 //     values += '<div class="label">' + arcs[i].cooked + '</div>';
     arcs[i].index = index;
     arcz.push(arcs[i]);
@@ -300,10 +305,10 @@ var drawArcs = function(arcs) {
   }
   arcs = arcz;
 
-// Replaced by arced text below
-//   div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 90px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
-//   chart.appendChild(div);
+  div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 190px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
+  chart.appendChild(div);
 // 
+// Replaced by arced text below
 //   div = document.createElement('div');
 //   div.setAttribute('id', 'readings');
 //   div.setAttribute('style',
@@ -397,20 +402,20 @@ var drawArcs = function(arcs) {
 		.text(function(d,i){ return convertSymbol(d.cooked) });
            
 	// labels
-	var text2 = g.append("text")
-		.attr("text-anchor", "end")
-		.attr("dx", 75)
-		.attr("dy", 24)
-		.style("font-family", "Roadgeek 2005 Series D")
-		.style("font-size", "12px")
-		.style("color", "#fff");
-		
-	text2.append("textPath")
-		.attr("stroke","none")
-		.attr("fill","white")
-		.attr("startOffset", "50%")
-		.attr("xlink:href",function(d,i){return "#a"+i;})
-		.text(function(d,i){ return convertSymbol(d.label) });
+// 	var text2 = g.append("text")
+// 		.attr("text-anchor", "end")
+// 		.attr("dx", 75)
+// 		.attr("dy", 24)
+// 		.style("font-family", "Roadgeek 2005 Series D")
+// 		.style("font-size", "12px")
+// 		.style("color", "#fff");
+// 		
+// 	text2.append("textPath")
+// 		.attr("stroke","none")
+// 		.attr("fill","white")
+// 		.attr("startOffset", "50%")
+// 		.attr("xlink:href",function(d,i){return "#a"+i;})
+// 		.text(function(d,i){ return convertSymbol(d.label) });
 	
     
 //   function arcTween(b) {

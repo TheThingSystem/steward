@@ -9,7 +9,7 @@ var util        = require('util')
   ;
 
 
-var logger = climate.logger;
+// var logger = climate.logger;
 
 
 var Sensor = exports.Device = function(deviceID, deviceUID, info) {
@@ -32,10 +32,9 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') return logger.info('device/' + self.deviceID, { status: self.status });
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') devices.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Sensor, climate.Device);

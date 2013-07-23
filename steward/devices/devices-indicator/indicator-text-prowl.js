@@ -44,8 +44,8 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.deviceType);
 
   self.appname = self.info.appname || self.name;
-  self.prefix = (!!self.info.prefix) ? (self.info.prefix + ': ') : '';
-  self.prefix2 = (!!self.info.prefix) ? (self.info.prefix + '/') : '';
+  self.prefix  = (!!self.info.prefix) ? (self.info.prefix + ': ') : '';
+  self.prefix2 = (!!self.info.prefix) ? (self.info.prefix + '/')  : '';
   self.priority = winston.config.syslog.levels[self.info.priority || 'notice'] || winston.config.syslog.levels.notice;
   self.info.priority = utility.value2key(winston.config.syslog.levels, self.priority);
   self.prowl = new prowler(self.info.apikey);
@@ -76,20 +76,16 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Prowl, indicator.Device);
 
 
 Prowl.prototype.perform = function(self, taskID, perform, parameter) {
-  var param, params, updateP;
+  var device, field, info, line, p, param, params, part, parts, result, updateP, x;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -115,9 +111,43 @@ Prowl.prototype.perform = function(self, taskID, perform, parameter) {
   if ((!params.priority) || (!params.message) || (params.message.length === 0)) return;
 
   if ((!winston.config.syslog.levels[params.priority])
-        || (winston.config.syslog.levels[params.priority] <= self.priority)) return;
+        || (winston.config.syslog.levels[params.priority] < self.priority)) return;
 
-  self.prowl.push(self.prefix + params.message, self.appname, self.growl);
+// expansion of '.[deviceID.property].'
+  result = '';
+  line = params.message;
+  while ((x = line.indexOf('.[')) > 0) {
+    if (x > 0) result += line.substring(0, x);
+    line = line.substring(x + 2);
+
+    x = line.indexOf('].');
+    if (x === -1) {
+      result += '.[';
+      continue;
+    }
+
+    parts = line.substring(0, x).split('.');
+    line = line.substring(x + 2);
+
+    device = devices.id2device(parts[0]);
+    if (!device) {
+      result += '.[';
+      continue;
+    }
+    info = device.info;
+    field = '';
+    for (p = 1; p < parts.length; p++) {
+      part = parts[p];
+           if (part === 'name')   field = device.name;
+      else if (part === 'status') field = device.status;
+      else if (!!info[part])      field = info[part];
+      else break;
+    }
+    result += field;
+  }
+  result += line;
+
+  self.prowl.push(self.prefix + result, self.appname, self.growl);
   return steward.performed(taskID);
 };
 

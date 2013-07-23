@@ -9,7 +9,7 @@ var util        = require('util')
   ;
 
 
-var logger = climate.logger;
+// var logger = climate.logger;
 
 
 var Sensor = exports.Device = function(deviceID, deviceUID, info) {
@@ -32,7 +32,6 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {/* jshint unused: false */
-    if (request === 'ping') return logger.info('device/' + self.deviceID, { status: self.status });
 // name is read-only...
   });
 };

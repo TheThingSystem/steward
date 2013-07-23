@@ -3,6 +3,7 @@ var events      = require('events')
   , util        = require('util')
   , steward     = require('./steward')
   , utility     = require('./utility')
+  , broker      = utility.broker
   ;
 
 
@@ -13,7 +14,7 @@ var makers   = exports.makers   = {};
 var db;
 
 
-var id2device = function(id) {
+var id2device = exports.id2device = function(id) {
   var child, children, device, i, uid;
 
   if (!id) return null;
@@ -62,6 +63,31 @@ exports.start = function() {
       , $list   : idlist
       };
   utility.acquire(logger, __dirname + '/../devices', /^device-.*\.js/, 7, -3, ' driver');
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+    var d, data, i, ids, info;
+
+    if (request !== 'ping') return;
+
+    if (!broker.has('beacon-egress'))  return;
+
+    ids = idlist();
+    data = [];
+    for (i = 0; i < ids.length; i++) {
+      d = id2device(ids[i]);
+      if (!d) continue;
+
+      if (!d.prev) {
+        if (!!d.changed) d.changed();
+        continue;
+      }
+
+      info = JSON.parse(d.prev);
+      try { info.updated = d.updated.getTime(); } catch(ex) { info.updated = d.updated; }
+      data.push(info);
+    }
+    if (data.length > 0) broker.publish('beacon-egress', '.updates', data);
+  });
 };
 
 
@@ -218,6 +244,8 @@ Device.prototype.nv = function(v) {
 exports.lastupdated = new Date().getTime();
 
 Device.prototype.changed = function(now) {
+  var info, prev, updated;
+
   var self = this;
 
   now = now || new Date();
@@ -225,6 +253,17 @@ Device.prototype.changed = function(now) {
 
   self.updated = now;
   if (exports.lastupdated < now) exports.lastupdated = now;
+
+  info = self.proplist();
+  try { info.lastSample = info.lastSample.getTime(); } catch(ex) {}
+  try { updated = info.updated.getTime(); } catch(ex) { updated = info.updated; }
+  delete(info.updated);
+  prev = JSON.stringify(info);
+  if (self.prev === prev) return;
+  self.prev = prev;
+  info.updated = updated;
+
+  if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', info);
 };
 
 

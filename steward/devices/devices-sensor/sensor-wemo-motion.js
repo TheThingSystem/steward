@@ -27,15 +27,13 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
   self.events = {};
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
-    if (request === 'ping') {
-      self.logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'observe') { if (observe === 'motion') self.events[eventID] = { observe: observe, parameter: parameter }; }
-    else if ((request === 'perform') && (observe === 'set')) devices.perform(self, eventID, observe, parameter);
+    if (request === 'observe') {
+      if (observe === 'motion') self.events[eventID] = { observe: observe, parameter: parameter };
+      return;
+    }
+    if ((request === 'perform') && (observe === 'set')) return devices.perform(self, eventID, observe, parameter);
   });
 
   utility.broker.subscribe('discovery', function(method, headers, content) {

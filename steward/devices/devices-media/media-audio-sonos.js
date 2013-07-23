@@ -45,14 +45,9 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   utility.broker.subscribe('discovery', function(method, headers, content) {
@@ -347,10 +342,9 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') return logger.info('device/' + self.deviceID, { status: self.status });
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') devices.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Sonos_Bridge, media.Device);

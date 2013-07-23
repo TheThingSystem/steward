@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head> 
+<title>media popover</title> 
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+<meta http-equiv="cache-control" content="no-cache" />
+
+<style type="text/css">
+
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series EM";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series EM.otf");
+}
+
+body {
+  font-family: "Roadgeek 2005 Series D", sans-serif;
+  background: #000 !important;
+  margin: 0px; padding: 0px;
+  color: #fff;
+}
+
+#actor { position: absolute; top: 14px; left: 15px; }
+#popover-name { position: absolute; top: 30px; left: 65px; }
+
+#media-controls { position: absolute; top: 17px; left: 404px; }
+
+#device-status { position: absolute; top: 85px; left: 156px; height: 24px; width: 148px; }
+#device-status-label { position: absolute; top: 90px; left: 30px; }
+#power { position: absolute; top: 85px; left: 421px; height: 24px; width: 148px; }
+#power-label { position: absolute; top: 90px; left: 358px; }
+
+#now-playing-label { position: absolute; top: 142px; left: 40px; }
+
+#display-album { position: absolute; top: 167px; left: 33px; }
+#display-album-label { position: absolute; top: 177px; left: 43px; }
+#display-artist { position: absolute; top: 217px; left: 33px; }
+#display-artist-label { position: absolute; top: 227px; left: 43px; }
+#display-track { position: absolute; top: 268px; left: 33px; }
+#display-track-label { position: absolute; top: 278px; left: 43px; }
+
+#volume-control-knob { position: absolute; top: 154px; left: 382px; }
+#volume-control-bkg { position: absolute; top: 154px; left: 382px; }
+
+#track-progress { position: absolute; top: 342px; left: 40px; }
+#track-progress-label { position: absolute; top: 322px; left: 40px; }
+
+#media-controls-alt { position: absolute; top: 386px; left: 38px; }
+
+#equalizer { position: absolute; top: 345px; left: 258px; }
+
+.label { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 18px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        text-transform: uppercase;
+}
+
+.small-label { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #666;
+        text-transform: uppercase;
+}
+
+.popover-name { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 26px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        height: 65px;
+}
+
+#send { position: absolute; top: 24px; left: 437px; }
+#cancel { position: absolute; top: 24px; left: 507px; }
+
+</style>
+</head> 
+
+
+<body> 
+
+<img src="assets/window.two-panel.bkg.svg" />
+
+<div id="actor"><img src="assets/sonos_playbar.svg" style="width: 43px;" /></div>
+<div id="popover-name" class="popover-name">Center Hallway</div>
+
+<!-- <div id="media-controls"><img src="assets/media.controller.svg" /></div> -->
+
+<div id="device-status" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
+<div id="device-status-label" class="label">DEVICE STATUS</div>
+<div id="power" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
+<div id="power-label" class="label">POWER</div>
+
+<div id="now-playing-label" class="small-label">NOW PLAYING</div>
+
+<div id="display-album"><img src="assets/display.svg" /></div>
+<div id="display-album-label" class="label" style="color: #69cef6">ALBUM</div>
+<div id="display-artist"><img src="assets/display.svg" /></div>
+<div id="display-artist-label" class="label" style="color: #69cef6">ARTIST</div>
+<div id="display-track"><img src="assets/display.svg" /></div>
+<div id="display-track-label" class="label" style="color: #69cef6">TRACK LISTING</div>
+
+<div id="volume-control-knob"><img src="assets/volume.control.bkg.svg" /></div>
+<div id="volume-control-bkg"><img src="assets/volume.control.svg" /></div>
+
+<div id="track-progress"><img src="assets/track_progress.svg" /></div>
+<div id="track-progress-label" class="small-label">TRACK PROGRESS</div>
+
+<div id="media-controls-alt"><img src="assets/media.controller.alt.svg" /></div>
+
+<div id="equalizer"><img src="assets/equalizer.svg" /></div>
+
+<div id="send" class="label"><img src="assets/send.svg" style="height: 22px;" /></div>
+<div id="cancel" class="label"><img src="assets/cancel.svg" style="height: 22px;" /></div>
+
+</body>
+</html>

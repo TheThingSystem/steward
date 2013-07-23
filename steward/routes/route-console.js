@@ -1,4 +1,5 @@
 var stringify   = require('json-stringify-safe')
+  , util        = require('util')
   , server      = require('./../core/server')
   , utility     = require('./../core/utility')
   , broker      = utility.broker
@@ -9,7 +10,7 @@ var stringify   = require('json-stringify-safe')
 var logger = utility.logger('server');
  */
 
-var console = function(ws, tag) {/* jshint unused: false */
+var consoleX = function(ws, tag) {/* jshint unused: false */
 /* TBD: uncomment this later on
 // NB: access control hard-coded to local clients only
   if (!ws.clientInfo.local) {
@@ -23,7 +24,9 @@ var console = function(ws, tag) {/* jshint unused: false */
 
   broker.subscribe('beacon-egress', function(category, datum) {
     var data = {};
-    data[category] = [ datum ];
+
+    if (!util.isArray(datum)) datum = [ datum ];
+    data[category] = datum;
 
     ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} });
   });
@@ -33,4 +36,4 @@ var console = function(ws, tag) {/* jshint unused: false */
 };
 
 
-exports.start = function() { server.routes['/console'] = { route : console }; };
+exports.start = function() { server.routes['/console'] = { route : consoleX }; };

@@ -27,16 +27,10 @@ var Blinkstick = exports.Device = function(deviceID, deviceUID, info) {
   self.info = {};
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') self.perform(self, taskID, perform, parameter);
-  });
 
-// NEED: get name from DB...
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
+  });
 
   self.led.getColor(function(err, r, g, b) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'getColor', diagnostic: err.message });

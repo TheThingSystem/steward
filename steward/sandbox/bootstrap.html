@@ -37,7 +37,7 @@ var bootable = { prowl          :
                , netatmo        :
                  { text         : 'If you have a Netatmo weather station, the steward can manage it for you.'
                  , instructions : 'Enter your email and password.'
-                 , site         : 'http://my.netatmo.com'
+                 , site         : 'https://my.netatmo.com'
                  , icon         : ''
                  , name         : 'netatmo'
                  , actor        :'/device/gateway/netatmo/cloud'
@@ -53,6 +53,18 @@ var bootable = { prowl          :
                  , icon         : ''
                  , name         : 'nest'
                  , actor        : '/device/gateway/nest/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
+                   }
+                 }
+               , tesla          :
+                 { text         : 'If you have a Tesla Model S, the steward can monitor it for you.'
+                 , instructions : 'Enter your email address and password.'
+                 , site         : 'https://teslamotors.com/mytesla'
+                 , icon         : ''
+                 , name         : 'tesla'
+                 , actor        : '/device/gateway/tesla/cloud'
                  , info         :
                    { email      : ''
                    , passphrase : ''
@@ -128,14 +140,12 @@ var bootstrap = function(ws) {
       if (!bootable.hasOwnProperty(name)) continue;
 
       entry = bootable[name];
-      if (!z[entry.actor]) continue;
+      if (!!z[entry.actor]) continue;
 
       info = entry.info;
       emptyP = false;
       for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
-      if (emptyP) continue;
-
-      if (!z[entry.actor]) create_device(ws, name, entry.actor, info);
+      if (!emptyP) create_device(ws, name, entry.actor, info);
     }
 
     return true;
@@ -368,7 +378,7 @@ var delete_task = function(ws, taskID, cb) {
 
 
 var go = function(steward, i) {
-  var opened, ws;
+  var opened, ws, ws2;
   var tag = 'connection #' + i + ' to ' + steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage';
 
   notice(tag, { state: 'connecting...' });
@@ -378,6 +388,24 @@ var go = function(steward, i) {
   ws.onopen = function(event) {
     opened = 1;
     notice(tag, { state: 'open' });
+
+    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console' + steward.search);
+    ws2.onopen    = function(event) {};
+    ws2.onmessage = function(event) { 
+      var i, updates;
+
+      data = JSON.parse(event.data);
+      if (!data['.updates']) return;
+      updates = data['.updates'];
+
+        document.getElementById('status').innerHTML += '<pre>' + updates.length + ' updates</pre><br/><br/>';
+
+      for (i = 0; i < updates.length; i++) {
+        document.getElementById('status').innerHTML += '<pre>' + js_beautify(JSON.stringify(updates[i])) + '</pre><br/><br/>';
+      }
+    };
+    ws2.onclose   = function(event) { ws.close(); }
+    ws2.onerror   = function(event) { ws.close(); }
 
     try { bootstrap(ws); } catch(ex) { notice(tag, { state: 'bootstrap', message: ex.message }); }
   };

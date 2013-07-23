@@ -36,13 +36,9 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'passphrase' ];
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   if ((!!info.email) || (!!info.passphrase)) self.login(self);
@@ -56,13 +52,16 @@ Cloud.prototype.login = function(self) {
 
   self.netatmo.on('error', function(err) {
     self.error(self, err);
-    if (self.timer) { clearInterval(self.timer); self.timer = null; }
+
+    if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
     self.login(self);
   }).setConfig(client1, client2, self.info.email, self.info.passphrase).getToken(function(err) {
     if (!!err) { self.netatmo = null; return self.error(self, err); }
 
     self.status = 'ready';
     self.changed();
+
+    if (!!self.timer) clearInterval(self.timer);
     self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
     self.scan(self);
   });
@@ -144,7 +143,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   info.deviceType = '/device/climate/netatmo/sensor';
   info.id = info.device.unit.udn;
 
-  logger.info(info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.debug(info.device.name, { id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };

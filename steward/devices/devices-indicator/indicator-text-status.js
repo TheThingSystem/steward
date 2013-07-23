@@ -38,13 +38,9 @@ var Status = exports.Device = function(deviceID, deviceUID, info) {
   utility.broker.subscribe('status', function(module, data) { self.report(self, module, data); });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Status, indicator.Device);

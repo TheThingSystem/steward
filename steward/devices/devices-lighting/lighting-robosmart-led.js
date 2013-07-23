@@ -40,13 +40,9 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (request === 'ping') {
-      logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
     if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') self.perform(self, taskID, perform, parameter);
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   self.refresh(self);

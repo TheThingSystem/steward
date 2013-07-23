@@ -479,11 +479,6 @@ var Thing = function(deviceID, deviceUID, info) {
   self.changed();
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
-    if (request === 'ping') {
-      self.logger.info('device/' + self.deviceID, { status: self.status });
-      return;
-    }
-
          if (actor !== ('device/' + self.deviceID)) return;
     else if (request === 'observe') self.observe(self, eventID, observe, parameter);
     else if (request === 'perform') self.perform(self, eventID, observe, parameter);

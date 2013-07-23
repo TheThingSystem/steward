@@ -1,0 +1,67 @@
+#pop-substrate { position: absolute; top: 100px; left: 83px; width: 20px; height: 20px; }
+
+#actor { position: absolute; top: 14px; left: 15px; }
+#popover-name { position: absolute; top: 30px; left: 65px; }
+
+#cie-gamut { position: absolute; top: 175px; left: 150px; }
+#axis { position: absolute; top: 187px; left: 153px; }
+#y { position: absolute; top: 187px; left: 160px; }
+#x { position: absolute; top: 445px; left: 430px; }
+#rule-horizontal { position: absolute; top: 317px; left: 160px; }
+#rule-vertical { position: absolute; top: 337px; left: 336px; }
+#registration { position: absolute; top: 305px; left: 324px; }
+#cie-label { position: absolute; top: 142px; left: 159px; width: 270px; }
+
+#on-off-slider { position: absolute; top: 25px; left: 339px; }
+#on-off-knob   { position: absolute; top: 25px; left: 339px; }
+#on-label { position: absolute; top: 27px; left: 393px; }
+#off-label { position: absolute; top: 27px; left: 310px; }
+
+#device-status { position: absolute; top: 84px; left: 165px; }
+#device-status-label { position: absolute; top: 90px; left: 31px; width: 120px; }
+#device-status-detail { position: absolute; top: 90px; left: 175px; width: 130px; text-align: center}
+#power { position: absolute; top: 89px; left: 437px; }
+#power-label { position: absolute; top: 90px; left: 370px; }
+
+#brightness { position: absolute; top: 173px; left: 66px; }
+#brightness-knob { position: absolute; top: 298px; left: 61px; }
+#brightness-grid { position: absolute; top: 181px; left: 57px; }
+#brightness-label { position: absolute; top: 142px; left: 31px; }
+#brightness-readout { position: absolute; top: 307px; left: 30px; }
+
+#transition { position: absolute; top: 173px; left: 509px; }
+#transition-knob { position: absolute; top: 298px; left: 505px; }
+#transition-grid { position: absolute; top: 181px; left: 500px; }
+#transition-label { position: absolute; top: 142px; left: 479px; }
+
+#send { position: absolute; top: 24px; left: 510px; }
+#cancel { position: absolute; top: 24px; left: 420px; }
+
+.label { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 18px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        text-transform: uppercase;
+}
+
+.small-label { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #666;
+        text-transform: uppercase;
+}
+
+.popover-name { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 26px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        height: 65px;
+        width: 280px;
+}
+

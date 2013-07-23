@@ -43,10 +43,9 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.refresh(self);
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
-    if (request === 'ping') return self.ping(self);
+    if (actor !== ('device/' + self.deviceID)) return;
 
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'perform') devices.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Gateway, require('./../device-gateway').Device);

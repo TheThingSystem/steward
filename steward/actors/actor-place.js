@@ -166,14 +166,10 @@ var Place = exports.Place = function(info) {
   };
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
-    if (request === 'ping') {
-      logger.info('place/1', { status: place1.proplist().status });
-      return;
-    }
+    if (actor !== 'place/1') return;
 
-         if (actor !== 'place/1') return;
-    else if (request === 'observe') self.observe(self, eventID, observe, parameter);
-    else if (request === 'perform') self.perform(self, eventID, observe, parameter);
+    if (request === 'observe') return self.observe(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, eventID, observe, parameter);
   });
 
   return true;

@@ -32,6 +32,7 @@
     , "pcap"                : "git://github.com/mrose17/node_pcap.git"
     , "portfinder"          : "0.2.1"
     , "rfxcom"              : "git://github.com/mrose17/node-rfxcom.git"
+    , "roku"                : "0.1.0"
     , "speakeasy"           : "git://github.com/mrose17/speakeasy.git"
     , "sensortag"           : "git://github.com/sandeepmistry/node-sensortag.git"
     , "soap"                : "0.2.7"
@@ -41,12 +42,12 @@
     , "ssh-keygen"          : "git://github.com/mrose17/ssh-keygen.git"
     , "stack-trace"         : "0.0.6"
     , "suncalc"             : "1.2.1"
+    , "teslams"             : "0.6.0"
     , "validator"           : "1.1.3"
     , "winston"             : "0.6.2"
     , "ws"                  : "git://github.com/mrose17/ws.git"
     , "unofficial-nest-api" : "git://github.com/mrose17/unofficial_nodejs_nest.git"
     , "x509-keygen"         : "git://github.com/mrose17/x509-keygen.git"
     , "xml2js"              : "0.2.7"
-    , "roku"                : "0.1.0"
   }
 }

@@ -226,7 +226,7 @@ Authorized clients connect to the
 
     /console
 
-resource in order to receive logging entries from the _steward_.
+resource in order to receive logging entries from the _steward_ as well as state updates.
 When a client first connects to this resource,
 most actors in the system will present a brief synopsis.
 Thereafter log entries will be sent to the client, e.g.,
@@ -260,7 +260,29 @@ Thereafter log entries will be sent to the client, e.g.,
       ]
     }
 
-Finally,
+State updates look at little different:
+
+    {
+      ".updates": [
+        {
+          "whatami": "/device/lighting/blinkstick/led",
+          "whoami": "device/36",
+          "name": "Blinkstick #3",
+          "status": "on",
+          "info":
+            { "color":
+              { "model": "rgb",
+                "rgb": { "r":75, "g":0, "b":130 }
+              }
+            },
+          "updated":1374521033437
+        }
+
+        // other state updates, if any, go here ...
+      ]
+    }
+
+As you might expect,
 any traffic sent from the client is ignored.
 
 
