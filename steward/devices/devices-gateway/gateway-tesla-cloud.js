@@ -46,7 +46,7 @@ Cloud.prototype.error = function(self, err) {
   self.changed();
   logger.error('device/' + self.deviceID, { diagnostic: err.message });
 
-  if (self.timer) clearTimeout(self.timer);
+  if (!!self.timer) clearTimeout(self.timer);
   self.timer = setTimeout(function() { self.scan(self); }, 300 * 1000);
 };
 
@@ -63,7 +63,7 @@ Cloud.prototype.scan = function(self) {
     for (i = 0; i < data.length; i++) self.addvehicle(self, data[i]);
   });
 
-  if (self.timer) clearTimeout(self.timer);
+  if (!!self.timer) clearTimeout(self.timer);
   self.timer = setTimeout(function() { self.scan(self); }, 300 * 1000);
 };
 

@@ -58,7 +58,7 @@ ModelS.prototype.newstate = function(self, enabled) {
 };
 
 ModelS.prototype.refresh = function(self) {
-  if (!self.timer) self.timer = null;
+  if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
 
   if ((self.vehicle.state !== 'waiting') && (self.vehicle.tokens.length !== 0)) return self.scan(self);
 
@@ -95,6 +95,8 @@ ModelS.prototype.refresh = function(self) {
 };
 
 ModelS.prototype.scan = function(self) {
+// NB: i doubt the clearTimeout() is needed...
+  if (!!self.timer) clearTimeout(self.timer);
   self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 60 ) * 1000);
 
   tesla.mobile_enabled(self.vehicle.id, function(data) {
@@ -251,7 +253,7 @@ ModelS.prototype.stream = function(self, fastP) {
                , email      : self.gateway.info.email
                , password   : self.vehicle.tokens[0]
                }, function(error, response, body) {
-    var didP, i, j, odometer, range, record, records, sample, samples, speed;
+    var didP, i, j, odometer, range, record, records, sample, speed;
 
     self.vehicle.streamingP = false;
     try {
@@ -262,7 +264,6 @@ ModelS.prototype.stream = function(self, fastP) {
       self.vehicle.tokens = [];
       if (!fastP) return;
 
-      if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
       return self.refresh(self);
     }
     if (!body) return;
@@ -270,14 +271,12 @@ ModelS.prototype.stream = function(self, fastP) {
     didP = false;
 
     records = body.split('\r\n');
-    samples = [];
     for (i = 0; i < records.length; i++) {
       record = records[i].split(',');
       if (record.length < tesla.stream_columns.length) continue;
 
       sample = { timestamp: record.shift() };
       for (j = 0; j < tesla.stream_columns.length; j++) sample[tesla.stream_columns[j]] = record[j];
-      samples.push(sample);
 
       if (sample.timestamp <= self.vehicle.lastSample.timestamp) continue;
       self.vehicle.lastSample = sample;
@@ -365,9 +364,8 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
       if (!!state) f = function() { tesla.sun_roof({ id: self.vehicle.id, state: state }, cb); };
       else {
         pct = parseInt(parameter, 10);
-        if ((0 <= pct) && (pct <= 100)) {
-          f = function() { tesla.sun_roof({ id: self.vehicle.id, state: 'move',  percent: pct }, cb); };
-        }
+        if ((pct < 0) || (pct > 100)) break;
+        f = function() { tesla.sun_roof({ id: self.vehicle.id, state: 'move',  percent: pct }, cb); };
       }
       break;
 
@@ -388,7 +386,6 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
       tesla.set_temperature({ id: self.vehicle.id, dtemp: deg, ptemp: deg }, cb);
     }
 
-    if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
     self.refresh(self);
   };
   f();
@@ -438,7 +435,7 @@ var validate_perform = function(perform, parameter) {
            , vent    : true
            , close   : true }[parameter]) {
         pct = parseInt(parameter, 10);
-        if ((pct < 0) || (pct >= 100))    result.invalid.push('sunroof');
+        if ((pct < 0) || (pct > 100))    result.invalid.push('sunroof');
       }
       break;
 

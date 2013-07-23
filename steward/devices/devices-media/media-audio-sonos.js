@@ -242,10 +242,7 @@ Sonos_Audio.prototype.notify = function(self, headers, content) {
 };
 
 Sonos_Audio.prototype.refresh = function(self) {
-  if (!!self.refreshID) {
-    clearTimeout(self.refreshID);
-    self.refreshID = null;
-  }
+  if (!!self.refreshID) { clearTimeout(self.refreshID); self.refreshID = null; }
 
   self.sonos.currentTrack(function(err, track) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'currentTrack', diagnostic: err.message });
