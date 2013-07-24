@@ -45,49 +45,25 @@ util.inherits(Roku_Video, media.Device);
 
 
 Roku_Video.prototype.operations = {
-  'back' : function(device, params) {
-    device.roku.press(Roku.BACK);
-    device.roku.delay(500);
+  'stop' : function(device, params) {
+    device.press(Roku.BACK);
+    device.delay(500);
   }
-, 'home' : function(device, params) {
-    device.roku.press(Roku.HOME);
-    device.roku.delay(1500);
+, 'previous' : function(device, params) {
+    device.press(Roku.REV);
   }
-, 'up' : function(device, params) {
-    device.roku.press(Roku.UP);
+, 'play' : function(device, params) {
+    if (params.url) {
+      device.launch(params.url);
+    } else {
+      device.press(Roku.PLAY);
+    }
   }
-, 'left' : function(device, params) {
-    device.roku.press(Roku.LEFT);
+, 'pause' : function(device, params) {
+    device.press(Roku.PLAY);
   }
-, 'right' : function(device, params) {
-    device.roku.press(Roku.RIGHT);
-  }
-, 'down' : function(device, params) {
-    device.roku.press(Roku.DOWN);
-  }
-, 'replay' : function(device, params) {
-    device.roku.press(Roku.INSTANTREPLAY);
-  }
-, 'info' : function(device, params) {
-    device.roku.press(Roku.INFO);
-  }
-, 'select' : function(device, params) {
-    device.roku.press(Roku.SELECT);
-  }
-, 'rewind' : function(device, params) {
-    device.roku.press(Roku.REV);
-  }
-, 'play-pause' : function(device, params) {
-    device.roku.press(Roku.PLAY);
-  }
-, 'forward' : function(device, params) {
-    device.roku.press(Roku.FWD);
-  }
-, 'type' : function(device, params) {
-    device.roku.type(params.string);
-  }
-, 'launch' : function(device, params) {
-    device.roku.launch(params.application);
+, 'next' : function(device, params) {
+    device.press(Roku.FWD);
   }
 };
 
@@ -96,9 +72,8 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
   try { params = JSON.parse(parameter); } catch(e) {}
 
-
-  if (self.ops[perform]) {
-    self.operations[perform](self, params);
+  if (this.operations[perform]) {
+    this.operations[perform](this.roku, params);
     return steward.performed(taskID);
   }
   return false;
@@ -115,25 +90,17 @@ exports.start = function() {
   steward.actors.device.media.roku.video =
       { $info     : { type       : '/device/media/roku/video'
                     , observe    : [ ]
-                    , perform    : [ 'back'
-                                   , 'home'
-                                   , 'up'
-                                   , 'left'
-                                   , 'right'
-                                   , 'down'
-                                   , 'replay'
-                                   , 'info'
-                                   , 'select'
-                                   , 'rewind'
-                                   , 'play-pause'
-                                   , 'forward'
-                                   // application actions
-                                   , 'type'
-                                   , 'launch'
+                    , perform    : [
+                                     'play'
+                                   , 'stop'
+                                   , 'pause'
+                                   , 'next'
+                                   , 'previous'
                                    ]
                     , properties : { name    : true
                                    }
                     }
+      , $validate : { perform    : function() { return { invalid: [], requires: [] }; } }
       };
   devices.makers['urn:roku-com:device:player:1-0'] = Roku_Video;
 };

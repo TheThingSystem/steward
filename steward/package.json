@@ -32,7 +32,7 @@
     , "pcap"                : "git://github.com/mrose17/node_pcap.git"
     , "portfinder"          : "0.2.1"
     , "rfxcom"              : "git://github.com/mrose17/node-rfxcom.git"
-    , "roku"                : "0.1.0"
+    , "roku"                : "0.2.0"
     , "speakeasy"           : "git://github.com/mrose17/speakeasy.git"
     , "sensortag"           : "git://github.com/sandeepmistry/node-sensortag.git"
     , "soap"                : "0.2.7"
