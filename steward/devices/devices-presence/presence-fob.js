@@ -26,7 +26,7 @@ var Fob = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.peripheral = info.peripheral;
   self.ble = info.ble;
-  self.info = {};
+  self.info = { rssi: self.peripheral.rssi };
 
   self.peripheral.on('connect', function() {
     self.peripheral.updateRssi();

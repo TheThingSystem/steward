@@ -1,14 +1,18 @@
 //
 // http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
 
-var util        = require('util')
+var sensortag   = require('sensortag')
+  , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , sensor      = require('./../device-sensor')
   , tricorder   = require('./../device-tricorder')
   ;
 
+
 var logger = tricorder.logger;
+
 
 var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
@@ -17,13 +21,13 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
-  self.getName();
 
   self.status = 'present';
   self.changed();
   self.peripheral = info.peripheral;
+  self.sensor = new sensortag(self.peripheral);
   self.ble = info.ble;
-  self.info = {};
+  self.info = { rssi: self.peripheral.rssi };
 
   self.peripheral.on('connect', function() {
     self.peripheral.updateRssi();
@@ -45,81 +49,56 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
     logger.info('device/' + self.deviceID, { status: self.status });
   });
 
+  self.sensor.discoverServices(function() {
+console.log('>>> services discovered');
+    self.sensor.discoverCharacteristics(function() {
+console.log('>>> characteristics discovered');
+      self.ready(self);
+    });
+  });
+
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
-
 util.inherits(SensorTag, tricorder.Device);
 
+SensorTag.prototype.ready = function(self) {
+console.log('>>> ready');
+  self.sensor.enableHumidity(function(err) {
+console.log('>>> humidity enabled');
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'enableHumidity', diagnostic: err.message });
 
-SensorTag.prototype.observe = function(self, eventID, observe, parameter) {
-  var params;
+    var cb = function(temperature, humidity) {
+console.log('>>> cb: ' + JSON.stringify({ temperature : temperature, humidity : humidity }));
+      var didP, params;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+      didP = false;
+      params = {};
 
-  switch (observe) {
-    case 'buttons':
-      steward.report(eventID);
-      break;
+      if (self.info.temperature !== temperature) {
+        didP = true;
+        params.temperature = self.info.temperature = temperature;
+      }
+      if (self.info.humidity !== humidity) {
+        didP = true;
+        params.humidity = self.info.humidity = humidity;
+      }
+      
+      if (!didP) return;
+      sensor.update(self.deviceID, params);
+      self.changed();
+    };
 
-    default:
-      break;
-  }
-
-};
-
-SensorTag.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
-
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
-
-  if (perform === 'set') {
-    if (!!params.name) {
-                self.setName(params.name);
-        }
-    return steward.performed(taskID);
-  }
-
-  if (perform === 'accelerometer') {
-
-    return steward.performed(taskID);
-  }
-
-  return false;
-};
-
-
-var validate_observe = function(observe, parameter) {
-  var result = { invalid: [], requires: [] };
-
-  if (observe !== 'buttons') result.invalid.push('observe');
-
-  return result;
-};
-
-var validate_perform = function(perform, parameter) {
-  var params = {}, result = { invalid: [], requires: [] };
-
-  if ((perform !== 'set') && (perform !== 'accelerometer')) result.invalid.push('perform');
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try {
-        params = JSON.parse(parameter);
-  } catch(ex) {
-        result.invalid.push('parameter');
-  }
-
-  if (perform === 'set') {
-    if (!params.name) result.requires.push('name');
-  }
-
-  return result;
+    self.sensor.readHumidity(cb);
+    self.sensor.on('humidityChange', cb);
+    self.sensor.notifyHumidity(function(err) {
+console.log('>>> notifyHumidity enabled');
+      if (!!err) logger.error('device/' + self.deviceID, { event: 'enableHumidity', diagnostic: err.message });
+    });
+  });
 };
 
 
@@ -129,17 +108,20 @@ exports.start = function() {
 
   steward.actors.device.tricorder['texas-instruments'].sensortag =
       { $info     : { type       : '/device/tricorder/texas-instruments/sensortag'
-                    , observe    : [ 'buttons' ]
-                    , perform    : [ 'accelerometer' ]
-                    , properties : { name   : true
-                                   , status : [ 'present', 'absent', 'idle' ]
-                                   , rssi   : 's8'
-                                                                   , lastSample: 'timestamp'
-                                                                   , accelerometer: 'meters/second'
+                    , observe    : [ ]
+                    , perform    : [ ]
+                    , properties : { name          : true
+                                   , status        : [ 'present', 'absent', 'idle' ]
+                                   , rssi          : 's8'
+                                   , lastSample    : 'timestamp'
+                                   , temperature   : 'celsius'
+                                   , humidity      : 'percentage'
+                                   , pressure      : 'millibars'
+
+                                   , accelerometer : 'meters/second'
                                    }
                     }
-                , $observe : { observe    : validate_observe }
-                , $validate : { perform    : validate_perform }
+      , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['/device/tricorder/texas-instruments/sensortag'] = SensorTag;
 

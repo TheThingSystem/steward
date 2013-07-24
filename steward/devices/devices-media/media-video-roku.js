@@ -10,6 +10,7 @@ var Roku        = require('roku')
 
 // var logger = media.logger;
 
+
 var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
   var self;
   self = this;
