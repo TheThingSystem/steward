@@ -77,7 +77,7 @@ exports.logger = function(x) {
   logger.setLevels(winston.config.syslog.levels);
 
   logger.logaux = logger.log;
-  logger.log = function loggerLog(level, msg) {
+  logger.log = function(level, msg) {
     var callback, meta;
 
     if (arguments.length === 3) {

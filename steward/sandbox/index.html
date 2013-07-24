@@ -574,7 +574,7 @@ var onupdate = function(update) {
 
       prev = datum.meta || {};
       meta = {};
-      for (j in prev) if ((prev.hasOwnProperty(j)) && (prev[j])) meta[j] = prev[j];
+      for (j in prev) if ((prev.hasOwnProperty(j)) && (!!prev[j])) meta[j] = prev[j];
 
       if (category === 'server') {
         parts = datum.message.split(' ');
