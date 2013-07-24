@@ -259,7 +259,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     div3.setAttribute('class', 'small-instructions');
     div3.setAttribute('style', 'cursor: pointer');
     div3.setAttribute('onclick', 'javascript:showPop(' + JSON.stringify(device) + ',' + JSON.stringify(entry) + ');');
-    div3.innerHTML = 'Adjust device settings...';
+//    div3.innerHTML = 'Adjust device settings...';
     div.appendChild(div3);
   }
   chart.appendChild(div);
@@ -664,13 +664,6 @@ var climate_device_arcs = function(device) {
   return arcs;
 };
 
-var clip2bars = function(v, min, max) {
-  if (v < min) v = min;
-  else if (v > max) v = max;
-
-  return ((v - min) / ((max -min) * 2));
-};
-
 
 // temporary...
 var single_nest_drilldown = single_climate_drilldown;
@@ -692,6 +685,219 @@ var single_lighting_drilldown = function(state) {
 
 var lighting_device_arcs = single_device_arcs;
 
+
+var single_media_drilldown = function(state) {
+  var device, instructions;
+
+  device = actors[state.actor];
+  instructions = (device.status !== 'playing') ? 'play' : 'pause';
+  instructions += '<br/>' + 'adjust volume<br/>'
+  instructions += (device.info.muted !== 'on') ? 'mute' : 'unmute';
+
+  device_drilldown(device.name, [ device ], media_device_arcs(device), instructions);
+};
+
+var media_device_arcs = function(device) {
+  var arcs, now, pos, prop, text, v;
+
+  arcs = [];
+
+  v = device.status;
+  arcs.push({ name   : 'status'
+            , raw    : v
+            , label  : 'STATUS'
+            , cooked : v
+            , value  : clip2bars(v === 'playing' ? 100 : v === 'idle' ? 0 : 50, 0, 100)
+            , index  : 0.70
+            });
+
+  for (prop in device.info) {
+    if (!device.info.hasOwnProperty(prop)) continue;
+
+    v = device.info[prop];
+    switch (prop) {
+      case 'track':
+        text = v.title || '';
+        if ((text.length > 0) && (!!v.artist)) text += ' / ' + v.artist;
+        if ((text.length > 0) && (!!v.album))  text += ' / ' + v.album;
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v.title || ''
+                          , label  : 'TRACK'
+                          , cooked : text
+                          , value  : clip2bars ((text.length > 0) ? 100 : 0, 0, 100)
+                          , index  : 0.60
+                          });
+
+        text = '';
+        pos = v.position;
+        if (!!pos) {
+          pos = Math.round(pos / 1000);
+
+          text = ('0' + (pos % 60)).substr(-2);
+          pos = Math.round(pos / 60);
+
+          if (pos !== 0) {
+            text = ('0' + (pos % 60)).substr(-2) + ':' + text;
+            pos = Math.round(pos / 60);
+          } else text = '00:' + text;
+          if (pos !== 0) text = ('0' + pos).substr(-2) +':' + text;
+        }
+        arcs.splice(2, 0, { name   : 'position'
+                          , raw    : v.pos || ''
+                          , label  : 'POSITION'
+                          , cooked : text
+                          , value  : clip2bars(v.pos || 0, 0, v.duration || 1)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'volume':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'VOLUME'
+                          , cooked : v + '%'
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'muted':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MUTE'
+                          , cooked : v
+                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'mode':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MODE'
+                          , cooked : v
+                          , value  : clip2bars(  v === 'repeat'   ?  33
+                                               : v === 'shuffle'  ?  66
+                                               : v === 'shuffle1' ? 100 : 0, 0, 100)
+                          , index  : 0.20
+                          });
+        break;
+
+      default:
+        continue;
+    }
+  }
+
+  return arcs;
+};
+
+var single_motive_drilldown = function(state) {
+  var device, instructions;
+
+  device = actors[state.actor];
+  instructions = (device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors';
+  instructions += '<br/>' + 'flash headlights<br/>' + 'honk horn<br/>' + 'adjust air conditioning';
+  if (device.info.sunroof !== 'none') instructions += '<br/>' + 'adjust sunroof';
+
+  device_drilldown(device.name, [ device ], motive_device_arcs(device), instructions);
+};
+
+var motive_device_arcs = function(device) {
+  var arcs, now, prop, v;
+
+  arcs = [];
+
+  for (prop in device.info) {
+    if (!device.info.hasOwnProperty(prop)) continue;
+
+    v = device.info[prop];
+    switch (prop) {
+      case 'location':
+        arcs.splice(0, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'LOCATION'
+                          , cooked : v.toString() + ' (danny, reverse geocode me to an address, if possible...)'
+                          , value  : 0
+                          , index  : 0.70
+                          });
+        break;
+
+      case 'velocity':
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'SPEED'
+                          , cooked : (v > 0) ? ((v / 1000).toFixed(0) + ' kph' + ' / ' + (v * 2.23694).toFixed(0) + ' mph')
+                                             : 'stationary'
+                          , value  : clip2bars(v, 0, 50)
+                          , index  : 0.60
+                          });
+        break;
+
+      case 'heading':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'HEADING'
+                          , cooked :   (v <  22.5) ? 'north' 
+                                     : (v <  67.5) ? 'north-east'
+                                     : (v < 112.5) ? 'east'
+                                     : (v < 157.5) ? 'south-east'
+                                     : (v < 202.5) ? 'south'
+                                     : (v < 247.5) ? 'south-west'
+                                     : (v < 292.5) ? 'west'
+                                     : (v < 335.5) ? 'north-west'
+                                     : 'north'
+                          , value  : clip2bars((v > 180) ? (360 - v) : v, 0, 180)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'odometer':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'ODOMETER'
+                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' miles'
+                          , value  : clip2bars(v, 0, 161000)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'charger':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'CHARGER'
+                          , cooked : v
+                          , value  :   v === 'charging'      ? .50
+                                     : v === 'regenerating'  ? .375
+                                     : v === 'drawing'       ? 0
+                                     : .25
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'intTemperature':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'INTERIOR'
+                          , cooked : v + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , value  : clip2bars(v,  17, 32)
+                          , index  : 0.20
+                          });
+        break;
+
+      default:
+        continue;
+    }
+  }
+
+  return arcs;
+};
+
+var clip2bars = function(v, min, max) {
+  if (v < min) v = min;
+  else if (v > max) v = max;
+
+  return ((v - min) / ((max -min) * 2));
+};
 
 
 var category_drilldown = function(state, prefix) {
@@ -901,6 +1107,7 @@ var handleArrow = function(evt) {
 /*
   drone.svg
   ecobee.svg
+  electric-vehicle.svg
   home.svg
   insteon-water.svg
   motrr.svg
@@ -982,10 +1189,14 @@ var entries = {
                                                               , arcs    : lighting_device_arcs
                                                               }
               , '/device/media/sonos/audio'                 : { img     : 'actors/sonos-playbar.svg'
-                                                              , single  : null
-                                                              , arcs    : null
+                                                              , single  : single_media_drilldown
+                                                              , arcs    : media_device_arcs
                                                               }
-              , 'device/device_arcsfob/hone'                : { img     : 'actors/hone.svg'
+              , '/device/motive/tesla/model-s'              : { img     : 'actors/tesla-motors.svg'
+                                                              , single  : single_motive_drilldown
+                                                              , arcs    : motive_device_arcs
+                                                              }
+              , 'device/presence/fob/hone'                  : { img     : 'actors/hone.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               }

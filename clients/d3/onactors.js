@@ -82,6 +82,7 @@ var allTags = function(message) {
   }
 
   tags = {};
+  id = '/group';
   for (actor in result[id]) {
     if (!result[id].hasOwnProperty(actor)) continue;
     tag = result[id][actor];
