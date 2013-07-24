@@ -33,33 +33,29 @@ PRIOR TO BETA RELEASE
 
 3. device implementations
 
-    3.1. roku (EI: July)
+    3.1. appleTV (EI: July)
 
-    3.2. appleTV (EI: July)
+    3.2. nest goal temperature, fan status, heating/cooling status, and control functions (EI: July)
 
-    3.3. nest goal temperature, fan status, heating/cooling status, and control functions (EI: July)
+    3.3. webcam (EI: August)
 
-    3.4. webcam (EI: August)
+    3.4. ecobee (EI: August)
 
-    3.5. ecobee (EI: August)
+    3.5. TI sensortag
 
-    3.6. TI sensortag
+    3.6. swivl ptz
 
-    3.7. swivl ptz
+    3.7. romo
 
-    3.8. romo
-
-    3.9. galileo
+    3.8. galileo
 
 4. internals
 
-    4.1. device/group tags (MTR: July)
+    4.1. logging transports
 
-    4.2. logging transports
+    4.2. steward "user assistance" queue (MTR: July)
 
-    4.5. steward "user assistance" queue (MTR: July)
-
-    4.6. API to access historical data (MTR: August)
+    4.3. API to access historical data (MTR: July)
 
 5. gateway implementations
 

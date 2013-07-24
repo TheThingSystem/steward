@@ -4,16 +4,14 @@ var Roku        = require('roku')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
-  , discovery   = require('./../../discovery/discovery-ssdp')
   , media       = require('./../device-media')
   ;
 
 
-var logger = media.logger;
+// var logger = media.logger;
 
 var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
-  var o, self;
+  var self;
   self = this;
 
   self.whatami = '/device/media/roku/video';
@@ -45,24 +43,24 @@ util.inherits(Roku_Video, media.Device);
 
 
 Roku_Video.prototype.operations = {
-  'stop' : function(device, params) {
+  'stop' : function(device, params) {/* jshint unused: false */
     device.press(Roku.BACK);
     device.delay(500);
   }
-, 'previous' : function(device, params) {
+, 'previous' : function(device, params) {/* jshint unused: false */
     device.press(Roku.REV);
   }
-, 'play' : function(device, params) {
+, 'play' : function(device, params) {/* jshint unused: false */
     if (params.url) {
       device.launch(params.url);
     } else {
       device.press(Roku.PLAY);
     }
   }
-, 'pause' : function(device, params) {
+, 'pause' : function(device, params) {/* jshint unused: false */
     device.press(Roku.PLAY);
   }
-, 'next' : function(device, params) {
+, 'next' : function(device, params) {/* jshint unused: false */
     device.press(Roku.FWD);
   }
 };
@@ -72,16 +70,36 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
   try { params = JSON.parse(parameter); } catch(e) {}
 
-  if (this.operations[perform]) {
+  if (!!this.operations[perform]) {
     this.operations[perform](this.roku, params);
     return steward.performed(taskID);
   }
+
+  if ((perform === 'set') && (!!params.name)) return self.setName(params.name);
+
   return false;
 };
 
-Roku_Video.prototype.notify = function() {
-  this.changed();
-}
+var validate_perform = function(perform, parameter) {
+  var params = {}
+    , result = { invalid: [], requires: [] };
+
+  if (!!this.operation[perform]) return result;
+  if (perform !== 'set') {
+    result.invalid.push('perform');
+    return;
+  }
+  if (!parameter) {
+    result.requires.push('parameter');
+    return result;
+  }
+  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (!params.name) result.requires.push('name');
+
+  return result;
+};
+
 
 exports.start = function() {
   steward.actors.device.media.roku = steward.actors.device.media.roku ||
@@ -100,7 +118,7 @@ exports.start = function() {
                     , properties : { name    : true
                                    }
                     }
-      , $validate : { perform    : function() { return { invalid: [], requires: [] }; } }
+      , $validate : { perform    : validate_perform }
       };
   devices.makers['urn:roku-com:device:player:1-0'] = Roku_Video;
 };
