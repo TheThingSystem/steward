@@ -45,6 +45,13 @@ Then go to the _steward_ directory and install the libraries:
     cd steward/steward
     npm install -l
 
+Note that the top-level directory may be called _steward-master_, in that case you want to:
+
+    cd steward-master/steward
+    npm install -l
+
+instead.
+
 ### Alternative method to install Node.js
 
 _The nvm system is based around the bash shell. If you run tcsh or another alternative, it's not going to work for you. You'll have to install node by hand. Go ahead and checkout Node.js from the Github repository,_
