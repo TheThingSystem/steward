@@ -300,28 +300,6 @@ var colors = function () {
             return [point.x, point.y];
         },
 
-// https://gist.github.com/AaronH/30c50aa4b161f8169c3d
-// http://www.everyhue.com/vanilla/discussion/94/rgb-to-xy-or-hue-sat-values/p1
-        cie1931ToRGB : function (x, y) {
-            var r, g, b, z;
-
-            z = 1 - (x + y);
-
-/*
- |R|   | X |   | 3.2333         -1.5262         0.2791 |
- |G| = | Y | * |-0.8268          2.4667         0.3323 |
- |B|   | Z |   | 0.1294          0.1983         2.0280 |
- */
-            r =      (x *  3.2333358361244897)  + (y * -1.5262682428425947)  + (z * 0.27916711262124544);
-            g =      (x * -0.8268442148395835)  + (y *  2.466767560486707)   + (z * 0.3323241608108406);
-            b =      (x *  0.12942207487871885) + (y *  0.19839858329512317) + (z * 2.0280912276039635);
-
-            return [ Math.round(Math.max(0, Math.min(255, r * 255)))
-                   , Math.round(Math.max(0, Math.min(255, g * 255)))
-                   , Math.round(Math.max(0, Math.min(255, b * 255)))
-                   ];
-        },
-
         /**
          * Returns the approximate CIE 1931 x,y coordinates represented by the
          * supplied hexColor parameter, or of a random color if the parameter
