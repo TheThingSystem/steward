@@ -58,8 +58,17 @@ Blinkstick.prototype.perform = function(self, taskID, perform, parameter) {
     state.on = true;
 
     color = params.color;
-    if ((!!color) && (color.model === 'rgb') && lighting.validRGB(color.rgb)) {
-      state.color = [ color.rgb.r, color.rgb.g, color.rgb.b ];
+    switch (color.model) {
+      case 'rgb':
+        if (lighting.validRGB(color.rgb)) state.color = [ color.rgb.r, color.rgb.g, color.rgb.b ];
+        break;
+
+      case 'cie1931':
+        if (lighting.validCIE1931(color.cie1931)) state.color = lighting.colors.cie1931ToRGB(color.cie1931.x, color.cie1931.y);
+        break;
+
+      default:
+        break;
     }
   }
   if ((state.color[0] + state.color[1] + state.color[2]) === 0) state.on = false;
@@ -101,8 +110,19 @@ var validate_perform = function(perform, parameter) {
   color = params.color;
   if (!color) result.requires.push('color');
   else {
-    if (color.model !== 'rgb') result.invalid.push('color');
-    if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
+    switch (color.model) {
+      case 'rgb':
+        if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
+        break;
+
+      case 'cie1931':
+        if (!lighting.validCIE1931(color.cie1931)) result.invalid.push('color.cie1931');
+        break;
+
+      default:
+        result.invalid.push('color');
+        break;
+    }
   }
 
   return result;
@@ -153,6 +173,7 @@ exports.start = function() {
                     , properties : { name       : true
                                    , status     : [ 'waiting', 'on', 'off' ]
                                    , color      : { model: [ { rgb         : { r: 'u8', g: 'u8', b: 'u8' } }
+                                                           , { cie1931     : { x: 'fraction', y: 'fraction' } }
                                                            ]
                                                   }
                                    }
