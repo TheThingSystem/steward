@@ -101,6 +101,7 @@ exports.start = function() {
                                    , 'previous'
                                    ]
                     , properties : { name    : true
+                                   , status  : [ 'idle' ]
                                    }
                     }
       , $validate : { perform    : validate_perform }
