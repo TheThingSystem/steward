@@ -46,13 +46,15 @@ var create = function(logger, ws, api, message, tag) {
 
   if (!message.parameter) message.parameter = '';
 
-  parts = entity.whatami.split('/');
-  actor = actors;
-  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
-  if (!actor)                     return error(false,  'internal error');
-  if (!!actor.$validate.perform) {
-    v = actor.$validate.perform(message.perform, message.parameter);
-    if ((v.invalid.length > 0) || (v.requires.length > 0)) return error(false, 'invalid parameters ' + stringify(v));
+  if (actorType !== 'group') {
+    parts = entity.whatami.split('/');
+    actor = actors;
+    try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
+    if (!actor)                     return error(false,  'internal error');
+    if (!!actor.$validate.perform) {
+      v = actor.$validate.perform(message.perform, message.parameter);
+      if ((v.invalid.length > 0) || (v.requires.length > 0)) return error(false, 'invalid parameters ' + stringify(v));
+    }
   }
 
   if (!message.guard) message.guard = '/';

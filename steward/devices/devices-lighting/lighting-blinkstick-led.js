@@ -102,7 +102,7 @@ var validate_perform = function(perform, parameter) {
   if (!color) result.requires.push('color');
   else {
     if (color.model !== 'rgb') result.invalid.push('color');
-    if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
+    else if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
   }
 
   return result;

@@ -12,11 +12,11 @@
 
 // you may change the name field, if you wish
 // you may change the physical address field, if you wish
-// please change the latitude and longitude in the coordinates below (needed to calculate solar time, e.g., dawn)
+// please change the latitude and longitude in the location below (needed to calculate solar time, e.g., dawn)
 
 var place_info   = { name        : 'Home'
                    , physical    : ''
-                   , coordinates : [ 39.50000, -98.35000 ]
+                   , location    : [ 39.50000, -98.35000 ]
                    };
 
 
@@ -108,7 +108,7 @@ var bootstrap = function(ws) {
       if (actor === '/place') {
         if (!actors[actor]['place/1']) throw new Error('actor place/1 is not present');
         d = actors[actor]['place/1'];
-        if ((!d.info.coordinates) || (d.info.coordinates.length < 2)) { update_place(); break; }
+        if ((!d.info.location) || (d.info.location.length < 2)) { update_place(); break; }
       }
 
       for (name in bootable) {

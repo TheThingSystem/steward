@@ -101,7 +101,9 @@ exports.logger = function(x) {
         break;
     }
 
-    this.logaux(level, '[' + x + '] ' + msg, meta, callback);
+    this.logaux(level !== 'fatal' ? level : 'emerg', '[' + x + '] ' + msg, meta, callback);
+
+    if (level === 'fatal') process.exit(1);
   };
 
   logger.debug('begin');

@@ -46,13 +46,15 @@ var create = function(logger, ws, api, message, tag) {
 
   if (!message.parameter) message.parameter = '';
 
-  parts = entity.whatami.split('/');
-  actor = actors;
-  try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
-  if (!actor)                     return error(false,  'internal error');
-  if (!!actor.$validate.observe) {
-    v = actor.$validate.observe(message.observe, message.parameter);
-    if ((v.invalid.length > 0) || (v.requires.length > 0))  return error(false, 'invalid parameters ' + stringify(v));
+  if (actorType !== 'group') {
+    parts = entity.whatami.split('/');
+    actor = actors;
+    try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
+    if (!actor)                     return error(false,  'internal error');
+    if (!!actor.$validate.observe) {
+      v = actor.$validate.observe(message.observe, message.parameter);
+      if ((v.invalid.length > 0) || (v.requires.length > 0))  return error(false, 'invalid parameters ' + stringify(v));
+    }
   }
 
   if (!!events[uuid])             return error(false, 'duplicate uuid');

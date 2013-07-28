@@ -302,8 +302,6 @@ var review = function() {
   if (place1.status !== color) {
     place1.status = color;
     place1.changed();
-
-// TBD: decide which lights to perform 'on' JSON.stringify({ color: { model: 'rgb', rgb: devices.rainbow[state].rgb } })
   }
 
   setTimeout(review, 15 * 1000);

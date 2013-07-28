@@ -54,15 +54,14 @@ exports.performed = function(taskID) {
 
 
 var scan = function() {
-  var activity, device, event, i, now, performance, performances, stamp, task, uuid;
+  var activity, device, event, i, now, performance, performances, task, uuid;
 
   now = new Date();
-  stamp = now.getTime();
   for (uuid in events.events) {
     if (!events.events.hasOwnProperty(uuid)) continue;
 
     event = events.events[uuid];
-    if (event.conditionP) check(event, now, stamp);
+    if (event.conditionP) check(event, now);
     else if (!event.watchP) broker.publish('actors', 'observe', event.eventID, event.actor, event.observe, event.parameter);
   }
 
@@ -113,24 +112,30 @@ var scan = function() {
 };
 
 
-var check = function(event, now, stamp) {
-  var actor, entity, info, params, previous, proplist;
+var check = function(event, now) {
+  var actor, entity, info, params, proplist;
 
   actor = exports.actors[event.actorType];
   if (!actor) return;
   entity = actor.$lookup(event.actorID);
   if (!entity) return;
   proplist = entity.proplist();
-  if ((event.watchP) && (!!proplist.updated) && (proplist.updated <= stamp)) return;
-  event.watchP = true;
+  if ((!!event.watchP) && (!!proplist.updated) && (event.watchP === proplist.updated.getTime())) {
+    event.observeP = false;
+    return;
+  }
+  if (!!proplist.updated) event.watchP = proplist.updated.getTime();
 
   info = utility.clone(proplist.info);
   info.status = proplist.status;
 
   try { params = JSON.parse(event.parameter); } catch(ex) { params = null; }
-  previous = event.observeP;
   event.observeP = params && evaluate(params, info);
-  if ((!previous) && (event.observeP)) event.lastTime = now;
+  if ((!!event.lastTime) && (!!event.observeP)) {
+    if (!!event.previous) event.observeP = false;
+    event.previous = true;
+  } else event.previous = event.observeP;
+  if (event.observeP) event.lastTime = now;
 };
 
 var evaluate = function(params, info) {
@@ -414,7 +419,7 @@ exports.start = function() {
     logger.info('start', { uuid: exports.uuid });
     server.start();
     utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js/, 6, -3, ' actor');
-    setInterval(scan, 1000);
+    setInterval(scan, 5 * 1000);
     setInterval(function() {
       var module, now;
 

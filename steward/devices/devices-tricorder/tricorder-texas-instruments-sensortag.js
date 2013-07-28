@@ -1,5 +1,16 @@
-//
 // http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
+
+/*
+temperature
+ir temperature
+humidity
+pressure
+
+acceleration [meters/second^2]3
+magnetic [microTesla]3
+gyro [degrees/second]3
+
+ */
 
 var sensortag   = require('sensortag')
   , util        = require('util')
