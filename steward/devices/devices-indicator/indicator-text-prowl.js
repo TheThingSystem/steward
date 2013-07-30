@@ -84,7 +84,7 @@ util.inherits(Prowl, indicator.Device);
 
 
 Prowl.prototype.perform = function(self, taskID, perform, parameter) {
-  var device, field, info, line, p, param, params, part, parts, result, updateP, x;
+  var param, params, updateP;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -112,41 +112,7 @@ Prowl.prototype.perform = function(self, taskID, perform, parameter) {
   if ((!winston.config.syslog.levels[params.priority])
         || (winston.config.syslog.levels[params.priority] < self.priority)) return;
 
-// expansion of '.[deviceID.property].'
-  result = '';
-  line = params.message;
-  while ((x = line.indexOf('.[')) > 0) {
-    if (x > 0) result += line.substring(0, x);
-    line = line.substring(x + 2);
-
-    x = line.indexOf('].');
-    if (x === -1) {
-      result += '.[';
-      continue;
-    }
-
-    parts = line.substring(0, x).split('.');
-    line = line.substring(x + 2);
-
-    device = devices.id2device(parts[0]);
-    if (!device) {
-      result += '.[';
-      continue;
-    }
-    info = device.info;
-    field = '';
-    for (p = 1; p < parts.length; p++) {
-      part = parts[p];
-           if (part === 'name')   field = device.name;
-      else if (part === 'status') field = device.status;
-      else if (!!info[part])      field = info[part];
-      else break;
-    }
-    result += field;
-  }
-  result += line;
-
-  self.prowl.push(self.prefix + result, self.appname, self.growl);
+  self.prowl.push(self.prefix + params.message, self.appname, self.growl);
   return steward.performed(taskID);
 };
 

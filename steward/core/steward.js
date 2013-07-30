@@ -4,6 +4,7 @@ exports.status  = {};
 var net         = require('net')
   , pcap        = require('pcap')
   , util        = require('util')
+  , devices     = require('./device')
   , server      = require('./server')
   , utility     = require('./utility')
   , discovered  = require('./../discovery/discovery-mac').arp
@@ -106,7 +107,8 @@ var scan = function() {
       if (!performance.devices.hasOwnProperty(device)) continue;
 
       logger.notice('perform', performances);
-      broker.publish('actors', 'perform', performance.taskID, device, performance.perform, performance.parameter);
+      broker.publish('actors', 'perform', performance.taskID, device, performance.perform,
+                     devices.expand(performance.parameter));
     }
   }
 };
@@ -419,7 +421,7 @@ exports.start = function() {
     logger.info('start', { uuid: exports.uuid });
     server.start();
     utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js/, 6, -3, ' actor');
-    setInterval(scan, 5 * 1000);
+    setInterval(scan, 10 * 1000);
     setInterval(function() {
       var module, now;
 

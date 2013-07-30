@@ -1,5 +1,6 @@
 var stringify  = require('json-stringify-safe')
   , clone      = require('./../core/utility').clone
+  , devices    = require('./../core/device')
   , steward    = require('./../core/steward')
   , manage     = require('./../routes/route-manage')
   ;
@@ -208,7 +209,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       }
     }
 
-    performed = (!!entity.perform) ? (entity.perform)(entity, null, message.perform, message.parameter) : false;
+    performed = (!!entity.perform) ? (entity.perform)(entity, null, message.perform, devices.expand(message.parameter)) : false;
     results.actors[who] = { status: performed ? 'success' : 'failure' };
   }
 

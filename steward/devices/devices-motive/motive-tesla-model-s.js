@@ -97,7 +97,7 @@ ModelS.prototype.refresh = function(self) {
 ModelS.prototype.scan = function(self) {
 // NB: i doubt the clearTimeout() is needed...
   if (!!self.timer) clearTimeout(self.timer);
-  self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 60 ) * 1000);
+  self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 75 ) * 1000);
 
   tesla.mobile_enabled(self.vehicle.id, function(data) {
     if (utility.toType(data) === 'error') {
@@ -208,7 +208,7 @@ ModelS.prototype.scan = function(self) {
         self.vehicle.updatingP = didP;
 
         if (!!self.timer) clearTimeout(self.timer);
-        self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 60 ) * 1000);
+        self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 75 ) * 1000);
       }
     });
 

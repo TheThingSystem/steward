@@ -355,7 +355,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       }
     }
 
-    performed = (!!entity.perform) ? (entity.perform)(entity, null, message.perform, message.parameter) : false;
+    performed = (!!entity.perform) ? (entity.perform)(entity, null, message.perform, devices.expand(message.parameter)) : false;
     results.devices[member.actor] = { status: performed ? 'success' : 'failure' };
   }
 

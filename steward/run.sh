@@ -35,6 +35,7 @@ EOF
   fi
 fi
 
+ulimit -n 1024
 while true; do
   node index.js
 

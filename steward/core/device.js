@@ -369,3 +369,47 @@ exports.traverse = function(actors, prefix, depth) {
     exports.traverse(actors[actor], prefix + actor + '/', depth + 1);
   }
 };
+
+// expansion of '.[deviceID.property].'
+exports.expand = function(line) {
+  var entity, field, info, p, part, parts, result, who, x;
+
+  result = '';
+  while ((x = line.indexOf('.[')) > 0) {
+    if (x > 0) result += line.substring(0, x);
+    line = line.substring(x + 2);
+
+    x = line.indexOf('].');
+    if (x === -1) {
+      result += '.[';
+      continue;
+    }
+
+    parts = line.substring(0, x).split('.');
+    line = line.substring(x + 2);
+
+    if (parts[0].indexOf('/') !== -1) {
+      who = parts[0].split('/');
+      entity = steward.actors[who[0]];
+      if (!!entity) entity = entity.$lookup(who[1]);
+    } else entity = id2device(parts[0]);
+
+    if (!entity) {
+      result += '.[';
+      continue;
+    }
+    info = entity.info;
+    field = '';
+    for (p = 1; p < parts.length; p++) {
+      part = parts[p];
+           if (part === 'name')   field = entity.name;
+      else if (part === 'status') field = entity.status;
+      else if (!!info[part])      field = info[part];
+      else break;
+    }
+    result += field;
+  }
+  result += line;
+
+  return result;
+};

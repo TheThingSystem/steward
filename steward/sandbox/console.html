@@ -483,6 +483,8 @@ var onactors = function(message) {
               break;
 
             case 'temperature':
+            case 'intTemperature':
+            case 'extTemperature':
               v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F';
               break;
 
@@ -500,6 +502,22 @@ var onactors = function(message) {
 
             case 'pressure':
               v += 'mbars';
+              break;
+
+            case 'heading':
+              v += '&deg;';
+              break;
+
+            case 'velocity':
+              if (v !== '0') v = (v * 3.6).toFixed(0) + 'km/h / ' + (v * 2.23694).toFixed(0) + 'mph';
+              break;
+
+            case 'odometer':
+              v = v.toFixed(1) + 'km / ' + (v * 0.621371).toFixed(1) + 'mi';
+              break;
+
+            case 'range':
+              v = v.toFixed(0) + 'km / ' + (v * 0.621371).toFixed(0) + 'mi';
               break;
 
             default:
@@ -574,7 +592,7 @@ var onupdate = function(update) {
 
       prev = datum.meta || {};
       meta = {};
-      for (j in prev) if ((prev.hasOwnProperty(j)) && (prev[j])) meta[j] = prev[j];
+      for (j in prev) if ((prev.hasOwnProperty(j)) && (!!prev[j])) meta[j] = prev[j];
 
       if (category === 'server') {
         parts = datum.message.split(' ');
