@@ -33,8 +33,13 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
   self.inflight = 0;
   self.maxflights = 3;
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var light;
+
+    if (request === 'attention') {
+      if ((self.status === 'reset') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      return;
+    }
 
     if (request !== 'perform') return;
 

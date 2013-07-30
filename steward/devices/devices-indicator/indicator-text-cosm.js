@@ -5,6 +5,7 @@ var cosm        = require('cosm')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , indicator   = require('./../device-indicator')
   ;
 
@@ -33,9 +34,14 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   self.cosm = new cosm.Cosm(info.apikey);
   self.datastreams = {};
 
-  utility.broker.subscribe('readings', function(deviceID, point) { self.update(self, deviceID, point); });
+  broker.subscribe('readings', function(deviceID, point) { self.update(self, deviceID, point); });
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (request === 'attention') {
+      if ((self.status === 'error') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      return;
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);

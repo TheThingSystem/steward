@@ -6,6 +6,7 @@ var tesla       = require('teslams')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -30,7 +31,12 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.timer = null;
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (request === 'attention') {
+      if ((self.status === 'error') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      return;
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);

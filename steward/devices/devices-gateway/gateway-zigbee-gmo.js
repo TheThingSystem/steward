@@ -7,6 +7,7 @@ var soap        = require('soap')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -31,7 +32,12 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.client = info.client;
   self.neighbors = {};
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+    if (request === 'attention') {
+      if ((self.status === 'reset') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      return;
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
