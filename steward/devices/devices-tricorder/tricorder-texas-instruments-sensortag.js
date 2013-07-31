@@ -13,6 +13,7 @@ gyro [degrees/second]3
  */
 
 var sensortag   = require('sensortag')
+  , stringify   = require('json-stringify-safe')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -83,7 +84,7 @@ console.log('>>> humidity enabled');
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'enableHumidity', diagnostic: err.message });
 
     var cb = function(temperature, humidity) {
-console.log('>>> cb: ' + JSON.stringify({ temperature : temperature, humidity : humidity }));
+console.log('>>> cb: ' + stringify({ temperature : temperature, humidity : humidity }));
       var didP, params;
 
       didP = false;

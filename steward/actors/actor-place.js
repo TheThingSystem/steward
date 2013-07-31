@@ -177,6 +177,7 @@ var Place = exports.Place = function(info) {
       if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', self.proplist());
       return;
     }
+
     if (actor !== 'place/1') return;
 
     if (request === 'observe') return self.observe(self, eventID, observe, parameter);

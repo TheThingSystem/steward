@@ -45,7 +45,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     if (request === 'attention') {
-      if ((self.status === 'reset') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      if (self.status === 'reset') self.alert('please re-pair peripherals with gateway');
       return;
     }
 

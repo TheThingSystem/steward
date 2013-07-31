@@ -55,7 +55,7 @@ exports.performed = function(taskID) {
 
 
 var scan = function() {
-  var activity, device, event, i, now, performance, performances, task, uuid;
+  var activity, device, event, i, now, parameter, performance, performances, task, uuid;
 
   now = new Date();
   for (uuid in events.events) {
@@ -106,9 +106,10 @@ var scan = function() {
     for (device in performance.devices) {
       if (!performance.devices.hasOwnProperty(device)) continue;
 
-      logger.notice('perform', performances);
-      broker.publish('actors', 'perform', performance.taskID, device, performance.perform,
-                     devices.expand(performance.parameter));
+      parameter = devices.expand(performance.parameter);
+      logger.notice('perform',
+                    { taskID: performance.taskID, device: device, perform: performance.perform, parameter: parameter });
+      broker.publish('actors', 'perform', performance.taskID, device, performance.perform, parameter);
     }
   }
 };

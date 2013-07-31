@@ -1,6 +1,7 @@
 var fs          = require('fs')
   , EventBroker = require('observer').EventBroker
   , stacktrace  = require('stack-trace')
+  , stringify  = require('json-stringify-safe')
   , winston     = require('winston')
   , util        = require('util')
   ;
@@ -13,7 +14,7 @@ process.addListener("uncaughtException", function (err) {
   try {
     logger = exports.logger('steward');
     logger.alert('exception', { diagnostic: err.message });
-    logger.alert('exception', { stack: JSON.stringify(stacktrace.parse(err)) });
+    logger.alert('exception', { stack: stringify(stacktrace.parse(err)) });
   } catch(ex) {}
 
   console.log('uncaught exception: ' + err);

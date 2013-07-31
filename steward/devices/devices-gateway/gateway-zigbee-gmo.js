@@ -2,6 +2,7 @@
 // Exegin Q52 - Zigbee GMO: http://exegin.com/hardware/q53app.php
 
 var soap        = require('soap')
+  , stringify  = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
   , devices     = require('./../../core/device')
@@ -57,7 +58,7 @@ Gateway.prototype.refresh = function(self) {
 
     if (err) return logger.error('device/' + self.deviceID, { event: 'Get', diagnostic: err.message });
 
-console.log('+++ ' + JSON.stringify(response));
+console.log('+++ ' + stringify(response));
     if (response.Status !== '0') {
       return logger.error('device/' + self.deviceID, { event: 'Get', status: response.Status });
     }
@@ -135,7 +136,7 @@ Gateway.prototype.Active_EP_Callback = function(self, id) {
       delete(self.neighbors[id]);
       return logger.error('device/' + self.deviceID, { event: 'Active_EP_Callback', diagnostic: err.message });
     }
-console.log('+++ ZDP response' + JSON.stringify(response));
+console.log('+++ ZDP response' + stringify(response));
 console.log(body);console.log('+++');
 
     if (response.Status !== '0') {
@@ -167,7 +168,7 @@ Gateway.prototype.Simple_Desc_Callback = function(self, id) {
       return logger.error('device/' + self.deviceID, { event: 'Simple_Desc_Callback', diagnostic: err.message });
     }
 console.log('+++ ZDP request');console.log(self.client.lastRequest);
-console.log('+++ ZDP response' + JSON.stringify(response));
+console.log('+++ ZDP response' + stringify(response));
 console.log(body);console.log('+++');
 
     if (response.Status !== '0') {

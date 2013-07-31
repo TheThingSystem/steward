@@ -2,6 +2,7 @@ var util        = require('util')
   , devices     = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -18,7 +19,12 @@ var Clipboard = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.device);
   delete(self.info.deviceType);
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (request === 'ping') {
+      if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', self.proplist());
+      return;
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);

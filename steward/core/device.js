@@ -1,4 +1,5 @@
 var events      = require('events')
+  , stringify  = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
   , steward     = require('./steward')
@@ -67,9 +68,7 @@ exports.start = function() {
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     var d, data, i, ids, info;
 
-    if (request !== 'ping') return;
-
-    if (!broker.has('beacon-egress'))  return;
+    if ((request !== 'ping') || (!broker.has('beacon-egress'))) return;
 
     ids = idlist();
     data = [];
@@ -278,12 +277,32 @@ Device.prototype.changed = function(now) {
   try { info.lastSample = info.lastSample.getTime(); } catch(ex) {}
   try { updated = info.updated.getTime(); } catch(ex) { updated = info.updated; }
   delete(info.updated);
-  prev = JSON.stringify(info);
+  prev = stringify(info);
   if (self.prev === prev) return;
   self.prev = prev;
   info.updated = updated;
 
-  if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', info);
+  if (broker.has('beacon-egress')) {
+    broker.publish('beacon-egress', '.updates', info);
+    if ((self.status === 'reset') || (self.status === 'error')) broker.publish('actors', 'attention');
+  }
+};
+
+
+Device.prototype.alert = function(message) {
+  var info, updated;
+
+  var self = this;
+
+  if (broker.has('beacon-egress')) {
+    info = self.proplist();
+
+    updated = (info.updated || new Date()).getTime();
+    delete(info.updated);
+
+    broker.publish('beacon-egress', '.updates',
+                   { updated: updated, level: 'alert', message: message, whoami: info.whoami, name: info.name, info: info });
+  }
 };
 
 

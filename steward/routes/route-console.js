@@ -28,10 +28,12 @@ var consoleX = function(ws, tag) {/* jshint unused: false */
     if (!util.isArray(datum)) datum = [ datum ];
     data[category] = datum;
 
-    ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} });
+// stringify -- not JSON.stringify() -- in case there's something circular
+    try { ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} }); } catch(ex) {}
   });
 
   try { ws.send(stringify(utility.signals)); } catch(ex) {}
+  broker.publish('actors', 'attention');
   broker.publish('actors', 'ping');
 };
 

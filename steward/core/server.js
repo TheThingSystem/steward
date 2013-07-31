@@ -113,7 +113,7 @@ var start = function(port, secureP) {
         logger.info(tag, { event: 'error', message: err });
       });
       ws.on('close', function(code, message) {
-        var meta = ws.clientInfo;
+        var meta = utility.clone(ws.clientInfo);
 
         meta.event = 'close';
         meta.code = code;

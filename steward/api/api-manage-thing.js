@@ -1,11 +1,13 @@
-var util       = require('util')
-  , database   = require('./../core/database')
-  , devices    = require('./../core/device')
-  , manage     = require('./../routes/route-manage')
-  , places     = require('./../actors/actor-place')
-  , steward    = require('./../core/steward')
-  , users      = require('./api-manage-user')
-  , utility    = require('./../core/utility')
+var stringify   = require('json-stringify-safe')
+  , util        = require('util')
+  , database    = require('./../core/database')
+  , devices     = require('./../core/device')
+  , manage      = require('./../routes/route-manage')
+  , places      = require('./../actors/actor-place')
+  , steward     = require('./../core/steward')
+  , users       = require('./api-manage-user')
+  , utility     = require('./../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -478,10 +480,11 @@ var Thing = function(deviceID, deviceUID, info) {
 
   self.changed();
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
-         if (actor !== ('device/' + self.deviceID)) return;
-    else if (request === 'observe') self.observe(self, eventID, observe, parameter);
-    else if (request === 'perform') self.perform(self, eventID, observe, parameter);
+  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'observe') return self.observe(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, eventID, observe, parameter);
   });
 
   self.ping(self);
@@ -513,7 +516,7 @@ Thing.prototype.observe = function(self, eventID, observe, parameter) {
   message = { path: '/api/v1/thing/observe', requestID: requestID.toString(), events: {} };
   message.events[id] = { thingID   : thingUDNs[self.id]
                        , observe   : observe
-                       , parameter : typeof parameter !== 'string' ? JSON.stringify(parameter) : parameter
+                       , parameter : typeof parameter !== 'string' ? stringify(parameter) : parameter
                        , testOnly  : false };
 
   try { self.ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
@@ -531,7 +534,7 @@ Thing.prototype.perform = function(self, taskID, perform, parameter) {
   message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), events: {} };
   message.tasks[id] = { thingID   : thingUDNs[self.id]
                       , perform   : perform
-                      , parameter : typeof parameter !== 'string' ? JSON.stringify(parameter) : parameter
+                      , parameter : typeof parameter !== 'string' ? stringify(parameter) : parameter
                       , testOnly  : false };
 
   try { self.ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }

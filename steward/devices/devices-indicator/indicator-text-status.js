@@ -40,7 +40,7 @@ var Status = exports.Device = function(deviceID, deviceUID, info) {
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'attention') {
-      if ((self.status === 'error') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      if (self.status === 'error') self.alert('please check directory');
       return;
     }
 

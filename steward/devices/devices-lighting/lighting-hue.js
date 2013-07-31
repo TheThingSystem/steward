@@ -37,7 +37,7 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
     var light;
 
     if (request === 'attention') {
-      if ((self.status === 'reset') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      if (self.status === 'reset') self.alert('please push pairing button on Hue bridge');
       return;
     }
 
@@ -460,7 +460,7 @@ Hue.prototype.refresh2 = function(self, id, oops) {
       child = childprops(self, id);
       info = child.proplist();
       delete(info.updated);
-      prev = JSON.stringify(info);
+      prev = stringify(info);
       if (self.lights[id].prev === prev) return;
 
       self.changed();

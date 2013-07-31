@@ -35,7 +35,7 @@ PRIOR TO BETA RELEASE
 
     3.1. appleTV (EI: July)
 
-    3.2. nest goal temperature, fan status, heating/cooling status, and control functions (EI: July)
+    3.2. nest goal temperature, fan status, heating/cooling status, and control functions (EI: August)
 
     3.3. webcam (EI: August)
 
@@ -53,9 +53,7 @@ PRIOR TO BETA RELEASE
 
     4.1. logging transports
 
-    4.2. steward "user assistance" queue (MTR: July)
-
-    4.3. API to access historical data (MTR: July)
+    4.2. API to access historical data (MTR: August)
 
 5. gateway implementations
 

@@ -1,12 +1,13 @@
 // prowl - iOS Push Notifications: http://prowlapp.com
 
 var prowler     = require('node-prowl')
-  , stringify   = require('json-stringify-safe')
   , util        = require('util')
   , winston     = require('winston')
+  , serialize   = require('winston/lib/winston/common').serialize
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , indicator   = require('./../device-indicator')
   ;
 
@@ -53,13 +54,15 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'apikey' ];
   self.changed();
 
-  utility.broker.subscribe('beacon-egress', function(category, datum) {
+  broker.subscribe('beacon-egress', function(category, datum) {
     var parameter, x;
+
+    if (util.isArray(datum)) datum = datum[0];
 
     if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) return;
 
     parameter = category + ': ' + datum.message;
-    if (!!datum.meta) parameter += ' ' + stringify(datum.meta);
+    if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
 
     x = previous.indexOf(parameter);
     if (x !== -1) {
@@ -74,7 +77,7 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
     self.prowl.push(self.prefix2 + parameter, self.appname, self.growl);
   });
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);

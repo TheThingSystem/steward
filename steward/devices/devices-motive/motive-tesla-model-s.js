@@ -36,7 +36,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
 
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (request === 'attention') {
-      if ((self.status === 'reset') && (broker.has('beacon-egress'))) broker.publish('beacon-egress', '.attention', {});
+      if (self.status === 'reset') self.alert('please enable remote access from vehicle console');
       return;
     }
 
