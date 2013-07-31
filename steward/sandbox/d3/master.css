@@ -311,7 +311,7 @@ form {
   top: 10px;
 }
 
-.logo { position: absolute; top: 50px; left: 220px;}
+.logo { position: absolute; top: 50px; left: 220px; height: 72px;}
 
 #chart div.status {
         position: absolute;
@@ -363,6 +363,29 @@ p.actor-name {
 }
 
 #login label {
+        margin-right: 30px;
+        line-height: 24px;
+}
+
+/* configure screen elements */
+#config {
+        position: absolute;
+        top: 250px;
+        left: 208px;
+        width: 500px;
+        text-align: left;
+}
+
+#config-form {
+        position: relative;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        color: #fff;
+        font-weight: normal;
+
+}
+
+#config label {
         margin-right: 30px;
         line-height: 24px;
 }

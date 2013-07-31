@@ -447,7 +447,7 @@ exports.start = function() {
     for (ifa = 0; ifa < ifaddrs.length; ifa++) {
       if ((ifaddrs[ifa].internal) || (ifaddrs[ifa].family !== 'IPv4')) continue;
 
-      logger.notice('scanning ' + ifname);
+      logger.info('scanning ' + ifname);
       ifaces[ifname] = { addresses: ifaddrs, arp: {} };
       try {
         pcap.createSession(ifname, 'arp').on('packet', listen(ifname));

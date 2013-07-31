@@ -2,12 +2,12 @@ var bigSliderKnob = { "diam": 22 };
 var bigSlider = { "min": 465 - bigSliderKnob.diam, "max": 178 - (bigSliderKnob.diam / 2) };
 var onOffKnob = { "diam": 18 };
 var onOffSlider = { "min": 339, "max": 385 - onOffKnob.diam };
-var requestID = 0;
-var newPerform = { "path":"", "requestID":-1, "perform":"", "parameter":"" };
+var newPerform = { "path":"", "requestID":"2", "perform":"", "parameter":{} };
 
 var drag = d3.behavior.drag()
     .origin(Object)
-    .on("drag", dragmove);
+    .on("drag", dragmove)
+    .on("dragend", sendData);
 
 function dragmove(d) {
 	var max, min, by1, by2;
@@ -39,7 +39,6 @@ var showPop = function(device, entry) {
    var deviceID = device.actor.slice(device.actor.lastIndexOf("/"));
    newPerform.path = "/api/v1/device/perform" + deviceID;
    newPerform.parameter = device.info;
-   newPerform.requestID = requestID++;
 
    d3.select("body").append("div")
      .attr("id", "blocker")
@@ -156,13 +155,13 @@ var showPop = function(device, entry) {
          .attr("id", "device-status-label").attr("class", "label")
          .text("DEVICE STATUS");
          
+//        pop.append("img")
+//          .attr("id", "send").attr("src", "popovers/assets/send.svg")
+//          .attr("class", "label")
+//          .style("height", "22px")
+//          .on("click", sendData);
        pop.append("img")
-         .attr("id", "send").attr("src", "popovers/assets/send.svg")
-         .attr("class", "label")
-         .style("height", "22px")
-         .on("click", sendData);
-       pop.append("img")
-         .attr("id", "cancel").attr("src", "popovers/assets/cancel.svg")
+         .attr("id", "done").attr("src", "popovers/assets/done_on.svg")
          .attr("class", "label")
          .style("height", "22px")
          .on("click", cancel);
@@ -243,6 +242,7 @@ var showPop = function(device, entry) {
 			var scaleY = Math.abs(0.84 - y/height);
 			var result = {"x": scaleX, "y": scaleY};
 			newPerform.parameter.color.cie1931 = result;
+			sendData();
 //			console.log("X=" + scaleX + "   /   Y=" + scaleY);
 		}
 		
@@ -304,7 +304,7 @@ var showPop = function(device, entry) {
 	      endLeft = onOffSlider.max
 	   }
 	   d3.select("#on-off-knob")
-	      .transition()
+	      .transition().each("end", sendData())
 	      .duration(600)
 	      .style("left", endLeft + "px");
 	   
@@ -319,11 +319,6 @@ var showPop = function(device, entry) {
 		}
 	}
 
-	function sendData(device) {
-		console.log(JSON.stringify(newPerform));
-		cancel();
-	}
-	
 	function cancel() {
      d3.select("#popBg")
       .transition().each("end", removePop())
@@ -335,6 +330,8 @@ var showPop = function(device, entry) {
 		d3.select("#blocker").remove(); 
 		pop.remove();
 	}
+	
+
 
 }
 
@@ -346,3 +343,10 @@ function hueBrightTop(value) {
 }
 
 
+function sendData(device) {
+  newPerform.parameter = JSON.stringify(newPerform.parameter);
+//console.log("Sending: " + JSON.stringify(newPerform));
+  wsSend(JSON.stringify(newPerform));
+  newPerform.parameter = JSON.parse(newPerform.parameter);
+}
+	

@@ -34,8 +34,9 @@
 #transition-grid { position: absolute; top: 181px; left: 500px; }
 #transition-label { position: absolute; top: 142px; left: 479px; }
 
-#send { position: absolute; top: 24px; left: 510px; }
-#cancel { position: absolute; top: 24px; left: 420px; }
+/*#send { position: absolute; top: 24px; left: 510px; }
+#cancel { position: absolute; top: 24px; left: 510px; }*/
+#done { position: absolute; top: 24px; left: 510px; }
 
 .label { 
         font-family: "Roadgeek 2005 Series D";

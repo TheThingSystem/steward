@@ -12,10 +12,13 @@
 var actors = {}
   , tags   = {}
   , multiple_arcs = []
-  ;
+  , lastUpdated
+  , lastIconTrayPage = 1;
 
 var home = function(state) {
-  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, place, prop, span, tag;
+  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, place, prop, span, tag, tags;
+  
+  lastIconTrayPage = 1;
 
   chart = document.getElementById('chart');
   while (chart.lastChild) chart.removeChild(chart.lastChild);
@@ -41,6 +44,8 @@ var home = function(state) {
   div.innerHTML = 'Retrieving list of everything.';
   div.innerHTML = 'Touch a thing for more info.';
   chart.appendChild(div);
+  
+  lastUpdated = place.updated;
 
   div = document.createElement('div');
   div.setAttribute('id', 'controls-home');
@@ -48,8 +53,8 @@ var home = function(state) {
   div.innerHTML = '<div class="big-instructions" style="padding-top: 0px;">We are ready.<br />'
                   + '<span style="color: #666;">Please send instructions.</span></div>'
                   + '<div class="small-instructions">'
-                  + '<span style="color:' + place.status + '">' + place.name + '</span>'
-                  + ' — updated ' + d3.timestamp.ago(place.updated,true) + '</div>';
+                  + '<span id="sName" style="color:' + place.status + ';">' + place.name + '</span>'
+                  + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
 
 
@@ -131,6 +136,14 @@ var home = function(state) {
 
     if (++a >= 12) break;
   }
+  
+  function updateAgo() {
+    if (document.getElementById("timeagoStamp")) {
+      document.getElementById("timeagoStamp").innerHTML = d3.timestamp.ago(lastUpdated, true);
+      setTimeout(updateAgo, 1000);
+    }
+  }
+  setTimeout(updateAgo, 1000);
 };
 
 
@@ -147,7 +160,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     instructions = '<div class="big-instructions">'
                   + '<span style="color: #666;">Send me instructions.</span>'
                   + '</div>'
-                  + '<div class="small-instructions">'
+                  + '<div class="small-instructions" style="cursor: pointer">'
                   + instructions
                   + '</div>';
   }
@@ -163,6 +176,9 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   div = document.createElement('div');
   div.setAttribute('id', 'controls');
   div.setAttribute('style', 'margin-top: 40px;');
+  
+  chart.appendChild(div);
+  
   if (devices.length > 1) {
     var actor, div3, div4, pager;
     var actorWidth = 50;
@@ -186,56 +202,60 @@ var device_drilldown = function(name, devices, arcs, instructions) {
 		div.appendChild(div3);
     }
     
+    // The little dot navigator below the icon tray
+    trayWidth = iconWidth * devices.length;
+	if (devices.length > 5) {
+	   trayPages = Math.ceil(trayWidth / viewportWidth);
+	   trayWidth = iconWidth * 5 * trayPages;
+   
+	   pager = document.createElement('p');
+	   pager.setAttribute('style', 'position: relative; top: -5px;');
+	   var pagerElements = '';
+	   for (i = 0; i < trayPages; i++) {
+		  if (i == (lastIconTrayPage - 1)) {
+			 pagerElements += "<span id='bullet" + i + "' class='bullet-on' onclick='javascript:gotoPage(event)'>&bull;</span>";
+		  } else {
+			 pagerElements += "<span id='bullet" + i + "' class='bullet-off' onclick='javascript:gotoPage(event)'>&bull;</span>";
+		  }
+	   }
+	   pager.innerHTML = pagerElements;
+	}
+	trayLeft = ((viewportWidth / 2) - (trayWidth / 2));
+	trayLeft = (trayLeft < 0) ? -(viewportWidth * (lastIconTrayPage - 1)) : trayLeft;
+	
     // device-viewport and image-tray needed for horizontal scrolling of icons
     div3 = document.createElement('div');
     div3.setAttribute('id', 'device-viewport');
-    div3.setAttribute('style', 'position: relative; left:12px; top: 60px; overflow-x: hidden; overflow-y: hidden; width: ' + viewportWidth + 'px; height: 140px;');
+    div3.setAttribute('style', 'position: relative; left:12px; top: 85px; overflow-x: hidden; overflow-y: hidden; width: ' 
+    				  + viewportWidth + 'px; height: 140px;');
     
-    div4 = document.createElement('div');
-    div4.setAttribute('id', 'image-tray');
-    trayWidth = iconWidth * devices.length;
-    if (devices.length > 5) {
-       trayPages = Math.ceil(trayWidth / viewportWidth);
-       trayWidth = iconWidth * 5 * trayPages;
+    div.appendChild(div3);
+    
+    div4 = d3.select("#device-viewport")
+      .append("div")
+      .attr("id", "image-tray")
+      .style('position', 'relative')
+      .style('height', '107px')
+      .style('width', trayWidth + 'px')
+      .style('left', trayLeft + 'px');
        
-       pager = document.createElement('p');
-       pager.setAttribute('style', 'position: relative; top: -5px;');
-       var pagerElements = '';
-       for (i = 0; i < trayPages; i++) {
-          if (i == 0) {
-             pagerElements = "<span id='bullet" + i + "' class='bullet-on' onclick='javascript:gotoPage(event)'>&bull;</span>";
-          } else {
-             pagerElements += "<span id='bullet" + i + "' class='bullet-off' onclick='javascript:gotoPage(event)'>&bull;</span>";
-          }
-       }
-       pager.innerHTML = pagerElements;
-
-    }
-    trayLeft = (viewportWidth / 2) - (trayWidth / 2);
-    trayLeft = (trayLeft < 0) ? 0 : trayLeft;
-    div4.setAttribute('style', 'position: relative; height: 107px; width: ' + trayWidth + 'px; left: ' + trayLeft + 'px;');
+    actor = div4.selectAll('div')
+       .data(devices)
+       .enter().append('div')
+       .style('position', 'absolute')
+       .style('top', '10px')
+       .style('left', function(d, i) {return (i * actorWidth + 'px')})
+       .style('text-align', 'center')
+       .style('width', actorWidth + 'px')
+       .style('height', '107px')
+       .style('overflow', 'hidden');
+       
+    actor.append('img')
+       .attr('src', function(d, i) {return entries[devices[i].deviceType].img})
+       .style('background-color', function(d, i) {return statusColor(devices[i])})
+       .attr('class', 'actor-grouping')
+       .attr('onclick', function(d, i) {return 'javascript:goforw(' + entries[devices[i].deviceType].single + ', "' + devices[i].actor + '");'});
     
-    for (i = 0; i < devices.length; i++) {
-      device = devices[i];
-      entry = entries[device.deviceType] || entries['default'];
-      
-      actor = document.createElement('div');
-      actor.setAttribute('style', 'position: absolute; top: 10px; left: ' + (i * actorWidth) + 
-        'px; text-align: center; width: ' + actorWidth + 'px; height: 107px; overflow: hidden;');
-      actor.innerHTML = '<p class="actor-name" style="color: ' + statusColor(device) + '; position: relative; left: 5px; width: 40px; ">' + device.name + '</p>';
-      
-      img = document.createElement('img');
-      img.setAttribute('src', entry.img);
-      img.setAttribute('style', 'background-color:' + statusColor(device) + ';');
-      img.setAttribute('class', 'actor-grouping');
-
-      if (!!entry.single) img.setAttribute('onclick', 'javascript:goforw(' + entry.single + ', "' + device.actor + '");');
-      
-      actor.appendChild(img)
-      div4.appendChild(actor);
-    }
-    
-    div3.appendChild(div4);    
     div.appendChild(div3);
     
     if (pager) div.appendChild(pager);
@@ -251,19 +271,18 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     device = devices[0];
     entry = entries[device.deviceType] || entries['default'];
     div.innerHTML = '<img class="actor-big" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /><br />'
-                    + '<div class="big-instructions">'
+                    + '<div id="toPopover" class="big-instructions">'
                     + '<span class="actor-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
                     + instructions
                     + '</div>';
-    div3 = document.createElement('div');
-    div3.setAttribute('class', 'small-instructions');
-    div3.setAttribute('style', 'cursor: pointer');
-    div3.setAttribute('onclick', 'javascript:showPop(' + JSON.stringify(device) + ',' + JSON.stringify(entry) + ');');
-//    div3.innerHTML = 'Adjust device settings...';
-    div.appendChild(div3);
   }
   chart.appendChild(div);
+  if (document.getElementById("toPopover")) {
+    document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(' 
+                    + JSON.stringify(device) + ',' + JSON.stringify(entry) + ');');
+  }
   
+  if (document.getElementById("left-arrow")) handleArrowVisibility();
   drawArcs(arcs);
 }
 
@@ -286,7 +305,7 @@ var drawArcs = function(arcs) {
   arcz = [];
   if (!arcs) arcs = multiple_arcs;
   
-  trayLeft = parseInt($("#image-tray").css("left"), 10);
+  trayLeft = (document.getElementById("image-tray")) ? parseInt(d3.select("#image-tray").style("left"), 10) : null;
   if (isNaN(trayLeft) | arcs.length < 5) {
     i = 0;
     limit = arcs.length;
@@ -375,9 +394,11 @@ var drawArcs = function(arcs) {
 //   var path = vis.append("path")
 //       .attr("id", function(d,i){return "a"+i;})
 //       .attr("d", circle);
-      
+  
+  var arcColor = []; // save to calc contrasting overlaid text color
+  
   g.append("path")
-      .style("fill", function(d, i) { return ((!!d.color) ? d.color : color(i)); })
+      .style("fill", function(d, i) { arcColor[i] = ((!!d.color) ? d.color : color(i)); return arcColor[i] })
       .attr("d", arc);
   
   var g2 = g.append("path")
@@ -397,7 +418,7 @@ var drawArcs = function(arcs) {
 		
 	text.append("textPath")
 		.attr("stroke", "none")
-		.attr("fill","white")
+		.attr("fill",function(d,i){return textColor(arcColor[i], arcs[i].value)})
 		.attr("xlink:href",function(d,i){return "#a"+i;})
 		.text(function(d,i){ return convertSymbol(d.cooked) });
            
@@ -1028,43 +1049,44 @@ var multiple_drilldown = function(name, members) {
 // managing multi-drilldown icon display and control
 
 var handleArrowVisibility = function() {
-	var viewPortWidth = parseInt($("#image-tray").offsetParent().css("width"), 10);
-	var trayWidth = parseInt($("#image-tray").css("width"), 10);
-	var trayLeft = parseInt($("#image-tray").css("left"), 10);
+	var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
+	var trayWidth = parseInt(document.getElementById("image-tray").style.width, 10);
+	var trayLeft = parseInt(document.getElementById("image-tray").style.left, 10);
     var trayPage = Math.abs(trayLeft / viewPortWidth);
     document.getElementById("bullet" + trayPage).className = "bullet-on";
+    lastIconTrayPage = trayPage + 1;
     
-	if (trayLeft >= "0") {
-		$("#right-arrow").hide();
+	if (trayLeft >= 0) {
+		document.getElementById("right-arrow").style.display = "none";
 	} else {
-		$("#right-arrow").show();
+		document.getElementById("right-arrow").style.display = "block";
 	}
 	if (trayWidth + trayLeft <= viewPortWidth) {
-		$("#left-arrow").hide();
+		document.getElementById("left-arrow").style.display = "none";
 	} else {
-		$("#left-arrow").show();
+		document.getElementById("left-arrow").style.display = "block";
 	}
 
 }
 
 var gotoPage = function(evt) {
     if (evt.target.className == "bullet-off") {
-    	var viewPortWidth = parseInt($("#image-tray").offsetParent().css("width"), 10);
+    	var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
 		var pageNum = evt.target.id.slice(6);
 		var leftEnd = -(pageNum * viewPortWidth);
-		var leftStart = parseInt($("#image-tray").css("left"), 10);
-		var scrollAmount = leftStart - leftEnd;
-		//"+=" + scrollAmount
+		lastIconTrayPage = pageNum + 1
 		
-		$("#image-tray").animate({
-			"left": leftEnd + "px"
-		}, {
-			complete: function() {
-			    clearPager();
-			    drawArcs();
-		        handleArrowVisibility();
-		    }
-		});
+		var tray = d3.select("#image-tray");
+		var transition = d3.transition()
+		  .duration(5000)
+		  .ease("linear");
+		  
+		tray.transition().each("end", function() {
+			clearPager();
+			drawArcs();
+			handleArrowVisibility();
+		})
+	       .style("left", function() {return leftEnd + 'px';});
     }
 }
 
@@ -1077,32 +1099,49 @@ var clearPager = function() {
 }
 
 var handleArrow = function(evt) {
-	var scrollAmount = $("#device-viewport").outerWidth(true);
-	clearPager();
+    var leftEnd, tray, startLeft;
+	var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width);
 	
-	if (evt.target.id === "left-arrow") {
-		$("#image-tray").animate({
-			"left": "-=" + scrollAmount
-		}, {
-			complete: function() {
-				drawArcs();
-				handleArrowVisibility();
-			}
-		
-		});
-	} else {
-		$("#image-tray").animate({
-			"left": "+=" + scrollAmount
-		}, {
-			complete: function() {
-				drawArcs();
-				handleArrowVisibility();
-			}
-		});
-	}
+	clearPager();
+	tray = d3.select("#image-tray");
+	startLeft = parseInt(tray.style("left"));
+	leftEnd = ((evt.target.id === 'left-arrow') ? (startLeft - viewPortWidth) : (startLeft + viewPortWidth));
+	
+	var transition = d3.transition()
+	  .duration(5000)
+	  .ease("linear");
+	  
+	tray.transition().each("end", function() {
+		drawArcs();
+		handleArrowVisibility();
+	})
+	  .style("left", function() {return leftEnd + 'px';});
 }
 
+// Adapted from http://stackoverflow.com/questions/4726344/
+// To work with d3_Color type
+function textColor(bgColor, arcVal) {
+   var bgDelta, components, nThreshold = 105;
+   if (typeof bgColor === "string") {
+     components = getRGBComponents(bgColor);
+   } else {
+     components = bgColor
+   }
+   bgDelta = (components.r * 0.299) + (components.g * 0.587) + (components.b * 0.114);
+   return (((255 - bgDelta) < nThreshold) && (arcVal > 0.015)) ? "#000000" : "#ffffff"; 
+   
+   function getRGBComponents(color) {       
+     var r = color.substring(1, 3);
+     var g = color.substring(3, 5);
+     var b = color.substring(5, 7);
 
+     return {
+       "r": parseInt(r, 16),
+       "g": parseInt(g, 16),
+       "b": parseInt(b, 16)
+     };
+   }
+}
 
 /*
   drone.svg

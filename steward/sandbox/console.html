@@ -582,7 +582,7 @@ var onupdate = function(update) {
       if (category === '.updates') {
         datum.level = 'updates';
         datum.date = datum.updated;
-        datum.message = datum.whoami + ': ' + datum.name;
+        datum.message = datum.whoami + ' (' + datum.name + ((!!datum.message) ? ('): ' + datum.message) : ')');
         datum.meta = { status: datum.status };
         for (j in datum.info) if (datum.info.hasOwnProperty(j)) datum.meta[j] = datum.info[j];
         

@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head> 
+<title>steward</title> 
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+<meta http-equiv="cache-control" content="no-cache" />
+
+<style type="text/css">
+// please do not change this section... it is trying to emulate what status board provides
+// cf., http://www.panic.com/statusboard/docs/diy_tutorial.pdf
+
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series EM";
+  src: url("roadgeek2005v2-complete/Roadgeek 2005 Series EM.otf");
+}
+
+body {
+  font-family: "Roadgeek 2005 Series D", sans-serif;
+  background: #000 !important;
+  margin: 0px; padding: 0px;
+  color: #fff;
+}
+
+#landing {
+  background-image: url("images/thing.bkg.svg");  
+}
+</style>
+
+<script type='text/javascript' src='d3.v2.js'></script>
+<script type='text/javascript' src='d3.steward.js'></script>
+<script type='text/javascript' src='onactors.js'></script>
+
+<link rel="stylesheet" href="master.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="popover.css" type="text/css" media="screen" />
+<script type='text/javascript' src='login.js'></script>
+<script type='text/javascript' src='drilldown.js'></script>
+<script type='text/javascript' src='popover.js'></script>
+
+<script type='text/javascript'>
+var stack = [];
+var ws;          // Primary message socket
+var timer;       // Refresh timeout
+var currActor;   // To carry over actor from one request type to another
+
+var main = function() {
+  goLogin();
+};
+
+var connectSteward = function(type) {
+  var prev, steward, storage;
+  
+  storage = JSON.parse(getStorage("steward.location"));
+  
+  if (!storage) return;
+
+  if (type === "local") {
+  	if (storage.hostname !== "") {
+		steward = storage.protocol + "//" + storage.hostname + ":" + storage.port + "/manage";
+	} else {
+		alert("Please enter a local host name or IP address (e.g., 127.0.0.1).");
+		return;
+	}
+  } else if (storage.remoteHost !== "") {
+	steward = storage.protocol + "//" + storage.remoteHost + ":" + storage.port + 
+	"/manage?rendezvous=" + storage.search;	  
+  } else {
+	alert("Please enter a remote host URL or IP address.");
+	return;
+  }
+  
+  ws = new WebSocket(steward);
+  
+  ws.onopen = function(evt) {
+    setConnStatus("Connected");
+    activateBtns();
+  }
+  
+  ws.onmessage = function(evt) {
+    var device, devices, entry, i, message, msgHash, requestID, state;
+    
+    try {
+      message = JSON.parse(evt.data);
+      if (!message) throw new Error("invalid JSON: " + this.responseText);
+      
+      requestID = message.requestID.toString();
+      
+      switch (requestID) {
+      	case "1":
+			  // Short circuit if no changes since last refresh
+// 			  msgHash = hash(evt.data);
+// 			  msgHash = hash(JSON.stringify(message.result));
+// 			  if (prev && msgHash === prev) {
+// 				return;
+// 			  } else {
+// 				prev = msgHash;
+// 			  }
+			  
+			  state = stack.pop();
+			  state.message = message;
+			  stack.push(state);
+			  (state.page)(state);
+			  break;
+		case "2":  // perform from popover over single-drilldown
+			  if (message.result.status === "success") {
+			    setTimeout(function() {refresh("3");}, 3000);
+			  }
+			  break;
+		case "3":
+			  devices = mostDevices(message);
+			  actors = {};
+			  for (i = 0; i < devices.length; i++) {
+			    device = devices[i];
+			    actors[device.actor] = device;
+			    if (devices[i].actor === currActor) {
+                  entry = entries[device.deviceType];
+				  if (document.getElementById("device-status")) {
+					d3.select("#device-status")
+					  .style("background-color", statusColor(devices[i]));
+					d3.select("#device-status-detail")
+					  .text(devices[i].status);
+				  }
+			    }
+			  }
+              state = {page: entry.single, actor: currActor};
+              stack.pop();
+              stack.push(state);
+              (state.page)(state);
+  			  break;
+      }
+    } catch(e) {
+      console.log(e.message);
+    }
+  }
+  
+  ws.onclose = function(evt) {
+    ws.close();
+    deactivateBtns();
+    setConnStatus("Connection Closed");
+  }
+  
+  ws.onerror = function(evt) {
+    console.log("WebSocket Error: " + evt.reason);
+    ws.close()
+    setConnStatus("Connection Closed");
+    location.reload();
+  }
+  
+  
+//   function hash(str) {
+//   	return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+//   }
+}
+
+var wsSend = function(jsonStr) {
+	if (ws && ws.readyState == 1) {
+	  ws.send(jsonStr);
+	} else {
+	  console.log("Lost Connection");
+	}
+}
+
+var refresh = function(reqID) {
+   clearTimeout(timer);
+   if (!reqID) { 
+     reqID = 1;
+     timer = setTimeout(refresh, 5000);
+  }
+   wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: reqID, options: { depth: 'all' }}));  
+}
+  
+var firstRefresh = function() {
+   setConnStatus("Retrieving Steward Info...");
+   stack.push({ page: home });
+   refresh();
+}
+
+var goback = function() {
+  var state = stack.pop();
+
+  if (stack.length > 0) state = stack.pop();
+  stack.push(state);
+  (state.page)(state);
+  refresh();
+};
+
+var goforw = function(page, actor) {
+  var state = { page: page, actor: actor };
+  currActor = actor; // Save for updating drilldown
+  
+  stack.push(state);
+  (state.page)(state);
+};
+
+var end = function() {
+  setConnStatus("Closing Connection...");
+  ws.close();
+}
+
+</script>
+</head> 
+
+
+<body onload='main();' onunload='end();'> 
+
+<div id="chart">
+</div>
+
+</body>
+</html>
