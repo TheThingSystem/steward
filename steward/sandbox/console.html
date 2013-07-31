@@ -102,6 +102,9 @@
   }
   td.status {
   }
+  td.alert {
+    background: red;
+  }
   td.info {
   }
 
@@ -110,15 +113,19 @@
   tr.notice {
   }
   tr.warning {
+    background: orange;
   }
   tr.error {
     background: red;
   }
   tr.crit {
+    background: red;
   }
   tr.alert {
+    background: red;
   }
   tr.emerg {
+    background: red;
   }
 
   td.category {
@@ -465,6 +472,7 @@ var onactors = function(message) {
 
       entity = entities[actorID];
       status = entity.status || '';
+      td_status = ((status === 'error') || (status === 'reset')) ? 'alert' : 'status';
       if (!!entity.updated) {
         if (status.length > 0) status += '<br/>';
         status += 'updated: ' + time_ago(entity.updated, true).trim();
@@ -536,10 +544,10 @@ var onactors = function(message) {
       colspan2 = 3 - colspan1;
 
       rows += '<tr class="entity">'
-              + '<td class="name">'                        + (entity.name || '') + '&nbsp;&nbsp;</td>'
-              + '<td class="whoami">'                      + actorID             + '&nbsp;</td>'
-              + '<td class="status" colspan='+colspan1+'>' + status              + '&nbsp;</td>'
-              + '<td class="info"   colspan='+colspan2+'>' + info                + '</td>'
+              + '<td class="name">'                               + (entity.name || '') + '&nbsp;&nbsp;</td>'
+              + '<td class="whoami">'                             + actorID             + '&nbsp;</td>'
+              + '<td class="'+td_status+'" colspan='+colspan1+'>' + status              + '&nbsp;</td>'
+              + '<td class="info"   colspan='+colspan2+'>'        + info                + '</td>'
               + '</tr>';
       filler2 = '';
     }

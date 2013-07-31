@@ -33,7 +33,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'attention') {
-      if (self.status === 'error') self.alert('please check login credentials');
+      if (self.status === 'reset') self.alert('please check login credentials');
       return;
     }
 
@@ -48,7 +48,7 @@ util.inherits(Cloud, require('./../device-gateway').Device);
 
 
 Cloud.prototype.error = function(self, err) {
-  self.status = 'error';
+  self.status = (err.message.indexOf('connect') !== -1) ? 'error' : 'reset';
   self.changed();
   logger.error('device/' + self.deviceID, { diagnostic: err.message });
 
@@ -190,7 +190,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
-                                   , status     : [ 'waiting', 'ready', 'error' ]
+                                   , status     : [ 'waiting', 'ready', 'error', 'reset' ]
                                    , email      : true
                                    , passphrase : true
                                    }
