@@ -59,7 +59,7 @@ Cloud.prototype.login = function(self) {
     self.error(self, err);
 
     if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
-    self.login(self);
+    setTimeout(function() { self.login(self); }, 30 * 1000);
   }).setConfig(client1, client2, self.info.email, self.info.passphrase).getToken(function(err) {
     if (!!err) { self.netatmo = null; return self.error(self, err); }
 
