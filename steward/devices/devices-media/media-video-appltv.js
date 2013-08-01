@@ -15,7 +15,7 @@ var airplay     = require('airplay')
 var logger = media.logger;
 
 
-var AppleTV_Video = exports.Device = function(deviceID, deviceUID, info) {
+var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
 
   this.whatami = '/device/media/appletv/video';
   this.deviceID = deviceID.toString();
@@ -29,10 +29,9 @@ var AppleTV_Video = exports.Device = function(deviceID, deviceUID, info) {
 
   var parts = url.parse(info.url);
 
-  this.appletv = new airplay.Device(0, {
-    host : parts.hostname,
-    port: parts.port
-  ,
+  this.appletv = new airplay.Device(deviceID, {
+    host : parts.hostname
+  , port: parts.port
   });
 
   this.status = 'idle';
@@ -40,29 +39,38 @@ var AppleTV_Video = exports.Device = function(deviceID, deviceUID, info) {
   this.refreshID = null;
 
 };
-util.inherits(AppleTV_Video, media.Device);
+util.inherits(AppleTV, media.Device);
 
 
-AppleTV_Video.prototype.operations = {
-  'stop' : function(device, params) {/* jshint unused: false */
+AppleTV.operations = {
+  stop : function(device, params) {/* jshint unused: false */
+    device.stop();
   }
-, 'previous' : function(device, params) {/* jshint unused: false */
+, previous : function(device, params) {/* jshint unused: false */
+    // TODO: flesh this out
   }
-, 'play' : function(device, params) {/* jshint unused: false */
+, play : function(device, params) {/* jshint unused: false */
+    if (params && params.url) {
+      device.play(params.url, 0);
+    } else {
+      device.rate(1.0);
+    }
   }
-, 'pause' : function(device, params) {/* jshint unused: false */
+, pause : function(device, params) {/* jshint unused: false */
+    device.rate(0.0);
   }
-, 'next' : function(device, params) {/* jshint unused: false */
+, next : function(device, params) {/* jshint unused: false */
+    device.rate(2);
   }
 };
 
 
-AppleTV_Video.prototype.perform = function(self, taskID, perform, parameter) {
+AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
   try { params = JSON.parse(parameter); } catch(e) {}
 
-  if (!!this.operations[perform]) {
-    this.operations[perform](this.appletv, params);
+  if (!!AppleTV.operations[perform]) {
+    AppleTV.operations[perform](this.appletv, params);
     return steward.performed(taskID);
   }
 
@@ -70,7 +78,7 @@ AppleTV_Video.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 var validate_perform = function(perform, parameter) {
-  if (!!this.operation[perform]) return { invalid: [], requires: [] };
+  if (!!AppleTV.operations[perform]) return { invalid: [], requires: [] };
 
   return devices.validate_perform(perform, parameter);
 };
@@ -134,5 +142,5 @@ exports.start = function() {
                       }
         , $validate : { perform    : validate_perform }
         };
-    devices.makers['/device/media/appletv'] = AppleTV_Video;
+    devices.makers['/device/media/appletv'] = AppleTV;
 };
