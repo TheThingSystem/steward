@@ -390,11 +390,11 @@ exports.traverse = function(actors, prefix, depth) {
 };
 
 // expansion of '.[deviceID.property].'
-exports.expand = function(line) {
+exports.expand = function(line, defentity) {
   var entity, field, info, p, part, parts, result, who, x;
 
   result = '';
-  while ((x = line.indexOf('.[')) > 0) {
+  while ((x = line.indexOf('.[')) >= 0) {
     if (x > 0) result += line.substring(0, x);
     line = line.substring(x + 2);
 
@@ -407,7 +407,8 @@ exports.expand = function(line) {
     parts = line.substring(0, x).split('.');
     line = line.substring(x + 2);
 
-    if (parts[0].indexOf('/') !== -1) {
+    if (parts[0] === '') entity = defentity;
+    else if (parts[0].indexOf('/') !== -1) {
       who = parts[0].split('/');
       entity = steward.actors[who[0]];
       if (!!entity) entity = entity.$lookup(who[1]);

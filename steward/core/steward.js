@@ -133,7 +133,7 @@ var check = function(event, now) {
   info.status = proplist.status;
 
   try { params = JSON.parse(event.parameter); } catch(ex) { params = null; }
-  event.observeP = params && evaluate(params, info);
+  event.observeP = (!!params) && evaluate(params, entity, info);
   if ((!!event.lastTime) && (!!event.observeP)) {
     if (!!event.previous) event.observeP = false;
     event.previous = true;
@@ -141,80 +141,78 @@ var check = function(event, now) {
   if (event.observeP) event.lastTime = now;
 };
 
-var evaluate = function(params, info) {
-  var field, p, parts, result;
+var evaluate = function(params, entity, info) {
+  var p, result;
 
   switch (params.operator) {
     case 'equals':
-      if ((params.operand1) && (params.operand2)) return (evaluate(params.operand1, info) === evaluate(params.operand2, info));
+      if ((params.operand1) && (params.operand2))
+        return (evaluate(params.operand1, entity, info) === evaluate(params.operand2, entity, info));
       break;
 
     case 'not-equals':
-      if ((params.operand1) && (params.operand2)) return (evaluate(params.operand1, info) !== evaluate(params.operand2, info));
+      if ((params.operand1) && (params.operand2))
+        return (evaluate(params.operand1, entity, info) !== evaluate(params.operand2, entity, info));
       break;
 
     case 'less-than':
-      if ((params.operand1) && (params.operand2)) return (evaluate(params.operand1, info) < evaluate(params.operand2, info));
+      if ((params.operand1) && (params.operand2))
+        return (evaluate(params.operand1, entity, info) < evaluate(params.operand2, entity, info));
       break;
 
     case 'less-than-or-equals':
-      if ((params.operand1) && (params.operand2)) return (evaluate(params.operand1, info) <= evaluate(params.operand2, info));
+      if ((params.operand1) && (params.operand2))
+        return (evaluate(params.operand1, entity, info) <= evaluate(params.operand2, entity, info));
       break;
 
     case 'greater-than':
-      if ((params.operand1) && (params.operand2)) return (evaluate(params.operand1, info) > evaluate(params.operand2, info));
+      if ((params.operand1) && (params.operand2))
+        return (evaluate(params.operand1, entity, info) > evaluate(params.operand2, entity, info));
       break;
 
     case 'greater-than-or-equals':
-      if ((params.operand1) && (params.operand2)) return (evaluate(params.operand1, info) >= evaluate(params.operand2, info));
+      if ((params.operand1) && (params.operand2))
+        return (evaluate(params.operand1, entity, info) >= evaluate(params.operand2, entity, info));
       break;
 
     case 'any-of':
       if ((!params.operand1) || (!params.operand2)) break;
-      result = evaluate(params.operand1, info);
-      if (!util.isArray(params.operand2)) return (result === evaluate(params.operand2, info));
-      for (p = 0; p < params.operand2.length; p++) if (result === evaluate(params.operand2[p], info)) return true;
+      result = evaluate(params.operand1, entity, info);
+      if (!util.isArray(params.operand2)) return (result === evaluate(params.operand2, entity, info));
+      for (p = 0; p < params.operand2.length; p++) if (result === evaluate(params.operand2[p], entity, info)) return true;
       break;
 
     case 'none-of':
       if ((!params.operand1) || (!params.operand2)) break;
-      result = evaluate(params.operand1, info);
-      if (!util.isArray(params.operand2)) return (result !== evaluate(params.operand2, info));
-      for (p = 0; p < params.operand2.length; p++) if (result === evaluate(params.operand2[p], info)) return false;
+      result = evaluate(params.operand1, entity, info);
+      if (!util.isArray(params.operand2)) return (result !== evaluate(params.operand2, entity, info));
+      for (p = 0; p < params.operand2.length; p++) if (result === evaluate(params.operand2[p], entity, info)) return false;
       return true;
 
     case 'present':
-      if (params.operand1) return (!!evaluate(params.operand1, info));
+      if (params.operand1) return (!!evaluate(params.operand1, entity, info));
       break;
 
     case 'not':
-      if (params.operand1) return (!evaluate(params.operand1, info));
+      if (params.operand1) return (!evaluate(params.operand1, entity, info));
       break;
 
     case 'and':
       if (!params.operands) return true;
-      if (!util.isArray(params.operands)) return evaluate(params.operands, info);
-      for (p = 0; p < params.operands.length; p++) if (!evaluate(params.operands[p], info)) return false;
+      if (!util.isArray(params.operands)) return evaluate(params.operands, entity, info);
+      for (p = 0; p < params.operands.length; p++) if (!evaluate(params.operands[p], entity, info)) return false;
       return true;
 
     case 'or':
       if (!params.operands) return false;
-      if (!util.isArray(params.operands)) return evaluate(params.operands, info);
-      for (p = 0; p < params.operands.length; p++) if (evaluate(params.operands[p], info)) return true;
+      if (!util.isArray(params.operands)) return evaluate(params.operands, entity, info);
+      for (p = 0; p < params.operands.length; p++) if (evaluate(params.operands[p], entity, info)) return true;
       return false;
 
     default:
       if (typeof params === 'number') return params;
-      if (typeof params !== 'string') break;
-      if (params.charAt(0) !== '.') return params;
-      parts = params.split('.');
-      result = info;
-      for (p = 1; p < parts.length; p++) {
-        field = result[parts[p]];
-        if (!field) return false;
-        result = field;
-      }
-      return result;
+      if (typeof params === 'string') return devices.expand(params, entity);
+      break;
   }
 
   return false;
