@@ -364,7 +364,13 @@ exports.start = function() {
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused', 'busy' ]
-                                   , track   : { title: true, artist: true, album: true, albumArtURI: true }
+                                   , track   : { title       : true
+                                               , artist      : true
+                                               , album       : true
+                                               , albumArtURI : true
+                                               , position    : 'milliseconds'
+                                               , duration    : 'milliseconds'
+                                               }
                                    , mode    : [ 'normal', 'repeat' , 'shuffle', 'shuffle1' ]
                                    , volume  : 'percentage'
                                    , muted   : [ 'on', 'off' ]
