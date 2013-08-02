@@ -14,7 +14,6 @@ var airplay     = require('airplay')
 
 var logger = media.logger;
 
-
 var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
 
   this.whatami = '/device/media/appletv/video';
@@ -24,8 +23,6 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   this.getName();
 
   this.url = info.url;
-  this.sid = null;
-  this.seq = 0;
 
   var parts = url.parse(info.url);
 
@@ -36,7 +33,6 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
 
   this.status = 'idle';
   this.changed();
-  this.refreshID = null;
   this.refresh();
 };
 util.inherits(AppleTV, media.Device);
@@ -86,7 +82,12 @@ AppleTV.prototype.refresh = function() {
     self.info.track.position *= 1000;
     self.info.track.duration *= 1000;
     self.changed();
-    self.refreshID = setTimeout(self.refresh.bind(self), timeout);
+
+    // TODO: playback status
+
+    // set the timeout here so we don't get a runaway
+    // timer condition.
+    setTimeout(self.refresh.bind(self), timeout);
   });
 };
 
