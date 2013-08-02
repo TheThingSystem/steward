@@ -29,11 +29,13 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   this.appletv = new airplay.Device(deviceID, {
     host : parts.hostname
   , port: parts.port
-  });
+  }, function() {
+    this.status = 'idle';
+    this.changed();
+    this.refresh();
+    logger.info('device/' + this.deviceID, this.appletv.serverInfo_);
+  }.bind(this));
 
-  this.status = 'idle';
-  this.changed();
-  this.refresh();
 };
 util.inherits(AppleTV, media.Device);
 
