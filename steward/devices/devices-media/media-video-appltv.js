@@ -46,9 +46,6 @@ AppleTV.operations = {
   stop : function(device, params) {/* jshint unused: false */
     device.stop();
   }
-, previous : function(device, params) {/* jshint unused: false */
-    // TODO: flesh this out
-  }
 , play : function(device, params) {/* jshint unused: false */
     if (params && params.url) {
       device.play(params.url, 0);
@@ -58,9 +55,6 @@ AppleTV.operations = {
   }
 , pause : function(device, params) {/* jshint unused: false */
     device.rate(0.0);
-  }
-, next : function(device, params) {/* jshint unused: false */
-    device.rate(2);
   }
 };
 
@@ -107,7 +101,7 @@ exports.start = function() {
 
     info.url = info.device.url;
 
-    info.deviceType = '/device/media/appletv';
+    info.deviceType = '/device/media/appletv/video';
     info.id = info.device.unit.udn;
     if (devices.devices[info.id]) return;
 
@@ -133,8 +127,6 @@ exports.start = function() {
                                        'play'
                                      , 'stop'
                                      , 'pause'
-                                     , 'next'
-                                     , 'previous'
                                      ]
                       , properties : { name    : true
                                      , status  : [ 'idle' ]
@@ -142,5 +134,5 @@ exports.start = function() {
                       }
         , $validate : { perform    : validate_perform }
         };
-    devices.makers['/device/media/appletv'] = AppleTV;
+    devices.makers['/device/media/appletv/video'] = AppleTV;
 };
