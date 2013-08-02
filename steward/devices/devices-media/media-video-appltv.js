@@ -37,7 +37,7 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   this.status = 'idle';
   this.changed();
   this.refreshID = null;
-
+  this.refresh();
 };
 util.inherits(AppleTV, media.Device);
 
@@ -77,10 +77,21 @@ var validate_perform = function(perform, parameter) {
   return devices.validate_perform(perform, parameter);
 };
 
+AppleTV.prototype.refresh = function() {
+  var timeout = (this.status === 'idle') ? (5 * 1000) : 350;
+  var self = this;
+
+  this.appletv.status(function(status) {
+    self.info.track = status
+    self.info.track.position *= 1000;
+    self.info.track.duration *= 1000;
+    self.changed();
+    self.refreshID = setTimeout(self.refresh.bind(self), timeout);
+  });
+};
 
 exports.start = function() {
   var discovery = utility.logger('discovery');
-
 
   browser.on('serviceUp', function(service) {
 
@@ -122,7 +133,11 @@ exports.start = function() {
 
     steward.actors.device.media.appletv.video =
         { $info     : { type       : '/device/media/appletv/video'
-                      , observe    : [ ]
+                      , observe    : [
+                                        uri         : true
+                                      , position    : 'milliseconds'
+                                      , duration    : 'milliseconds'
+                                     ]
                       , perform    : [
                                        'play'
                                      , 'stop'
