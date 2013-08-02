@@ -14,7 +14,7 @@ In terms of ASCII art:
     |                                   |                                    |
     |  device database for persistence  |             discovery              |
     |                                   |                                    |
-    |        device-generic driver      |  SSDP    BLE   TCP/port   MAC/OUI  |
+    |        device-generic driver      |  SSDP  BLE  TCP/port  MAC/OUI STRP |
     |                                   |                                    |
     +-----------------------------------+------------------------------------+
     |                      category-specific prototypes                      |
