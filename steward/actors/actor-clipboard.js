@@ -13,6 +13,8 @@ var Clipboard = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.status = 'ready';
+  self.changed();
 
   self.info = utility.clone(info);
   delete(self.info.id);
@@ -91,6 +93,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name        : true
+                                   , status      : [ 'ready' ]
                                    , value       : true
                                    }
                     }
