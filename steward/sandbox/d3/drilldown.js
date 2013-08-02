@@ -1231,6 +1231,10 @@ var entries = {
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               }
+              , '/device/media/roku/video'                  : { img     : 'actors/roku3.svg'
+                                                              , single  : single_media_drilldown
+                                                              , arcs    : media_device_arcs
+                                                              }
               , '/device/motive/tesla/model-s'              : { img     : 'actors/tesla-motors.svg'
                                                               , single  : single_motive_drilldown
                                                               , arcs    : motive_device_arcs
