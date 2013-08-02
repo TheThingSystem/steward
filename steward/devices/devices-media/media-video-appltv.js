@@ -24,16 +24,23 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   this.url = info.url;
 
   var parts = url.parse(info.url);
+  var self = this;
 
   this.appletv = new airplay.Device(deviceID, {
     host : parts.hostname
   , port: parts.port
   }, function() {
-    this.status = 'idle';
-    this.changed();
-    this.refresh();
-    logger.info('device/' + this.deviceID, this.appletv.serverInfo_);
-  }.bind(this));
+    self.status = 'idle';
+    self.changed();
+    self.refresh();
+    logger.info('device/' + self.deviceID, self.appletv.serverInfo_);
+  });
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
+  });
 
 };
 util.inherits(AppleTV, media.Device);
