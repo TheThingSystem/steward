@@ -229,7 +229,8 @@ ModelS.prototype.scan = function(self) {
 
       charger = (!self.vehicle.speed)    ? data.charging_state.toLowerCase()
                 : self.vehicle.power < 0 ? 'regenerating' : 'drawing';
-      if (charger === 'complete') charger = 'completed';
+           if (charger === 'complete') charger = 'completed';
+      else if (charger === 'stopped') charger = 'connected';
       if (self.info.charger != charger) {
         didP = true;
 
@@ -469,12 +470,12 @@ exports.start = function() {
                                    ]
                     , properties : { name           : true
                                    , status         : [ 'ready', 'reset', 'waiting' ]
-                                   , charger        : [ 'completed'
+                                   , charger        : [ 'connected'
                                                       , 'charging'
-                                                      , 'drawing'
+                                                      , 'completed'
                                                       , 'disconected'
-                                                      , 'regenerating'
-                                                      , 'stopped' ]
+                                                      , 'drawing'
+                                                      , 'regenerating' ]
 
                                    , hvac           : [ 'on', 'off', ]
                                    , intTemperature : 'celsius'

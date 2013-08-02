@@ -493,7 +493,7 @@ var onactors = function(message) {
             case 'temperature':
             case 'intTemperature':
             case 'extTemperature':
-              v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F';
+              v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
             case 'humidity':
@@ -514,6 +514,10 @@ var onactors = function(message) {
 
             case 'heading':
               v += '&deg;';
+              break;
+
+            case 'hvac':
+              if ((v !== 'off') && (v !== 'on')) v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
             case 'velocity':
