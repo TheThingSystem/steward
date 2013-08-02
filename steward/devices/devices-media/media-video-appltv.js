@@ -7,7 +7,6 @@ var airplay     = require('airplay')
   , media       = require('./../device-media')
   , mdns        = require('mdns')
   , utility     = require('./../../core/utility')
-  , browser     = mdns.createBrowser(mdns.tcp('airplay'))
   , url         = require('url')
   ;
 
@@ -96,7 +95,7 @@ AppleTV.prototype.refresh = function() {
 exports.start = function() {
   var discovery = utility.logger('discovery');
 
-  browser.on('serviceUp', function(service) {
+  mdns.createBrowser(mdns.tcp('airplay')).on('serviceUp', function(service) {
 
     var model = service.txtRecord.model.match(/([\d]*),([\d]*)/).slice(1).join('.');
     var info =  { source  : 'mdns'
