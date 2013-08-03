@@ -494,7 +494,7 @@ var onactors = function(message) {
             case 'intTemperature':
             case 'extTemperature':
             case 'goalTemperature':
-              v = v.toFixed(1) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+              if (!isNaN(v)) v = v.toFixed(1) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
             case 'humidity':
@@ -518,21 +518,19 @@ var onactors = function(message) {
               break;
 
             case 'hvac':
-              if ((v !== 'off') && (v !== 'on') && (v !== 'cool') && (v !== 'heat') && (v !== 'fan')) {
-                v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
-              }
+              if (!isNaN(v)) v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
             case 'velocity':
-              if (v !== '0') v = (v * 3.6).toFixed(0) + 'km/h / ' + (v * 2.23694).toFixed(0) + 'mph';
+              if ((v !== '0') && (!isNaN(v))) v = (v * 3.6).toFixed(0) + 'km/h / ' + (v * 2.23694).toFixed(0) + 'mph';
               break;
 
             case 'odometer':
-              v = v.toFixed(1) + 'km / ' + (v * 0.621371).toFixed(1) + 'mi';
+              if (!isNaN(v)) v = v.toFixed(1) + 'km / ' + (v * 0.621371).toFixed(1) + 'mi';
               break;
 
             case 'range':
-              v = v.toFixed(0) + 'km / ' + (v * 0.621371).toFixed(0) + 'mi';
+              if (!isNaN(v)) v = v.toFixed(0) + 'km / ' + (v * 0.621371).toFixed(0) + 'mi';
               break;
 
             default:

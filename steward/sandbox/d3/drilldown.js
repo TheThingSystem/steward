@@ -1159,6 +1159,10 @@ function textColor(bgColor, arcVal) {
 
 var entries = {
 // actors
+              , '/device/climate/arduino/sensor'            : { img     : 'actors/arduino.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              }
                 '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
                                                               , single  : single_nest_drilldown
                                                               , arcs    : device_nest_arcs
