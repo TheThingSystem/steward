@@ -484,6 +484,7 @@ var onactors = function(message) {
           if (!entity.info.hasOwnProperty(prop)) continue;
 
           v = entity.info[prop];
+          if ((isNaN(v)) && typeof v === 'string') v = v * 1.0;
           switch (prop) {
             case 'lastSample':
             case 'lastupdated':
