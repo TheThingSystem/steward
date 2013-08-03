@@ -110,7 +110,7 @@ AppleTV.prototype.refresh = function() {
       if (status.position === self.info.track.position) {
         self.status = "paused";
       } else {
-        self.status = "playing"
+        self.status = "playing";
       }
 
       self.info.track = status;
