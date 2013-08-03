@@ -107,7 +107,6 @@ Cloud.prototype.scan = function(self) {
 
 Cloud.prototype.addstation = function(self, id, station, name, data, timestamp) {
   var info, params, sensor, udn;
-console.log(data.auto_away);
 
   params = { lastSample      : timestamp
            , temperature     : data.current_temperature
