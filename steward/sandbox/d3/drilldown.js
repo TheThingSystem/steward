@@ -13,10 +13,12 @@ var actors = {}
   , tags   = {}
   , multiple_arcs = []
   , lastUpdated
-  , lastIconTrayPage = 1;
+  , lastIconTrayPage = 1
+  , place
+  ;
 
 var home = function(state) {
-  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, place, prop, span, tag, tags;
+  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, tag, tags;
   
   lastIconTrayPage = 1;
 
@@ -615,6 +617,7 @@ var climate_device_arcs = function(device) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
     v = device.info[prop];
+    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
       case 'lastSample':
         now = new Date().getTime();
@@ -673,6 +676,38 @@ var climate_device_arcs = function(device) {
                           , label  : 'PRESSURE'
                           , cooked : v + 'mb'
                           , value  : clip2bars(v, 980,  1060)
+                          , index  : 0.20
+                          });
+        break;
+
+      case 'LEAF':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'LEAF'
+                          , cooked : v + 'ppm'
+                          , value  : clip2bars(v,  0, 1200)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'hvac':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MODE'
+                          , cooked : v
+                          , value  : clip2bars(  v === 'fan'  ?  33
+                                               : v === 'heat' ?  66
+                                               : v === 'cool' ? 100 : 0, 0, 100)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'away':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'AWAY'
+                          , cooked : v
+                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
                           , index  : 0.20
                           });
         break;
@@ -736,6 +771,7 @@ var media_device_arcs = function(device) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
     v = device.info[prop];
+    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
       case 'track':
         text = v.title || '';
@@ -824,7 +860,7 @@ var single_motive_drilldown = function(state) {
 };
 
 var motive_device_arcs = function(device) {
-  var arcs, now, prop, v;
+  var arcs, cooked, dist, now, prop, v;
 
   arcs = [];
 
@@ -832,13 +868,23 @@ var motive_device_arcs = function(device) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
     v = device.info[prop];
+    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
       case 'location':
+        if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
+          dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
+          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' miles')
+                               : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
+                               : place.name;
+        } else {
+          cooked = v.toString();
+          dist = -1;
+        }
         arcs.splice(0, 0, { name   : prop
                           , raw    : v
-                          , label  : 'LOCATION'
-                          , cooked : v.toString() + ' (danny, reverse geocode me to an address, if possible...)'
-                          , value  : 0
+                          , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
+                          , cooked : cooked
+                          , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
                           , index  : 0.70
                           });
         break;
@@ -911,6 +957,26 @@ var motive_device_arcs = function(device) {
   }
 
   return arcs;
+};
+
+// from http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
+
+var getDistanceFromLatLonInKm = function (lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  return d;
+};
+
+var deg2rad = function(deg) {
+  return deg * (Math.PI/180)
 };
 
 var clip2bars = function(v, min, max) {
