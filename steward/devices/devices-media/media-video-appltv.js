@@ -21,6 +21,9 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   this.name = info.device.name;
   this.getName();
 
+  this.info = {
+    track : { position: 0, duration: 0 }
+  };
   this.url = info.url;
 
   var parts = url.parse(info.url);
@@ -98,12 +101,22 @@ AppleTV.prototype.refresh = function() {
   var self = this;
 
   this.appletv.status(function(status) {
-    self.info.track = status
-    self.info.track.position *= 1000;
-    self.info.track.duration *= 1000;
-    self.changed();
+    if (status.duration === undefined) {
+      self.status = 'idle';
+    } else {
+      status.position *= 1000;
+      status.duration *= 1000;
 
-    // TODO: playback status
+      if (status.position === self.info.track.position) {
+        self.status = "paused";
+      } else {
+        self.status = "playing"
+      }
+
+      self.info.track = status;
+    }
+
+    self.changed();
 
     // set the timeout here so we don't get a runaway
     // timer condition.
@@ -154,11 +167,7 @@ exports.start = function() {
 
     steward.actors.device.media.appletv.video =
         { $info     : { type       : '/device/media/appletv/video'
-                      , observe    : [
-                                        uri         : true
-                                      , position    : 'milliseconds'
-                                      , duration    : 'milliseconds'
-                                     ]
+                      , observe    : []
                       , perform    : [
                                        'play'
                                      , 'stop'
@@ -166,7 +175,11 @@ exports.start = function() {
                                      , 'set'
                                      ]
                       , properties : { name    : true
-                                     , status  : [ 'idle' ]
+                                     , status  : [ 'idle', 'playing', 'paused' ]
+                                     , track   : {
+                                         uri         : true
+                                       , position    : 'milliseconds'
+                                       , duration    : 'milliseconds'}
                                      }
                       }
         , $validate : { perform    : validate_perform }
