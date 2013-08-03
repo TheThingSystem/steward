@@ -84,6 +84,9 @@ AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!AppleTV.operations[perform]) {
     AppleTV.operations[perform](this.appletv, params);
+
+    this.refresh();
+
     return steward.performed(taskID);
   }
 
