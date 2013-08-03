@@ -71,6 +71,8 @@ exports.start = function() {
                                    , goaltemperature : 'celsius'
                                    , humidity        : 'percentage'
                                    , hvac            : [ 'cool', 'heat', 'fan', 'off' ]
+                                   , away            : [ 'on', 'off' ]
+                                   , leaf            : [ 'on', 'off' ]
                                    }
                     }
       };

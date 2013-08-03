@@ -107,6 +107,7 @@ Cloud.prototype.scan = function(self) {
 
 Cloud.prototype.addstation = function(self, id, station, name, data, timestamp) {
   var info, params, sensor, udn;
+console.log(data.auto_away);
 
   params = { lastSample      : timestamp
            , temperature     : data.current_temperature
@@ -115,6 +116,8 @@ Cloud.prototype.addstation = function(self, id, station, name, data, timestamp) 
            , hvac            : (!!data.hvac_ac_state)           ? 'cool'
                                    : (!!data.hvac_heater_state) ? 'heat' 
                                    : (!!data.hvac_fan_state)    ? 'fan' : 'off'
+           , away            : (!!data.auto_away)               ? 'on'  : 'off'
+           , leaf            : (!!station.leaf)                 ? 'on'  : 'off'
            };
 
   udn = 'nest:' + id;

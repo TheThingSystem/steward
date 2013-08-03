@@ -518,7 +518,9 @@ var onactors = function(message) {
               break;
 
             case 'hvac':
-              if ((v !== 'off') && (v !== 'on')) v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+              if ((v !== 'off') && (v !== 'on') && (v !== 'cool') && (v !== 'heat') && (v !== 'fan')) {
+                v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+              }
               break;
 
             case 'velocity':
