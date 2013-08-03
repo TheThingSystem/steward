@@ -493,7 +493,8 @@ var onactors = function(message) {
             case 'temperature':
             case 'intTemperature':
             case 'extTemperature':
-              v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+            case 'goalTemperature':
+              v = v.toFixed(1) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
             case 'humidity':

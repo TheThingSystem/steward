@@ -64,11 +64,13 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/nest/control'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name        : true
-                                   , status      : [ 'present' ]
-                                   , lastSample  : 'timestamp'
-                                   , temperature : 'celsius'
-                                   , humidity    : 'percentage'
+                    , properties : { name            : true
+                                   , status          : [ 'present' ]
+                                   , lastSample      : 'timestamp'
+                                   , temperature     : 'celsius'
+                                   , goaltemperature : 'celsius'
+                                   , humidity        : 'percentage'
+                                   , hvac            : [ 'cool', 'heat', 'fan', 'off' ]
                                    }
                     }
       };
