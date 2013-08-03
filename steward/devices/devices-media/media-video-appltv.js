@@ -132,7 +132,12 @@ AppleTV.prototype.refresh = function() {
 
     if (changed) {
       self.appletv.playbackAccessLog(function(e, o) {
+        var trackChanged = o.url !== self.info.uri;
         self.info.uri = o.url;
+
+        if (trackChanged) {
+          self.changed();
+        }
       });
       self.changed();
     }
