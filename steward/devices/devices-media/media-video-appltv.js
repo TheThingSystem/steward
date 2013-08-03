@@ -102,7 +102,7 @@ var validate_perform = function(perform, parameter) {
 };
 
 AppleTV.prototype.refresh = function() {
-  this.timer && clearTimeout(this.timer);
+  if (this.timer) { clearTimeout(this.timer); }
 
   var timeout = (this.status === 'idle') ? (5 * 1000) : 350;
   this.timer = setTimeout(this.refresh.bind(this), timeout);
@@ -127,7 +127,7 @@ AppleTV.prototype.refresh = function() {
       self.info.track = stats;
     }
 
-    var changed = self.status !== status
+    var changed = self.status !== status;
     self.status = status;
 
     if (changed) {
