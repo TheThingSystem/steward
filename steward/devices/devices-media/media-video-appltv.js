@@ -75,7 +75,7 @@ AppleTV.operations = {
       }
     }
 
-    devices.perform(self, taskID, perform, parameter);
+    devices.perform(self, taskID, perform, JSON.stringify(params));
   }
 };
 
@@ -134,7 +134,7 @@ AppleTV.prototype.refresh = function() {
       self.appletv.playbackAccessLog(function(e, o) {
         self.info.uri = o.url;
       });
-      this.changed();
+      self.changed();
     }
   });
 };
