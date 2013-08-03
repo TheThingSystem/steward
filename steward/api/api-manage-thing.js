@@ -11,7 +11,7 @@ var stringify   = require('json-stringify-safe')
   ;
 
 
-var things = {};
+var things = exports.things = {};
 
 var eventIDs  = {};
 var eventUIDs = {};
@@ -133,6 +133,8 @@ var prototype = exports.protodef = function(logger, ws, api, message, tag) {
     props = message.things[thingPath];
     if (!util.isArray(props.observe)) props.observe = [];
     if (!util.isArray(props.perform)) props.perform = [];
+    if (!props.device)                                      return error(true,  'missing device in ' + thingPath);
+    if (!props.device.name)                                 return error(true,  'missing device name in ' + thingPath);
     if (!props.name)                                        return error(true,  'missing name in ' + thingPath);
     props.name = true;
     if (!props.status)                                      return error(true,  'missing status in ' + thingPath);
@@ -151,7 +153,7 @@ var prototype = exports.protodef = function(logger, ws, api, message, tag) {
 };
 
 var addprototype = function(thingPath, props) {
-  var actors, i, info, path, validate;
+  var actors, i, info, path, prop, validate;
 
   path = thingPath.split('/');
   actors = steward.actors;
@@ -163,10 +165,12 @@ var addprototype = function(thingPath, props) {
   info = utility.clone(props);
   info.name = props.name;
   info.status = props.status;
+  for (prop in info.properties) if (info.properties.hasOwnProperty(prop)) info[prop] = info.properties[prop];
   validate = {};
   if (!!info.validate.observe) validate.observe = validate_observe;
   if (!!info.validate.perform) validate.perform = validate_perform;
   delete(info.type);
+  delete(info.device);
   delete(info.observe);
   delete(info.perform);
   delete(info.properties);
@@ -191,6 +195,13 @@ var insprototype = function(logger, thingPath, name, comments, props, tag) {
          { $thingUID: thingPath, $thingName: name, $thingComments: comments, $thingDefinition: JSON.stringify(props) },
          function(err) {
     if (err) logger.error(tag, { user: 'INSERT things.thingUID for ' + thingPath, diagnostic: err.message });
+
+    things[thingPath] = { thingID         : this.lastID
+                        , thingUID        : thingPath
+                        , thingName       : name
+                        , thingComments   : comments
+                        , thingDefinition : props
+                        };
   });
 };
 
@@ -383,10 +394,10 @@ var readyP = function() {
     rows.forEach(function(thing) {
       var thingPath = thing.thingUID;
 
-      things[thingPath] = { thingID        : thing.thingID.toString()
-                          , thingUID       : thingPath
-                          , thingName      : thing.thingName
-                          , thingComments  : thing.thingComments
+      things[thingPath] = { thingID         : thing.thingID.toString()
+                          , thingUID        : thingPath
+                          , thingName       : thing.thingName
+                          , thingComments   : thing.thingComments
                           , thingDefinition : JSON.parse(thing.thingDefinition)
                           };
 

@@ -493,7 +493,8 @@ var onactors = function(message) {
             case 'temperature':
             case 'intTemperature':
             case 'extTemperature':
-              v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+            case 'goalTemperature':
+              v = v.toFixed(1) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
             case 'humidity':
@@ -517,7 +518,9 @@ var onactors = function(message) {
               break;
 
             case 'hvac':
-              if ((v !== 'off') && (v !== 'on')) v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+              if ((v !== 'off') && (v !== 'on') && (v !== 'cool') && (v !== 'heat') && (v !== 'fan')) {
+                v += '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
+              }
               break;
 
             case 'velocity':
@@ -594,7 +597,7 @@ var onupdate = function(update) {
       if (category === '.updates') {
         datum.level = 'updates';
         datum.date = datum.updated;
-        datum.message = datum.whoami + ' (' + datum.name + ((!!datum.message) ? ('): ' + datum.message) : ')');
+        datum.message = datum.whoami + ' ' + datum.name + ((!!datum.message) ? (': ' + datum.message) : '');
         datum.meta = { status: datum.status };
         for (j in datum.info) if (datum.info.hasOwnProperty(j)) datum.meta[j] = datum.info[j];
         

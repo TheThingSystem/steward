@@ -39,7 +39,7 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
   self.refreshID = null;
 
   self.sonos.getZoneAttrs(function(err, attrs) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'getZoneAttrs', diagnostic: err.message });
+    if (err) return self.error(self, err,  'getZoneAttrs');
 
     self.setName(attrs.CurrentZoneName);
   });
@@ -69,7 +69,7 @@ Sonos_Audio.prototype.jumpstart = function(self, path) {
     logger.debug('subscribe: ' + state + ' code ' + response.statusCode,
                       { err: stringify(err), headers: stringify(response.headers) });
     if (err) {
-      logger.info('device/' + self.deviceID, { event: 'subscribe', diagnostic: err.message });
+      self.error(self, err, 'subscribe');
       setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
       return;
     }
@@ -105,7 +105,7 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
     case 'set':
       if (!!params.name) {
         self.sonos.setName(params.name, function(err, data) {/* jshint unused: false */
-          if (err) return logger.error('device/' + self.deviceID, { event: 'setName', diagnostic: err.message });
+          if (err) return self.error(self, err,  'setName');
 
           self.setName(params.name);
         });
@@ -117,22 +117,22 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
                  , shuffle1 : 'SHUFFLE_NOREPEAT'
                  }[params.mode.toLowerCase()];
         self.sonos.setPlayMode(param0, function(err, data) {/* jshint unused: false */
-          if (err) return logger.error('device/' + self.deviceID, { event: 'setPlayMode', diagnostic: err.message });
+          if (err) return self.error(self, err,  'setPlayMode');
         });
       }
       if (!!params.position) {
         self.sonos.seek(Math.round(params.position / 1000), function(err, data) {/* jshint unused: false */
-          if (err) return logger.error('device/' + self.deviceID, { event: 'seek', diagnostic: err.message });
+          if (err) return self.error(self, err,  'seek');
         });
       }
       if (!!params.volume) {
         self.sonos.setVolume(params.volume, function(err, data) {/* jshint unused: false */
-          if (err) return logger.error('device/' + self.deviceID, { event: 'setVolume', diagnostic: err.message });
+          if (err) return self.error(self, err,  'setVolume');
         });
       }
       if (!!params.muted) {
         self.sonos.setMuted(params.muted === 'on' ? '1' : '0', function(err, data) {/* jshint unused: false */
-          if (err) return logger.error('device/' + self.deviceID, { event: 'setMuted', diagnostic: err.message });
+          if (err) return self.error(self, err,  'setMuted');
         });
       }
       return true;
@@ -159,11 +159,11 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!param0) {
     self.sonos[e](param0, function(err, data) {/* jshint unused: false */
-      if (err) logger.error('device/' + self.deviceID, { event: e, diagnostic: err.message });
+      if (err) self.error(self, err, e);
     });
   } else {
     self.sonos[e](function(err, data) {/* jshint unused: false */
-      if (err) logger.error('device/' + self.deviceID, { event: e, diagnostic: err.message });
+      if (err) self.error(self, err, e);
     });
   }
 
@@ -245,7 +245,7 @@ Sonos_Audio.prototype.refresh = function(self) {
   if (!!self.refreshID) { clearTimeout(self.refreshID); self.refreshID = null; }
 
   self.sonos.currentTrack(function(err, track) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'currentTrack', diagnostic: err.message });
+    if (err) return self.error(self, err,  'currentTrack');
 
     if ((track !== undefined)
           && (self.info.track.position !== (track.position * 1000))
@@ -258,7 +258,7 @@ Sonos_Audio.prototype.refresh = function(self) {
   });
 
   self.sonos.getVolume(function(err, volume) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'getVolume', diagnostic: err.message });
+    if (err) return self.error(self, err,  'getVolume');
 
     if ((volume !== undefined) && (self.info.volume !== volume)) {
       self.info.volume = volume;
@@ -267,7 +267,7 @@ Sonos_Audio.prototype.refresh = function(self) {
   });
 
   self.sonos.getMuted(function(err, muted) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'getMuted', diagnostic: err.message });
+    if (err) return self.error(self, err,  'getMuted');
 
     if ((muted !== undefined) && (self.info.muted !== (muted ? 'on' : 'off'))) {
       self.info.muted = muted ? 'on' : 'off';
@@ -276,6 +276,14 @@ Sonos_Audio.prototype.refresh = function(self) {
   });
 
   self.refreshID = setTimeout (function() { self.refresh(self); }, (self.status === 'idle') ? (5 * 1000) : 350);
+};
+
+Sonos_Audio.prototype.error = function(self, err, event) {
+  logger.error('device/' + self.deviceID, { event: event, diagnostic: err.message });
+  if (self.status !== 'error') {
+    self.status = 'error';
+    self.changed();
+  }
 };
 
 var validate_perform = function(perform, parameter) {
@@ -363,7 +371,7 @@ exports.start = function() {
                                    , 'flush'
                                    ]
                     , properties : { name    : true
-                                   , status  : [ 'idle', 'playing', 'paused', 'busy' ]
+                                   , status  : [ 'idle', 'playing', 'paused', 'busy', 'error' ]
                                    , track   : { title       : true
                                                , artist      : true
                                                , album       : true

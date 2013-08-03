@@ -45,8 +45,12 @@ var handle = function(message, tag) {
     }
     if (!okP) continue;
 
+    didP = true;
+    if ((!props.prototype.name) && (!props.prototype.status)) continue;
+
     request.things[thingPath] = { observe    : []
                                 , perform    : []
+                                , device     : props.prototype.device
                                 , name       : props.prototype.name
                                 , status     : props.prototype.status
                                 , properties : props.prototype.properties
@@ -55,7 +59,6 @@ var handle = function(message, tag) {
                                   , perform  : false
                                   }
                                 };
-    didP = true;
   }
   if (!didP) return;
 
@@ -64,7 +67,7 @@ var handle = function(message, tag) {
 };
 
 var register = function(message, data, tag) {
-  var device, didP, i, instance, prop, props, request, requestID, results, thing, thingPath, updated;
+  var device, didP, i, info, instance, prop, props, request, requestID, results, thing, thingPath, updated;
 
   try { results = JSON.parse(data); } catch(ex) {
     return logger.error(tag, { event: 'protodef', requestID: message.requestID, error: { diagnostic: ex.message } });
@@ -84,17 +87,16 @@ var register = function(message, data, tag) {
 
     props = message.things[thingPath];
     if (!util.isArray(props.instances)) continue;
-    if (!props.prototype.device) props.prototype.device = {};
+    if (!props.prototype.device) {
+      info = things.things[thingPath];
+      if (!info) continue;
+      props.prototype.device = info.thingDefinition.device;
+    }
 
     thing = { devicetype : thingPath
-            , device     :
-              { name     : props.prototype.device.name
-              , maker    : props.prototype.device.maker
-              , model    : props.prototype.device.model
-              }
+            , device     : props.prototype.device
             , updated    : updated
             };
-
 
     for (i = 0; i < props.instances.length; i++) {
       instance = props.instances[i];
