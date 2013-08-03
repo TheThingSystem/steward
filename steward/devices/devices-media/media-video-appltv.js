@@ -96,31 +96,46 @@ var validate_perform = function(perform, parameter) {
   return devices.validate_perform(perform, parameter);
 };
 
-AppleTV.prototype.refresh = function() {
+AppleTV.prototype.prime = function() {
   var timeout = (this.status === 'idle') ? (5 * 1000) : 350;
+  this.changed();
+
+  // set the timeout here so we don't get a runaway
+  // timer condition.
+  setTimeout(this.refresh.bind(this), timeout);
+}
+
+AppleTV.prototype.refresh = function() {
   var self = this;
 
-  this.appletv.status(function(status) {
-    if (status.duration === undefined) {
-      self.status = 'idle';
+  this.appletv.status(function(stats) {
+    var status = self.status;
+
+    if (stats.duration === undefined) {
+      status = 'idle';
     } else {
-      status.position *= 1000;
-      status.duration *= 1000;
+      stats.position *= 1000;
+      stats.duration *= 1000;
 
       if (status.position === self.info.track.position) {
-        self.status = "paused";
+        status = "paused";
       } else {
-        self.status = "playing";
+        status = "playing";
       }
 
-      self.info.track = status;
+      self.info.track = stats;
     }
 
-    self.changed();
+    var changed = self.status !== status
+    self.status = status;
 
-    // set the timeout here so we don't get a runaway
-    // timer condition.
-    setTimeout(self.refresh.bind(self), timeout);
+    if (changed && status == "playing") {
+      self.appletv.playbackAccessLog(function(e, o) {
+        self.info.uri = o.url;
+      });
+    }
+
+    self.prime();
   });
 };
 
