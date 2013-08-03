@@ -60,6 +60,18 @@ AppleTV.operations = {
 , pause : function(device, params) {/* jshint unused: false */
     device.rate(0.0);
   }
+, 'set' : function(device, params) {/* jshint unused: false */
+    if (params) {
+      if (typeof params.position !== 'undefined') {
+        var position = parseFloat(params.position);
+        if (isNaN(position)) {
+          position = 0;
+        }
+
+        device.scrub(position/1000);
+      }
+    }
+  }
 };
 
 
@@ -151,6 +163,7 @@ exports.start = function() {
                                        'play'
                                      , 'stop'
                                      , 'pause'
+                                     , 'set'
                                      ]
                       , properties : { name    : true
                                      , status  : [ 'idle' ]
