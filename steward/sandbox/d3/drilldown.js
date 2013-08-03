@@ -876,12 +876,15 @@ var motive_device_arcs = function(device) {
           cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' miles')
                                : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
                                : place.name;
-        } else cooked = v.toString();
+        } else {
+          cooked = v.toString();
+          dist = -1;
+        }
         arcs.splice(0, 0, { name   : prop
                           , raw    : v
-                          , label  : 'LOCATION'
+                          , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
                           , cooked : cooked
-                          , value  : 0
+                          , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
                           , index  : 0.70
                           });
         break;
