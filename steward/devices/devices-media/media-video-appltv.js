@@ -96,16 +96,12 @@ var validate_perform = function(perform, parameter) {
   return devices.validate_perform(perform, parameter);
 };
 
-AppleTV.prototype.prime = function() {
-  var timeout = (this.status === 'idle') ? (5 * 1000) : 350;
-  this.changed();
-
-  // set the timeout here so we don't get a runaway
-  // timer condition.
-  setTimeout(this.refresh.bind(this), timeout);
-}
-
 AppleTV.prototype.refresh = function() {
+  this.timer && clearTimeout(this.timer);
+
+  var timeout = (this.status === 'idle') ? (5 * 1000) : 350;
+  this.timer = setTimeout(this.refresh.bind(this), timeout);
+
   var self = this;
 
   this.appletv.status(function(stats) {
@@ -129,13 +125,12 @@ AppleTV.prototype.refresh = function() {
     var changed = self.status !== status
     self.status = status;
 
-    if (changed && status == "playing") {
+    if (changed) {
       self.appletv.playbackAccessLog(function(e, o) {
         self.info.uri = o.url;
       });
+      this.changed();
     }
-
-    self.prime();
   });
 };
 
