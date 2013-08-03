@@ -92,30 +92,34 @@ Cloud.prototype.scan = function(self) {
   if (!self.nest) return;
 
   self.nest.fetchStatus(function(data) {
-    var id, name;
+    var away, id, name;
 
     name = '';
-    for (id in data.structure) if (data.structure.hasOwnProperty(id)) { name = data.structure[id].name; break; }
+    for (id in data.structure) if (data.structure.hasOwnProperty(id)) {
+      name = data.structure[id].name;
+      away = data.structure[id].away;
+      break;
+    }
 
     for (id in data.device) {
       if (data.device.hasOwnProperty(id)) {
-        self.addstation(self, id, data.device[id], name, data.shared[id], data.track[id].$timestamp);
+        self.addstation(self, id, data.device[id], name, away, data.shared[id], data.track[id].$timestamp);
       }
     }
   });
 };
 
-Cloud.prototype.addstation = function(self, id, station, name, data, timestamp) {
+Cloud.prototype.addstation = function(self, id, station, name, away, data, timestamp) {
   var info, params, sensor, udn;
 
   params = { lastSample      : timestamp
            , temperature     : data.current_temperature
-           , goalTemperature : data.target_temperature
+           , goalTemperature : (!!station.time_to_target) ? data.target_temperature : data.current_temperature
            , humidity        : station.current_humidity
            , hvac            : (!!data.hvac_ac_state)           ? 'cool'
                                    : (!!data.hvac_heater_state) ? 'heat' 
                                    : (!!data.hvac_fan_state)    ? 'fan' : 'off'
-           , away            : (!!data.auto_away)               ? 'on'  : 'off'
+           , away            : (!!away)                         ? 'on'  : 'off'
            , leaf            : (!!station.leaf)                 ? 'on'  : 'off'
            };
 
