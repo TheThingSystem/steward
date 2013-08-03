@@ -74,6 +74,8 @@ AppleTV.operations = {
         device.scrub(position/1000);
       }
     }
+
+    devices.perform(self, taskID, perform, parameter);
   }
 };
 
@@ -90,7 +92,7 @@ AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
     return steward.performed(taskID);
   }
 
-  return devices.perform(self, taskID, perform, parameter);
+  return false;
 };
 
 var validate_perform = function(perform, parameter) {
