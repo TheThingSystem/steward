@@ -26,7 +26,6 @@ long lastDebounceTime = 0;
 long debounceDelay = 50; 
 
 char *jsonOff = "{\"path\":\"/api/v1/actor/perform/device/lighting\",\"requestID\":\"2\",\"perform\":\"off\",\"parameter\":\"\"}";
-//char *jsonOn = "{\"path\":\"/api/v1/actor/perform/device/lighting\",\"requestID\":\"1\",\"perform\":\"on\",\"parameter\":\"{\\\"brightness\\\":100,\\\"color\\\":{\\\"model\\\":\\\"rgb\\\",\\\"rgb\\\":{\\\"r\\\":255,\\\"g\\\":255,\\\"b\\\":255}}}\"}";
 char *jsonOn = "{\"path\":\"/api/v1/actor/perform/device/lighting\",\"requestID\":\"1\",\"perform\":\"on\",\"parameter\":\"{\\\"brightness\\\":100}\"}";
 byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  
 
