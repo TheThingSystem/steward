@@ -563,6 +563,28 @@ var single_device_arcs = function(device) {
       break;
   }
 
+  for (prop in device.info) {
+    if (!device.info.hasOwnProperty(prop)) continue;
+
+    v = device.info[prop];
+    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    switch (prop) {
+      case 'contact':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'CONTACT'
+                          , cooked : v
+                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+
+      default:
+        continue;
+    }
+    break;
+  }
+
   return arcs;
 };
 
@@ -593,8 +615,8 @@ var single_indicator_drilldown = single_device_drilldown;
 var indicator_device_arcs      = single_device_arcs;
 var single_presence_drilldown  = single_device_drilldown;
 var presence_device_arcs       = single_device_arcs;
-var single_motion_drilldown    = single_device_drilldown;
-var motion_device_arcs         = single_device_arcs;
+var single_sensor_drilldown    = single_device_drilldown;
+var sensor_device_arcs         = single_device_arcs;
 var single_switch_drilldown    = single_device_drilldown;
 var switch_device_arcs         = single_device_arcs;
 var single_wearable_drilldown  = single_device_drilldown;
@@ -613,6 +635,7 @@ var climate_device_arcs = function(device) {
 
   arcs = [];
 
+  if (!device.info.lastSample) device.info.lastSample = device.updated;
   for (prop in device.info) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
@@ -1225,11 +1248,11 @@ function textColor(bgColor, arcVal) {
 
 var entries = {
 // actors
-               '/device/climate/arduino/sensor'            : { img     : 'actors/arduino.svg'
+               '/device/climate/arduino/sensor'             : { img     : 'actors/arduino.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               }
-              ,  '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
+              ,  '/device/climate/nest/control'             : { img     : 'actors/nest.svg'
                                                               , single  : single_nest_drilldown
                                                               , arcs    : device_nest_arcs
                                                               }
@@ -1321,9 +1344,13 @@ var entries = {
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               }
+              , '/device/sensor/arduino/mat'                : { img     : 'actors/arduino.svg'
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
+                                                              }
               , '/device/sensor/wemo/motion'                : { img     : 'actors/wemo-sensor.svg'
-                                                              , single  : single_motion_drilldown
-                                                              , arcs    : motion_device_arcs
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
                                                               }
               , '/device/switch/insteon/dimmer'             : { img     : 'actors/insteon-dimmer.svg'
                                                               , single  : single_switch_drilldown
