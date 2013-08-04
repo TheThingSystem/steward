@@ -152,6 +152,32 @@ var bootstrap = function(ws) {
   });
 };
 
+
+var apprentice1 = function(ws) {
+// activity:
+//   event - water detected
+//   task  - alert group goes red and plays sound
+};
+
+var apprentice2a = function(ws) {
+// activity:
+//   event - /device/sensor/arduino/mat's contact: on->off AND media unmuted
+//   task  - media group goes mute, kitchen group goes white
+};
+
+var apprentice2b = function(ws) {
+// activity:
+//   event - /device/sensor/arduino/mat's contact: off->on AND media muted
+//   task  - media group goes unmute, kitchen group goes off
+};
+
+var apprentice3 = function(ws) {
+// activity:
+//   CO2>=1000ppm and fan off
+//   task - fan goes on for 15m
+};
+
+
 var rainbow = [ '#ff0000', '#ff8300', '#fff800', '#0000ff', '#00ff00', '#4b0082', '#ee82ee' ];
 var colors  = [ 'red',     'orange',  'yellow',  'blue',    'green',   'indigo',  'violet'  ];
 
