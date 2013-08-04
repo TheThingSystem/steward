@@ -15,12 +15,12 @@ byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
 
 char packetBuffer[512];
 
-PROGMEM prog_char *initialPacket = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"1\",\"things\":{\"/device/sensor/arduino/mat\":{\"prototype\":{\"device\":{\"name\":\"60# pressure mat (902PR)\",\"maker\":\"United Security Products\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"pressure\":[\"on\",\"off\"]}},\"instances\":[]}}}";
+//PROGMEM prog_char *initialPacket = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"1\",\"things\":{\"/device/sensor/arduino/mat\":{\"prototype\":{\"device\":{\"name\":\"60# pressure mat (902PR)\",\"maker\":\"United Security Products\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[]}}}";
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/mat\":{\"prototype\":{\"device\":{\"name\":\"60# pressure mat (902PR)\",\"maker\":\"United Security Products\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"pressure\":[\"on\",\"off\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/mat\":{\"prototype\":{\"device\":{\"name\":\"60# pressure mat (902PR)\",\"maker\":\"United Security Products\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
-PROGMEM prog_char *loopPacket4 = "-mat\"},\"info\":{\"pressure\":\"";
+PROGMEM prog_char *loopPacket4 = "-mat\"},\"info\":{\"contact\":\"";
 PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":\"";
 PROGMEM prog_char *loopPacket6 = "\"}]}}}";
 
@@ -67,10 +67,10 @@ void setup() {
   udp.beginMulti(ip,port);
 
   // Send intital packet to announce that we're here.
-  Serial.println((char*)pgm_read_word(&initialPacket)); 
-  udp.beginPacket(udp.remoteIP(), udp.remotePort());
-  udp.write((char*)pgm_read_word(&initialPacket));
-  udp.endPacket();   
+  //Serial.println((char*)pgm_read_word(&initialPacket)); 
+  //udp.beginPacket(udp.remoteIP(), udp.remotePort());
+  //udp.write((char*)pgm_read_word(&initialPacket));
+  //udp.endPacket();   
 
 }
 
@@ -85,9 +85,8 @@ void loop() {
     //Serial.print( "Button state = " );
     //Serial.println( buttonState );
     if ( buttonState && !sentPacket ) {
-       Serial.println("Sending pressure = on");               
+       Serial.println("Sending contact = on");               
        sentPacket = 1;
-       requestID = requestID + 1;
        
        char buffer[12];
        strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
@@ -112,11 +111,11 @@ void loop() {
        udp.beginPacket(udp.remoteIP(), udp.remotePort());
        udp.write(packetBuffer);
        udp.endPacket();       
-       
-    } else if ( !buttonState && !sentPacket ) {
-       Serial.println("Sending pressure = off");               
-       sentPacket = 1;     
        requestID = requestID + 1;
+      
+    } else if ( !buttonState && !sentPacket ) {
+       Serial.println("Sending contact = off");               
+       sentPacket = 1;     
  
        char buffer[12];
        strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
@@ -140,10 +139,10 @@ void loop() {
        Serial.println(packetBuffer); 
        udp.beginPacket(udp.remoteIP(), udp.remotePort());
        udp.write(packetBuffer);
-       udp.endPacket();   
+       udp.endPacket();      
+       requestID = requestID + 1;
        
    }
-    
     
   }
   
@@ -151,39 +150,6 @@ void loop() {
      sentPacket = 0; 
   }  
   lastButtonState = reading;
-
-     
-    /* 
-        
-    char buffer[12];
-    
-    strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-    strcat(packetBuffer, itoa( requestID, buffer, 10) );
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-    for (byte thisByte = 0; thisByte < 6; thisByte++) {
-      sprintf(buffer, "%x", mac[thisByte] );
-      strcat(packetBuffer, buffer); 
-    }   
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-    for (byte thisByte = 0; thisByte < 6; thisByte++) {
-      sprintf(buffer, "%x", mac[thisByte] );
-      strcat(packetBuffer, buffer); 
-    }   
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-    strcat(packetBuffer, dtostrf(t,4,2,buffer));
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-    strcat(packetBuffer, dtostrf(h,4,2,buffer));
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-    strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
-
-    Serial.println(packetBuffer); 
-    udp.beginPacket(udp.remoteIP(), udp.remotePort());
-    udp.write(packetBuffer);
-    udp.endPacket();
-    
-    */
- 
   
 }
 
