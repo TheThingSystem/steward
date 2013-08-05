@@ -1084,10 +1084,6 @@ var category_switch_drilldown = function(state) {
   category_drilldown(state, '/device/switch');
 };
 
-var category_tricorder_drilldown = function(state) {
-  category_drilldown(state, '/device/tricorder');
-};
-
 var category_wearable_drilldown = function(state) {
   category_drilldown(state, '/device/wearable');
 };
@@ -1424,9 +1420,6 @@ var entries = {
                                                               }
               , 'switch'                                    : { img     : 'categories/switch.svg'
                                                               , single  : category_switch_drilldown
-                                                              }
-              , tricorder                                   : { img     : 'categories/tricorder.svg'
-                                                              , single  : category_tricorder_drilldown
                                                               }
               , wearable                                    : { img     : 'categories/wearable.svg'
                                                               , single  : category_wearable_drilldown

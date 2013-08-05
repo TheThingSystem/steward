@@ -773,18 +773,6 @@ At a minimum, two tasks must be available:
 
 * _off_ - turns the power off
 
-### Tricorder
-The are devices that measure multiple physical qualities.
-Because of their specialized nature,
-the naming pattern is
-
-    /device/tricorder/MANUFACTURER/MODEL
-
-In addition to the properties specific to the individual device,
-the _lastSample_ property must also be present.
-
-**TBD**
-
 ### Wearable
 These are devices that are similar to fob devices, but meant to be more personal.
 The naming pattern is:
