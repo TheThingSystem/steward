@@ -57,6 +57,11 @@ var idlist = function() {
 exports.start = function() {
   db = require('./database').db;
 
+  if (!db) {
+    logger.warning('database not ready, retrying...');
+    setTimeout(exports.start, 1 * 1000);
+  }
+
   steward.actors.device =
       { $info   : { type       : '/device'
                   }
