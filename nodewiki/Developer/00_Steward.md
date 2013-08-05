@@ -22,7 +22,7 @@ In terms of ASCII art:
     |  sensors:         motives:          indicators:         personal:      |
     |    simple         fixed-position      lighting            presence     |
     |    climate        mobile              media               wearable     |
-    |                                       switches                         |
+    |    array                              switch                           |
     |                                       textual                          |
     |  gateways                                                              |
     +------------------------------------------------------------------------+
