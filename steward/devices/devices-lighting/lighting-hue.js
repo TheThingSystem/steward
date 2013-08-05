@@ -246,7 +246,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
 
 
 Hue.prototype.heartbeat = function(self) {
-  self.status = self.waitingP ? 'waiting' : (!self.username) ? 'reset' : 'ready';
+  self.status = (self.waitingP) || (!self.username) ? 'reset' : 'ready';
 
   if (!!self.username) {
     self.refresh(self);
@@ -739,7 +739,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name   : true
-                                   , status : [ 'ready', 'reset', 'waiting', 'busy' ]
+                                   , status : [ 'ready', 'reset', 'busy' ]
                                    }
                     }
       , $validate : { perform    : validate_perform_hue }
