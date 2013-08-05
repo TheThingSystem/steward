@@ -676,7 +676,7 @@ var climate_device_arcs = function(device) {
       case 'co2':
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
-                          , label  : 'CO<sup>2</sup>'
+                          , label  : 'CO<sub>2</sub>'
                           , cooked : v + 'ppm'
                           , value  : clip2bars(v,  0, 1200)
                           , index  : 0.40
@@ -686,7 +686,7 @@ var climate_device_arcs = function(device) {
       case 'no2':
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
-                          , label  : 'NO<sup>2</sup>'
+                          , label  : 'NO<sub>2</sub>'
                           , cooked : v + 'ppm'
                           , value  : clip2bars(v,  0, 1200)
                           , index  : 0.40
