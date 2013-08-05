@@ -683,12 +683,32 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'no2':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'NO<sup>2</sup>'
+                          , cooked : v + 'ppm'
+                          , value  : clip2bars(v,  0, 1200)
+                          , index  : 0.40
+                          });
+        break;
+
       case 'noise':
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'NOISE'
                           , cooked : v + 'dB'
                           , value  : clip2bars(v, 0, 70)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'co':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'CO'
+                          , cooked : v + 'ppm'
+                          , value  : clip2bars(v, 0, 1200)
                           , index  : 0.30
                           });
         break;
