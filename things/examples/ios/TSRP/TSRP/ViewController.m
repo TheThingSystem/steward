@@ -27,6 +27,8 @@
     } else {
         [motionManager stopDeviceMotionUpdates];
     }
+    requestID = 1;
+    report = false;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -37,8 +39,10 @@
 - (IBAction)switched:(id)sender {
     if( self.reportSwitch.on ) {
         NSLog(@"Switched reporting on.");
+        report = true;
     } else {
         NSLog(@"Switched reporting off.");
+        report = false;
     }
 }
 
@@ -82,28 +86,28 @@
 
 - (void) sendMulticast:(NSTimer *)timer  {
     
-    if ( self.reportSwitch.on ) {
-    
-        NSLog(@"Sending multicast.");
-    
+    if ( report ) {
+        
         CMDeviceMotion *motionData = motionManager.deviceMotion;
-    
+        
         CMAttitude *attitude = motionData.attitude;
         CMAcceleration gravity = motionData.gravity;
         CMAcceleration userAcceleration = motionData.userAcceleration;
         CMRotationRate rotate = motionData.rotationRate;
         
+        NSLog(@"Sending multicast.");
+        
         NSUUID *uuid = [[UIDevice currentDevice] identifierForVendor];
+        NSTimeInterval systemUptime = [[NSProcessInfo processInfo] systemUptime];
         
-        
-        NSString *string = @"testing";
+        NSString *string = [NSString stringWithFormat:@"{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"%d\",\"things\":{\"/device/sensor/phone/iphone\":{\"prototype\":{\"device\":{\"name\":\"iPhone\",\"maker\":\"Apple\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"roll\":\"radians\",\"pitch\":\"radians\",\"yaw\":\"radians\",\"x acceleration\":\"g\",\"y acceleration\":\"g\",\"z acceleration\":\"g\",\"x gravity\":\"g\",\"y gravity\":\"g\",\"z gravity\":\"g\",\"x rotation\":\"radians/s\",\"y rotation\":\"radians/s\",\"z rotation\":\"radians/s\"}},\"instances\":[{\"name\":\"iPhone\",\"status\":\"present\",\"unit\":{\"serial\":\"%@\",\"udn\":\"195a42b0-ef6b-11e2-99d0-%@-iphone\"},\"info\":{\"roll\":\"%f\",\"pitch\":\"%f\",\"yaw\":\"%f\",\"x acceleration\":\"%f\",\"y acceleration\":\"%f\",\"z acceleration\":\"%f\",\"x gravity\":\"%f\",\"y gravity\":\"%f\",\"z gravity\":\"%f\",\"x rotation\":\"%f\",\"y rotation\":\"%f\",\"z rotation\":\"%f\"},\"uptime\":\"%f\"}]}}}",requestID, uuid.UUIDString, uuid.UUIDString, attitude.roll, attitude.pitch, attitude.yaw, userAcceleration.x, userAcceleration.y, userAcceleration.z, gravity.x, gravity.y, gravity.z, rotate.x, rotate.y, rotate.z, systemUptime];
         NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    
     
         GCDAsyncUdpSocket *udpSocket = [[GCDAsyncUdpSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
         [udpSocket enableBroadcast:YES error:nil];
         [udpSocket sendData:data toHost:@"224.192.32.19" port:22601 withTimeout:-1 tag:0];
 
+        requestID = requestID + 1;
     }
     
 }

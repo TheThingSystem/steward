@@ -41,6 +41,7 @@
     NSTimer *timerMulti;
     
     BOOL report;
+    int requestID;
 }
 
 @property (weak, nonatomic) IBOutlet UISwitch *reportSwitch;
