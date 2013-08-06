@@ -546,8 +546,7 @@ The valid values for the _type_ field are:
 * _contextDependentUnits_ - anything else.
 
 
-Now let's look at the twelve categories of devices.
-__(There's nothing _magical_ about this number, and it will probably drop to ten.)__
+Now let's look at the ten categories of devices.
 
 ### Climate
 These are devices that monitor or control the "breathable environment".
@@ -772,18 +771,6 @@ At a minimum, two tasks must be available:
     * _level_ (_dimmer_ only) - an integer-value percentage of the switch's possible output
 
 * _off_ - turns the power off
-
-### Tricorder
-The are devices that measure multiple physical qualities.
-Because of their specialized nature,
-the naming pattern is
-
-    /device/tricorder/MANUFACTURER/MODEL
-
-In addition to the properties specific to the individual device,
-the _lastSample_ property must also be present.
-
-**TBD**
 
 ### Wearable
 These are devices that are similar to fob devices, but meant to be more personal.

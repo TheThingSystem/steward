@@ -19,11 +19,11 @@ var sensortag   = require('sensortag')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , sensor      = require('./../device-sensor')
-  , tricorder   = require('./../device-tricorder')
+  , sensor   = require('./../device-sensor')
   ;
 
 
-var logger = tricorder.logger;
+var logger = sensor.logger;
 
 
 var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
@@ -75,7 +75,7 @@ console.log('>>> characteristics discovered');
     if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
-util.inherits(SensorTag, tricorder.Device);
+util.inherits(SensorTag, sensor.Device);
 
 SensorTag.prototype.ready = function(self) {
 console.log('>>> ready');
@@ -115,11 +115,11 @@ console.log('>>> notifyHumidity enabled');
 
 
 exports.start = function() {
-  steward.actors.device.tricorder['texas-instruments'] = steward.actors.device.tricorder['texas-instruments'] ||
-      { $info     : { type       : '/device/tricorder/texas-instruments' } };
+  steward.actors.device.sensor['texas-instruments'] = steward.actors.device.sensor['texas-instruments'] ||
+      { $info     : { type       : '/device/sensor/texas-instruments' } };
 
-  steward.actors.device.tricorder['texas-instruments'].sensortag =
-      { $info     : { type       : '/device/tricorder/texas-instruments/sensortag'
+  steward.actors.device.sensor['texas-instruments'].sensortag =
+      { $info     : { type       : '/device/sensor/texas-instruments/sensortag'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name          : true
@@ -135,10 +135,10 @@ exports.start = function() {
                     }
       , $validate : { perform    : devices.validate_perform }
       };
-  devices.makers['/device/tricorder/texas-instruments/sensortag'] = SensorTag;
+  devices.makers['/device/sensor/texas-instruments/sensortag'] = SensorTag;
 
   require('./../../discovery/discovery-ble').register(
-    { 'Texas Instruments'       : { '2a00' : { 'TI BLE Sensor Tag' : { type : '/device/tricorder/texas-instruments/sensortag' }
+    { 'Texas Instruments'       : { '2a00' : { 'TI BLE Sensor Tag' : { type : '/device/sensor/texas-instruments/sensortag' }
                                              }
                                   }
     });

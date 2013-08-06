@@ -11,7 +11,7 @@
 int requestID = 1;
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
-byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xB9, 0xFA };  // Arduino Ethernet
 
 char packetBuffer[512];
 
@@ -152,4 +152,5 @@ void loop() {
   lastButtonState = reading;
   
 }
+
 

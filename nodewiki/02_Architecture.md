@@ -46,7 +46,7 @@ In terms of ASCII art:
               |           |            |           |            |           |
               +-----------+            +-----------+            +-----------+
 
-           consumer equipment          smart devices            small sensors
+           consumer equipment          smart devices               sensors
 
 __Developers: the links in the remainder of this document will take you to the relevant API information!__
 
