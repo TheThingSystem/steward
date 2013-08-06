@@ -546,8 +546,7 @@ The valid values for the _type_ field are:
 * _contextDependentUnits_ - anything else.
 
 
-Now let's look at the twelve categories of devices.
-__(There's nothing _magical_ about this number, and it will probably drop to ten.)__
+Now let's look at the ten categories of devices.
 
 ### Climate
 These are devices that monitor or control the "breathable environment".
