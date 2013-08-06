@@ -109,7 +109,11 @@ AppleTV.prototype.refresh = function() {
 
   var self = this;
 
-  this.appletv.status(function(stats) {
+  this.appletv.status(function(err, stats) {
+    if (err) {
+      return logger.error(err);
+    }
+
     var status = self.status;
 
     if (stats.duration === undefined) {
@@ -132,11 +136,13 @@ AppleTV.prototype.refresh = function() {
 
     if (changed) {
       self.appletv.playbackAccessLog(function(e, o) {
-        var trackChanged = o.url !== self.info.uri;
-        self.info.uri = o.url;
+        if (!e) {
+          var trackChanged = o.url !== self.info.uri;
+          self.info.uri = o.url;
 
-        if (trackChanged) {
-          self.changed();
+          if (trackChanged) {
+            self.changed();
+          }
         }
       });
       self.changed();
