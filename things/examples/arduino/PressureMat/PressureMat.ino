@@ -9,9 +9,10 @@
 #include <SPI.h>
 
 int requestID = 1;
+unsigned long lastCallbackTime = 0;// the last time the data was written
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xB9, 0xFA };  // Arduino Ethernet
+byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
 
 char packetBuffer[512];
 
@@ -151,6 +152,75 @@ void loop() {
   }  
   lastButtonState = reading;
   
+  if ((millis() - lastCallbackTime) > 60000) {
+      callback();
+      lastCallbackTime = millis();
+  }
+  
 }
 
+void callback() {
+  
+      if ( buttonState ) {
+       Serial.println("Sending heartbeat (on)");               
+       sentPacket = 1;
+       
+       char buffer[12];
+       strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
+       strcat(packetBuffer, itoa( requestID, buffer, 10) );
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
+       for (byte thisByte = 0; thisByte < 6; thisByte++) {
+         sprintf(buffer, "%x", mac[thisByte] );
+         strcat(packetBuffer, buffer); 
+       }   
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
+       for (byte thisByte = 0; thisByte < 6; thisByte++) {
+         sprintf(buffer, "%x", mac[thisByte] );
+         strcat(packetBuffer, buffer); 
+       }   
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
+       strcat(packetBuffer, "on");
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
+       strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
+
+       Serial.println(packetBuffer); 
+       udp.beginPacket(udp.remoteIP(), udp.remotePort());
+       udp.write(packetBuffer);
+       udp.endPacket();       
+       requestID = requestID + 1;
+      
+    } else {
+       Serial.println("Sending heartbeat (off)");               
+       sentPacket = 1;     
+ 
+       char buffer[12];
+       strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
+       strcat(packetBuffer, itoa( requestID, buffer, 10) );
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
+       for (byte thisByte = 0; thisByte < 6; thisByte++) {
+         sprintf(buffer, "%x", mac[thisByte] );
+         strcat(packetBuffer, buffer); 
+       }   
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
+       for (byte thisByte = 0; thisByte < 6; thisByte++) {
+         sprintf(buffer, "%x", mac[thisByte] );
+         strcat(packetBuffer, buffer); 
+       }   
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
+       strcat(packetBuffer, "off");
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
+       strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
+
+       Serial.println(packetBuffer); 
+       udp.beginPacket(udp.remoteIP(), udp.remotePort());
+       udp.write(packetBuffer);
+       udp.endPacket();      
+       requestID = requestID + 1;
+       
+   }
+}
+  
+  
 
