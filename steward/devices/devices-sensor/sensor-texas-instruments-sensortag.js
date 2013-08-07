@@ -61,12 +61,9 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
     logger.info('device/' + self.deviceID, { status: self.status });
   });
 
-  self.sensor.discoverServices(function() {
-console.log('>>> services discovered');
-    self.sensor.discoverCharacteristics(function() {
-console.log('>>> characteristics discovered');
+  self.sensor.discoverServicesAndCharacteristics(function() {
+console.log('>>> services and characteristics discovered');
       self.ready(self);
-    });
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
