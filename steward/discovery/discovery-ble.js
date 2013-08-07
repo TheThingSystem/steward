@@ -50,7 +50,7 @@ exports.start = function() {
       return;
     }
 
-    peripheral_scan(peripheral, function(ble) {
+    peripheral_scan(peripheral, function(ble, peripheral) {
       var info, name, x, y, z;
 
       var value = function(s, c) {
@@ -810,14 +810,14 @@ var peripheral_scan = function(peripheral, callback) {
             }
           }
         }
-        if (--zero === 0) callback(ble);
+        if (--zero === 0) callback(ble, peripheral);
       };
     };
 
     var characteristicRead = function(characteristic) {
       return function(data, isNotification) {/* jshint unused: false */
         characteristic.value = data;
-        if (--zero === 0) callback(ble);
+        if (--zero === 0) callback(ble, peripheral);
       };
     };
 
@@ -830,7 +830,7 @@ var peripheral_scan = function(peripheral, callback) {
           o = uuidmap[d.uuid] || { name: null, type: '' };
           characteristic.descriptors[d.uuid] = { name: o.name, type: o.type };
         }
-        if (--zero === 0) callback(ble);
+        if (--zero === 0) callback(ble, peripheral);
       };
     };
 
@@ -845,7 +845,7 @@ var peripheral_scan = function(peripheral, callback) {
       s.on('characteristicsDiscover', characteristicsDiscover(ble[s.uuid]));
       s.discoverCharacteristics();
     }
-    if (--zero === 0) callback(ble);
+    if (--zero === 0) callback(ble, peripheral);
   });
 
   peripheral.connect();
