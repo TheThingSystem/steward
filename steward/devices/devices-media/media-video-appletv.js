@@ -198,7 +198,6 @@ exports.start = function() {
                                        'play'
                                      , 'stop'
                                      , 'pause'
-                                     , 'set'
                                      ]
                       , properties : { name    : true
                                      , status  : [ 'idle', 'playing', 'paused' ]

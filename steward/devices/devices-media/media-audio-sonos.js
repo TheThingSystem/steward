@@ -363,12 +363,12 @@ exports.start = function() {
       { $info     : { type       : '/device/media/sonos/audio'
                     , observe    : [ ]
                     , perform    : [ 'play'
-                                   , 'queueNext'
                                    , 'stop'
                                    , 'pause'
+                                   , 'queueNext'
+                                   , 'flush'
                                    , 'next'
                                    , 'previous'
-                                   , 'flush'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused', 'busy', 'error' ]
