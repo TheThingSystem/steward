@@ -178,9 +178,9 @@ exports.start = function() {
                                    , temperature   : 'celsius'
                                    , humidity      : 'percentage'
                                    , pressure      : 'millibars'
-                                   , acceleration  : 'meters/second^2'
-                                   , magnetism     : 'microteslas'
-                                   , orientation   : 'degrees/second'
+                                   , acceleration  : { x: 'meters/second^2', y: 'meters/second^2', z: 'meters/second^2' }
+                                   , magnetism     : { x: 'microteslas',     y: 'microteslas',     z: 'microteslas'     }
+                                   , orientation   : { x: 'degrees/second',  y: 'degrees/second',  z: 'degrees/second'  }
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

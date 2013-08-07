@@ -57,6 +57,7 @@ These require the RFXrec433 gateway:
 ### [blinkstick/led](http://www.blinkstick.com) - _complete_
 
 ### [hue/led](http://www.meethue.com) - _complete_
+You must press the center _pairing button_ to authorize the steward to talk to the Hue bridge.
 
 ### [insteon/led](http://www.insteon.com/bulb.html) - _complete_
 Requires either the Insteon hub or SmartLinc.
@@ -92,6 +93,7 @@ The Roku API lacks monitoring calls (e.g., "what is running" or "what is it doin
 ## /device/sensor
 
 ### [texas-instruments/sensortag](http://processors.wiki.ti.com/index.php/SensorTag_User_Guide) - _complete_ - thank you [@sandeepmistry](https://github.com/sandeepmistry)!
+Be careful: you can exhaust the battery very quickly -- use this as a multi-function sensor, not a presence beacon.
 
 ### [wemo/motion](http://www.belkin.com/us/wemo-motion) - _complete_
 
