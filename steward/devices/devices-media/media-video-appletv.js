@@ -1,7 +1,6 @@
 // AppleTV media player: http://www.appletv.com/developer
 
 var airplay     = require('airplay')
-  , stringify   = require('json-stringify-safe')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
