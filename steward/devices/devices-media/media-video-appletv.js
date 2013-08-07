@@ -1,6 +1,7 @@
 // AppleTV media player: http://www.appletv.com/developer
 
 var airplay     = require('airplay')
+  , stringify   = require('json-stringify-safe')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -36,6 +37,9 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
     self.status = 'idle';
     self.changed();
     self.refresh();
+/* LATER: look at self.appletv.serverInfo_.features: 1: video, 2: photo, 4: video volume control, 64: slideshow, 512: audio
+ */
+
     logger.info('device/' + self.deviceID, self.appletv.serverInfo_);
   });
 
@@ -53,7 +57,7 @@ AppleTV.operations = {
   stop : function(device, params) {/* jshint unused: false */
     device.stop();
   }
-, play : function(device, params) {/* jshint unused: false */
+, play : function(device, params) {
     if (params && params.url) {
       device.play(params.url, 0);
     } else {
@@ -63,36 +67,32 @@ AppleTV.operations = {
 , pause : function(device, params) {/* jshint unused: false */
     device.rate(0.0);
   }
-, 'set' : function(device, params) {/* jshint unused: false */
-    if (params) {
-      if (typeof params.position !== 'undefined') {
-        var position = parseFloat(params.position);
-        if (isNaN(position)) {
-          position = 0;
-        }
-
-        device.scrub(position/1000);
-      }
-    }
-
-    devices.perform(self, taskID, perform, JSON.stringify(params));
-  }
 };
 
 
 AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
-  try { params = JSON.parse(parameter); } catch(e) {}
+  var params, position;
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (!!AppleTV.operations[perform]) {
-    AppleTV.operations[perform](this.appletv, params);
+    AppleTV.operations[perform](self.appletv, params);
 
-    this.refresh();
+    self.refresh();
 
     return steward.performed(taskID);
   }
 
-  return false;
+  if ((perform === 'set') && (!!params.position)) {
+    position = parseFloat(params.position);
+    if (isNaN(position)) {
+      position = 0;
+    }
+
+    self.appletv.scrub(position/1000);
+  }
+
+  return devices.perform(self, taskID, perform, parameter);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -110,9 +110,7 @@ AppleTV.prototype.refresh = function() {
   var self = this;
 
   this.appletv.status(function(err, stats) {
-    if (err) {
-      return logger.error(err);
-    }
+    if (err) return logger.error('device/' + self.deviceID, { event: 'status', diagnostic: err.message });
 
     var status = self.status;
 
