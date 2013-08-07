@@ -91,6 +91,8 @@ exports.start = function() {
         }
       }
 
+      peripheral.removeAllListeners();
+
       info = { source: 'ble', ble: ble, peripheral: peripheral };
       name = peripheral.advertisement.localName;
       if (!name) name = value('1800', '2a00');
