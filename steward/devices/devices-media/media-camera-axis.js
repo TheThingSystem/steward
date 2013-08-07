@@ -5,10 +5,10 @@
 exports.start = function() {};
 if (true) return;
 
-var 
+var
 /*
     axis        = require('axiscam')
-  , 
+  ,
  */
     mdns        = require('mdns')
   , util        = require('util')

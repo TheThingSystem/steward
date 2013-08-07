@@ -117,7 +117,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
            , goalTemperature : (!!station.time_to_target) ? data.target_temperature : data.current_temperature
            , humidity        : station.current_humidity
            , hvac            : (!!data.hvac_ac_state)           ? 'cool'
-                                   : (!!data.hvac_heater_state) ? 'heat' 
+                                   : (!!data.hvac_heater_state) ? 'heat'
                                    : (!!data.hvac_fan_state)    ? 'fan' : 'off'
            , away            : (!!away)                         ? 'on'  : 'off'
            , leaf            : (!!station.leaf)                 ? 'on'  : 'off'

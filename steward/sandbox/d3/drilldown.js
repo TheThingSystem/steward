@@ -1336,6 +1336,10 @@ var entries = {
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
+              , '/device/media/appletv/video'               : { img     : 'actors/appletv.svg'
+                                                              , single  : single_media_drilldown
+                                                              , arcs    : media_device_arcs
+                                                              }
               , '/device/media/sonos/audio'                 : { img     : 'actors/sonos-playbar.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
@@ -1361,6 +1365,10 @@ var entries = {
                                                               , arcs    : presence_device_arcs
                                                               }
               , '/device/sensor/arduino/mat'                : { img     : 'actors/arduino.svg'
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
+                                                              }
+              , '/device/sensor/texas-instruments/sensortag': { img     : 'actors/ti-sensor.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
                                                               }

@@ -13,13 +13,11 @@ gyro [degrees/second]3
  */
 
 var sensortag   = require('sensortag')
-  , stringify   = require('json-stringify-safe')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , sensor      = require('./../device-sensor')
-  , sensor   = require('./../device-sensor')
   ;
 
 
@@ -62,8 +60,81 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.sensor.discoverServicesAndCharacteristics(function() {
-console.log('>>> services and characteristics discovered');
-      self.ready(self);
+    var feature, features;
+
+    features =
+      { Humidity           : function(temperature, humidity) {
+                               var didP   = false
+                                 , params = { lastSample: new Date().getTime() }
+                                 ;
+
+                               if (self.info.temperature !== temperature) {
+                                 didP = true;
+                                 params.temperature = self.info.temperature = temperature;
+                               }
+                               humidity = humidity.toFixed(0);
+                               if (self.info.humidity !== humidity) {
+                                 didP = true;
+                                 params.humidity = self.info.humidity = humidity;
+                               }
+                               self.info.lastSample = params.lastSample;
+                               if (didP) return self.update(self, params);
+                             }
+      , BarometricPressure :
+                             function(pressure) {
+                               var didP   = false
+                                 , params = { lastSample: new Date().getTime() }
+                                 ;
+
+                               pressure = (pressure * 1.33322368).toFixed(0);
+                               if (self.info.pressure !== pressure) {
+                                 didP = true;
+                                 params.pressure = self.info.pressure = pressure;
+                               }
+                               self.info.lastSample = params.lastSample;
+                               if (didP) return self.update(self, params);
+                             }
+      , Accelerometer      :
+                             function(x, y, z) {
+                               var didP = false;
+
+                               // convert to m/s^2
+                               x = (x * 9.80665).toFixed(2); y = (y * 9.80665).toFixed(2); z = (z * 9.80665).toFixed(2);
+                               if (!self.info.acceleration) self.info.acceleration = {};
+                               if (self.info.acceleration.x != x) { didP = true; self.info.acceleration.x = x; }
+                               if (self.info.acceleration.y != y) { didP = true; self.info.acceleration.y = y; }
+                               if (self.info.acceleration.z != z) { didP = true; self.info.acceleration.z = z; }
+                               self.info.lastSample = new Date().getTime();
+                               if (didP) self.changed();
+                             }
+      , Magnetometer       :
+                             function(x, y, z) {
+                               var didP = false;
+
+                               x = x.toFixed(0); y = y.toFixed(0); z = z.toFixed(0);
+                               if (!self.info.magnetism) self.info.magnetism = {};
+                               if (self.info.magnetism.x != x) { didP = true; self.info.magnetism.x = x; }
+                               if (self.info.magnetism.y != y) { didP = true; self.info.magnetism.y = y; }
+                               if (self.info.magnetism.z != z) { didP = true; self.info.magnetism.z = z; }
+                               self.info.lastSample = new Date().getTime();
+                               if (didP) self.changed();
+                             }
+      , Gyroscope          :
+                             function(x, y, z) {
+                               var didP = false;
+
+                               x = x.toFixed(2); y = y.toFixed(2); z = z.toFixed(2);
+                               if (!self.info.orientation) self.info.orientation = {};
+                               if (self.info.orientation.x != x) { didP = true; self.info.orientation.x = x; }
+                               if (self.info.orientation.y != y) { didP = true; self.info.orientation.y = y; }
+                               if (self.info.orientation.z != z) { didP = true; self.info.orientation.z = z; }
+                               self.info.lastSample = new Date().getTime();
+                               if (didP) self.changed();
+                             }
+      };
+    for (feature in features) if (features.hasOwnProperty(feature)) self.monitor(self, feature, features[feature]);
+
+//    self.ready(self);
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -74,40 +145,21 @@ console.log('>>> services and characteristics discovered');
 };
 util.inherits(SensorTag, sensor.Device);
 
-SensorTag.prototype.ready = function(self) {
-console.log('>>> ready');
-  self.sensor.enableHumidity(function(err) {
-console.log('>>> humidity enabled');
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'enableHumidity', diagnostic: err.message });
+SensorTag.prototype.monitor = function(self, feature, callback) {
+  self.sensor['enable' + feature](function(err) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'enable' + feature, diagnostic: err.message });
 
-    var cb = function(temperature, humidity) {
-console.log('>>> cb: ' + stringify({ temperature : temperature, humidity : humidity }));
-      var didP, params;
-
-      didP = false;
-      params = {};
-
-      if (self.info.temperature !== temperature) {
-        didP = true;
-        params.temperature = self.info.temperature = temperature;
-      }
-      if (self.info.humidity !== humidity) {
-        didP = true;
-        params.humidity = self.info.humidity = humidity;
-      }
-      
-      if (!didP) return;
-      sensor.update(self.deviceID, params);
-      self.changed();
-    };
-
-    self.sensor.readHumidity(cb);
-    self.sensor.on('humidityChange', cb);
-    self.sensor.notifyHumidity(function(err) {
-console.log('>>> notifyHumidity enabled');
-      if (!!err) logger.error('device/' + self.deviceID, { event: 'enableHumidity', diagnostic: err.message });
+    self.sensor['read' + feature](callback);
+    self.sensor.on(feature.substring(0, 1).toLowerCase() + feature.substring(1) + 'Change', callback);
+    self.sensor['notify' + feature](function(err) {
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'notify' + feature, diagnostic: err.message });
     });
   });
+};
+
+SensorTag.prototype.update = function(self, params) {
+  sensor.update(self.deviceID, params);
+  self.changed();
 };
 
 
@@ -126,8 +178,9 @@ exports.start = function() {
                                    , temperature   : 'celsius'
                                    , humidity      : 'percentage'
                                    , pressure      : 'millibars'
-
-                                   , accelerometer : 'meters/second'
+                                   , acceleration  : 'meters/second^2'
+                                   , magnetism     : 'microteslas'
+                                   , orientation   : 'degrees/second'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

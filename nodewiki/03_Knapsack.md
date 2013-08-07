@@ -22,6 +22,8 @@ These require the RFXrec433 gateway:
 
 ## /device/gateway/
 
+### [hue/bridge](http://www.meethue.com) - _complete_
+
 ### [insteon/hub](http://www.insteon.com/2242-222-insteon-hub.html) - _need more devices to integrate_
 
 ### [insteon/smartlinc](http://www.insteon.com/2412N-smartlinc-central-controller.html) - _need more devices to integrate_
@@ -64,8 +66,11 @@ Requires either the Insteon hub or SmartLinc.
 
 ## /device/media
 
-### [roku/video](http://www.roku.com) - _non-functional_
-The Roku API lacks monitoring calls (e.g., "what is running" or "what is it doing")
+### [appletv/video](http://www.appletv.com/developer) - _complete_ - thank you [@tmpvar](https://github.com/tmpvar)!
+The API will report "track" information only if the API was used to play the media.
+
+### [roku/video](http://www.roku.com) - _non-functional_ - thank you [@tmpvar](https://github.com/tmpvar)!
+The Roku API lacks monitoring calls (e.g., "what is running" or "what is it doing").
 
 ### [sonos/audio](http://www.sonos.com/system) - _complete_
 
@@ -85,6 +90,8 @@ The Roku API lacks monitoring calls (e.g., "what is running" or "what is it doin
 
 
 ## /device/sensor
+
+### [texas-instruments/sensortag](http://processors.wiki.ti.com/index.php/SensorTag_User_Guide) - _complete_ - thank you [@sandeepmistry](https://github.com/sandeepmistry)!
 
 ### [wemo/motion](http://www.belkin.com/us/wemo-motion) - _complete_
 
