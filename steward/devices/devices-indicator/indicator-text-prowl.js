@@ -17,7 +17,7 @@ var logger = indicator.logger;
 
 var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   var self = this
-    , previous = [];
+    , previous = {};
 
   self.growl = function(err, remaining) {
     if (err) {
@@ -54,27 +54,25 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'apikey' ];
   self.changed();
 
-  broker.subscribe('beacon-egress', function(category, datum) {
-    var parameter, x;
+  broker.subscribe('beacon-egress', function(category, data) {
+    var datum, i, now, parameter;
 
-    if (util.isArray(datum)) datum = datum[0];
+    if (!util.isArray(data)) data = [ data ];
+    for (i = 0; i < data.length; i++) {
+      datum = data[i];
 
-    if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) return;
+      if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) continue;
 
-    parameter = category + ': ' + datum.message;
-    if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
+      if (!previous[datum.level]) previous[datum.level] = {};
+      now = new Date(datum.date).getTime();
+      if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
+      previous[datum.level][datum.message] = now + (60 * 1000);
 
-    x = previous.indexOf(parameter);
-    if (x !== -1) {
-      if ((x + 1) !== previous.length) {
-        previous.splice(x, 1);
-        previous.push(parameter);
-      }
-      return;
+      parameter = category + ': ' + datum.message;
+      if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
+
+      self.prowl.push(self.prefix2 + parameter, self.appname, self.growl);
     }
-    if (previous.push(parameter) > 3) previous.shift();
-
-    self.prowl.push(self.prefix2 + parameter, self.appname, self.growl);
   });
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {

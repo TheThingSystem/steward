@@ -280,6 +280,7 @@ Hue.prototype.pair = function(self) {
     }
 
     errors = result.errors;
+if (errors.length > 0) {console.log('>>> pair errors: ');console.log(errors);}
     for (i = 0; i < errors.length; i++) {
       if (errors[i].type == 101) {
         self.waitingP = true;
@@ -320,6 +321,7 @@ Hue.prototype.refresh = function(self) {
     if (err) return;
 
     errors = result.errors;
+if (errors.length > 0) {console.log('>>> refresh errors: ');console.log(errors);}
     for (i = 0; i < errors.length; i++) {
       logger.error('device/' + self.deviceID, { event: 'controller', parameter: 'refresh', diagnostic: stringify(errors[i]) });
     }
@@ -351,10 +353,19 @@ Hue.prototype.refresh = function(self) {
     if (err) return;
 
     errors = result.errors;
+if (errors.length > 0) {console.log('>>> refreshB errors: ');console.log(errors);}
     for (i = 0; i < errors.length; i++) {
       logger.error('device/' + self.deviceID, { event: 'controller', parameter: 'lights', diagnostic: stringify(errors[i]) });
     }
-    if (errors.length > 0) return;
+    if (errors.length > 0) {
+      self.username = undefined;
+      self.waitingP = false;
+      db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
+             { $deviceID: self.deviceID, $key: 'username' }, function(err) {
+        if (err) logger.error('device/' + self.deviceID, { event: 'DELETE username', diagnostic: err.message });
+      });
+      return self.changed();
+    }
 
     if (!(results = result.results)) return;
     for (prop in results) if (results.hasOwnProperty(prop)) self.addlight(self, prop, results[prop]);
@@ -439,6 +450,7 @@ Hue.prototype.refresh2 = function(self, id, oops) {
    }
 
     errors = result.errors;
+if (errors.length > 0) {console.log('>>> refresh2 ' + id + '  errors: ');console.log(errors);}
     for (i = 0; i < errors.length; i++) {
       logger.error('device/' + self.deviceID, { event: 'light ' + id, parameter: 'lights', diagnostic: stringify(errors[i]) });
     }

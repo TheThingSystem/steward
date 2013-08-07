@@ -2,12 +2,15 @@
 // Axis network cameras - http://www.axis.com/products/video/camera/
 
 
-        exports.start = function() {};
-        return;
+exports.start = function() {};
+if (true) return;
 
-var url         = require('url')
-  , axis        = require('axiscam')
-  , mdns        = require('mdns')
+var 
+/*
+    axis        = require('axiscam')
+  , 
+ */
+    mdns        = require('mdns')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')

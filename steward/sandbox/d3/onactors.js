@@ -1,6 +1,6 @@
 // returns an array with the most interesting devices
 
-var ambient = 'white';
+var ambient = '#888888';
 
 var thePlace = function(message) {
   var entry, id, result;
@@ -12,7 +12,7 @@ var thePlace = function(message) {
   entry = result['/place'][id];
   if (!entry) return null;
 
-  ambient = d3.kelvin.solar[entry.info.solar] || 'white';
+//  ambient = d3.kelvin.solar[entry.info.solar] || 'white';
 
   return entry;
 };
@@ -81,6 +81,7 @@ var allTags = function(message) {
     }
   }
 
+  id = '/group';
   tags = {};
   for (actor in result[id]) {
     if (!result[id].hasOwnProperty(actor)) continue;
@@ -142,6 +143,15 @@ var sorted = function(o) {
 // returns the status color associated with a device
 
 var statusColor = function(entry) {
+  var color = statusColor2(entry)
+    , rgb   = d3.rgb(color)
+    ;
+
+  if ((rgb.r + rgb.g + rgb.b) > 30) return color;
+  return d3.rgb((rgb.r * 2) + 30, (rgb.b * 2) + 30, (rgb.b * 2) + 30);
+}
+
+var statusColor2 = function(entry) {
   var color;
 
   if (!!entry.info.color) {
@@ -187,7 +197,7 @@ var statusColor = function(entry) {
       return '#ff3000';
 
     default:
-      return 'black';
+      return ambient;
   }
 };
 

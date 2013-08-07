@@ -103,7 +103,7 @@ RoboSmart.prototype.refresh = function(self) {
         var bri;
 
         if (data === undefined) return;
-        bri = data[0] & 0xff;
+        bri = devices.percentageValue(data[0] & 0xff, 255);
         if (self.info.brightness !== bri) { self.info.brightness = bri; self.changed(); }
       });
       c.ff12.endpoint.read();

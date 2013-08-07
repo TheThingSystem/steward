@@ -107,8 +107,8 @@ var scan = function() {
       if (!performance.devices.hasOwnProperty(device)) continue;
 
       parameter = devices.expand(performance.parameter);
-      logger.notice('perform',
-                    { taskID: performance.taskID, device: device, perform: performance.perform, parameter: parameter });
+      logger.info('perform',
+                  { taskID: performance.taskID, device: device, perform: performance.perform, parameter: parameter });
       broker.publish('actors', 'perform', performance.taskID, device, performance.perform, parameter);
     }
   }

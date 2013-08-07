@@ -258,7 +258,8 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
 // TBD: discover
 
 exports.start = function() {
-return;
+if (true) return;
+
   steward.actors.device.gateway.zigbee = steward.actors.device.gateway.zigbee ||
       { $info     : { type: '/device/gateway/zigbee' } };
 
