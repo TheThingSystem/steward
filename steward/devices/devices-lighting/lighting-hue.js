@@ -262,7 +262,7 @@ Hue.prototype.pair = function(self) {
     var i, results, errors;
 
     self.waitingP = false;
-    self.timer = setTimeout(function() { self.heartbeat(self); },  5 * 1000);
+    self.timer = setTimeout(function() { self.heartbeat(self); },  1 * 1000);
     logger.debug('pair: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
 
     if ((err) || (state !== 'end')) return;
