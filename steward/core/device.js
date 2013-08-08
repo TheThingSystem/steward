@@ -69,6 +69,8 @@ exports.start = function() {
       , $list   : idlist
       };
   utility.acquire(logger, __dirname + '/../devices', /^device-.*\.js/, 7, -3, ' driver');
+// cf., utility.start()
+  utility.acquiring--;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     var d, data, i, ids, info;

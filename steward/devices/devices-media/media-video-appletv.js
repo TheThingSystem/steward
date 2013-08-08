@@ -38,8 +38,6 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
     self.refresh();
 /* LATER: look at self.appletv.serverInfo_.features: 1: video, 2: photo, 4: video volume control, 64: slideshow, 512: audio
  */
-
-    logger.info('device/' + self.deviceID, self.appletv.serverInfo_);
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {

@@ -44,6 +44,9 @@ var beacon_ingress = function(category, level, message, meta) {
 
 
 exports.start = function() {
+// used to delay the server starting...
+  exports.acquiring = 1;
+
   broker.create('beacon-ingress');
   broker.subscribe('beacon-ingress', beacon_ingress);
   broker.create('beacon-egress');
