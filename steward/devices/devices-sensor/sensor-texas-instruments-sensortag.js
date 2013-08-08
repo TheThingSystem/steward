@@ -86,7 +86,7 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
                                  , params = { lastSample: new Date().getTime() }
                                  ;
 
-                               pressure = (pressure * 1.33322368).toFixed(0);
+                               pressure = pressure.toFixed(0);
                                if (self.info.pressure !== pressure) {
                                  didP = true;
                                  params.pressure = self.info.pressure = pressure;

@@ -22,8 +22,8 @@ var test = function(ifname, macaddr, ipaddr) {
   macaddr = macaddr.split('-').join('').split(':').join('').toLowerCase();
   oui = macaddr.substr(0, 6);
   if ((!pairings[oui]) || (!pairings[oui].callback)) return;
-  if (!pairings[oui].macaddrs) pairings[oui].macaddrs = {};
-  else if (pairings[oui].macaddrs[macaddr]) return;
+       if (!pairings[oui].macaddrs) pairings[oui].macaddrs = {};
+  else if (!!pairings[oui].macaddrs[macaddr]) return;
 
   pairings[oui].macaddrs[macaddr] = { ifname: ifname, ipaddr: ipaddr };
   (pairings[oui].callback)(ipaddr, macaddr, 'MAC ' + macaddr + ': ' + ipaddr);

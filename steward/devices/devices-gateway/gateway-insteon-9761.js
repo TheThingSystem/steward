@@ -588,7 +588,8 @@ var deviceTypes = {
                   , '0313' : 'PowerLinc USB - HouseLinc 2 enabled [2412UH]'
                   , '0314' : 'PowerLinc Serial - HuseLinc 2 enabled [2412SH]'
                   , '0315' : 'PowerLinc - USB (Dual Band) [2413U]'
-                  , '0337' : 'Hub [2242-2222]'
+                  , '0330' : 'Hub [2242-442]'
+                  , '0337' : 'Hub [2242-222]'
 
 // 04: irrigation control
                   , '0400' : 'Compacta/EZRain Sprinkler Controller'
@@ -830,6 +831,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
     info.ipaddress = ipaddr;
     info.deviceType = '/device/gateway/insteon/';
     switch (productCode) {
+      case '0330': info.deviceType += 'hub';       break;
       case '0337': info.deviceType += 'hub';       break;
       default:     info.deviceType += 'smartlinc'; break;
     }

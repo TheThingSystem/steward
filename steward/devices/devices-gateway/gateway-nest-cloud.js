@@ -14,6 +14,7 @@ var events      = require('events')
 var logger   = exports.logger = utility.logger('gateway');
 
 var macaddrs = {};
+var newaddrs = {};
 
 
 var Cloud = exports.Device = function(deviceID, deviceUID, info) {
@@ -37,8 +38,15 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   nest.logger = logger;
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    var macaddr;
+
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please check login credentials');
+      for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
+      for (macaddr in newaddrs) {
+        if (newaddrs.hasOwnProperty(macaddr)) self.alert('discovered Nest thermostat at ' + newaddrs[macaddr]);
+      }
+
       return;
     }
 
@@ -224,6 +232,7 @@ exports.start = function() {
   require('./../../discovery/discovery-mac').pairing([ '18:b4:30' ], function(ipaddr, macaddr, tag) {
     if (!!macaddrs[macaddr]) return;
 
-    logger.info(tag);
+    logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
+    newaddrs[macaddr] = ipaddr;
   });
 };
