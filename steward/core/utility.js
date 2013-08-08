@@ -112,11 +112,15 @@ exports.logger = function(x) {
 };
 
 
+exports.acquiring = 0;
+
 exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
+  exports.acquiring++;
+
   fs.readdir(directory, function(err, files) {
     var didP, file, i;
 
-    if (err) return log.error('readdir', { diagnostic: err.message });
+    if (err) { exports.acquiring--; return log.error('readdir', { diagnostic: err.message }); }
 
     didP = false;
     for (i = 0; i < files.length; i++) {
@@ -127,7 +131,8 @@ exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
         require(directory + '/' + file).start(arg);
       }
     }
-    if (!didP) return log.warning('no loadable modules found');
+    if (!didP) log.warning('no loadable modules found in ' + directory + ' for ' + pattern);
+    exports.acquiring--;
   });
 };
 

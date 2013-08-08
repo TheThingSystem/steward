@@ -416,10 +416,11 @@ exports.clientInfo = function(connection, secureP) {
 exports.start = function() {
   var captureP, errorP, ifa, ifaddrs, ifname, noneP;
 
+  if (utility.acquiring > 0) return setTimeout(exports.start, 10);
+
   if (exports.uuid) {
     logger.info('start', { uuid: exports.uuid });
     server.start();
-    utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js/, 6, -3, ' actor');
     setInterval(scan, 10 * 1000);
     setInterval(function() {
       var module, now;
@@ -432,6 +433,8 @@ exports.start = function() {
 
   if (loadedP) return setTimeout(exports.start, 10);
   loadedP = true;
+
+  utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js/, 6, -3, ' actor');
 
   errorP = false;
   noneP = true;
