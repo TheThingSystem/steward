@@ -12,6 +12,9 @@ var Netatmo     = require('node-netatmo')
 
 var logger   = exports.logger = utility.logger('gateway');
 
+var macaddrs = {};
+var newaddrs = {};
+
 var client1  = '517b8e981977597607000008'
   , client2  = 'uyNPPB7ds1ARkmIpxqiK3ojaVPndm7ny'
   ;
@@ -36,8 +39,16 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.timer = null;
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    var macaddr;
+
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please check login credentials');
+
+      for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
+      for (macaddr in newaddrs) {
+        if (newaddrs.hasOwnProperty(macaddr)) self.alert('discovered Netatmo Weather Station at ' + newaddrs[macaddr]);
+      }
+
       return;
     }
 
@@ -147,6 +158,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   info.url = info.device.url;
   info.deviceType = '/device/climate/netatmo/sensor';
   info.id = info.device.unit.udn;
+  macaddrs[station._id.split('-').join('').split(':').join('').toLowerCase()] = true;
 
   logger.debug(info.device.name, { id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
@@ -222,4 +234,11 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/netatmo/cloud'] = Cloud;
+
+  require('./../../discovery/discovery-mac').pairing([ '70:ee:50' ], function(ipaddr, macaddr, tag) {
+    if (!!macaddrs[macaddr]) return;
+
+    logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
+    newaddrs[macaddr] = ipaddr;
+  });
 };
