@@ -43,7 +43,7 @@ var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Roku_Video, media.Device);
 
 
-Roku_Video.prototype.operations = {
+Roku_Video.operations = {
   'stop' : function(device, params) {/* jshint unused: false */
     device.press(Roku.BACK);
     device.delay(500);
@@ -71,8 +71,8 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
   try { params = JSON.parse(parameter); } catch(e) {}
 
-  if (!!this.operations[perform]) {
-    this.operations[perform](this.roku, params);
+  if (!!Roku_Video.operations[perform]) {
+    Roku_Video.operations[perform](this.roku, params);
     return steward.performed(taskID);
   }
 
@@ -80,7 +80,7 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 var validate_perform = function(perform, parameter) {
-  if (!!this.operation[perform]) return { invalid: [], requires: [] };
+  if (!!Roku_Video.operations[perform]) return { invalid: [], requires: [] };
 
   return devices.validate_perform(perform, parameter);
 };
