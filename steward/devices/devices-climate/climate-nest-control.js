@@ -22,6 +22,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.serial = info.device.unit.serial;
 
   self.info = {};
   for (param in info.params) {
@@ -57,19 +58,19 @@ Sensor.prototype.update = function(self, params) {
 };
 
 Sensor.operations = {
-  set: function(nest, params) {
+  set: function(sensor, params) {
 
-    // TODO: we need to associate the incoming nest with it's device ID
-    nest.serial = null;
+    var serial = sensor.serial;
+    var nest = sensor.gateway.nest;
 
     Object.keys(params).forEach(function(key) {
       var value = params[key];
 
       if (key === 'away') {
         if (value === 'on') {
-          nest.setAway(nest.serial);
+          nest.setAway(serial);
         } else {
-          nest.setHome(nest.serial);
+          nest.setHome(serial);
         }
       }
 
@@ -78,11 +79,11 @@ Sensor.operations = {
           case 'off':
           case 'cool':
           case 'heat':
-            nest.setTargetTemperatureType(nest.serial, value);
+            nest.setTargetTemperatureType(serial, value);
           break;
 
           case 'fan':
-            nest.setFanModeOn(nest.serial);
+            nest.setFanModeOn(serial);
           break;
         }
       }
@@ -91,23 +92,23 @@ Sensor.operations = {
         switch (value) {
 
           case 'on':
-            nest.setFanMode(nest.serial, value);
+            nest.setFanMode(serial, value);
           case 'off':
           case 'auto':
-            nest.setFanMode(nest.serial, 'auto');
+            nest.setFanMode(serial, 'auto');
           break;
 
           default:
             var time = parseInt(value);
             if (!isNaN(time)) {
-              nest.setFanMode(nest.serial, 'duty-cycle', time);
+              nest.setFanMode(serial, 'duty-cycle', time);
             }
           break;
         }
       }
 
       if (key === 'goalTemperature') {
-        nest.setTemperature(nest.serial, value);
+        nest.setTemperature(serial, value);
       }
 
     });
