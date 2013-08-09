@@ -62,16 +62,18 @@ Sensor.operations = {
 
     var serial = sensor.serial;
     var nest = sensor.gateway.nest;
+    var performed = false;
 
     Object.keys(params).forEach(function(key) {
       var value = params[key];
 
       if (key === 'away') {
         if (value === 'on') {
-          nest.setAway(serial);
+          nest.setAway();
         } else {
-          nest.setHome(serial);
+          nest.setHome();
         }
+        performed = true;
       }
 
       if (key === 'hvac') {
@@ -86,6 +88,7 @@ Sensor.operations = {
             nest.setFanModeOn(serial);
           break;
         }
+        performed = true;
       }
 
       if (key === 'fan') {
@@ -103,13 +106,17 @@ Sensor.operations = {
             }
           break;
         }
+        performed = true;
       }
 
       if (key === 'goalTemperature') {
         nest.setTemperature(serial, value);
+        performed = true;
       }
 
     });
+
+    return performed;
   }
 };
 
@@ -118,16 +125,44 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
   try { params = JSON.parse(parameter); } catch(e) {}
 
   if (!!Sensor.operations[perform]) {
-    Sensor.operations[perform](this.gateway.nest, params);
-    return steward.performed(taskID);
+    if (Sensor.operations[perform](this, params)) {
+      return steward.performed(taskID);
+    }
   }
 
   return devices.perform(self, taskID, perform, parameter);
 };
 
+var checkParam = function(key, params, result, allowNumeric, map) {
+  if (typeof params[key] !== 'undefined') {
+
+    var defined = typeof map[params[key]] !== 'undefined';
+
+    if ((!defined && !allowNumeric) || (!defined && allowNumeric && isNaN(parseInt(params[key], 10)))) {
+      result.invalid.push(key);
+    }
+  }
+};
+
 var validate_perform = function(perform, parameter) {
-  // TODO: check values here
-  if (!!Sensor.operations[perform]) return { invalid: [], requires: [] };
+  var result = { invalid: [], requires: [] }, params;
+
+  try { params = JSON.parse(parameter); } catch(e) {}
+
+  if (!!Sensor.operations[perform]) {
+    if (perform === 'set') {
+      if (!params) {
+        result.requires.push('parameter');
+        return result;
+      }
+
+      checkParam('away', params, result, false, { on: 1, off: 1 });
+      checkParam('hvac', params, result, false, { heat: 1, cool: 1, off: 1, fan: 1 });
+      checkParam('fan', params, result, true, { on: 1, auto: 1 });
+      checkParam('goalTemperature', params, result, true, {});
+    }
+    return result;
+  }
 
   return devices.validate_perform(perform, parameter);
 };
