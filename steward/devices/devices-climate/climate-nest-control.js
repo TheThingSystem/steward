@@ -64,56 +64,56 @@ Sensor.operations = {
     var nest = sensor.gateway.nest;
     var performed = false;
 
-    Object.keys(params).forEach(function(key) {
-      var value = params[key];
-
-      if (key === 'away') {
-        if (value === 'on') {
-          nest.setAway();
-        } else {
-          nest.setHome();
-        }
+    var attempt_perform = function(key, fn) {
+      if (typeof params[key] !== 'undefined') {
+        fn(params[key])
         performed = true;
       }
+    };
 
-      if (key === 'hvac') {
-        switch (value) {
-          case 'off':
-          case 'cool':
-          case 'heat':
-            nest.setTargetTemperatureType(serial, value);
-          break;
 
-          case 'fan':
-            nest.setFanModeOn(serial);
-          break;
-        }
-        performed = true;
+    attempt_perform('away', function(value) {
+      if (value === 'on') {
+        nest.setAway();
+      } else {
+        nest.setHome();
       }
+    });
 
-      if (key === 'fan') {
-        switch (value) {
 
-          case 'on':
-          case 'auto':
-            nest.setFanMode(serial, value);
-          break;
+    attempt_perform('hvac', function(value) {
+      switch (value) {
+        case 'off':
+        case 'cool':
+        case 'heat':
+          nest.setTargetTemperatureType(serial, value);
+        break;
 
-          default:
-            var time = parseInt(value);
-            if (!isNaN(time)) {
-              nest.setFanMode(serial, 'duty-cycle', time);
-            }
-          break;
-        }
-        performed = true;
+        case 'fan':
+          nest.setFanModeOn(serial);
+        break;
       }
+    });
 
-      if (key === 'goalTemperature') {
-        nest.setTemperature(serial, value);
-        performed = true;
+    attempt_perform('fan', function(value) {
+      switch (value) {
+
+        case 'on':
+        case 'auto':
+          nest.setFanMode(serial, value);
+        break;
+
+        default:
+          var time = parseInt(value);
+          if (!isNaN(time)) {
+            nest.setFanMode(serial, 'duty-cycle', time);
+          }
+        break;
       }
+    });
 
+    attempt_perform('goalTemperature', function(value) {
+      nest.setTemperature(serial, value);
     });
 
     return performed;
