@@ -92,10 +92,8 @@ Sensor.operations = {
         switch (value) {
 
           case 'on':
-            nest.setFanMode(serial, value);
-          case 'off':
           case 'auto':
-            nest.setFanMode(serial, 'auto');
+            nest.setFanMode(serial, value);
           break;
 
           default:
