@@ -37,8 +37,6 @@ These require the RFXrec433 gateway:
 
 ### [telsa/cloud](http://www.teslamotors.com/) - _complete_
 
-### [zigbee/gmo](http://www.exegin.com/hardware/q53app.php) - _development incomplete_
-
 
 ## /device/indicator
 
@@ -81,6 +79,8 @@ The Roku API lacks monitoring calls (e.g., "what is running" or "what is it doin
 
 
 ## /device/presence
+
+### [fob/hipkey](http://hippih.com) - _complete_
 
 ### [fob/hone](http://gethone.com) - _complete_
 
