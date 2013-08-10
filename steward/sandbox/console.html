@@ -295,14 +295,14 @@ var pretty_msg = function(category, message) {
   if ((category !== 'server') && (category !== 'manage')) return message;
 
   parts = message.split(' ');
-  if ((parts.length >= 4)
+  if ((parts.length >= 3)
         && (   (parts[0] === 'http') || (parts[0] === 'https')
             || (parts[0] === 'ws')   || (parts[0] === 'wss')
             || (parts[0] === 'tls')  || (parts[0] === 'cloud'))) {
     var scheme = '      ' + parts[0]
-      , host   = parts[1] + '    '
+      , host   = parts[1] + '                '
       , port   = '      ' + parts[2]
-      , line   = scheme.slice(-5) + ' ' + host.slice(0,15) + ' ' + port.slice(-5);
+      , line   = scheme.slice(-5) + ' ' + host.slice(0,14) + ' ' + port.slice(-5);
 
     return line.replace(/ /g, '&nbsp;');
   }

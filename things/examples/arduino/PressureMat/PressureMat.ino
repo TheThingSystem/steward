@@ -16,10 +16,8 @@ byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
 
 char packetBuffer[512];
 
-//PROGMEM prog_char *initialPacket = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"1\",\"things\":{\"/device/sensor/arduino/mat\":{\"prototype\":{\"device\":{\"name\":\"60# pressure mat (902PR)\",\"maker\":\"United Security Products\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[]}}}";
-
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/mat\":{\"prototype\":{\"device\":{\"name\":\"60# pressure mat (902PR)\",\"maker\":\"United Security Products\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/seated-mat\":{\"prototype\":{\"device\":{\"name\":\"7-10# Chair Occupancy Sensor Mat\",\"maker\":\"RECORA\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-mat\"},\"info\":{\"contact\":\"";
 PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":\"";

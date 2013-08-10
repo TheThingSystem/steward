@@ -1,9 +1,10 @@
 // +++ under development
 // Axis network cameras - http://www.axis.com/products/video/camera/
 
-
-exports.start = function() {};
-if (true) return;
+if ((process.arch === 'arm') && (process.platform === 'linux')) {
+  exports.start = function() {};
+  return;
+}
 
 var
 /*
