@@ -3,8 +3,7 @@ Here is the current implementation status.
 
 ## /device/climate
 
-### [nest/control](http://nest.com) - _incomplete_
-Currently monitoring only, no control.
+### [nest/control](http://nest.com) - _complete_ - thank you [@tmpvar](https://github.com/tmpvar) for the 'set' functionality!
 
 ### [netatmo/sensor](http://www.netatmo.com) - _complete_
 

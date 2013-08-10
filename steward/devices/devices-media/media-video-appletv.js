@@ -176,7 +176,7 @@ exports.start = function() {
     info.id = info.device.unit.udn;
     if (devices.devices[info.id]) return;
 
-    logger.info('mDNS ' + info.device.name, { url: info.url });
+    discovery.info('mDNS ' + info.device.name, { url: info.url });
     devices.discover(info);
 
   }).on('serviceDown', function(service) {

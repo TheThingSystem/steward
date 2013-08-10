@@ -66,7 +66,7 @@ Sensor.operations = {
 
     var attempt_perform = function(key, fn) {
       if (typeof params[key] !== 'undefined') {
-        fn(params[key])
+        fn(params[key]);
         performed = true;
       }
     };
@@ -104,7 +104,7 @@ Sensor.operations = {
         break;
 
         default:
-          var time = parseInt(value);
+          var time = parseInt(value, 10);
           if (!isNaN(time)) {
             nest.setFanMode(serial, 'duty-cycle', time);
           }
@@ -179,11 +179,12 @@ exports.start = function() {
                                    , status          : [ 'present' ]
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
-                                   , goaltemperature : 'celsius'
                                    , humidity        : 'percentage'
-                                   , hvac            : [ 'cool', 'heat', 'fan', 'off' ]
-                                   , away            : [ 'on', 'off' ]
                                    , leaf            : [ 'on', 'off' ]
+                                   , away            : [ 'on', 'off' ]
+                                   , hvac            : [ 'cool', 'heat', 'fan', 'off' ]
+                                   , fan             : [ 'on', 'auto', 'minutes' ]
+                                   , goalTemperature : 'celsius'
                                    }
                     }
         , $validate : { perform    : validate_perform }

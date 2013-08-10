@@ -19,35 +19,25 @@ PRIOR TO BETA RELEASE
 
     1.1. RPi: needs BLE
 
-    1.2. BBB: needs WiFi
+    1.2. BBB: needs package manager, WiFi, etc.
 
 2. documentation
 
-    2.1. review (AA: July)
-
-    2.2. how to write a client
-
-    2.3. how to add a thing to the steward
-
-    2.4. how to write magic
+    2.1. how to write magic
 
 3. device implementations
 
-    3.1. appleTV (EI: July)
+    3.1. chromecast (EI: August)
 
-    3.2. nest control functions (EI: August)
+    3.2. webcam (EI: August)
 
-    3.3. webcam (EI: August)
+    3.3. ecobee (EI: August)
 
-    3.4. ecobee (EI: August)
+    3.4. swivl ptz
 
-    3.5. TI sensortag
+    3.5. romo
 
-    3.6. swivl ptz
-
-    3.7. romo
-
-    3.8. galileo
+    3.6. galileo
 
 4. internals
 
@@ -63,6 +53,6 @@ PRIOR TO BETA RELEASE
 
 6. clients
 
-    6.1. json/d3 client (Becky, Danny: July)
+    6.1. json/d3 client improvements
 
     6.2. arduino: LED blinking on/off, DHT-22 sensor (temperature/humidity), pressure mat, MQ-7 (carbon monoxide), MD0550 (wind)
