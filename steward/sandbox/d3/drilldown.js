@@ -966,7 +966,7 @@ var motive_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'ODOMETER'
                           , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' miles'
-                          , value  : clip2bars(v, 0, 161000)
+                          , value  : clip2bars(v % 20000, 0, 20000)
                           , index  : 0.40
                           });
         break;
