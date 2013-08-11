@@ -272,7 +272,7 @@ var register = exports.register = function(logger, ws, api, message, tag) {
 };
 
 var update = function(logger, ws, api, message, tag) {
-  var child, device, prop, props, results, thingID;
+  var child, device, props, results, thingID;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing updating', message.requestID, permanent, diagnostic);
@@ -306,8 +306,7 @@ var update = function(logger, ws, api, message, tag) {
     } catch(ex) { device.changed(); }
     device.ping(device);
     if (!!props.uptime) device.bootime = device.updated - props.uptime;
-// NB: should make sure that prop is defined in props...
-    for (prop in props.info) if (props.info.hasOwnProperty(prop)) device.info[prop] = props.info[prop];
+    device.addinfo(props.info);
 
     results.things[thingID] = { success: true };
   }

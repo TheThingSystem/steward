@@ -67,7 +67,7 @@ var handle = function(message, tag) {
 };
 
 var register = function(message, data, tag) {
-  var device, didP, i, info, instance, prop, props, request, requestID, results, thing, thingPath, updated;
+  var device, didP, i, info, instance, props, request, requestID, results, thing, thingPath, updated;
 
   try { results = JSON.parse(data); } catch(ex) {
     return logger.error(tag, { event: 'protodef', requestID: message.requestID, error: { diagnostic: ex.message } });
@@ -116,7 +116,7 @@ var register = function(message, data, tag) {
         device.updated = updated;
         device.ping(device);
         if (!!instance.uptime) device.bootime = updated - instance.uptime;
-        for (prop in instance.info) if (instance.info.hasOwnProperty(prop)) device.info[prop] = instance.info[prop];
+        device.addinfo(instance.info);
         continue;
       }
 

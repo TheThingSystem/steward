@@ -180,6 +180,7 @@ var Device = exports.Device = function() {
 };
 util.inherits(Device, events.EventEmitter);
 
+
 Device.prototype.children = function() { return []; };
 
 Device.prototype.proplist = function() {
@@ -200,6 +201,35 @@ Device.prototype.proplist = function() {
          };
 };
 
+Device.prototype.addinfo = function(info) {
+  var self = this;
+
+  var actors, i, path, prop;
+
+  if (!self.$properties) {
+    path = self.whatami.split('/');
+    actors = steward.actors;
+    for (i = 1; i < path.length; i++) {
+      if (!actors[path[i]]) break;
+      actors = actors[path[i]];
+    }
+    self.$properties = ((!!actors) && (!!actors.$info)) ? actors.$info.properties : {};
+  }
+
+  for (prop in info) {
+    if (!info.hasOwnProperty(prop)) continue;
+
+    if (self.$properties[prop] !== 'sigmas') {
+      self.info[prop] = info[prop];
+      continue;
+    }
+
+    if (!self.$sigmas) self.$sigmas = {};
+    if (!self.$sigmas[prop]) self.$sigmas[prop] = new Sigma();
+    self.info[prop] = self.$sigmas[prop].add(info[prop]);
+  }
+};
+
 Device.prototype.getName = function() {
   var self = this;
 
@@ -215,7 +245,6 @@ Device.prototype.getName = function() {
     }
   });
 };
-
 
 Device.prototype.setName = function(deviceName) {
   var self = this;
@@ -270,9 +299,9 @@ Device.prototype.nv = function(v) {
 exports.lastupdated = new Date().getTime();
 
 Device.prototype.changed = function(now) {
-  var info, prev, updated;
-
   var self = this;
+
+  var info, prev, updated;
 
   now = now || new Date();
   now = now.getTime();
@@ -295,11 +324,10 @@ Device.prototype.changed = function(now) {
   }
 };
 
-
 Device.prototype.alert = function(message) {
-  var info, updated;
-
   var self = this;
+
+  var info, updated;
 
   if (broker.has('beacon-egress')) {
     info = self.proplist();
@@ -310,6 +338,33 @@ Device.prototype.alert = function(message) {
     broker.publish('beacon-egress', '.updates',
                    { updated: updated, level: 'alert', message: message, whoami: info.whoami, name: info.name, info: info });
   }
+};
+
+
+var Sigma = function() {
+    var self = this;
+
+    if (!(self instanceof Sigma)) return new Sigma();
+
+    self.n = 0;
+    self.sum = 0;
+    self.sumsq = 0;
+};
+
+Sigma.prototype.add = function(v) {
+    var self = this;
+
+    var mu, sigma;
+
+    self.n++;
+    self.sum += v;
+    self.sumsq += v * v;
+
+    if (self.n < 2) return 0;
+
+    mu = self.sum / self.n;
+    sigma = Math.sqrt((self.sumsq - (self.sum * self.sum / self.n)) / (self.n - 1));
+    return ((v - mu) / sigma).toFixed(2);
 };
 
 

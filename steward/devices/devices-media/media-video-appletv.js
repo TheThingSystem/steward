@@ -19,6 +19,7 @@ var airplay     = require('airplay')
 var logger = media.logger;
 
 var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
+  var self = this;
 
   this.whatami = '/device/media/appletv/video';
   this.deviceID = deviceID.toString();
@@ -32,7 +33,6 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   this.url = info.url;
 
   var parts = url.parse(info.url);
-  var self = this;
 
   this.appletv = new airplay.Device(deviceID, {
     host : parts.hostname
@@ -104,12 +104,12 @@ var validate_perform = function(perform, parameter) {
 };
 
 AppleTV.prototype.refresh = function() {
+  var self = this;
+
   if (this.timer) { clearTimeout(this.timer); }
 
   var timeout = (this.status === 'idle') ? (5 * 1000) : 350;
   this.timer = setTimeout(this.refresh.bind(this), timeout);
-
-  var self = this;
 
   this.appletv.status(function(err, stats) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'status', diagnostic: err.message });

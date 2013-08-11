@@ -481,6 +481,7 @@ Properties are expressed in a consistent set of units:
 * _ppm_
 * _decibels_
 * _millibars_
+* _sigmas_
 
 or as an entry from a fixed set of keywords.
 

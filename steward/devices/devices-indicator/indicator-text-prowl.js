@@ -16,8 +16,9 @@ var logger = indicator.logger;
 
 
 var Prowl = exports.Device = function(deviceID, deviceUID, info) {
-  var self = this
-    , previous = {};
+  var self     = this
+    , previous = {}
+    ;
 
   self.growl = function(err, remaining) {
     if (err) {
