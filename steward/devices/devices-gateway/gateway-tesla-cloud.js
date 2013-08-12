@@ -118,7 +118,7 @@ Cloud.prototype.addvehicle = function(self, vehicle) {
                                  , description : description
                                  , number      : number.join
                                  }
-                , unit         : { serial      : self.vehicle_id
+                , unit         : { serial      : vehicle.id
                                  , udn         : udn
                                  }
                 };
@@ -126,7 +126,7 @@ Cloud.prototype.addvehicle = function(self, vehicle) {
   info.deviceType = '/device/motive/tesla/model-s';
   info.id = info.device.unit.udn;
 
-  logger.debug(info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('Tesla Motors ' + info.device.name, { id: info.device.unit.serial });
   devices.discover(info);
   self.changed();
 };

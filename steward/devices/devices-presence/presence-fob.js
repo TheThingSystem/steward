@@ -25,14 +25,22 @@ var Fob = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'present';
   self.changed();
   self.peripheral = info.peripheral;
-  self.ble = info.ble;
   self.info = { rssi: self.peripheral.rssi };
 
+  self.peripheral.connect();
   self.peripheral.on('connect', function() {
     self.peripheral.updateRssi();
+    self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], [ '2a06' ], function(err, services, characteristics) {
+      if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
+
+console.log('>>> ' + require('json-stringify-safe').stringify(services));
+console.log('>>> ' + require('json-stringify-safe').stringify(characteristics));
+      self.alert = characteristics[0];
+    });
   });
 
   self.peripheral.on('disconnect', function() {
+    self.alert = undefined;
     self.status = 'recent';
     self.changed();
 
@@ -58,7 +66,7 @@ util.inherits(Fob, presence.Device);
 
 
 Fob.prototype.perform = function(self, taskID, perform, parameter) {
-  var c, e, level, params;
+  var level, params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -70,13 +78,9 @@ Fob.prototype.perform = function(self, taskID, perform, parameter) {
 
   level = levels[params.level] || 0x00;
 
-  if (!self.ble['1802']) return;
-  c = self.ble['1802'].characteristics;
-  if (!c['2a06']) return;
-  e = c['2a06'].endpoint;
   try {
-    e.write(new Buffer([ level ]));
-    setTimeout(function() { e.write(new Buffer([ 0x00 ])); }, 2000);
+    self.alert.write(new Buffer([ level ]));
+    setTimeout(function() { self.alert.write(new Buffer([ 0x00 ])); }, 2000);
     steward.performed(taskID);
   } catch(ex) { logger.error('device/' + self.deviceID, { event: 'perform', diagnostic: ex.message }); }
 
@@ -107,7 +111,9 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var fob;
+  var fob, register;
+
+  register = require('./../../discovery/discovery-ble').register;
 
   steward.actors.device.presence.fob =
       { $info     : { type       : '/device/presence/fob'
@@ -127,24 +133,10 @@ exports.start = function() {
   steward.actors.device.presence.fob.inrange = utility.clone(fob);
   steward.actors.device.presence.fob.inrange.$info.type = '/device/presence/fob/inrange';
   devices.makers['/device/presence/fob/inrange'] = Fob;
+  register('/device/presence/fob/inrange', 'Philips AEA1000', [ '1802', '1803' ]);
 
   steward.actors.device.presence.fob.hone = utility.clone(fob);
   steward.actors.device.presence.fob.hone.$info.type = '/device/presence/fob/hone';
   devices.makers['/device/presence/fob/hone'] = Fob;
-
-  require('./../../discovery/discovery-ble').register(
-    { 'Philips'               : { '2a25' : { 'AEA1000'                : { name : 'Philips InRange'
-                                                                        , type : '/device/presence/fob/inrange'
-                                                                        }
-                                           }
-                                }
-
-    , 'GLsoft.mobi'           : { '2a24' : { 'Hone1,1'                : { type : '/device/presence/fob/hone'
-                                                                        }
-                                           }
-                                }
-
-// nothing to indicate that it's a hippih hipkey, sigh!
-    , 'Solid Semecs b.v'      : { }
-    });
+  register('/device/presence/fob/hone', 'Hone', [ '1802' ]);
 };

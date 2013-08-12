@@ -36,9 +36,9 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.peripheral = info.peripheral;
   self.sensor = new sensortag(self.peripheral);
-  self.ble = info.ble;
   self.info = { rssi: self.peripheral.rssi };
 
+  self.peripheral.connect();
   self.peripheral.on('connect', function() {
     self.peripheral.updateRssi();
   });
@@ -187,9 +187,5 @@ exports.start = function() {
       };
   devices.makers['/device/sensor/texas-instruments/sensortag'] = SensorTag;
 
-  require('./../../discovery/discovery-ble').register(
-    { 'Texas Instruments'       : { '2a00' : { 'TI BLE Sensor Tag' : { type : '/device/sensor/texas-instruments/sensortag' }
-                                             }
-                                  }
-    });
+  require('./../../discovery/discovery-ble').register('/device/sensor/texas-instruments/sensortag', 'SensorTag');
 };

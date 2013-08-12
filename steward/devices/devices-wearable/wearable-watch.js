@@ -25,14 +25,23 @@ var Watch = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'present';
   self.changed();
   self.peripheral = info.peripheral;
-  self.ble = info.ble;
   self.info = { rssi: self.peripheral.rssi };
 
+  self.peripheral.connect();
   self.peripheral.on('connect', function() {
+console.log('connected');
     self.peripheral.updateRssi();
+    self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], ['2a06' ], function(err, services, characteristics) {
+      if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
+
+console.log('>>> ' + require('json-stringify-safe').stringify(services));
+console.log('>>> ' + require('json-stringify-safe').stringify(characteristics));
+      self.alert = characteristics[0];
+    });
   });
 
   self.peripheral.on('disconnect', function() {
+    self.alert = undefined;
     self.status = 'recent';
     self.changed();
 
@@ -58,7 +67,7 @@ util.inherits(Watch, wearable.Device);
 
 
 Watch.prototype.perform = function(self, taskID, perform, parameter) {
-  var c, e, level, params;
+  var level, params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -70,13 +79,9 @@ Watch.prototype.perform = function(self, taskID, perform, parameter) {
 
   level = levels[params.level] || 0x00;
 
-  if (!self.ble['1802']) return;
-  c = self.ble['1802'].characteristics;
-  if (!c['2a06']) return;
-  e = c['2a06'].endpoint;
   try {
-    e.write(new Buffer([ level ]));
-    setTimeout(function() { e.write(new Buffer([ 0x00 ])); }, 2000);
+    self.alert.write(new Buffer([ level ]));
+    setTimeout(function() { self.alert.write(new Buffer([ 0x00 ])); }, 2000);
     steward.performed(taskID);
   } catch(ex) { logger.error('device/' + self.deviceID, { event: 'perform', diagnostic: ex.message }); }
 
@@ -106,7 +111,9 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var watch;
+  var register, watch;
+
+  register = require('./../../discovery/discovery-ble').register;
 
   steward.actors.device.wearable.watch =
       { $info     : { type       : '/device/wearable/watch'
@@ -126,19 +133,11 @@ exports.start = function() {
   steward.actors.device.wearable.watch.cookoo = utility.clone(watch);
   steward.actors.device.wearable.watch.cookoo.$info.type = '/device/wearable/watch/cookoo';
   devices.makers['/device/wearable/watch/cookoo'] = Watch;
+  register('/device/wearable/watch/cookoo', 'COOKOO watch', [ '1802', '180a' ]);
+  register('/device/wearable/watch/cookoo', 'COOKOO watch', [ '4b455254747211e1a5750002a5d58001' ]);
 
   steward.actors.device.wearable.watch.metawatch = utility.clone(watch);
   steward.actors.device.wearable.watch.metawatch.$info.type = '/device/wearable/watch/metawatch';
   devices.makers['/device/wearable/watch/metawatch'] = Watch;
-
-  require('./../../discovery/discovery-ble').register(
-    { 'ConnecteDevice'        : { '2a24' : { 'COOKOO connected watch' : { type : '/device/wearable/watch/cookoo'
-                                                                        }
-                                           }
-                                }
-    , ''                      : { '2a00' : { 'MetaWatch 08'           : { type : '/device/wearable/watch/metawatch'
-                                                                        }
-                                           }
-                                }
-    });
+  register('/device/wearable/watch/metawatch', 'MetaWatch 08', [ '8880' ]);
 };

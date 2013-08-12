@@ -64,7 +64,7 @@ util.inherits(Cloud, require('./../device-gateway').Device);
 
 Cloud.prototype.login = function(self) {
   self.netatmo = new Netatmo.Netatmo();
-  self.netatmo.logger = logger;
+  self.netatmo.logger = utility.logfnx(logger, 'device/' + self.deviceID);
 
   self.netatmo.on('error', function(err) {
     self.error(self, err);
@@ -160,7 +160,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   info.id = info.device.unit.udn;
   macaddrs[station._id.split('-').join('').split(':').join('').toLowerCase()] = true;
 
-  logger.debug(info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('Netatmo ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };

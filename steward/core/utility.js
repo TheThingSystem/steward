@@ -114,6 +114,30 @@ exports.logger = function(x) {
   return logger;
 };
 
+exports.logfnx = function(logaux, prefix) {
+  var f, level, levels;
+
+  f = {};
+
+  levels = winston.config.syslog.levels;
+  for (level in levels) {
+    if (levels.hasOwnProperty(level)) f[level] = logfnx2(logaux[level], prefix, levels[level] >= levels.error);
+  }
+
+  return f;
+};
+
+var logfnx2 = function(logaux, prefix, errorP) {
+  return function(msg, props) {
+           if ((!errorP) || ((!!props) && (!!props.event))) return (logaux)(prefix + ': ' + msg, props);
+
+                if (!props)       props         = { event: msg };
+           else if (!props.event) props.event   = msg;
+           else                   props.message = msg;
+           (logaux)(prefix, props);
+         };
+};
+
 
 exports.acquiring = 0;
 

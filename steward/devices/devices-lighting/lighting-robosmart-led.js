@@ -1,6 +1,7 @@
 // RoboSmart Lightbulb: http://www.smarthome-labs.com
 
 var util        = require('util')
+  , robosmart   = require('robosmart')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
@@ -22,11 +23,12 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'waiting';
   self.changed();
   self.peripheral = info.peripheral;
-  self.ble = info.ble;
+  self.robosmart = new robosmart(self.peripheral);
   self.info = { color : { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }, fixed: true }
               , rssi  : self.peripheral.rssi
               };
 
+  self.peripheral.connect();
   self.peripheral.on('connect', function() {
     self.peripheral.updateRssi();
   });
@@ -58,76 +60,51 @@ RoboSmart.prototype.heartbeat = function(self) {
 };
 
 RoboSmart.prototype.refresh = function(self) {
-  var c;
+  self.robosmart.getLightName(function(lightName) {
+    if (self.name !== lightName) {
+      self.name = lightName;
+      self.changed();
+    }
+  });
 
-  if (!self.ble.ff10) return;
-  c = self.ble.ff10.characteristics;
+  self.robosmart.isOn(function(on) {
+    var onoff = on ? 'on' : 'off';
 
-  if (!!c.ff17) {
-    if (!c.ff17.endpoint) {
-      logger.error('device/' + self.deviceID, { event: 'refresh', diagnostic: 'no endpoint for ff10.ff17' });
-      return;
+    if (self.status !== onoff) {
+      self.status = onoff;
+      self.changed();
     }
 
-    c.ff17.endpoint.on('read', function(data, isNotification) {/* jshint unused: false */
-      var name;
+    if (self.status !== 'on') return;
 
-      if (data === undefined) return;
-      self.name = self.nv(data);
-    });
-    c.ff17.endpoint.read();
-  }
+    self.robosmart.getDim(function(dim) {
+      var bri = devices.percentageValue(dim & 0xff, 255);
 
-  if (!!c.ff11) {
-    if (!c.ff11.endpoint) {
-      logger.error('device/' + self.deviceID, { event: 'refresh', diagnostic: 'no endpoint for ff10.ff11' });
-      return;
-    }
-
-    c.ff11.endpoint.on('read', function(data, isNotification) {/* jshint unused: false */
-      var onoff;
-
-      if (data === undefined) return;
-      onoff = (data[0] & 0xff) ? 'on' : 'off';
-      if (self.status !== onoff) { self.status = onoff; self.changed(); }
-
-      if (self.status !== 'on') return;
-
-      if (!c.ff12) return;
-      if (!c.ff12.endpoint) {
-        logger.error('device/' + self.deviceID, { event: 'refresh', diagnostic: 'no endpoint for ff10.ff12' });
-        return;
+      if (self.info.brightness !== bri) {
+        self.info.brightness = bri;
+        self.changed();
       }
-
-      c.ff12.endpoint.on('read', function(data, isNotification) {/* jshint unused: false */
-        var bri;
-
-        if (data === undefined) return;
-        bri = devices.percentageValue(data[0] & 0xff, 255);
-        if (self.info.brightness !== bri) { self.info.brightness = bri; self.changed(); }
-      });
-      c.ff12.endpoint.read();
     });
-    c.ff11.endpoint.read();
-  }
+  });
 };
 
 
 var roboSmartBrightness = function(pct) { return devices.scaledPercentage(pct, 1,  255); };
 
 RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
-  var c, params, state;
-
-  if (!self.ble.ff10) return false;
+  var params, refresh, state;
 
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') {
-    if ((!c.ff17) || (!params.name)) return false;
+  refresh = function() { setTimeout (function() { self.refresh(self); }, 0); };
 
-    c.ff17.endpoint.write(new Buffer(params.name));
-    return true;
+  if (perform === 'set') {
+    if (!params.name) return false;
+
+    self.robosmart.setLightName(params.name, refresh);
+
+    return steward.performed(taskID);
   }
 
   if (perform === 'off') state.on = false;
@@ -140,18 +117,13 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-  c = self.ble.ff10.characteristics;
-  if (!c.ff11) return false;
-  try {
-    c.ff11.endpoint.write(new Buffer(state.on ? 0x01 : 0x00));
+  if (!state.on) self.robosmart.switchOff(refresh);
+  else
+    self.robosmart.switchOn(function() {
+      if (!!state.bri) self.robosmart.setDim(roboSmartBrightness(state.bri), refresh); else refresh();
+    });
 
-    if ((!!state.bri) && (!!c.ff12)) c.ff12.endpoint.write(new Buffer(state.bri));
-
-    setTimeout (function() { self.refresh(self); }, 1 * 1000);
-    steward.performed(taskID);
-  } catch(ex) { logger.error('device/' + self.deviceID, { event: 'perform', diagnostic: ex.message }); }
-
-  return true;
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -197,11 +169,5 @@ exports.start = function() {
       };
   devices.makers['/device/lighting/robosmart/led'] = RoboSmart;
 
-  require('./../../discovery/discovery-ble').register(
-    { 'Smart Home Labs, Inc.' : { '2a24' : { '900-0100-01'            : { name : 'RoboSmart'
-                                                                        , type : '/device/lighting/robosmart/led'
-                                                                        }
-                                           }
-                                }
-    });
+  require('./../../discovery/discovery-ble').register('/device/lighting/robosmart/led', null, [ 'ff10', 'ff20' ]);
 };

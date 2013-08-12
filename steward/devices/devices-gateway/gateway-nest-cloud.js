@@ -35,7 +35,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.timer = null;
 
-  nest.logger = logger;
+  nest.logger = utility.logfnx(logger, 'device/' + self.deviceID);
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var macaddr;
@@ -71,7 +71,7 @@ util.inherits(Nest, events.EventEmitter);
 
 Cloud.prototype.login = function(self) {
   self.nest = new Nest();
-  self.nest.logger = logger;
+  self.nest.logger = utility.logfnx(logger, 'device/' + self.deviceID);
 
   self.nest.on('error', function(err) {
     self.error(self, err);
@@ -154,7 +154,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
   info.id = info.device.unit.udn;
   macaddrs[station.mac_address] = true;
 
-  logger.debug(info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('Nest ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };
