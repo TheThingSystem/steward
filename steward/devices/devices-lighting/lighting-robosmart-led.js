@@ -28,7 +28,11 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
               , rssi  : self.peripheral.rssi
               };
 
-  self.peripheral.connect();
+  self.peripheral.connect(function(err) {
+    if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
+
+    self.refresh(self);
+  });
 
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });

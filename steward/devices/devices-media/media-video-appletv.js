@@ -73,7 +73,7 @@ AppleTV.operations = {
 
 
 AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
-  var params, position;
+  var params, position, volume;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -94,11 +94,25 @@ AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
     self.appletv.scrub(position/1000);
   }
 
+  if ((perform === 'set') && (!!params.volume) && (media.validVolume(params.volume))) self.appletv.volume(volume);
+
   return devices.perform(self, taskID, perform, parameter);
 };
 
 var validate_perform = function(perform, parameter) {
+  var params, result;
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  result = { invalid: [], requires: [] };
+
   if (!!AppleTV.operations[perform]) return { invalid: [], requires: [] };
+
+  if (perform === 'set') {
+    if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
+    if ((!!params.volume)   && (!media.validVolume(params.volume)))     result.invalid.push('volume');
+
+    if (result.invalid.count > 0) return result;
+  }
 
   return devices.validate_perform(perform, parameter);
 };
@@ -205,6 +219,7 @@ exports.start = function() {
                                          uri         : true
                                        , position    : 'milliseconds'
                                        , duration    : 'milliseconds'}
+                                     , volume  : 'percentage'
                                      }
                       }
         , $validate : { perform    : validate_perform }

@@ -28,9 +28,9 @@ var Watch = exports.Device = function(deviceID, deviceUID, info) {
   self.info = { rssi: self.peripheral.rssi };
 
   self.peripheral.connect(function(err) {
-      if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
+    if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-    self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], ['2a06' ], function(err, services, characteristics) {
+    self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], [ '2a06' ], function(err, services, characteristics) {
       if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
 
       self.alert = characteristics[0];
