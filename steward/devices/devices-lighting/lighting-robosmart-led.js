@@ -29,9 +29,6 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
               };
 
   self.peripheral.connect();
-  self.peripheral.on('connect', function() {
-    self.peripheral.updateRssi();
-  });
 
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });

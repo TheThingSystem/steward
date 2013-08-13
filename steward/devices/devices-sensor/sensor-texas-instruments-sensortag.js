@@ -39,9 +39,6 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.info = { rssi: self.peripheral.rssi };
 
   self.peripheral.connect();
-  self.peripheral.on('connect', function() {
-    self.peripheral.updateRssi();
-  });
 
   self.peripheral.on('disconnect', function() {
     self.status = 'idle';

@@ -27,14 +27,12 @@ var Fob = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral = info.peripheral;
   self.info = { rssi: self.peripheral.rssi };
 
-  self.peripheral.connect();
-  self.peripheral.on('connect', function() {
-    self.peripheral.updateRssi();
+  self.peripheral.connect(function(err) {
+      if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
+
     self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], [ '2a06' ], function(err, services, characteristics) {
       if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
 
-console.log('>>> ' + require('json-stringify-safe').stringify(services));
-console.log('>>> ' + require('json-stringify-safe').stringify(characteristics));
       self.alert = characteristics[0];
     });
   });

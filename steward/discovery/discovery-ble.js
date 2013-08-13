@@ -40,8 +40,6 @@ exports.start = function() {
   noble.on('discover', function(peripheral) {
     var deviceType, info, name, uuids;
 
-    peripheral.removeAllListeners();
-
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';
     uuids = peripheral.advertisement.serviceUuids.sort().join(',').toLowerCase();
     deviceType = (!!advertisements.localNames[name]) ? advertisements.localNames[name][uuids]
