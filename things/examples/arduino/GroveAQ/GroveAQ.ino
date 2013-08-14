@@ -64,7 +64,6 @@ void setup() {
   
   Serial.println("Initializing AQ sensor.");
   AQsensor.init(14);
-return;
 
   Serial.println("Waiting for DHCP address.");
   if (Ethernet.begin(mac) == 0) {
@@ -158,7 +157,7 @@ void loop() {
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
 
   Serial.println(packetBuffer); 
-return;
+
   udp.beginPacket(udp.remoteIP(), udp.remotePort());
   udp.write(packetBuffer);
   udp.endPacket();      
