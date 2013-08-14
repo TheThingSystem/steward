@@ -45,6 +45,8 @@ exports.start = function() {
   noble.on('discover', function(peripheral) {
     var deviceType, i, info, name, uuids;
 
+var stringify = require('json-stringify-safe');
+console.log('>>> ' + stringify(peripheral.advertisement));
     uuids = peripheral.advertisement.serviceUuids;
     for (i = 0; i < uuids.length; i++) {
       if (!!blacklist[uuids[i]]) {

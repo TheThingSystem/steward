@@ -67,7 +67,7 @@ void loop() {
   if( isExposedToWater() ) {
      char buffer[12];
      strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-     strcat(packetBuffer, itoa( requestID, buffer, 10) );
+     strcat(packetBuffer, ultoa( requestID, buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
      for (byte thisByte = 0; thisByte < 6; thisByte++) {
        sprintf(buffer, "%x", mac[thisByte] );
@@ -81,7 +81,7 @@ void loop() {
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
      strcat(packetBuffer, "detected");
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-     strcat(packetBuffer, itoa( millis(), buffer, 10) );
+     strcat(packetBuffer, ultoa( millis(), buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
      Serial.println(packetBuffer); 
@@ -105,7 +105,7 @@ void loop() {
 void callback() {
      char buffer[12];
      strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-     strcat(packetBuffer, itoa( requestID, buffer, 10) );
+     strcat(packetBuffer, ultoa( requestID, buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
      for (byte thisByte = 0; thisByte < 6; thisByte++) {
        sprintf(buffer, "%x", mac[thisByte] );
@@ -119,7 +119,7 @@ void callback() {
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
      strcat(packetBuffer, "absent");
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-     strcat(packetBuffer, itoa( millis(), buffer, 10) );
+     strcat(packetBuffer, ultoa( millis(), buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
      Serial.println(packetBuffer); 

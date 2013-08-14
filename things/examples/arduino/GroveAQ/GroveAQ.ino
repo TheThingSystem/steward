@@ -12,7 +12,6 @@
 
 
 int requestID = 1;
-unsigned long proto_count = 0;
 unsigned long next_heartbeat = 0;
 
 
@@ -26,7 +25,7 @@ int previous_flame = -1;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
 #define AQ_SENSOR    A2
-int previous_aq = -1;
+int previous_aq    = -1;
 AirQuality AQsensor;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
@@ -39,12 +38,10 @@ float previous_mq2 = -1;
 float previous_mq9 = -1;
 
 
-char packetBuffer[512];
+char packetBuffer[768];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-// PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
-PROGMEM prog_char *loopPacket2a = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}}}}}";
-PROGMEM prog_char *loopPacket2b = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-air-quality\"},\"info\":{\"overall\":";
 PROGMEM prog_char *loopPacket5 = ",\"flame\":\"";
@@ -121,19 +118,6 @@ void loop() {
     return;
   }
 
-
-// prototype every so often...
-  if (proto_count-- <= 0) {
-    proto_count = 5;
-
-    strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-    strcat(packetBuffer, itoa( requestID, buffer, 10) );
-
-    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2a) );
-
-    sendit();
-  }
-
   previous_flame = flame;
   if (aq > 0) previous_aq = aq; else aq = previous_aq;
   previous_mq2 = mq2;
@@ -141,9 +125,9 @@ void loop() {
   next_heartbeat = now + 60000;
 
   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-  strcat(packetBuffer, itoa( requestID, buffer, 10) );
+  strcat(packetBuffer, ultoa( requestID, buffer, 10) );
 
-  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2b) );
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
       sprintf(buffer, "%x", mac[thisByte] );
       strcat(packetBuffer, buffer);
@@ -168,7 +152,7 @@ void loop() {
   strcat(packetBuffer, dtostrf(mq9, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket8) );
-  strcat(packetBuffer, itoa( now, buffer, 10) );
+  strcat(packetBuffer, ultoa( now, buffer, 10) );
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
 

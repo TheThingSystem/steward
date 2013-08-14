@@ -2,28 +2,15 @@ README.txt
     
 Start with:
     
-    Arduino Mega 2560 - http://arduino.cc/en/Main/arduinoBoardMega
+    Arduino UNO       - http://arduino.cc/en/Main/arduinoBoardUno
     
     Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
     
     Ether Shield      - http://arduino.cc/en/Main/ArduinoEthernetShield
     
-and these sensors:
+and this sensor:
 
-    A0 - Grove Gas Sensor (MQ9)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
-    A1 - Grove Gas Sensor (MQ2)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
-    A2 - Grove Air Quality Sensor - http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
-    D6 - Grove Flame Sensor       - http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
-    
-This is probably overkill, and sadly, there isn't an NO2 sensor among
-the bunch.
-    
-Import this library into Arduino
-    
-    http://www.seeedstudio.com/wiki/File:AirQuality_Sensor.zip
-    
-Note that when the AQ sensor starts, it takes 20 seconds before
-returning control back to set-up.
+    D7 - Grove Water Sensor  - http://www.seeedstudio.com/wiki/Grove_-_Water_Sensor
 
 A report via the STRP looks like the following. Note that the properties
 are mostly defined as 'sigmas', which means that the sensors are
