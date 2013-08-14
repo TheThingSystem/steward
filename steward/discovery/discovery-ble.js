@@ -58,4 +58,6 @@ exports.start = function() {
     logger.info('BLE ' + info.device.name, { uuid: peripheral.uuid });
     devices.discover(info);
   });
+
+  if (noble.state === 'poweredOn') noble.startScanning();
 };
