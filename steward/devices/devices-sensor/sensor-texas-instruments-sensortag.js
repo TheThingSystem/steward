@@ -43,6 +43,82 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
 
     self.status = 'present';
     self.changed();
+
+    self.sensor.discoverServicesAndCharacteristics(function() {
+      var feature, features;
+
+      features =
+        { Humidity           : function(temperature, humidity) {
+                                 var didP   = false
+                                   , params = { lastSample: new Date().getTime() }
+                                   ;
+
+                                 if (self.info.temperature !== temperature) {
+                                   didP = true;
+                                   params.temperature = self.info.temperature = temperature;
+                                 }
+                                 humidity = humidity.toFixed(0);
+                                 if (self.info.humidity !== humidity) {
+                                   didP = true;
+                                   params.humidity = self.info.humidity = humidity;
+                                 }
+                                 self.info.lastSample = params.lastSample;
+                                 if (didP) return self.update(self, params);
+                               }
+        , BarometricPressure :
+                               function(pressure) {
+                                 var didP   = false
+                                   , params = { lastSample: new Date().getTime() }
+                                   ;
+
+                                 pressure = pressure.toFixed(0);
+                                 if (self.info.pressure !== pressure) {
+                                   didP = true;
+                                   params.pressure = self.info.pressure = pressure;
+                                 }
+                                 self.info.lastSample = params.lastSample;
+                                 if (didP) return self.update(self, params);
+                               }
+        , Accelerometer      :
+                               function(x, y, z) {
+                                 var didP = false;
+
+                                 // convert to m/s^2
+                                 x = (x * 9.80665).toFixed(2); y = (y * 9.80665).toFixed(2); z = (z * 9.80665).toFixed(2);
+                                 if (!self.info.acceleration) self.info.acceleration = {};
+                                 if (self.info.acceleration.x != x) { didP = true; self.info.acceleration.x = x; }
+                                 if (self.info.acceleration.y != y) { didP = true; self.info.acceleration.y = y; }
+                                 if (self.info.acceleration.z != z) { didP = true; self.info.acceleration.z = z; }
+                                 self.info.lastSample = new Date().getTime();
+                                 if (didP) self.changed();
+                               }
+        , Magnetometer       :
+                               function(x, y, z) {
+                                 var didP = false;
+
+                                 x = x.toFixed(0); y = y.toFixed(0); z = z.toFixed(0);
+                                 if (!self.info.magnetism) self.info.magnetism = {};
+                                 if (self.info.magnetism.x != x) { didP = true; self.info.magnetism.x = x; }
+                                 if (self.info.magnetism.y != y) { didP = true; self.info.magnetism.y = y; }
+                                 if (self.info.magnetism.z != z) { didP = true; self.info.magnetism.z = z; }
+                                 self.info.lastSample = new Date().getTime();
+                                 if (didP) self.changed();
+                               }
+        , Gyroscope          :
+                               function(x, y, z) {
+                                 var didP = false;
+
+                                 x = x.toFixed(2); y = y.toFixed(2); z = z.toFixed(2);
+                                 if (!self.info.orientation) self.info.orientation = {};
+                                 if (self.info.orientation.x != x) { didP = true; self.info.orientation.x = x; }
+                                 if (self.info.orientation.y != y) { didP = true; self.info.orientation.y = y; }
+                                 if (self.info.orientation.z != z) { didP = true; self.info.orientation.z = z; }
+                                 self.info.lastSample = new Date().getTime();
+                                 if (didP) self.changed();
+                               }
+        };
+      for (feature in features) if (features.hasOwnProperty(feature)) self.monitor(self, feature, features[feature]);
+    });
   });
 
   self.peripheral.on('disconnect', function() {
@@ -59,84 +135,6 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
     self.changed();
 
     logger.info('device/' + self.deviceID, { status: self.status });
-  });
-
-  self.sensor.discoverServicesAndCharacteristics(function() {
-    var feature, features;
-
-    features =
-      { Humidity           : function(temperature, humidity) {
-                               var didP   = false
-                                 , params = { lastSample: new Date().getTime() }
-                                 ;
-
-                               if (self.info.temperature !== temperature) {
-                                 didP = true;
-                                 params.temperature = self.info.temperature = temperature;
-                               }
-                               humidity = humidity.toFixed(0);
-                               if (self.info.humidity !== humidity) {
-                                 didP = true;
-                                 params.humidity = self.info.humidity = humidity;
-                               }
-                               self.info.lastSample = params.lastSample;
-                               if (didP) return self.update(self, params);
-                             }
-      , BarometricPressure :
-                             function(pressure) {
-                               var didP   = false
-                                 , params = { lastSample: new Date().getTime() }
-                                 ;
-
-                               pressure = pressure.toFixed(0);
-                               if (self.info.pressure !== pressure) {
-                                 didP = true;
-                                 params.pressure = self.info.pressure = pressure;
-                               }
-                               self.info.lastSample = params.lastSample;
-                               if (didP) return self.update(self, params);
-                             }
-      , Accelerometer      :
-                             function(x, y, z) {
-                               var didP = false;
-
-                               // convert to m/s^2
-                               x = (x * 9.80665).toFixed(2); y = (y * 9.80665).toFixed(2); z = (z * 9.80665).toFixed(2);
-                               if (!self.info.acceleration) self.info.acceleration = {};
-                               if (self.info.acceleration.x != x) { didP = true; self.info.acceleration.x = x; }
-                               if (self.info.acceleration.y != y) { didP = true; self.info.acceleration.y = y; }
-                               if (self.info.acceleration.z != z) { didP = true; self.info.acceleration.z = z; }
-                               self.info.lastSample = new Date().getTime();
-                               if (didP) self.changed();
-                             }
-      , Magnetometer       :
-                             function(x, y, z) {
-                               var didP = false;
-
-                               x = x.toFixed(0); y = y.toFixed(0); z = z.toFixed(0);
-                               if (!self.info.magnetism) self.info.magnetism = {};
-                               if (self.info.magnetism.x != x) { didP = true; self.info.magnetism.x = x; }
-                               if (self.info.magnetism.y != y) { didP = true; self.info.magnetism.y = y; }
-                               if (self.info.magnetism.z != z) { didP = true; self.info.magnetism.z = z; }
-                               self.info.lastSample = new Date().getTime();
-                               if (didP) self.changed();
-                             }
-      , Gyroscope          :
-                             function(x, y, z) {
-                               var didP = false;
-
-                               x = x.toFixed(2); y = y.toFixed(2); z = z.toFixed(2);
-                               if (!self.info.orientation) self.info.orientation = {};
-                               if (self.info.orientation.x != x) { didP = true; self.info.orientation.x = x; }
-                               if (self.info.orientation.y != y) { didP = true; self.info.orientation.y = y; }
-                               if (self.info.orientation.z != z) { didP = true; self.info.orientation.z = z; }
-                               self.info.lastSample = new Date().getTime();
-                               if (didP) self.changed();
-                             }
-      };
-    for (feature in features) if (features.hasOwnProperty(feature)) self.monitor(self, feature, features[feature]);
-
-//    self.ready(self);
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
