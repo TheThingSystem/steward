@@ -23,7 +23,6 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'waiting';
   self.changed();
   self.peripheral = info.peripheral;
-  self.robosmart = new robosmart(self.peripheral);
   self.info = { color : { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }, fixed: true }
               , rssi  : self.peripheral.rssi
               };
@@ -31,6 +30,7 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
+    self.robosmart = new robosmart(self.peripheral);
     self.refresh(self);
   });
 
@@ -61,6 +61,8 @@ RoboSmart.prototype.heartbeat = function(self) {
 };
 
 RoboSmart.prototype.refresh = function(self) {
+  if (!self.robosmart) return;
+
   self.robosmart.getLightName(function(lightName) {
     if (self.name !== lightName) {
       self.name = lightName;
@@ -94,6 +96,8 @@ var roboSmartBrightness = function(pct) { return devices.scaledPercentage(pct, 1
 
 RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
   var params, refresh, state;
+
+  if (!self.robosmart) return false;
 
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
