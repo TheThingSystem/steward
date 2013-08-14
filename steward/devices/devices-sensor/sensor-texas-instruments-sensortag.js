@@ -52,12 +52,14 @@ SensorTag.prototype.connect = function(self) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-    self.sensor = new sensortag(self.peripheral);
+    var s = new sensortag(self.peripheral);
 
-    self.status = 'present';
-    self.changed();
+    s.discoverServicesAndCharacteristics(function() {
+      self.sensor = s;
 
-    self.sensor.discoverServicesAndCharacteristics(function() {
+      self.status = 'present';
+      self.changed();
+
       var feature, features;
 
       features =
