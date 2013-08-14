@@ -1,17 +1,5 @@
 // http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
 
-/*
-temperature
-ir temperature
-humidity
-pressure
-
-acceleration [meters/second^2]3
-magnetic [microTesla]3
-gyro [degrees/second]3
-
- */
-
 var sensortag   = require('sensortag')
   , util        = require('util')
   , devices     = require('./../../core/device')
@@ -35,24 +23,20 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'present';
   self.changed();
   self.peripheral = info.peripheral;
-  self.sensor = new sensortag(self.peripheral);
   self.info = { rssi: self.peripheral.rssi };
 
   self.connect(self);
   self.peripheral.on('disconnect', function() {
-    self.status = 'idle';
-    self.changed();
-
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
+
+    self.sensortag = null;
     setTimeout(function() { self.status = 'absent'; self.changed(); self.connect(self); }, 120 * 1000);
   });
   self.peripheral.on('rssiUpdate', function(rssi) {
     self.status = 'present';
     self.info.rssi = rssi;
     self.changed();
-
-    logger.info('device/' + self.deviceID, { status: self.status });
   });
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -67,6 +51,8 @@ util.inherits(SensorTag, sensor.Device);
 SensorTag.prototype.connect = function(self) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
+
+    self.sensor = new sensortag(self.peripheral);
 
     self.status = 'present';
     self.changed();

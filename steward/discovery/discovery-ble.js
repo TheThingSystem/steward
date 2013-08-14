@@ -58,8 +58,9 @@ exports.start = function() {
 
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';
     uuids = peripheral.advertisement.serviceUuids.sort().join(',').toLowerCase();
-    deviceType = (!!advertisements.localNames[name]) ? advertisements.localNames[name][uuids]
-                                                     : advertisements.serviceUUIDs[uuids][''];
+    deviceType =   (!!advertisements.localNames[name])    ? advertisements.localNames[name][uuids]
+                 : (!!advertisements.serviceUUIDs[uuids]) ? advertisements.serviceUUIDs[uuids]['']
+                 : '';
 
     info = { source: 'ble', peripheral: peripheral };
     info.device = { url          : null
