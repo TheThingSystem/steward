@@ -56,8 +56,15 @@ RoboSmart.prototype.connect = function(self) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-    self.robosmart = new robosmart(self.peripheral);
-    self.refresh(self);
+    var r = new robosmart(self.peripheral);
+
+    r.discoverServicesAndCharacteristics(function(err) {
+      if (err) return logger.error('device/' + self.deviceID, { event: 'discoverServicesAndCharacteristics', diagnostic: err.message });
+
+      self.robosmart = r;
+      
+      self.refresh(self);
+    });
   });
 };
 
