@@ -25,10 +25,10 @@ char packetBuffer[512];
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
 PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/arduino/sensor\":{\"prototype\":{\"device\":{\"name\":\"Arduino with DHT-22\",\"maker\":\"Arduino\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"temperature\":\"celsius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Weather Station\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
-PROGMEM prog_char *loopPacket4 = "-dnt-22\"},\"info\":{\"temperature\":\"";
-PROGMEM prog_char *loopPacket5 = "\",\"humidity\":\"";
-PROGMEM prog_char *loopPacket6 = "\"},\"uptime\":\"";
-PROGMEM prog_char *loopPacket7 = "\"}]}}}";
+PROGMEM prog_char *loopPacket4 = "-dnt-22\"},\"info\":{\"temperature\":";
+PROGMEM prog_char *loopPacket5 = ",\"humidity\":";
+PROGMEM prog_char *loopPacket6 = "},\"uptime\":";
+PROGMEM prog_char *loopPacket7 = "}]}}}";
 
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
 EthernetUDP udp;
@@ -102,7 +102,7 @@ void loop() {
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
     strcat(packetBuffer, dtostrf(h,4,2,buffer));
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-    strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+    strcat(packetBuffer, itoa( millis(), buffer, 10) );
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
 
     Serial.println(packetBuffer); 

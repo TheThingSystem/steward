@@ -20,8 +20,8 @@ PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"reques
 PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/seated-mat\":{\"prototype\":{\"device\":{\"name\":\"7-10# Chair Occupancy Sensor Mat\",\"maker\":\"RECORA\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-mat\"},\"info\":{\"contact\":\"";
-PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":\"";
-PROGMEM prog_char *loopPacket6 = "\"}]}}}";
+PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":";
+PROGMEM prog_char *loopPacket6 = "}]}}}";
 
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
 EthernetUDP udp;
@@ -103,7 +103,7 @@ void loop() {
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
        strcat(packetBuffer, "on");
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+       strcat(packetBuffer, itoa( millis(), buffer, 10) );
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
        Serial.println(packetBuffer); 
@@ -132,7 +132,7 @@ void loop() {
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
        strcat(packetBuffer, "off");
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+       strcat(packetBuffer, itoa( millis(), buffer, 10) );
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
        Serial.println(packetBuffer); 
@@ -179,7 +179,7 @@ void callback() {
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
        strcat(packetBuffer, "on");
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+       strcat(packetBuffer, itoa( millis(), buffer, 10) );
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
        Serial.println(packetBuffer); 
@@ -208,7 +208,7 @@ void callback() {
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
        strcat(packetBuffer, "off");
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+       strcat(packetBuffer, itoa( millis(), buffer, 10) );
        strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
        Serial.println(packetBuffer); 

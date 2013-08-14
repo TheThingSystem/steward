@@ -12,7 +12,7 @@ int requestID = 1;
 unsigned long lastCallbackTime = 0;// the last time the data was written
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
-byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
 
 #define WATER_SENSOR 7
 
@@ -22,8 +22,8 @@ PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"reques
 PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/water\":{\"prototype\":{\"device\":{\"name\":\"Grove Water Sensor\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"water\":[\"present\",\"absent\"]}},\"instances\":[{\"name\":\"Water Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-water\"},\"info\":{\"water\":\"";
-PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":\"";
-PROGMEM prog_char *loopPacket6 = "\"}]}}}";
+PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":";
+PROGMEM prog_char *loopPacket6 = "}]}}}";
 
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
 EthernetUDP udp;
@@ -81,7 +81,7 @@ void loop() {
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
      strcat(packetBuffer, "detected");
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-     strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+     strcat(packetBuffer, itoa( millis(), buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
      Serial.println(packetBuffer); 
@@ -119,7 +119,7 @@ void callback() {
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
      strcat(packetBuffer, "absent");
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-     strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+     strcat(packetBuffer, itoa( millis(), buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
      Serial.println(packetBuffer); 

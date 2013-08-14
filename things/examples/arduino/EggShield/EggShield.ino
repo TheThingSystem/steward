@@ -27,11 +27,11 @@ char packetBuffer[768];
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
 PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/arduino/sensor\":{\"prototype\":{\"device\":{\"name\":\"Arduino with EggShield\",\"maker\":\"Arduino\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"no2\":\"ppm\",\"co\":\"ppm\",\"temperature\":\"celsius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Air Quality\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
-PROGMEM prog_char *loopPacket4 = "-egg-shield\"},\"info\":{\"no2\":\"";
-PROGMEM prog_char *loopPacket5 = "\",\"co\":\"";
-PROGMEM prog_char *loopPacket6 = "\",\"temperature\":\"";
-PROGMEM prog_char *loopPacket7 = "\",\"humidity\":\"";
-PROGMEM prog_char *loopPacket8 = "\"},\"uptime\":\"";
+PROGMEM prog_char *loopPacket4 = "-egg-shield\"},\"info\":{\"no2\":";
+PROGMEM prog_char *loopPacket5 = ",\"co\":";
+PROGMEM prog_char *loopPacket6 = ",\"temperature\":";
+PROGMEM prog_char *loopPacket7 = ",\"humidity\":";
+PROGMEM prog_char *loopPacket8 = "},\"uptime\":";
 PROGMEM prog_char *loopPacket9 = "\"}]}}}";
 
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
@@ -137,7 +137,7 @@ void loop() {
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
   strcat(packetBuffer, dtostrf(h,4,2,buffer));
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket8) );
-  strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+  strcat(packetBuffer, itoa( millis(), buffer, 10) );
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
 
   Serial.println(packetBuffer); 
