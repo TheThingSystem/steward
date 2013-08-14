@@ -26,6 +26,11 @@ exports.register = function(deviceType, localName, serviceUUIDs) {
 
 
 exports.start = function() {
+  var blacklist;
+
+  blacklist = { 'bec26202a8d84a9480fc9ac1de37daa6' : 'StickNFind'
+              };
+
   try {
     noble       = require('noble');
   } catch(ex) { logger.warning('BLE support disabled', { diagnostic: ex.message } ); }
@@ -38,7 +43,18 @@ exports.start = function() {
   });
 
   noble.on('discover', function(peripheral) {
-    var deviceType, info, name, uuids;
+    var deviceType, i, info, name, uuids;
+
+    uuids = peripheral.advertisement.serviceUuids;
+    for (i = 0; i < uuids.length; i++) {
+      if (!!blacklist[uuids[i]]) {
+        return logger.warning('BLE blacklist', { type         : blacklist[uuids[i]]
+                                               , uuid         : peripheral.uuid
+                                               , name         : peripheral.advertisement.localName
+                                               , serviceUuids : uuids
+                                               });
+      }
+    }
 
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';
     uuids = peripheral.advertisement.serviceUuids.sort().join(',').toLowerCase();
