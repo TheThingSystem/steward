@@ -41,7 +41,8 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-    self.refresh(self);
+    self.status = 'present';
+    self.changed();
   });
 
   self.peripheral.on('disconnect', function() {
