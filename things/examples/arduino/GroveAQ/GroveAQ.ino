@@ -30,12 +30,12 @@ int previous_aq = -1;
 AirQuality AQsensor;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
-#define MQ2_SENSOR   A0
+#define MQ2_SENSOR   A1
 #define Vref         4.95
 float previous_mq2 = -1;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
-#define MQ9_SENSOR   A3
+#define MQ9_SENSOR   A0
 float previous_mq9 = -1;
 
 
@@ -56,15 +56,15 @@ PROGMEM prog_char *loopPacket9 = "}]}}}";
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
 EthernetUDP udp;
 IPAddress ip(224,192,32,19);
-unsigned int port = 22601;   
+unsigned int port = 22601;
 
 void setup() {
   pinMode(FLAME_SENSOR, INPUT);
-  
+
   Serial.begin(9600);
   Serial.println("Starting...");
   while(!Serial) { }
-  
+
   Serial.println("Initializing AQ sensor.");
   AQsensor.init(14);
 
@@ -72,25 +72,25 @@ void setup() {
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Error: Failed to configure Ethernet using DHCP");
     while(1) {  }
-  } 
-  
+  }
+
   Serial.print("MAC address: ");
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
     Serial.print(mac[thisByte], HEX);
-    Serial.print(":"); 
+    Serial.print(":");
   }
   Serial.println();
-   
+
   Serial.print("IP address: ");
   for (byte thisByte = 0; thisByte < 4; thisByte++) {
     Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print("."); 
+    Serial.print(".");
   }
   Serial.println();
- 
+
   udp.beginMulti(ip,port);
-}  
-  
+}
+
 
 void loop() {
   int   aq, flame;
@@ -100,11 +100,11 @@ void loop() {
 
   flame = digitalRead(FLAME_SENSOR) ? 0 : 1;
   Serial.print("flame sensor "); Serial.print(flame, DEC); Serial.println();
-  
+
   aq = AQsensor.slope();
   if (aq > 0) aq = AQsensor.first_vol;
   Serial.print("AQ sensor "); Serial.print(aq, DEC); Serial.println();
-  
+
   mq2 = ((float) analogRead(MQ2_SENSOR)) / 1023 * Vref;
   Serial.print("MQ2 sensor "); Serial.print(mq2); Serial.println();
 
@@ -146,15 +146,15 @@ void loop() {
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2b) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
       sprintf(buffer, "%x", mac[thisByte] );
-      strcat(packetBuffer, buffer); 
+      strcat(packetBuffer, buffer);
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
       sprintf(buffer, "%x", mac[thisByte] );
-      strcat(packetBuffer, buffer); 
+      strcat(packetBuffer, buffer);
   }
-   
+
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
   if (aq > 0) strcat(packetBuffer, itoa( aq, buffer, 10) ); else strcat(packetBuffer, "\"\"");
 
@@ -177,11 +177,11 @@ void loop() {
 }
 
 void sendit() {
-  Serial.println(packetBuffer); 
+  Serial.println(packetBuffer);
 
   udp.beginPacket(udp.remoteIP(), udp.remotePort());
   udp.write(packetBuffer);
-  udp.endPacket();      
+  udp.endPacket();
   requestID = requestID + 1;
 }
 

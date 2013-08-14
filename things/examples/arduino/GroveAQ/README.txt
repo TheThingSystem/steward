@@ -5,14 +5,17 @@ I'm using an Arduino UNO, a Grove Shield
     http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
     
 and these sensors:
-    
-    A0 - Grove Gas Sensor (MQ2)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
+
+    A0 - Grove Gas Sensor (MQ9)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
+    A1 - Grove Gas Sensor (MQ2)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     A2 - Grove Air Quality Sensor - http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
-    A3 - Grove Gas Sensor (MQ9)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     D6 - Grove Flame Sensor       - http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
     
 This is probably overkill, and sadly, there isn't an NO2 sensor among
 the bunch.
+    
+Note that when the AQ sensor starts, it takes 20 seconds before
+returning control back to set-up.
 
 A report via the STRP looks like the following. Note that the properties
 are mostly defined as 'sigmas', which means that the sensors are
