@@ -38,6 +38,33 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.sensor = new sensortag(self.peripheral);
   self.info = { rssi: self.peripheral.rssi };
 
+  self.connect(self);
+  self.peripheral.on('disconnect', function() {
+    self.status = 'idle';
+    self.changed();
+
+    logger.info('device/' + self.deviceID, { status: self.status });
+// TBD: handle connection timeout...
+    setTimeout(function() { self.status = 'absent'; self.changed(); self.connect(self); }, 120 * 1000);
+  });
+  self.peripheral.on('rssiUpdate', function(rssi) {
+    self.status = 'present';
+    self.info.rssi = rssi;
+    self.changed();
+
+    logger.info('device/' + self.deviceID, { status: self.status });
+  });
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+  });
+};
+util.inherits(SensorTag, sensor.Device);
+
+
+SensorTag.prototype.connect = function(self) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
@@ -120,30 +147,7 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
       for (feature in features) if (features.hasOwnProperty(feature)) self.monitor(self, feature, features[feature]);
     });
   });
-
-  self.peripheral.on('disconnect', function() {
-    self.status = 'idle';
-    self.changed();
-
-    logger.info('device/' + self.deviceID, { status: self.status });
-// TBD: handle connection timeout...
-    setTimeout(function() { self.status = 'absent'; self.changed(); self.peripheral.connect(); }, 120 * 1000);
-  });
-  self.peripheral.on('rssiUpdate', function(rssi) {
-    self.status = 'present';
-    self.info.rssi = rssi;
-    self.changed();
-
-    logger.info('device/' + self.deviceID, { status: self.status });
-  });
-
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    if (actor !== ('device/' + self.deviceID)) return;
-
-    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
-  });
 };
-util.inherits(SensorTag, sensor.Device);
 
 SensorTag.prototype.monitor = function(self, feature, callback) {
   self.sensor['enable' + feature](function(err) {

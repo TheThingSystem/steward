@@ -27,17 +27,13 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
               , rssi  : self.peripheral.rssi
               };
 
-  self.peripheral.connect(function(err) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
-
-    self.robosmart = new robosmart(self.peripheral);
-    self.refresh(self);
-  });
-
+  self.connect(self);
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
-    setTimeout(function() { self.status = 'waiting'; self.changed(); self.peripheral.connect(); }, 1 * 1000);
+
+    self.robosmart = null;
+    setTimeout(function() { self.status = 'waiting'; self.changed(); self.connect(self); }, 1 * 1000);
   });
   self.peripheral.on('rssiUpdate', function(rssi) {
     self.info.rssi = rssi;
@@ -56,8 +52,17 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(RoboSmart, lighting.Device);
 
 
+RoboSmart.prototype.connect = function(self) {
+  self.peripheral.connect(function(err) {
+    if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
+
+    self.robosmart = new robosmart(self.peripheral);
+    self.refresh(self);
+  });
+};
+
 RoboSmart.prototype.heartbeat = function(self) {
-  if (self.status !== 'waiting') self.refresh(self); else self.peripheral.connect();
+  if (self.status !== 'waiting') self.refresh(self); else self.connect(self);
 };
 
 RoboSmart.prototype.refresh = function(self) {

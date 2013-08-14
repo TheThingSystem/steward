@@ -27,16 +27,7 @@ var Watch = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral = info.peripheral;
   self.info = { rssi: self.peripheral.rssi };
 
-  self.peripheral.connect(function(err) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
-
-    self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], [ '2a06' ], function(err, services, characteristics) {
-      if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
-
-      self.alert = characteristics[0];
-    });
-  });
-
+  self.connect(self);
   self.peripheral.on('disconnect', function() {
     self.alert = undefined;
     self.status = 'recent';
@@ -44,7 +35,7 @@ var Watch = exports.Device = function(deviceID, deviceUID, info) {
 
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
-    setTimeout(function() { self.status = 'absent'; self.changed(); self.peripheral.connect(); }, 120 * 1000);
+    setTimeout(function() { self.status = 'absent'; self.changed(); self.connect(self); }, 120 * 1000);
   });
   self.peripheral.on('rssiUpdate', function(rssi) {
     self.status = 'present';
@@ -62,6 +53,18 @@ var Watch = exports.Device = function(deviceID, deviceUID, info) {
 };
 util.inherits(Watch, wearable.Device);
 
+
+Watch.prototype.connect = function(self) {
+  self.peripheral.connect(function(err) {
+    if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
+
+    self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], [ '2a06' ], function(err, services, characteristics) {
+      if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
+
+      self.alert = characteristics[0];
+    });
+  });
+};
 
 Watch.prototype.perform = function(self, taskID, perform, parameter) {
   var level, params;
