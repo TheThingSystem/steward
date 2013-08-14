@@ -12,6 +12,7 @@
 
 
 int requestID = 1;
+unsigned long proto_count = 0;
 unsigned long next_heartbeat = 0;
 
 
@@ -41,7 +42,9 @@ float previous_mq9 = -1;
 char packetBuffer[512];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+// PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2a = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}}}}}";
+PROGMEM prog_char *loopPacket2b = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-air-quality\"},\"info\":{\"overall\":";
 PROGMEM prog_char *loopPacket5 = ",\"flame\":\"";
@@ -96,17 +99,17 @@ void loop() {
   unsigned long now;
 
   flame = digitalRead(FLAME_SENSOR) ? 0 : 1;
-  Serial.print("flame sensor "); Serial.print(flame, DEC);Serial.println();
+  Serial.print("flame sensor "); Serial.print(flame, DEC); Serial.println();
   
   aq = AQsensor.slope();
   if (aq > 0) aq = AQsensor.first_vol;
-  Serial.print("AQ sensor "); Serial.print(aq, DEC);Serial.println();
+  Serial.print("AQ sensor "); Serial.print(aq, DEC); Serial.println();
   
   mq2 = ((float) analogRead(MQ2_SENSOR)) / 1023 * Vref;
-  Serial.print("MQ2 sensor "); Serial.print(mq2);Serial.println();
+  Serial.print("MQ2 sensor "); Serial.print(mq2); Serial.println();
 
   mq9 = ((float) analogRead(MQ9_SENSOR)) / 1023 * Vref;
-  Serial.print("MQ9 sensor "); Serial.print(mq9);Serial.println();
+  Serial.print("MQ9 sensor "); Serial.print(mq9); Serial.println();
 
   now = millis();
   if ((flame == previous_flame)
@@ -118,6 +121,19 @@ void loop() {
     return;
   }
 
+
+// prototype every so often...
+  if (proto_count-- <= 0) {
+    proto_count = 5;
+
+    strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
+    strcat(packetBuffer, itoa( requestID, buffer, 10) );
+
+    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2a) );
+
+    sendit();
+  }
+
   previous_flame = flame;
   if (aq > 0) previous_aq = aq; else aq = previous_aq;
   previous_mq2 = mq2;
@@ -127,7 +143,7 @@ void loop() {
   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
   strcat(packetBuffer, itoa( requestID, buffer, 10) );
 
-  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2b) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
       sprintf(buffer, "%x", mac[thisByte] );
       strcat(packetBuffer, buffer); 
@@ -156,14 +172,17 @@ void loop() {
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
 
+  sendit();
+  delay (5000);
+}
+
+void sendit() {
   Serial.println(packetBuffer); 
 
   udp.beginPacket(udp.remoteIP(), udp.remotePort());
   udp.write(packetBuffer);
   udp.endPacket();      
   requestID = requestID + 1;
-
-  delay (5000);
 }
 
 
