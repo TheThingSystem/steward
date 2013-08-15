@@ -26,11 +26,6 @@ exports.register = function(deviceType, localName, serviceUUIDs) {
 
 
 exports.start = function() {
-  var blacklist;
-
-  blacklist = { 'bec26202a8d84a9480fc9ac1de37daa6' : 'StickNFind'
-              };
-
   try {
     noble       = require('noble');
   } catch(ex) { logger.warning('BLE support disabled', { diagnostic: ex.message } ); }
@@ -42,27 +37,22 @@ exports.start = function() {
     if (state === 'poweredOn') noble.startScanning(); else noble.stopScanning();
   });
 
-  noble.on('discover', function(peripheral) {
-    var deviceType, i, info, name, uuids;
+  exports.register('/device/ignore', 'StickNFind', [ 'bec26202a8d84a9480fc9ac1de37daa6' ]);
 
-var stringify = require('json-stringify-safe');
-console.log('>>> ' + stringify(peripheral.advertisement));
-    uuids = peripheral.advertisement.serviceUuids;
-    for (i = 0; i < uuids.length; i++) {
-      if (!!blacklist[uuids[i]]) {
-        return logger.warning('BLE blacklist', { type         : blacklist[uuids[i]]
-                                               , uuid         : peripheral.uuid
-                                               , name         : peripheral.advertisement.localName
-                                               , serviceUuids : uuids
-                                               });
-      }
-    }
+  noble.on('discover', function(peripheral) {
+    var deviceType, info, name, uuids;
 
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';
     uuids = peripheral.advertisement.serviceUuids.sort().join(',').toLowerCase();
     deviceType =   (!!advertisements.localNames[name])    ? advertisements.localNames[name][uuids]
                  : (!!advertisements.serviceUUIDs[uuids]) ? advertisements.serviceUUIDs[uuids]['']
                  : '';
+    if (deviceType === '/device/ignore') {
+      return logger.warning('BLE ignore', { uuid         : peripheral.uuid
+                                          , localName    : peripheral.advertisement.localName
+                                          , serviceUuids : peripheral.advertisement.serviceUuids
+                                          });
+    }
 
     info = { source: 'ble', peripheral: peripheral };
     info.device = { url          : null
