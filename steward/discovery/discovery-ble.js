@@ -38,6 +38,7 @@ exports.start = function() {
   });
 
   exports.register('/device/ignore', 'StickNFind', [ 'bec26202a8d84a9480fc9ac1de37daa6' ]);
+  exports.register('/device/ignore', '', [ '' ]);
 
   noble.on('discover', function(peripheral) {
     var deviceType, info, name, uuids;
