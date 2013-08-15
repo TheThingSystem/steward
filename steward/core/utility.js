@@ -7,7 +7,7 @@ var fs          = require('fs')
   ;
 
 
-require('longjohn');
+// require('longjohn');
 process.addListener("uncaughtException", function (err) {
   var logger;
 
