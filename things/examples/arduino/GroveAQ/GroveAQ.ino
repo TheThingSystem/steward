@@ -73,6 +73,7 @@ void setup() {
 
   Serial.print("MAC address: ");
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
+    if (mac[thisByte] < 0x0a) Serial.print("0");
     Serial.print(mac[thisByte], HEX);
     Serial.print(":");
   }
@@ -129,13 +130,13 @@ void loop() {
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
-      sprintf(buffer, "%x", mac[thisByte] );
+      sprintf(buffer, "%02x", mac[thisByte] );
       strcat(packetBuffer, buffer);
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
-      sprintf(buffer, "%x", mac[thisByte] );
+      sprintf(buffer, "%02x", mac[thisByte] );
       strcat(packetBuffer, buffer);
   }
 

@@ -1,35 +1,50 @@
 README.txt
     
+Note well: this example is NOT a replacement for a certified smoke detector installed by a licensed electrician.
+It provides uncalibrated measurements which may be useful for non-essential monitoring, but is entirely inappropriate for 
+a stand-alone alarm system.
+    
+    
 Start with:
-    
-    Arduino Mega 2560 - http://arduino.cc/en/Main/arduinoBoardMega
-    
+
+    Arduino UNO       - http://arduino.cc/en/Main/arduinoBoardUno
+
     Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
-    
+
     Ether Shield      - http://arduino.cc/en/Main/ArduinoEthernetShield
-    
-and these sensors:
+
+OR
+
+    Arduino Ethernet  - http://arduino.cc/en/Main/ArduinoBoardEthernet
+
+    Stacking headers  - http://www.adafruit.com/products/85
+
+    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
+
+AND these sensors:
 
     A0 - Grove Gas Sensor (MQ9)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     A1 - Grove Gas Sensor (MQ2)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     A2 - Grove Air Quality Sensor - http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
     D6 - Grove Flame Sensor       - http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
-    
+
 This is probably overkill, and sadly, there isn't an NO2 sensor among
 the bunch.
+
     
-Import this library into Arduino
-    
+Next, import this library into Arduino
+
     http://www.seeedstudio.com/wiki/File:AirQuality_Sensor.zip
-    
+
 Note that when the AQ sensor starts, it takes 20 seconds before
 returning control back to set-up.
 
+    
 A report via the STRP looks like the following. Note that the properties
 are mostly defined as 'sigmas', which means that the sensors are
 reporting uncalibrated data, and the steward will report it the current
 value relative to the standard deviation of the data series.
-    
+
 {
   "path": "\/api\/v1\/thing\/reporting",
   "requestID": "1",
@@ -70,7 +85,7 @@ value relative to the standard deviation of the data series.
             "smoke": 0.9629,
             "co": 0
           },
-          "uptime": -14815
+          "uptime": 14815
         }
       ]
     }

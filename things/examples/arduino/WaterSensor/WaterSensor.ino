@@ -19,7 +19,7 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
 char packetBuffer[512];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/water\":{\"prototype\":{\"device\":{\"name\":\"Grove Water Sensor\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"water\":[\"present\",\"absent\"]}},\"instances\":[{\"name\":\"Water Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/grove/water\":{\"prototype\":{\"device\":{\"name\":\"Grove Water Sensor\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"water\":[\"detected\",\"absent\"]}},\"instances\":[{\"name\":\"Water Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-water\"},\"info\":{\"water\":\"";
 PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":";
@@ -45,6 +45,7 @@ void setup() {
   
   Serial.print("MAC address: ");
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
+    if (mac[thisByte] < 0x0a) Serial.print("0");
     Serial.print(mac[thisByte], HEX);
     Serial.print(":"); 
   }
@@ -70,12 +71,12 @@ void loop() {
      strcat(packetBuffer, ultoa( requestID, buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
      for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%x", mac[thisByte] );
+       sprintf(buffer, "%02x", mac[thisByte] );
        strcat(packetBuffer, buffer); 
      }   
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
      for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%x", mac[thisByte] );
+       sprintf(buffer, "%02x", mac[thisByte] );
        strcat(packetBuffer, buffer); 
      }   
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
@@ -108,12 +109,12 @@ void callback() {
      strcat(packetBuffer, ultoa( requestID, buffer, 10) );
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
      for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%x", mac[thisByte] );
+       sprintf(buffer, "%02x", mac[thisByte] );
        strcat(packetBuffer, buffer); 
      }   
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
      for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%x", mac[thisByte] );
+       sprintf(buffer, "%02x", mac[thisByte] );
        strcat(packetBuffer, buffer); 
      }   
      strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
