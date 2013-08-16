@@ -17,7 +17,7 @@
 
 PROGMEM prog_char *json_off = "{\"path\":\"/api/v1/actor/perform/device/lighting\",\"requestID\":\"4\",\"perform\":\"off\",\"parameter\":\"\"}";
 
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x17, 0x2D };   
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x1A, 0x08 };   
 
 byte * steward;
 int flag = 0;
@@ -75,7 +75,7 @@ void loop() {
     if( client.connect((char *)ip_to_str(steward),8887) ) {
       Serial.println(F("Connected"));
       webSocketClient.path = "/manage";
-      webSocketClient.host = "dastardly.local";
+      webSocketClient.host = (char *)ip_to_str(steward);
       if (webSocketClient.handshake(client)) {
         Serial.println("Handshake successful");
       } else {
