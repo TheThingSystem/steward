@@ -55,18 +55,11 @@ util.inherits(Fob, presence.Device);
 
 
 Fob.prototype.connect = function(self) {
-console.log('>>> attempting connection');
   self.peripheral.connect(function(err) {
-console.log('>>> connected !!err='+(!!err));
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-console.log('>>> attempting discovery');
     self.peripheral.discoverSomeServicesAndCharacteristics([ '1802' ], [ '2a06' ], function(err, services, characteristics) {
-console.log('>>> connected !!err='+(!!err));
       if (err) return logger.error('device/' + self.deviceID, { event: 'discover', diagnostic: err.message });
-var x = require('json-stringify-safe');
-console.log('>>> services=' + x(services));
-console.log('>>> characteristics=' + x(characteristics));
 
       self.alert = characteristics[0];
     });
