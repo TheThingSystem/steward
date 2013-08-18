@@ -87,11 +87,13 @@ var bootable = { prowl          :
 // END: BOOTSTRAP
 
 
-var bootstrap = function(ws) {
-  blinky(ws, 0);
+var actors = null;
+var events = null;
+var tasks  = null;
 
+var bootstrap = function(ws) {
   list_actors(ws, '', { depth : 'all' }, function(message) {
-    var a, actor, actors, d, emptyP, entry, info, name, prop, z;
+    var a, actor, d, emptyP, entry, info, name, prop, z;
 
     var update_place   = function() { perform_actors(ws, 'place', 'set', place_info); };
 
@@ -148,38 +150,162 @@ var bootstrap = function(ws) {
       if (!emptyP) create_device(ws, name, entry.actor, info);
     }
 
+    list_event(ws, '', { depth : 'all' }, function(message) {
+      if ((!message.result) && (!message.error)) return false;
+      if ((!message.result) || (!message.result.events)) throw new Error('event listing failed');
+
+      events = message.result.events;
+
+      list_task(ws, '', { depth : 'all' }, function(message) {
+        if ((!message.result) && (!message.error)) return false;
+        if ((!message.result) || (!message.result.tasks)) throw new Error('task listing failed');
+
+        tasks = message.result.tasks;
+
+        apprentice0a(ws);
+        apprentice0b(ws);
+        apprentice0c(ws);
+        apprentice0d(ws);
+
+        return true;
+      });
+
+      return true;
+    });
+
     return true;
   });
 };
 
 
-var apprenticeX = function(ws) {
-// define alert group
-// install prowl, netatmo, nest, xively
+var waterActivityUUID    = ':apprentice0:activity:water';
+var waterEventUUID       = ':apprentice0:events:water';
+var waterSensorUUID      = ':apprentice0:sensors:water';
+var waterTaskUUID        = ':apprentice0:tasks:water';
+var waterAlarmVisualUUID = ':apprentice0:visual-alarms:water';
+var waterAlarmAudioUUID  = ':apprentice0:audio-alarms:water';
+
+var apprentice0a = function(ws) {
+return;
+  make_tree(ws, waterEventUUID, 'or',   [ { entityUUID    : waterSensorUUID
+                                          , entityTypes   : [ '/device/sensor/*/water' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.water].', operand2: 'present' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(waterEventUUID + ' eventID=' + eventID);
+
+    make_tree(ws, waterTaskUUID, 'and', [ { entityUUID    : waterAlarmVisualUUID
+                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
+                                          , action        : 'set'
+                                          , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 0 } } }
+                                          }
+                                        , { entityUUID    : waterAlarmAudioUUID
+                                          , entityTypes   : [ '/device/media/*/audio' ]
+                                          , action        : 'play'
+                                          , parameter     : { url: '...' }
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(waterTaskUUID + ' taskID=' + taskID);
+
+      create_activity(ws, waterActivityUUID, eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(waterActivityUUID + ' activity creation failed');
+        }
+
+        console.log(waterActivityUUID + ' activityID=' + message.result.activity);
+      });
+    });
+  });
 };
 
-var apprenticeY = function(ws) {
-// activity:
-//   event - water detected
-//   task  - alert group goes red and plays sound
-};
-
-var apprentice1a = function(ws) {
+var apprentice0b = function(ws) {
 // activity:
 //   event - /device/sensor/arduino/mat's contact: on->off AND media unmuted
-//   task  - media group goes mute, kitchen group goes white
+//   task  - media group goes mute AND kitchen group goes white
 };
 
-var apprentice1b = function(ws) {
+var apprentice0c = function(ws) {
 // activity:
 //   event - /device/sensor/arduino/mat's contact: off->on AND media muted
-//   task  - media group goes unmute, kitchen group goes off
+//   task  - media group goes unmute AND kitchen group goes off
 };
 
-var apprentice2 = function(ws) {
+var apprentice0d = function(ws) {
 // activity:
-//   CO2>=1000ppm and fan off
-//   task - fan goes on for 15m
+//   event - CO2>=1000ppm AND fan off
+//   task  - fan goes on for 15m
+};
+
+var find_all_devices = function(patterns) {
+  var actor, device, devices, i, pattern;
+
+  devices = [];
+
+  for (i = 0; i < patterns.length; i++) {
+    pattern = patterns[i];
+    for (actor in actors) {
+      if ((!actors.hasOwnProperty(actor)) || (!actor.match(pattern))) continue;
+
+      for (device in actors[actor]) if (actors[actor].hasOwnProperty(device)) devices.push(device);
+    }
+  }
+
+  return devices;
+};
+
+var make_tree = function(ws, treeUUID, operand, entities, treeType, trees, action, create, callback) {
+  var devices, devs, groups, i, id, j, members, entity;
+
+  var cb1 = function() {
+    if (members.length < devices.length) return true;
+
+    create_group(ws, treeUUID, treeType, operand, members, function(message) {
+      if ((!message.result) || (!message.result.group) || (!!message.error)) {
+        if (!!message.error) console.log(message.error);
+        throw new Error(treeUUID + ' group creation failed');
+      }
+
+      callback('group/' + message.result.group);
+
+      return true;
+    });
+
+    return true;
+  };
+
+  var cb2 = function(uuid) {
+    return function(message) {
+      if ((!message.result) || (!message.result[treeType]) || (!!message.error)) {
+        if (!!message.error) console.log(message.error);
+        throw new Error(uuid + ' creation failed');
+      }
+      members.push(treeType + '/' + message.result[treeType]);
+
+      return cb1();
+    };
+  };
+
+  for (id in groups) if ((groups.hasOwnProperty(id)) && (groups[id].uuid === treeUUID)) return callback(id);
+
+  devices = [];
+  for (i = 0; i < entities.length; i++) {
+    entity = entities[i];
+    devices.concat(find_all_devices(entity.entityTypes));
+  }  
+
+  members = [];
+  for (i = 0; i < entities.length; i++) {
+    entity = entities[i];
+
+    devs = find_all_devices(entity.entityTypes);
+    for (j = 0; j < devs.length; j++) {
+      create(ws, entity.entityUUID + ':' + j, devs[j], entity.action, entity.parameter, cb2(entity.entityUUID + ':' + j));
+    }
+  }
+
+  return cb1();
 };
 
 
@@ -223,6 +349,13 @@ var add_callback = function(cb) {
 };
 
 var create_activity = function(ws, name, event, task, cb) {
+console.log(JSON.stringify({ path      : '/api/v1/activity/create/' + name
+                         , requestID : reqno
+                         , name      : name
+                         , armed     : true
+                         , event     : event
+                         , task      : task
+                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/activity/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -242,6 +375,13 @@ var create_device = function(ws, name, whatami, info, cb) {
 };
 
 var create_event = function(ws, name, actor, observe, parameter, cb) {
+console.log(JSON.stringify({ path      : '/api/v1/event/create/' + name
+                         , requestID : reqno
+                         , name      : name
+                         , actor     : actor
+                         , observe   : observe
+                         , parameter : parameter || ''
+                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/event/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -252,6 +392,13 @@ var create_event = function(ws, name, actor, observe, parameter, cb) {
 };
 
 var create_group = function(ws, name, type, operand, members, cb) {
+console.log(JSON.stringify({ path    : '/api/v1/group/create/' + name
+                         , requestID : reqno
+                         , name      : name
+                         , type      : type    || ''
+                         , operand   : operand || ''
+                         , members   : members || []
+                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/group/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -262,6 +409,13 @@ var create_group = function(ws, name, type, operand, members, cb) {
 };
 
 var create_task = function(ws, name, actor, perform, parameter, cb) {
+console.log(JSON.stringify({ path      : '/api/v1/task/create/' + name
+                         , requestID : reqno
+                         , name      : name
+                         , actor     : actor
+                         , perform   : perform
+                         , parameter : JSON.stringify(parameter) || ''
+                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/task/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -320,6 +474,23 @@ var list_task = function(ws, taskID, options, cb) {
   ws.send(JSON.stringify({ path      : '/api/v1/task/list/' + taskID
                          , requestID : add_callback(cb)
                          , options   : options || {}
+                         }));
+};
+
+var modify_group = function(ws, groupID, name, type, operand, members, cb) {
+console.log(JSON.stringify({ path      : '/api/v1/group/modify/' + groupID
+                         , requestID : reqno
+                         , name      : name
+                         , type      : type    || ''
+                         , operand   : operand || ''
+                         , members   : members || []
+                         }));
+  ws.send(JSON.stringify({ path      : '/api/v1/group/modify/' + groupID
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , type      : type    || ''
+                         , operand   : operand || ''
+                         , members   : members || []
                          }));
 };
 
@@ -416,27 +587,27 @@ var go = function(steward, i) {
   opened = 0;
   ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage' + steward.search);
 
-  ws.onopen = function(event) {
+  ws.onopen = function(event) {/* jshint unused: false */
     opened = 1;
     notice(tag, { state: 'open' });
 
     ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console' + steward.search);
-    ws2.onopen    = function(event) {};
-    ws2.onmessage = function(event) { 
-      var i, updates;
+    ws2.onopen    = function(event) {/* jshint unused: false */};
+    ws2.onmessage = function(event) {
+      var data, i, updates;
 
       data = JSON.parse(event.data);
       if (!data['.updates']) return;
       updates = data['.updates'];
 
-        document.getElementById('status').innerHTML += '<pre>' + updates.length + ' updates</pre><br/><br/>';
+      document.getElementById('status').innerHTML += '<pre>' + updates.length + ' updates</pre><br/><br/>';
 
       for (i = 0; i < updates.length; i++) {
         document.getElementById('status').innerHTML += '<pre>' + js_beautify(JSON.stringify(updates[i])) + '</pre><br/><br/>';
       }
     };
-    ws2.onclose   = function(event) { ws.close(); }
-    ws2.onerror   = function(event) { ws.close(); }
+    ws2.onclose   = function(event) {/* jshint unused: false */ ws.close(); };
+    ws2.onerror   = function(event) {/* jshint unused: false */ ws.close(); };
 
     try { bootstrap(ws); } catch(ex) { notice(tag, { state: 'bootstrap', message: ex.message }); }
   };

@@ -70,7 +70,6 @@ var create = function(logger, ws, api, message, tag) {
     default:
                                        return error(true, 'invalid task ' + message.task);
   }
-  if (!tasks.id2task(task[1]))         return error(false, 'unknown task ' + message.task);
 
   if (!!activities[uuid])              return error(false, 'duplicate uuid');
   activities[uuid] = {};

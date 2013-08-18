@@ -57,7 +57,7 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.members)                                     return error(true,  'missing members element');
   members = message.members;
   if (!util.isArray(members))                               return error(true,  'members element not an array');
-  if ((operator === operators.not) && members.length !== 1) return error(true,  'not operatore requires 1 member');
+  if ((operator === operators.not) && members.length !== 1) return error(true,  'not operator requires 1 member');
   for (i = 0; i < members.length; i++) {
     member = members[i].split('/');
     if (member.length !== 2)                                return error(true,  'invalid member element');
@@ -279,6 +279,199 @@ var list = function(logger, ws, api, message, tag) {
 };
 
 
+var modify = function(logger, ws, api, message, tag) {
+  var actor, columns, group, group2, groupID, i, member, members, members2, operator, parent, results, s, s1, s2, s3, triple, type;
+
+  var error = function(permanent, diagnostic) {
+    return manage.error(ws, tag, 'group modification', message.requestID, permanent, diagnostic);
+  };
+
+  if (!readyP())            return error(false, 'database not ready');
+
+  groupID = message.path.slice(api.prefix.length + 1);
+  if (groupID.length === 0) return error(true,  'missing group id');
+  group = id2group(groupID);
+  if (!group)               return error(true,  'invalid group/' + groupID);
+  group2 = utility.clone(group);
+
+  columns = [];
+
+  if (!!message.parentID) {
+    if (message.parentID !== 0) {
+      parent = id2group(message.parentID);
+      if (!parent)                                          return error(true,  'invalid parent group/' + message.parentID);
+    }
+    if ((message.parentID.toString() != group.parentID)) {
+      group2.parentID = message.parentID.toString();
+      columns.push('parentID');
+    }
+  }
+
+  if ((!!message.name) && (message.name.length) && (message.name !== group.groupName)) {
+    group2.groupName = message.name;
+    columns.push('groupName');
+  }
+
+  if ((!!message.comments) && (message.comments !== group.groupComments)) {
+    group2.groupComments = message.comments;
+    columns.push('groupComments');
+  }
+
+  if (!!message.type) {
+    type = utility.key2value(types, message.type);
+    if (!type)                                              return error(true,  'missing type element');
+
+    if ((!message.parentID) && (group.parentID !== 0)) parent = id2group(group.parentID);
+    if ((!!parent) && (parent.groupType !== type))          return error(false, 'parent/group type mismatch');
+
+    if (type !== group.groupType) {
+      group2.groupType = type;
+      columns.push('groupType');
+    }
+  } else type = group.groupType;
+
+  if (!!message.operator) {
+    operator = utility.key2value(operators, message.operator);
+    if (!operator)                                          return error(true,  'invalid group operator');
+
+    if (operator !== group.groupOperator) {
+      group2.groupOperator = operator;
+      columns.push('groupOperator');
+    }
+  }
+
+  members = [];
+  if (!!message.members) {
+    members = message.members;
+    if (!util.isArray(members))                             return error(true,  'members element not an array');
+    if ((operator === operators.not) && members.length !== 1) return error(true,  'not operator requires 1 member');
+    for (i = 0; i < members.length; i++) {
+      member = members[i].split('/');
+      if (member.length !== 2)                              return error(true,  'invalid member element');
+      member[1] = member[1].toString();
+      member[2] = members[i];
+      members[i] = member;
+
+      switch (member[0]) {
+        case 'event':
+        case 'task':
+          if (member[0] !== type)                           return error(false, 'group/member type mismatch');
+          break;
+
+        case 'group':
+          member = id2group(member[1]);
+          if (!member)                                      return error(false, 'invalid member ' + members[i]);
+          if (member.groupType !== type)                    return error(false, 'group/member type mismatch');
+          break;
+
+        default:
+          actor = actors[member[0]];
+          if (!actor)                                       return error(true,  'invalid member ' + member[2]);
+          if (!actor.$lookup(member[1]))                    return error(false, 'unknown member ' + member[2]);
+          if (type !== 'device')                            return error(false, 'group/actor type mismatch');
+          break;
+      }
+    }
+  }
+
+  results = { requestID: message.requestID };
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+
+  if (!!members) {
+    members2 = [];
+    for (i = 0; i < message.members.length; i++) if (group.members.indexOf(message.members[i]) < 0) members2.push(members[i]);
+    members = members2;
+
+    members2 = [];
+    for (i = 0; i < group.members.length; i++) if (message.members.indexOf(group.members[i]) < 0) members2.push(group.members[i]);
+
+  }
+  var fixmembers = function() {
+    var cnt, j;
+
+    var addmember = function(err) {
+      if (err) {
+        logger.error(tag, { event: 'INSERT members.groupID for ' + group.groupID, diagnostic: err.message });
+        results.error = { permanent: false, diagnostic: 'internal error' };
+      }
+      if (--cnt <= 0) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+    };
+
+    var delmember = function(err) {
+      if (err) {
+        logger.error(tag, { event: 'DELETE members.groupID for ' + group.groupID, diagnostic: err.message });
+        results.error = { permanent: false, diagnostic: 'internal error' };
+      }
+      if (--cnt <= 0) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+    };
+
+    cnt = (!!members) ? members.length : 0;
+
+    groups[group.groupUID] = group2;
+    if (!!members) groups[group.members] = members;
+
+    if (cnt === 0) {
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+      return;
+    }
+
+    for (i = 0; i < members.length; i++) {
+      member = members[i];
+      triple = { actor: member[2], actorType: member[0], actorID: member[1] };
+      triple[member[0] + 'ID'] = member[1];
+      group.members.push(triple);
+console.log('>>> INSERT INTO members(groupID, actorType, actorID, created) VALUES($groupID, $actorType, $actorID, datetime("now"))');
+console.log('>>> ' + JSON.stringify({ $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }));
+
+      db.run('INSERT INTO members(groupID, actorType, actorID, created) '
+             + 'VALUES($groupID, $actorType, $actorID, datetime("now"))',
+             { $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }, addmember);
+    }
+
+    for (i = 0; i < members2.length; i++) {
+      member = members2[i].split('/');
+      triple = { actor: members2[i], actorType: member[0], actorID: member[1].toString() };
+      triple[member[0] + 'ID'] = member[1];
+      j = group.members.indexOf(members2[i]);
+      if (j >= 0) group.members.splice(j, 1);
+console.log('>>> DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID');
+console.log('>>> ' + JSON.stringify({ $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }));
+
+      db.run('DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID',
+             { $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }, delmember);
+    }
+  };
+
+  results.result = { group: group.groupID };
+  if (columns.length > 0) {
+    s = '(';
+    s1 = 'MODIFY groups';
+    s2 = 'VALUES';
+    s3 = {};
+    for (i = 0, s = '('; i < columns.length; i++, s = ', ') {
+      s1 += s + columns[i];
+      s2 += s + '$' + columns[i];
+      s3['$' + columns[i]] = group2[columns[i]];
+    }
+    s3.$groupID = group.groupID;
+
+console.log('>>> ' + s1 + ') ' + s2 + ') WHERE groupID=$groupID');
+console.log('>>> ' + JSON.stringify(s3));
+    db.run(s1 + ') ' + s2 + ') WHERE groupID=$groupID', s3, function(err) {
+      if (err) {
+        logger.error(tag, { event: 'MODIFY groups.groupID for ' + group.groupID, diagnostic: err.message });
+        results.error = { permanent: false, diagnostic: 'internal error' };
+        try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+        return;
+      }
+
+      fixmembers();
+    });
+  } else fixmembers();
+
+  return true;
+};
+
 var perform = exports.perform = function(logger, ws, api, message, tag) {
   var actor, entity, group, groupID, i, j, member, members, p, parts, performed, present, results, search1, search2, v;
 
@@ -484,7 +677,7 @@ var actorlist = function(membership) {
 var proplist = exports.proplist = function(id, group) {
   var result = { uuid     : group.groupUID
                , name     : group.groupName
-               , comments : group.comments
+               , comments : group.groupComments
                , members  : actorlist(group.members)
                , status   : (utility.value2key(operators, group.groupOperator) || group.groupOperator) + ' ' + group.groupType
                };
@@ -511,23 +704,30 @@ exports.start = function() {
                  , $proplist : proplist
                  };
 
-  manage.apis.push({ prefix  : '/api/v1/group/create'
-                   , route   : create
-                   , access  : manage.access.level.write
+  manage.apis.push({ prefix   : '/api/v1/group/create'
+                   , route    : create
+                   , access   : manage.access.level.write
                    });
-  manage.apis.push({ prefix  : '/api/v1/group/list'
-                   , options : { depth: 'flat' }
-                   , route   : list
-                   , access  : manage.access.level.read
+  manage.apis.push({ prefix   : '/api/v1/group/list'
+                   , options  : { depth: 'flat' }
+                   , route    : list
+                   , access   : manage.access.level.read
                    , optional : { event      : 'id'
                                 , depth      : [ 'flat', 'tree', 'all' ]
                                 }
                    , response : {}
                    , comments : [ 'if present, the group is specified as the path suffix' ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/group/perform'
-                   , route   : perform
-                   , access  : manage.access.level.perform
+  manage.apis.push({ prefix   : '/api/v1/group/modify'
+                   , route    : modify
+                   , access   : manage.access.level.write
+                   , required : { groupID : 'id' }
+                   , response : ''
+                   , comments : [ 'the groupID is specified as the path suffix' ]
+                   });
+  manage.apis.push({ prefix   : '/api/v1/group/perform'
+                   , route    : perform
+                   , access   : manage.access.level.perform
                    , required : { groupID    : 'id'
                                 , perform    : true
                                 }
@@ -537,9 +737,9 @@ exports.start = function() {
                    , comments : [ 'the groupID is specified as the path suffix'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/group/delete'
-                   , route   : remove
-                   , access  : manage.access.level.write
+  manage.apis.push({ prefix   : '/api/v1/group/delete'
+                   , route    : remove
+                   , access   : manage.access.level.write
                    , required : { groupID : 'id' }
                    , response : ''
                    , comments : [ 'the groupID is specified as the path suffix' ]

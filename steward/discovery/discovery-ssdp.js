@@ -100,7 +100,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
       o = url.parse(info.ssdp.LOCATION || info.ssdp.Location);
       o.agent = false;
       if (o.hostname !== rinfo.address) {
-        logger.error('discovery', { event: 'bogus SSDP response', responder: rinfo, location: o.hostname });
+        logger.warning('discovery', { event: 'bogus SSDP response', responder: rinfo, location: o.hostname });
         return;
       }
 
