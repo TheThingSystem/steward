@@ -182,8 +182,8 @@ var waterActivityUUID    = ':apprentice0:activity:water';
 var waterEventUUID       = ':apprentice0:events:water';
 var waterSensorUUID      = ':apprentice0:sensors:water';
 var waterTaskUUID        = ':apprentice0:tasks:water';
-var waterAlarmVisualUUID = ':apprentice0:visual-alarms:water';
-var waterAlarmAudioUUID  = ':apprentice0:audio-alarms:water';
+var waterVisualUUID      = ':apprentice0:visual:water';
+var waterAudioUUID       = ':apprentice0:audio:water';
 
 var apprentice0a = function(ws) {
 return;
@@ -195,12 +195,12 @@ return;
                                         ], 'event', events, create_event, 'observe', function(eventID) {
     console.log(waterEventUUID + ' eventID=' + eventID);
 
-    make_tree(ws, waterTaskUUID, 'and', [ { entityUUID    : waterAlarmVisualUUID
+    make_tree(ws, waterTaskUUID, 'and', [ { entityUUID    : waterVisualUUID
                                           , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
                                           , action        : 'set'
                                           , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 0 } } }
                                           }
-                                        , { entityUUID    : waterAlarmAudioUUID
+                                        , { entityUUID    : waterAudioUUID
                                           , entityTypes   : [ '/device/media/*/audio' ]
                                           , action        : 'play'
                                           , parameter     : { url: '...' }
@@ -220,22 +220,142 @@ return;
   });
 };
 
+var media1ActivityUUID   = ':apprentice0:activity:media1';
+var media1EventsUUID     = ':apprentice0:events:media1';
+var media1SensorUUID     = ':apprentice0:sensors:media1';
+var media1PlayingUUID    = ':apprentice0:playing:media1';
+var media1TasksUUID      = ':apprentice0:tasks:media1';
+var media1VisualUUID     = ':apprentice0:visual:media1';
+var media1PauseUUID      = ':apprentice0:pause:media1';
+
 var apprentice0b = function(ws) {
-// activity:
-//   event - /device/sensor/arduino/mat's contact: on->off AND media unmuted
-//   task  - media group goes mute AND kitchen group goes white
+return;
+  make_tree(ws, media1EventsUUID, 'or', [ { entityUUID    : media1SensorUUID
+                                          , entityTypes   : [ '/device/sensor/arduino/seated-mat' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.contact].', operand2: 'off' }
+                                          }
+                                        , { entityUUID    : media1PlayingUUID
+                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'playing' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(media1EventsUUID + ' eventID=' + eventID);
+
+    make_tree(ws, media1TasksUUID,'and',[ { entityUUID    : media1VisualUUID
+                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
+                                          , action        : 'set'
+                                          , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 127 } } }
+                                          }
+                                        , { entityUUID    : media1PauseUUID
+                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , action        : 'pause'
+                                          , parameter     : ''
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(media1TasksUUID + ' taskID=' + taskID);
+
+      create_activity(ws, media1ActivityUUID, eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(media1ActivityUUID + ' activity creation failed');
+        }
+
+        console.log(media1ActivityUUID + ' activityID=' + message.result.activity);
+      });
+    });
+  });
 };
+
+var media2ActivityUUID   = ':apprentice0:activity:media2';
+var media2EventsUUID     = ':apprentice0:events:media2';
+var media2SensorUUID     = ':apprentice0:sensors:media2';
+var media2PausedUUID     = ':apprentice0:paused:media2';
+var media2TasksUUID      = ':apprentice0:tasks:media2';
+var media2VisualUUID     = ':apprentice0:visual:media2';
+var media2ResumeUUID     = ':apprentice0:resume:media2';
 
 var apprentice0c = function(ws) {
-// activity:
-//   event - /device/sensor/arduino/mat's contact: off->on AND media muted
-//   task  - media group goes unmute AND kitchen group goes off
+return;
+  make_tree(ws, media2EventsUUID, 'or', [ { entityUUID    : media2SensorUUID
+                                          , entityTypes   : [ '/device/sensor/arduino/seated-mat' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.contact].', operand2: 'on' }
+                                          }
+                                        , { entityUUID    : media2PausedUUID
+                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'paused' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(media2EventsUUID + ' eventID=' + eventID);
+
+    make_tree(ws, media2TasksUUID,'and',[ { entityUUID    : media2VisualUUID
+                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
+                                          , action        : 'off'
+                                          , parameter     : ''
+                                          }
+                                        , { entityUUID    : media2ResumeUUID
+                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , action        : 'play'
+                                          , parameter     : ''
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(media2TasksUUID + ' taskID=' + taskID);
+
+      create_activity(ws, media2ActivityUUID, eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(media2ActivityUUID + ' activity creation failed');
+        }
+
+        console.log(media2ActivityUUID + ' activityID=' + message.result.activity);
+      });
+    });
+  });
 };
 
+var climateActivityUUID   = ':apprentice0:activity:climate';
+var climateEventsUUID     = ':apprentice0:events:climate';
+var climateSensorUUID     = ':apprentice0:sensors:climate';
+var climateFanOffUUID     = ':apprentice0:off:climate';
+var climateTasksUUID      = ':apprentice0:tasks:climate';
+var climateFanOnUUID      = ':apprentice0:fan:climate';
+
 var apprentice0d = function(ws) {
-// activity:
-//   event - CO2>=1000ppm AND fan off
-//   task  - fan goes on for 15m
+return;
+  make_tree(ws, climateEventsUUID,'and',[ { entityUUID    : climateSensorUUID
+                                          , entityTypes   : [ '/device/climate/*/sensor' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'greater-than', operand1: '.[.co2].', operand2: 999 }
+                                          }
+                                        , { entityUUID    : climateFanOffUUID
+                                          , entityTypes   : [ '/device/climate/*/control' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.hvac].', operand2: 'off' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(climateEventsUUID + ' eventID=' + eventID);
+
+    make_tree(ws, climateTasksUUID,'and',[ { entityUUID    : climateFanOnUUID
+                                          , entityTypes   : [ '/device/climate/*/control' ]
+                                          , action        : 'set'
+                                          , parameter     : 'fan 15'
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(climateTasksUUID + ' taskID=' + taskID);
+
+      create_activity(ws, climateActivityUUID, eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(climateActivityUUID + ' activity creation failed');
+        }
+
+        console.log(climateActivityUUID + ' activityID=' + message.result.activity);
+      });
+    });
+  });
 };
 
 var find_all_devices = function(patterns) {
