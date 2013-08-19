@@ -102,6 +102,7 @@ var hello2 = function(logger, ws, data, tag) {
 
   if ((!!results) && (!!results.result) && (!results.error)) {
     results.result.success = true;
+    results.result.timestamp = new Date().getTime();
     delete(results.result.userID);
     delete(results.result.role);
   }
