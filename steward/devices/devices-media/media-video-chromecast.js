@@ -31,6 +31,48 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'idle';
   self.changed();
   self.refreshID = null;
+
+  self.chromecast.start();
+
+  self.chromecast.on('status', function(data) {
+    data = data[1];
+
+    if (data.status.state) {
+      switch (data.status.state) {
+
+        case 2:
+          self.status = 'playing';
+        break;
+
+        default:
+          self.status = 'idle';
+        break;
+      }
+    }
+
+    self.info = {
+      track : {
+      }
+    };
+
+    if (data.status.title) {
+      self.info.track.title = data.status.title;
+    }
+
+    if (data.status.current_time) {
+      self.info.track.position = data.status.current_time * 1000;
+    }
+
+    if (data.status.duration) {
+      self.info.track.duration = data.status.duration * 1000;
+    }
+
+    self.info.muted = data.status.muted ? 'on' : 'off';
+    self.info.volume = data.status.volume;
+
+    self.changed();
+  });
+
 };
 util.inherits(Chromecast, media.Device);
 
@@ -87,7 +129,13 @@ exports.start = function() {
                                    , 'stop'
                                    ]
                     , properties : { name    : true
-                                   , status  : [ 'idle' ]
+                                   , status  : [ 'idle', 'playing' ]
+                                   , track   : { title       : true
+                                               , position    : 'milliseconds'
+                                               , duration    : 'milliseconds'
+                                               }
+                                   , volume  : 'percentage'
+                                   , muted   : [ 'on', 'off' ]
                                    }
                     }
       , $validate : { perform    : validate_perform }
