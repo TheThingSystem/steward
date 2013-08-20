@@ -51,5 +51,6 @@
     , "unofficial-nest-api" : "git://github.com/tmpvar/unofficial_nodejs_nest.git"
     , "x509-keygen"         : "git://github.com/mrose17/x509-keygen.git"
     , "xml2js"              : "0.2.7"
+    , "eureka-dongle"       : "git://github.com/tmpvar/eureka-dongle.git"
   }
 }
