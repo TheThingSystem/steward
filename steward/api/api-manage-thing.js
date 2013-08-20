@@ -66,6 +66,7 @@ var pair2 = function(logger, ws, data, tag) {
     delete(results.result.user);
     delete(results.result.client);
   }
+  if (!!results) results.timestamp = Math.round((new Date().getTime()) / 1000);
 
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 };
@@ -102,10 +103,10 @@ var hello2 = function(logger, ws, data, tag) {
 
   if ((!!results) && (!!results.result) && (!results.error)) {
     results.result.success = true;
-    results.result.timestamp = new Date().getTime();
     delete(results.result.userID);
     delete(results.result.role);
   }
+  if (!!results) results.timestamp = Math.round((new Date().getTime()) / 1000);
 
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 };
