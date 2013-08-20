@@ -6,25 +6,21 @@ void writeIdentity() {
     SD.remove("SETTINGS.TXT");
  }
  Settings = SD.open("SETTINGS.TXT", FILE_WRITE);
- Serial.println("Writing to SETTINGS.TXT");
- //Serial.print("thingid=");
- //Serial.println(thingIdentity);
- //Serial.print("authkey=");
- //Serial.println(authKey);
+ Serial.println(F("Writing to SETTINGS.TXT"));
  Settings.print("thingid=");
  Settings.println(thingIdentity);
  Settings.print("authkey=");
  Settings.println(authKey);
- Settings.print("totp=");
- Settings.println(totp);
+ Settings.print("boottime=");
+ Settings.println(boottime);
  Settings.close();
- Serial.println("Closing SETTINGS.TXT");
+ Serial.println(F("Closing SETTINGS.TXT"));
 }
 
 void getIdentity() {
  // Open the settings file for reading:
   Settings = SD.open("SETTINGS.TXT");
-  Serial.println("Reading from SETTINGS.TXT");
+  Serial.println(F("Reading from SETTINGS.TXT"));
   char character;
   String description = "";
   String value = "";
@@ -77,8 +73,8 @@ void getIdentity() {
            description = "";
            value = "";
          }
-         if ( description  == "totp" ) {
-           totp = value;
+         if ( description  == "epoch" ) {
+           epoch = value;
            description = "";
            value = "";
          }
@@ -91,7 +87,7 @@ void getIdentity() {
     }
     // close the file:
     Settings.close();
-    Serial.println("Closing SETTINGS.TXT");
+    Serial.println(F("Closing SETTINGS.TXT"));
     
 }
 

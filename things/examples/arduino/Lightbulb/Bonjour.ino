@@ -4,19 +4,19 @@ void serviceFound(const char* type, MDNSServiceProtocol proto,
                   unsigned short port, const char* txtContent) {
                     
   if (NULL == name) {
-    Serial.println("Finished discovering services");
+    Serial.println(F("Finished discovering services"));
     stoppedLooking = 1;
   } else {
-    Serial.print("Found: '");
+    Serial.print(F("Found: '"));
     Serial.print(name);
-    Serial.print("' at ");
+    Serial.print(F("' at "));
     Serial.print(ip_to_str(ipAddr));
-    Serial.print(", port ");
+    Serial.print(F(", port "));
     Serial.print(port);
-    Serial.println(" (TCP)");
+    Serial.println(F(" (TCP)"));
 
     if (txtContent) {
-      Serial.print("\ttxt record: ");
+      Serial.print(F("\ttxt record: "));
       
       char buf[256];
       char len = *txtContent++, i=0;;
@@ -36,7 +36,7 @@ void serviceFound(const char* type, MDNSServiceProtocol proto,
     }
   
     if ( strcmp( name, "steward" ) == 0 ) {
-       Serial.print("Found the 'steward' at ");
+       Serial.print(F("Found the 'steward' at "));
        Serial.print(ip_to_str(ipAddr));
        Serial.println(".");
        steward = (byte*)ipAddr;
