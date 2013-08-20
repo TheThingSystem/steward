@@ -21,6 +21,8 @@ String generate_hotp( int length, int counter) {
   
   // we have encoding of "base32" and the key is stored as a string in "authKey" variable
   
+  // Hopefully we can lift code from here http://lab.infoserver.com.br/wiki/index.php/Projects:arduino-oath-token
+  
   return authKey; // temperaory placeholder to see if it compiles 
 }
 
