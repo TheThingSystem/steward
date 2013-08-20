@@ -131,6 +131,14 @@ var listen = function(addr, portno) {/* jshint multistr: true */
               data.root.device[0].serialNumber = (!!data.root.device[0].serialNum) ? data.root.device[0].serialNum : [ '' ];
             }
 
+            if (!data.root.device[0].modelDescription) {
+              data.root.device[0].modelDescription = [''];
+            }
+
+            if (!data.root.device[0].modelNumber) {
+              data.root.device[0].modelNumber = [''];
+            }
+
             info.device = {
                 url          : (!!data.root.URLBase) ? data.root.URLBase[0] : o.protocol + '//' + o.host + '/'
               , name         : data.root.device[0].friendlyName[0]
