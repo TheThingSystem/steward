@@ -37,11 +37,11 @@ util.inherits(Chromecast, media.Device);
 
 Chromecast.operations = {
   'stop' : function(device, params) {/* jshint unused: false */
-    device.stop()
+    device.stop('YouTube');
   }
 , 'play' : function(device, params) {/* jshint unused: false */
     if (params.url) {
-      device.launch(params.url);
+      device.start('YouTube', params.url);
     }
   }
 };
