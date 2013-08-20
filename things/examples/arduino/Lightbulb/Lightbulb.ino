@@ -310,7 +310,7 @@ void loop() {
          Serial.println(F("Got HELLO response"));
        
          // CHECK FOR ERROR
-         if( responseData.indexOf("error") != -1 ) {
+         if( responseData.indexOf("error") != -1 ) { // if we have an 'error' the index will be a positive integer
            Serial.println(F("Error authenticating with steward. Updating boot time."));
            int startoftag = responseData.indexOf("\"timestamp\":");
            int startofquotes = responseData.indexOf(":", startoftag);
