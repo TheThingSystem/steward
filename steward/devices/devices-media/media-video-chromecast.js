@@ -1,4 +1,4 @@
-// Dongle media player: http://www.chromecast.com/developer
+// Chromecast (Eureka Dongle) media player: www.google.com/chromecast
 
 var Dongle      = require('eureka-dongle')
   , util        = require('util')
