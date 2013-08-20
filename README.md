@@ -17,9 +17,7 @@ PRIOR TO BETA RELEASE
 
 1. platform ports
 
-    1.1. RPi: needs BLE
-
-    1.2. BBB: needs package manager, WiFi, etc.
+    1.1. BB and BB Black: needs package manager, WiFi, etc. (ANA: end of August)
 
 2. documentation
 
@@ -55,4 +53,6 @@ PRIOR TO BETA RELEASE
 
     6.1. json/d3 client improvements
 
-    6.2. arduino: LED blinking on/off, DHT-22 sensor (temperature/humidity), pressure mat, MQ-7 (carbon monoxide), MD0550 (wind)
+    6.2. arduino: Simple Thing Protcol example (aka Arduino as light bulb)
+
+    6.3. node.js  Event example
