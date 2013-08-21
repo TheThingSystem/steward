@@ -9,7 +9,6 @@
 #include <SPI.h>
 
 void send_packet( char * state );
-void callback( );
 
 int requestID = 1;
 unsigned long lastCallbackTime = 0;// the last time the data was written
@@ -98,22 +97,18 @@ void loop() {
   lastButtonState = reading;
   
   if ((millis() - lastCallbackTime) > 60000) {
-      callback();
-      lastCallbackTime = millis();
+      if ( buttonState ) {
+         Serial.println("Sending heartbeat (on)");    
+         send_packet( "on" );       
+         sentPacket = 1;
+      } else {
+         Serial.println("Sending heartbeat (off)");               
+         send_packet( "off" );       
+         sentPacket = 1;     
+     }
+     lastCallbackTime = millis();
   }
   
-}
-
-void callback() {
-    if ( buttonState ) {
-       Serial.println("Sending heartbeat (on)");    
-       send_packet( "on" );       
-       sentPacket = 1;
-    } else {
-       Serial.println("Sending heartbeat (off)");               
-       send_packet( "off" );       
-       sentPacket = 1;     
-   }
 }
   
 void send_packet( char * state ) {
