@@ -32,43 +32,54 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
 
   self.chromecast.start();
 
+  self.info = {
+    track : {
+    }
+  };
+
   self.chromecast.on('status', function(data) {
     data = data[1];
-
-    if (data.status.state) {
-      switch (data.status.state) {
-
-        case 2:
-          self.status = 'playing';
-        break;
-
-        default:
-          self.status = 'idle';
-        break;
+    var status = data.status || {};
+    var changed = false;
+    var applyIf = function(k, k2, fi) {
+      if (!k2) {
+        k2 = k;
       }
-    }
 
-    self.info = {
-      track : {
+      if (typeof status[k] !== undefined && status[k] !== self.info.track[k2]) {
+        if ((fi && fi(status[k])) || !fi) {
+          self.info.track[k2] = status[k];
+          changed = true;
+        }
       }
     };
 
-    if (data.status.title) {
-      self.info.track.title = data.status.title;
+    if (status.state) {
+      var newStatus = 'idle';
+      if (status.state === 2) {
+        newStatus = 'playing';
+      }
+
+      if (newStatus !== self.status) {
+        changed = true;
+      }
+
+      self.status = newStatus;
     }
 
-    if (data.status.current_time) {
-      self.info.track.position = data.status.current_time * 1000;
+    applyIf('title');
+    applyIf('current_time', 'position', function(v) {
+      return (v * 1000) !== self.info.track.position;
+    });
+    applyIf('duration', 'duration', function(v) {
+      return (v * 1000) !== self.info.track.duration;
+    });
+    applyIf('muted');
+    applyIf('volume');
+
+    if (changed) {
+      self.changed();
     }
-
-    if (data.status.duration) {
-      self.info.track.duration = data.status.duration * 1000;
-    }
-
-    self.info.muted = data.status.muted ? 'on' : 'off';
-    self.info.volume = data.status.volume;
-
-    self.changed();
   });
 
 };
