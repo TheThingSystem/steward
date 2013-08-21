@@ -312,7 +312,9 @@ var showPop = function(device, entry) {
 	
 	function carryonFunc(device) {
 		switch (device.deviceType) {
-			case "/device/lighting/hue/led":
+			case "/device/lighting/hue/bloom":
+			case "/device/lighting/hue/bulb":
+			case "/device/lighting/hue/lightstrip":
 				return carryonHue;
 			default:
 				return carryonEmpty;

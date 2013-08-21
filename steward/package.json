@@ -13,6 +13,7 @@
     , "blinkstick"          : "git://github.com/mrose17/blinkstick-node.git"
     , "cosm"                : "git://github.com/mrose17/node-cosm.git"
     , "cron-parser"         : "git://github.com/mrose17/node-cron-parser.git"
+    , "eureka-dongle"       : "git://github.com/tmpvar/eureka-dongle.git"
     , "geocoder"            : "0.1.0"
     , "koubachi"            : "git://github.com/mrose17/node-koubachi.git"
     , "json-stringify-safe" : "4.0.0"
@@ -51,6 +52,5 @@
     , "unofficial-nest-api" : "git://github.com/tmpvar/unofficial_nodejs_nest.git"
     , "x509-keygen"         : "git://github.com/mrose17/x509-keygen.git"
     , "xml2js"              : "0.2.7"
-    , "eureka-dongle"       : "git://github.com/tmpvar/eureka-dongle.git"
   }
 }
