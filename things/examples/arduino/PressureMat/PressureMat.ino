@@ -8,6 +8,9 @@
 
 #include <SPI.h>
 
+void send_packet( char * state );
+void callback( );
+
 int requestID = 1;
 unsigned long lastCallbackTime = 0;// the last time the data was written
 
@@ -65,12 +68,6 @@ void setup() {
  
   udp.beginMulti(ip,port);
 
-  // Send intital packet to announce that we're here.
-  //Serial.println((char*)pgm_read_word(&initialPacket)); 
-  //udp.beginPacket(udp.remoteIP(), udp.remotePort());
-  //udp.write((char*)pgm_read_word(&initialPacket));
-  //udp.endPacket();   
-
 }
 
 void loop() {
@@ -84,65 +81,15 @@ void loop() {
     //Serial.print( "Button state = " );
     //Serial.println( buttonState );
     if ( buttonState && !sentPacket ) {
-       Serial.println("Sending contact = on");               
+       Serial.println("Sending contact = on");  
+       send_packet( "on" );       
        sentPacket = 1;
-       
-       char buffer[12];
-       strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-       strcat(packetBuffer, itoa( requestID, buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-       strcat(packetBuffer, "on");
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis(), buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-
-       Serial.println(packetBuffer); 
-       udp.beginPacket(udp.remoteIP(), udp.remotePort());
-       udp.write(packetBuffer);
-       udp.endPacket();       
-       requestID = requestID + 1;
       
     } else if ( !buttonState && !sentPacket ) {
-       Serial.println("Sending contact = off");               
-       sentPacket = 1;     
- 
-       char buffer[12];
-       strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-       strcat(packetBuffer, itoa( requestID, buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-       strcat(packetBuffer, "off");
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis(), buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-
-       Serial.println(packetBuffer); 
-       udp.beginPacket(udp.remoteIP(), udp.remotePort());
-       udp.write(packetBuffer);
-       udp.endPacket();      
-       requestID = requestID + 1;
-       
-   }
-    
+       Serial.println("Sending contact = off"); 
+       send_packet( "off" );       
+       sentPacket = 1;    
+    }
   }
   
   if ( lastButtonState != reading ) {
@@ -158,67 +105,45 @@ void loop() {
 }
 
 void callback() {
-  
-      if ( buttonState ) {
-       Serial.println("Sending heartbeat (on)");               
+    if ( buttonState ) {
+       Serial.println("Sending heartbeat (on)");    
+       send_packet( "on" );       
        sentPacket = 1;
-       
-       char buffer[12];
-       strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-       strcat(packetBuffer, itoa( requestID, buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-       strcat(packetBuffer, "on");
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis(), buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-
-       Serial.println(packetBuffer); 
-       udp.beginPacket(udp.remoteIP(), udp.remotePort());
-       udp.write(packetBuffer);
-       udp.endPacket();       
-       requestID = requestID + 1;
-      
     } else {
        Serial.println("Sending heartbeat (off)");               
+       send_packet( "off" );       
        sentPacket = 1;     
- 
-       char buffer[12];
-       strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-       strcat(packetBuffer, itoa( requestID, buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-       for (byte thisByte = 0; thisByte < 6; thisByte++) {
-         sprintf(buffer, "%x", mac[thisByte] );
-         strcat(packetBuffer, buffer); 
-       }   
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-       strcat(packetBuffer, "off");
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-       strcat(packetBuffer, itoa( millis(), buffer, 10) );
-       strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-
-       Serial.println(packetBuffer); 
-       udp.beginPacket(udp.remoteIP(), udp.remotePort());
-       udp.write(packetBuffer);
-       udp.endPacket();      
-       requestID = requestID + 1;
-       
    }
 }
   
+void send_packet( char * state ) {
+  
+   char buffer[12];
+   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
+   strcat(packetBuffer, itoa( requestID, buffer, 10) );
+   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
+   for (byte thisByte = 0; thisByte < 6; thisByte++) {
+     sprintf(buffer, "%x", mac[thisByte] );
+     strcat(packetBuffer, buffer); 
+   }   
+   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
+   for (byte thisByte = 0; thisByte < 6; thisByte++) {
+     sprintf(buffer, "%x", mac[thisByte] );
+     strcat(packetBuffer, buffer); 
+   }   
+   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
+   strcat(packetBuffer, state);
+   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
+   strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
+
+   Serial.println(packetBuffer); 
+   udp.beginPacket(udp.remoteIP(), udp.remotePort());
+   udp.write(packetBuffer);
+   udp.endPacket();       
+   requestID = requestID + 1;
+       
+}
+
   
 
