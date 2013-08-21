@@ -201,10 +201,10 @@ Device.prototype.proplist = function() {
          };
 };
 
-Device.prototype.addinfo = function(info) {
+Device.prototype.addinfo = function(info, changedP) {
   var self = this;
 
-  var actors, i, path, prop;
+  var actors, i, path, prop, v;
 
   if (!self.$properties) {
     path = self.whatami.split('/');
@@ -219,15 +219,18 @@ Device.prototype.addinfo = function(info) {
   for (prop in info) {
     if (!info.hasOwnProperty(prop)) continue;
 
-    if (self.$properties[prop] !== 'sigmas') {
-      self.info[prop] = info[prop];
-      continue;
+    v = info[prop];
+    if (self.$properties[prop] === 'sigmas') {
+      if (!self.$sigmas) self.$sigmas = {};
+      if (!self.$sigmas[prop]) self.$sigmas[prop] = new Sigma();
+      v = self.$sigmas[prop].add(v);
     }
-
-    if (!self.$sigmas) self.$sigmas = {};
-    if (!self.$sigmas[prop]) self.$sigmas[prop] = new Sigma();
-    self.info[prop] = self.$sigmas[prop].add(info[prop]);
+    if (self.info[prop] !== v) {
+      changedP = true;
+      self.info[prop] = v;
+    }
   }
+  if (changedP) self.changed();
 };
 
 Device.prototype.getName = function() {

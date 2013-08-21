@@ -67,7 +67,7 @@ var handle = function(message, tag) {
 };
 
 var register = function(message, data, tag) {
-  var device, didP, i, info, instance, props, request, requestID, results, thing, thingPath, updated;
+  var changedP, device, didP, i, info, instance, props, request, requestID, results, thing, thingPath, updated;
 
   try { results = JSON.parse(data); } catch(ex) {
     return logger.error(tag, { event: 'protodef', requestID: message.requestID, error: { diagnostic: ex.message } });
@@ -111,12 +111,21 @@ var register = function(message, data, tag) {
           continue;
         }
 
-        device.name = instance.name;
-        device.status = instance.status;
-        device.updated = updated;
+        if ((!!instance.name) && (instance.name !== device.name)) {
+          changedP = true;
+          device.name = instance.name;
+        }
+        if ((!!instance.status) && (instance.status !== device.status)) {
+          changedP = true;
+          device.status = instance.status;
+        }
+        if ((!!instance.updated) && (instance.updated !== device.updated)) {
+          changedP = true;
+          device.updated = instance.updated;
+        }
         device.ping(device);
         if (!!instance.uptime) device.bootime = updated - instance.uptime;
-        device.addinfo(instance.info);
+        device.addinfo(instance.info, changedP);
         continue;
       }
 

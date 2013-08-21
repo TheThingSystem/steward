@@ -274,7 +274,7 @@ var register = exports.register = function(logger, ws, api, message, tag) {
 };
 
 var update = function(logger, ws, api, message, tag) {
-  var child, device, props, results, thingID;
+  var changedP, child, device, props, results, thingID, updated;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing updating', message.requestID, permanent, diagnostic);
@@ -300,15 +300,24 @@ var update = function(logger, ws, api, message, tag) {
     }
 
     props = message.things[thingID];
-    if (!!props.name) device.name = props.name.toString();
-    if (!!props.status) device.status = props.status.toString();
-    try {
-      device.updated = new Date(props.updated).getTime();
-      if (isNaN(device.updated)) device.changed();
-    } catch(ex) { device.changed(); }
+    changedP = false;
+    if ((!!props.name) && (props.name !== device.name)) {
+      changedP = true;
+      device.name = props.name.toString();
+    }
+    if ((!!props.status) && (props.status !== device.status)) {
+      changedP = true;
+      device.status = props.status.toString();
+    }
+    if (!!props.updated) {
+      try {
+        updated = new Date(props.updated).getTime();
+        if (!isNaN(updated)) device.updated = updated;
+      } catch(ex) { }
+    }
     device.ping(device);
     if (!!props.uptime) device.bootime = device.updated - props.uptime;
-    device.addinfo(props.info);
+    device.addinfo(props.info, changedP);
 
     results.things[thingID] = { success: true };
   }
