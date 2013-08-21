@@ -310,12 +310,10 @@ Hue.prototype.unpair = function(self) {
 
 
 Hue.prototype.refresh = function(self) {
-  var tasks = 2;
+  self.roundtrip(self, 'device/' + self.deviceID, '/api/' + self.username, function(err, state, response, result) {
+    var config, i, light, lights, results, errors;
 
-  self.roundtrip(self, 'device/' + self.deviceID, '/api/' + self.username + '/config', function(err, state, response, result) {
-    var i, results, errors;
-
-    if (--tasks <= 0) self.timer = setTimeout(function() { self.heartbeat(self); }, 30 * 1000);
+    self.timer = setTimeout(function() { self.heartbeat(self); }, 30 * 1000);
     logger.debug('config: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
     if (err) return;
 
@@ -335,43 +333,22 @@ Hue.prototype.refresh = function(self) {
 
     if (!(results = result.results)) return;
 
-    self.name = results.name;
+    config = results.config;
+    self.name = config.name;
     db.run('UPDATE devices SET deviceName=$deviceName, deviceIP=$deviceIP, deviceMAC=$deviceMAC WHERE deviceID=$deviceID',
-           { $deviceName: results.name, $deviceIP: results.ipaddress, $deviceMAC: results.mac, $deviceID: self.deviceID },
+           { $deviceName: config.name, $deviceIP: config.ipaddress, $deviceMAC: config.mac, $deviceID: self.deviceID },
            function(err) {
       if (err) logger.error('device/' + self.deviceID, { event: 'REPLACE name/address', diagnostic: err.message });
     });
-  });
 
-  self.roundtrip(self, 'device/' + self.deviceID, '/api/' + self.username + '/lights', function(err, state, response, result) {
-    var i, prop, results, errors;
-
-    if (--tasks <= 0) self.timer = setTimeout(function() { self.heartbeat(self); }, 30 * 1000);
-    logger.debug('lights: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
-    if (err) return;
-
-    errors = result.errors;
-    for (i = 0; i < errors.length; i++) {
-      logger.error('device/' + self.deviceID, { event: 'controller', parameter: 'lights', diagnostic: stringify(errors[i]) });
-    }
-    if (errors.length > 0) {
-      self.username = undefined;
-      self.waitingP = false;
-      db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
-             { $deviceID: self.deviceID, $key: 'username' }, function(err) {
-        if (err) logger.error('device/' + self.deviceID, { event: 'DELETE username', diagnostic: err.message });
-      });
-      return self.changed();
-    }
-
-    if (!(results = result.results)) return;
-    for (prop in results) if (results.hasOwnProperty(prop)) self.addlight(self, prop, results[prop]);
+    lights = results.lights;
+    for (light in lights) if (lights.hasOwnProperty(light)) self.addlight(self, light, lights[light]);
   });
 };
 
 
 Hue.prototype.addlight = function(self, id, props) {
-  var name, prop, type;
+  var name, prop, type, whatami;
 
   var deviceUID = self.deviceUID + '/lights/' + id;
 
@@ -385,11 +362,24 @@ Hue.prototype.addlight = function(self, id, props) {
       logger.info(self.lights[id].name, childprops(self, id));
     }
 
-    self.refresh2(self, id, 0);
+    self.refresh3(self, id, props);
     return;
   }
 
-  self.lights[id] = { whatami : '/device/lighting/hue/led'
+  switch (props.modelid.substr(0, 3)) {
+    case 'LLC':
+      whatami = '/device/lighting/hue/bloom';
+      break;
+
+    case 'LST':
+      whatami = '/device/lighting/hue/lightstrip';
+      break;
+
+    default:
+      whatami = '/device/lighting/hue/bulb';
+      break;
+  }
+  self.lights[id] = { whatami : whatami
                     , name    : id.toString()
                     , status  : 'busy'
                     };
@@ -409,7 +399,7 @@ Hue.prototype.addlight = function(self, id, props) {
       self.lights[id].name = row.deviceName;
 
       self.lights[id].status = 'waiting';
-      self.refresh2(self, id, 0);
+      self.refresh3(self, id, props);
       return;
     }
 
@@ -427,14 +417,13 @@ Hue.prototype.addlight = function(self, id, props) {
 
       self.lights[id] = props;
       self.lights[id].deviceID = lightID.toString();
-      self.lights[id].whatami = '/device/lighting/hue/led';
+      self.lights[id].whatami = whatami;
       if (!self.lights[id].name) self.lights[id].name = id.toString();
       self.lights[id].status = 'waiting';
-      self.refresh2(self, id, 0);
+      self.refresh3(self, id, props);
     });
   });
 };
-
 
 Hue.prototype.refresh2 = function(self, id, oops) {
   self.lights[id].status = 'refreshing';
@@ -456,30 +445,34 @@ Hue.prototype.refresh2 = function(self, id, oops) {
 
     if (!(results = result.results)) return;
 
-    db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
-           { $deviceType: results.type, $deviceName: results.name, $deviceID: self.lights[id].deviceID },
-           function(err) {
-      var child, info, prev, prop;
+    self.refresh3 (self, id, results);
+  });
+};
 
-      if (err) {
-        logger.error('device/' + self.deviceID, { event: 'REPLACE type/name for light ' + id, diagnostic: err.message });
-        return;
-      }
+Hue.prototype.refresh3 = function(self, id, results) {
+  db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
+         { $deviceType: results.type, $deviceName: results.name, $deviceID: self.lights[id].deviceID },
+         function(err) {
+    var child, info, prev, prop;
 
-      for (prop in results) if (results.hasOwnProperty(prop)) self.lights[id][prop] = results[prop];
-      child = childprops(self, id);
-      info = child.proplist();
-      delete(info.updated);
-      prev = stringify(info);
-      if (self.lights[id].prev === prev) return;
+    if (err) {
+      logger.error('device/' + self.deviceID, { event: 'REPLACE type/name for light ' + id, diagnostic: err.message });
+      return;
+    }
 
-      self.changed();
-      self.lights[id].prev = prev;
-      self.lights[id].updated = self.updated;
-      info.updated = self.updated;
+    for (prop in results) if (results.hasOwnProperty(prop)) self.lights[id][prop] = results[prop];
+    child = childprops(self, id);
+    info = child.proplist();
+    delete(info.updated);
+    prev = stringify(info);
+    if (self.lights[id].prev === prev) return;
 
-      if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', info);
-    });
+    self.changed();
+    self.lights[id].prev = prev;
+    self.lights[id].updated = self.updated;
+    info.updated = self.updated;
+
+    if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', info);
   });
 };
 
@@ -754,12 +747,13 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform_hue }
       };
+  devices.makers['Philips hue bridge 2012'] = Hue;
 
   steward.actors.device.lighting.hue = steward.actors.device.lighting.hue ||
       { $info     : { type: '/device/lighting/hue' } };
 
-  steward.actors.device.lighting.hue.led =
-      { $info     : { type       : '/device/lighting/hue/led'
+  steward.actors.device.lighting.hue.bulb =
+      { $info     : { type       : '/device/lighting/hue/bulb'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
@@ -778,7 +772,12 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform_bulb }
       };
-  devices.makers['Philips hue bridge 2012'] = Hue;
+
+  steward.actors.device.lighting.hue.bloom = utility.clone(steward.actors.device.lighting.hue.bulb);
+  steward.actors.device.lighting.hue.bloom.$info.type = '/device/lighting/hue/bloom';
+
+  steward.actors.device.lighting.hue.lightstrip = utility.clone(steward.actors.device.lighting.hue.bulb);
+  steward.actors.device.lighting.hue.lightstrip.$info.type = '/device/lighting/hue/lightstrip';
 
   scan();
   setInterval(scan, 5 * 60 * 1000);

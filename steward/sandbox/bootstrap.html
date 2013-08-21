@@ -196,7 +196,7 @@ return;
     console.log(waterEventUUID + ' eventID=' + eventID);
 
     make_tree(ws, waterTaskUUID, 'and', [ { entityUUID    : waterVisualUUID
-                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
+                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/bloom' ]
                                           , action        : 'set'
                                           , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 0 } } }
                                           }
@@ -244,7 +244,7 @@ return;
     console.log(media1EventsUUID + ' eventID=' + eventID);
 
     make_tree(ws, media1TasksUUID,'and',[ { entityUUID    : media1VisualUUID
-                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
+                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/lightstrip' ]
                                           , action        : 'set'
                                           , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 127 } } }
                                           }
@@ -292,7 +292,7 @@ return;
     console.log(media2EventsUUID + ' eventID=' + eventID);
 
     make_tree(ws, media2TasksUUID,'and',[ { entityUUID    : media2VisualUUID
-                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/led' ]
+                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/lightstrip' ]
                                           , action        : 'off'
                                           , parameter     : ''
                                           }

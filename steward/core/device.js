@@ -354,7 +354,7 @@ var Sigma = function() {
 Sigma.prototype.add = function(v) {
     var self = this;
 
-    var mu, sigma;
+    var mu, sigma, sigmas;
 
     self.n++;
     self.sum += v;
@@ -364,7 +364,8 @@ Sigma.prototype.add = function(v) {
 
     mu = self.sum / self.n;
     sigma = Math.sqrt((self.sumsq - (self.sum * self.sum / self.n)) / (self.n - 1));
-    return ((v - mu) / sigma).toFixed(2);
+    sigmas = (v - mu) / sigma;
+    return (isNaN(sigmas) ? 0 : sigmas.toFixed(2));
 };
 
 

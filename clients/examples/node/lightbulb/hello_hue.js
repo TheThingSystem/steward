@@ -20,7 +20,7 @@ function onRequest(request, response) {
 	ws.onopen = function(event) {
 		console.log("Opened websocket to steward.");
 		if ( pathname == "/on") {
-			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/hue/led/', 
+			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/hue/bulb/', 
 		                             requestID :'1', 
 		                             perform   :'on', 
 		                             parameter :JSON.stringify({ brightness: 100, 
@@ -29,7 +29,7 @@ function onRequest(request, response) {
 		    ws.send(json);	
 			
 		} else if ( pathname == "/off") {
-			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/hue/led/', 
+			var json = JSON.stringify({ path      :'/api/v1/actor/perform/device/lighting/hue/bulb/', 
 		                             requestID :'2', 
 		                             perform   :'off', 
 		                             parameter :''

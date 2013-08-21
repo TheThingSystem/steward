@@ -349,6 +349,7 @@ var onactivities = function(message) {
 var traverse = function(result, whoami, depth) {
   var c1, children, entity, guard, i, operator, pair;
 
+  if (!whoami) return '';
   pair = whoami.split('/');
   if (!result[pair[0] + 's']) return '';
   entity = result[pair[0] + 's'][whoami];

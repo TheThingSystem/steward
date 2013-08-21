@@ -1324,7 +1324,15 @@ var entries = {
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
-              , '/device/lighting/hue/led'                  : { img     : 'actors/hue.svg'
+              , '/device/lighting/hue/bloom'                : { img     : 'actors/hue.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              }
+              , '/device/lighting/hue/bulb'                 : { img     : 'actors/hue.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              }
+              , '/device/lighting/hue/lightstrip'           : { img     : 'actors/hue.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
