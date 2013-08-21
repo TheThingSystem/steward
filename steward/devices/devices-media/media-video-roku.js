@@ -22,13 +22,10 @@ var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.sid = null;
-  self.seq = 0;
 
   self.roku = new Roku(info.url);
   self.status = 'idle';
   self.changed();
-  self.refreshID = null;
 
   // TODO: it would be nice if roku supported querying or any sort of
   //       feedback.  The rest api right now is mostly input based,
