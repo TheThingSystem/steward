@@ -111,9 +111,9 @@ void loop() {
   Serial.print( h );
   Serial.print( "%, no2 = " );  
   Serial.print( no2/1000 );
-  Serial.print( "ppb, co = " );  
+  Serial.print( "ppm, co = " );  
   Serial.print( co/1000 );
-  Serial.println( "ppb" );  
+  Serial.println( "ppm" );  
   
   char buffer[24];
   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
