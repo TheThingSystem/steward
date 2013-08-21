@@ -24,8 +24,6 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.sid = null;
-  self.seq = 0;
 
   self.chromecast = new Dongle(info.url);
   self.status = 'idle';
