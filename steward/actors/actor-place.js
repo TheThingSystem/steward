@@ -493,7 +493,7 @@ var readyP = function() {
       if (err) logger.error('place/1', { event: 'INSERT deviceProps for deviceID=0', diagnostic: err.message });
     });
 
-    new Place({ deviceType: '/place' });
+    new Place({ deviceType: '/place', name: 'Home' });
     review();
     scan();
   });

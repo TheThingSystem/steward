@@ -1,10 +1,5 @@
 // AppleTV media player: http://www.appletv.com/developer
 
-if ((process.arch === 'arm') && (process.platform === 'linux')) {
-  exports.start = function() {};
-  return;
-}
-
 var airplay     = require('airplay')
   , util        = require('util')
   , devices     = require('./../../core/device')
