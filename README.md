@@ -9,7 +9,9 @@ The trouble with these things is that none of them talk to each other. They migh
 
 ![iPad](assets/thing.ipad.png)
 
-The Thing System is a set of software components and network protocols that changes that. Our steward software is written in node.js making it both portable and easily extensible. It can run on your laptop, or fit onto a small single board computer like the Raspberry Pi.
+The Thing System is a set of software components and network protocols that changes that. Our steward software is written in node.js making it both portable and easily extensible. It can run on your laptop, or fit onto a small single board computer like the Raspberry Pi. 
+
+The steward is heart of a system—a system of systems if you will—which is intended to fix the Internet of Things. It connects all of the things in your home, whether those things are media players such as the Roku or the Apple TV, your Nest thermostat, your INSTEON home control system, or your Philips Hue lightbulbs–whether your things are connected together via Wi-Fi, Zigbee, Z-Wave, USB or Bluetooth LE. The steward will find them and bring them together so they can talk to one another and perform magic.
 
 Your first step is to go to the [the wiki](https://github.com/TheThingSystem/steward/wiki). Enjoy!
 
