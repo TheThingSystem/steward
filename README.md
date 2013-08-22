@@ -11,7 +11,7 @@ The trouble with these things is that none of them talk to each other. They migh
 
 The Thing System is a set of software components and network protocols that changes that. Our steward software is written in node.js making it both portable and easily extensible. It can run on your laptop, or fit onto a small single board computer like the Raspberry Pi.
 
-Your first step is to go to the [the wiki](TheThingSystem/steward/wiki). Enjoy!
+Your first step is to go to the [the wiki](https://github.com/TheThingSystem/steward/wiki). Enjoy!
 
 ###License
 
