@@ -13,6 +13,8 @@ The Thing System is a set of software components and network protocols that chan
 
 The steward is heart of a system—a system of systems if you will—which is intended to fix the Internet of Things. It connects all of the things in your home, whether those things are media players such as the Roku or the Apple TV, your Nest thermostat, your INSTEON home control system, or your Philips Hue lightbulbs–whether your things are connected together via Wi-Fi, Zigbee, Z-Wave, USB or Bluetooth LE. The steward will find them and bring them together so they can talk to one another and perform magic.
 
+Entirely open source, with open and an extensively documented API, clients which talk to the steward can be written in your favourite language.
+
 Your first step is to go to the [the wiki](https://github.com/TheThingSystem/steward/wiki). Enjoy!
 
 ###License
