@@ -10,7 +10,7 @@ var Dongle      = require('eureka-dongle')
   ;
 
 
-// var logger = media.logger;
+var logger = media.logger;
 
 
 var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
@@ -30,12 +30,17 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.refreshID = null;
 
+  self.chromecast.statusInterval = 2000;
   self.chromecast.start();
 
-  self.info = {
-    track : {
-    }
-  };
+  self.info = { track : {} };
+
+  self.chromecast.on('error', function(err) {
+    logger.error('device/' + self.deviceID, {
+        event: 'ramp failure'
+      , msg: err.message
+    });
+  });
 
   self.chromecast.on('status', function(data) {
     data = data[1];
