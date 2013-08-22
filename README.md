@@ -1,7 +1,7 @@
 The Thing System Steward
 =======
 
-** To read this, you must be under Friend-DA from Carl. If you are not under Friend DA, you should not be reading this. This software is being actively developed and is nearly ready for release.**
+**To read this, you must be under Friend-DA from Carl. If you are not under Friend DA, you should not be reading this. This software is being actively developed and is nearly ready for release.**
 
 The home has evolved from one computer in a back room to a network of computing devices all over the house. Many of these are user-facing devices, such as tablets, laptops, and desktops. However increasingly, the home network has a number of special-purpose devices—things—that turns the home network into a network not just for the user, but for their devices; a network of things.
 
