@@ -24,13 +24,64 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.url = info.url;
-  self.sid = null;
-  self.seq = 0;
 
   self.chromecast = new Dongle(info.url);
   self.status = 'idle';
   self.changed();
   self.refreshID = null;
+
+  self.chromecast.start();
+
+  self.info = {
+    track : {
+    }
+  };
+
+  self.chromecast.on('status', function(data) {
+    data = data[1];
+    var status = data.status || {};
+    var changed = false;
+    var applyIf = function(k, k2, fi) {
+      if (!k2) {
+        k2 = k;
+      }
+
+      if (typeof status[k] !== undefined && status[k] !== self.info.track[k2]) {
+        if ((fi && fi(status[k])) || !fi) {
+          self.info.track[k2] = status[k];
+          changed = true;
+        }
+      }
+    };
+
+    if (status.state) {
+      var newStatus = 'idle';
+      if (status.state === 2) {
+        newStatus = 'playing';
+      }
+
+      if (newStatus !== self.status) {
+        changed = true;
+      }
+
+      self.status = newStatus;
+    }
+
+    applyIf('title');
+    applyIf('current_time', 'position', function(v) {
+      return (v * 1000) !== self.info.track.position;
+    });
+    applyIf('duration', 'duration', function(v) {
+      return (v * 1000) !== self.info.track.duration;
+    });
+    applyIf('muted');
+    applyIf('volume');
+
+    if (changed) {
+      self.changed();
+    }
+  });
+
 };
 util.inherits(Chromecast, media.Device);
 
@@ -87,7 +138,13 @@ exports.start = function() {
                                    , 'stop'
                                    ]
                     , properties : { name    : true
-                                   , status  : [ 'idle' ]
+                                   , status  : [ 'idle', 'playing' ]
+                                   , track   : { title       : true
+                                               , position    : 'milliseconds'
+                                               , duration    : 'milliseconds'
+                                               }
+                                   , volume  : 'percentage'
+                                   , muted   : [ 'on', 'off' ]
                                    }
                     }
       , $validate : { perform    : validate_perform }
