@@ -877,7 +877,7 @@ var single_media_drilldown = function(state) {
 };
 
 var media_device_arcs = function(device) {
-  var arcs, now, pos, prop, text, v;
+  var arcs, now, prop, text, v;
 
   arcs = [];
 
@@ -908,25 +908,13 @@ var media_device_arcs = function(device) {
                           , index  : 0.60
                           });
 
-        text = '';
-        pos = v.position;
-        if (!!pos) {
-          pos = Math.round(pos / 1000);
-
-          text = ('0' + (pos % 60)).substr(-2);
-          pos = Math.round(pos / 60);
-
-          if (pos !== 0) {
-            text = ('0' + (pos % 60)).substr(-2) + ':' + text;
-            pos = Math.round(pos / 60);
-          } else text = '00:' + text;
-          if (pos !== 0) text = ('0' + pos).substr(-2) +':' + text;
-        }
+        text = getTimeString(v.position);
+        if ((text !== '') && (!!v.duration)) text += ' / ' + getTimeString(v.duration)
         arcs.splice(2, 0, { name   : 'position'
                           , raw    : v.pos || ''
                           , label  : 'POSITION'
                           , cooked : text
-                          , value  : clip2bars(v.pos || 0, 0, v.duration || 1)
+                          , value  : clip2bars(v.position || 0, 0, v.duration || 1)
                           , index  : 0.50
                           });
         break;
@@ -969,6 +957,25 @@ var media_device_arcs = function(device) {
   }
 
   return arcs;
+};
+
+var getTimeString = function(v) {
+  var text = '';
+
+  if (!v) return text;
+
+  v = Math.round(v / 1000);
+
+  text = ('0' + (v % 60)).substr(-2);
+  v = Math.round(v / 60);
+
+  if (v !== 0) {
+    text = ('0' + (v % 60)).substr(-2) + ':' + text;
+    v = Math.round(v / 60);
+  } else text = '00:' + text;
+  if (v !== 0) text = ('0' + v).substr(-2) +':' + text;
+
+  return text;
 };
 
 var single_motive_drilldown = function(state) {
@@ -1432,6 +1439,10 @@ var entries = {
                                                               , arcs    : lighting_device_arcs
                                                               }
               , '/device/media/appletv/video'               : { img     : 'actors/appletv.svg'
+                                                              , single  : single_media_drilldown
+                                                              , arcs    : media_device_arcs
+                                                              }
+              , '/device/media/chromecast/video'            : { img     : 'actors/chromecast.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               }

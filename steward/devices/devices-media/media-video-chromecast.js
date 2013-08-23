@@ -4,9 +4,7 @@ var Dongle      = require('eureka-dongle')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , media       = require('./../device-media')
-  , discovery   = require('./../../discovery/discovery-ssdp')
   ;
 
 
@@ -46,16 +44,16 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
     data = data[1];
     var status = data.status || {};
     var changed = false;
-    var applyIf = function(k, k2, fi) {
-      if (!k2) {
-        k2 = k;
-      }
+    var applyIf = function(k, k2, fi, topP) {
+      var v0, v1;
 
-      if (typeof status[k] !== undefined && status[k] !== self.info.track[k2]) {
-        if ((fi && fi(status[k])) || !fi) {
-          self.info.track[k2] = status[k];
-          changed = true;
-        }
+      if (!k2) k2 = k;
+
+      v0 = !topP ? self.info.track[k2] : self.info[k2];
+      v1 = (!!fi) ? fi(status[k]) : status[k];
+      if (v0 !== v1) {
+        if (!topP) self.info.track[k2] = v1; else self.info[k2] = v1;
+        changed = true;
       }
     };
 
@@ -74,13 +72,17 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
 
     applyIf('title');
     applyIf('current_time', 'position', function(v) {
-      return (v * 1000) !== self.info.track.position;
+      return (v * 1000).toFixed(0);
     });
     applyIf('duration', 'duration', function(v) {
-      return (v * 1000) !== self.info.track.duration;
+      return (v * 1000).toFixed(0);
     });
-    applyIf('muted');
-    applyIf('volume');
+    applyIf('muted', 'muted', function(v) {
+      return (v ? 'on' : 'off');
+    }, true);
+    applyIf('volume', 'volume', function(v) {
+      return v.toFixed(0);
+    }, true);
 
     if (changed) {
       self.changed();
@@ -144,8 +146,8 @@ exports.start = function() {
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing' ]
-                                   , track   : { title       : true
-                                               , position    : 'milliseconds'
+                                   , track   : { title       : true 
+                                              , position    : 'milliseconds'
                                                , duration    : 'milliseconds'
                                                }
                                    , volume  : 'percentage'
