@@ -95,27 +95,26 @@ var connectSteward = function(type) {
       requestID = message.requestID.toString();
       
       switch (requestID) {
-      	case "1":
-			  // Short circuit if no changes since last refresh
-// 			  msgHash = hash(evt.data);
-// 			  msgHash = hash(JSON.stringify(message.result));
-// 			  if (prev && msgHash === prev) {
-// 				return;
-// 			  } else {
-// 				prev = msgHash;
-// 			  }
-			  
+      	case "0": // Draw entire page; not for updates			  
 			  state = stack.pop();
 			  state.message = message;
 			  stack.push(state);
 			  (state.page)(state);
+			  setTimeout(function() {refresh("1");}, 3000);
 			  break;
-		case "2":  // perform from popover over single-drilldown
+		case "1": // Refresh changes to home page
+			  state = stack.pop();
+			  state.message = message;
+			  stack.push(state);
+			  updatePage(message);
+			  setTimeout(function() {refresh("1");}, 3000);
+			  break;
+		case "2":  // Perform from popover
 			  if (message.result.status === "success") {
 			    setTimeout(function() {refresh("3");}, 3000);
 			  }
 			  break;
-		case "3":
+		case "3": // Perform was successful; now update drilldown screen
 			  devices = mostDevices(message);
 			  actors = {};
 			  for (i = 0; i < devices.length; i++) {
@@ -155,10 +154,6 @@ var connectSteward = function(type) {
     location.reload();
   }
   
-  
-//   function hash(str) {
-//   	return str.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
-//   }
 }
 
 var wsSend = function(jsonStr) {
@@ -172,7 +167,7 @@ var wsSend = function(jsonStr) {
 var refresh = function(reqID) {
    clearTimeout(timer);
    if (!reqID) { 
-     reqID = 1;
+     reqID = 0;
      timer = setTimeout(refresh, 5000);
   }
    wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: reqID, options: { depth: 'all' }}));  
@@ -181,7 +176,7 @@ var refresh = function(reqID) {
 var firstRefresh = function() {
    setConnStatus("Retrieving Steward Info...");
    stack.push({ page: home });
-   refresh();
+   wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: "0", options: { depth: 'all' }}));  
 }
 
 var goback = function() {
@@ -190,7 +185,7 @@ var goback = function() {
   if (stack.length > 0) state = stack.pop();
   stack.push(state);
   (state.page)(state);
-  refresh();
+  refresh("0");
 };
 
 var goforw = function(page, actor) {
@@ -199,6 +194,7 @@ var goforw = function(page, actor) {
   
   stack.push(state);
   (state.page)(state);
+  refresh("1")
 };
 
 var end = function() {

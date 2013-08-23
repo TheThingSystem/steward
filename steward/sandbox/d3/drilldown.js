@@ -13,9 +13,7 @@ var actors = {}
   , tags   = {}
   , multiple_arcs = []
   , lastUpdated
-  , lastIconTrayPage = 1
-  , place
-  ;
+  , lastIconTrayPage = 1;
 
 var home = function(state) {
   var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, tag, tags;
@@ -72,9 +70,10 @@ var home = function(state) {
     if ((a > 0) && ((a % 12) === 0)) div.appendChild(document.createElement('p'));
     actor = document.createElement('div');
     actor.setAttribute('class', 'actor' + (a + 1));
-    actor.innerHTML = '<p class="actor-name" style="color: ' + statusColor(device) + '">' + device.name + '</p>';
+    actor.innerHTML = '<p class="actor-name" id="' + actor2ID(device.actor) + '-label" style="color: ' + statusColor(device) + '">' + device.name + '</p>';
     img = document.createElement('img');
     img.setAttribute('src', entry.img);
+    img.setAttribute('id', actor2ID(device.actor));
     img.setAttribute('style', 'background-color:' + statusColor(device));
     if (!!entry.single) img.setAttribute('onclick', 'javascript:goforw(' + entry.single + ', "' + device.actor + '");');
     actor.appendChild(img);
@@ -148,6 +147,29 @@ var home = function(state) {
   setTimeout(updateAgo, 1000);
 };
 
+var updatePage = function(message) {
+  var actorID, devices, i;
+  
+  place = thePlace(message);
+  devices = mostDevices(message);
+  
+  lastUpdated = place.updated;
+  
+  switch (stack.length) {
+    case 1:
+      document.getElementById("timeagoStamp").innerHTML = d3.timestamp.ago(lastUpdated,true);
+	  for (i = 0; i < devices.length; i++) {
+		actorID = actor2ID(devices[i].actor);
+		document.getElementById(actorID + '-label').style.color = statusColor(devices[i]);
+		document.getElementById(actorID).style.backgroundColor = statusColor(devices[i]);
+	  }
+	  break;
+	case 2:
+	  // update drilldown page
+	  
+	  break;
+  }
+}
 
 var device_drilldown = function(name, devices, arcs, instructions) {
   var chart, device, div, div2, entry, i, img, trayLeft, trayPages, trayWidth;
@@ -455,6 +477,8 @@ var drawArcs = function(arcs) {
 		txt = txt.replace(re, "²");
 		re = /\<sub\>2\<\/sub\>/gi;
 		txt = txt.replace(re, "₂");
+		re = /\&sigma;/gi;
+		txt = txt.replace(re, "σ");
 		return txt;
 	}
 
@@ -470,7 +494,7 @@ var single_device_drilldown = function(state, arcs, instructions) {
 };
 
 var single_device_arcs = function(device) {
-  var arcs, brightness, color, delta, level, now;
+  var a0, a1, arcs, brightness, color, delta, level, now;
 
   arcs = [];
 
@@ -551,6 +575,9 @@ var single_device_arcs = function(device) {
                 });
       break;
 
+    case 'present':
+      break;
+
     default:
       arcs.push({ name   : 'status'
                 , raw    : device.status
@@ -563,6 +590,7 @@ var single_device_arcs = function(device) {
       break;
   }
 
+  if (device.status === 'present') { a0 = 1; a1 = 0.60; } else { a0 = 2; a1 = 0.50; }
   for (prop in device.info) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
@@ -570,12 +598,22 @@ var single_device_arcs = function(device) {
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
       case 'contact':
-        arcs.splice(5, 0, { name   : prop
+        arcs.splice(a0,0, { name   : prop
                           , raw    : v
                           , label  : 'CONTACT'
                           , cooked : v
-                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
-                          , index  : 0.50
+                          , value  : clip2bars(v === 'on' ? 100 : 0, 0, 100)
+                          , index  : a1
+                          });
+        break;
+
+      case 'water':
+        arcs.splice(a0,0, { name   : prop
+                          , raw    : v
+                          , label  : 'LEAK'
+                          , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
+                          , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
+                          , index  : a1
                           });
         break;
 
@@ -624,10 +662,14 @@ var wearable_device_arcs       = single_device_arcs;
 
 
 var single_climate_drilldown = function(state) {
-  var device = actors[state.actor];
+  var device, instructions
 
-  device_drilldown(device.name, [ device ], climate_device_arcs(device),
-                   'show data for last week<br />' + 'show forecast for next week');
+  device = actors[state.actor];
+  instructions = 'show data for last week';
+console.log(entries[device.deviceType]);
+  if (!entries[device.deviceType].passive) instructions += '<br />' + 'show forecast for next week';
+
+  device_drilldown(device.name, [ device ], climate_device_arcs(device), instructions);
 };
 
 var climate_device_arcs = function(device) {
@@ -642,6 +684,7 @@ var climate_device_arcs = function(device) {
     v = device.info[prop];
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
+// outer ring
       case 'lastSample':
         now = new Date().getTime();
         arcs.splice(0, 0, { name   : prop
@@ -653,6 +696,8 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+
+// 1st ring
       case 'temperature':
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
@@ -663,6 +708,17 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'overall':
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'quality'
+                          , cooked : v + '&sigma;'
+                          , value  : clip2bars(-v, -5, 1.5)
+                          , index  : 0.60
+                          });
+        break;
+
+// 2nd ring
       case 'humidity':
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
@@ -673,10 +729,41 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'flame':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'FLAME'
+                          , cooked : v === 'on' ? 'YES!' : 'nothing detected'
+                          , value  : clip2bars(v === 'on' ? 100 : 0, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+
+// 3rd ring
       case 'co2':
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CO<sub>2</sub>'
+                          , cooked : v + 'ppm'
+                          , value  : clip2bars(v,  0, 1200)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'smoke':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'smoke'
+                          , cooked : v + '&sigma;'
+                          , value  : clip2bars(-v,  -5, 1.5)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'leaf':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'LEAF'
                           , cooked : v + 'ppm'
                           , value  : clip2bars(v,  0, 1200)
                           , index  : 0.40
@@ -693,6 +780,7 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+// 4th ring
       case 'noise':
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
@@ -707,29 +795,9 @@ var climate_device_arcs = function(device) {
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'CO'
-                          , cooked : v + 'ppm'
-                          , value  : clip2bars(v, 0, 1200)
+                          , cooked : v + '&sigma;'
+                          , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.30
-                          });
-        break;
-
-      case 'pressure':
-        arcs.splice(5, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'PRESSURE'
-                          , cooked : v + 'mb'
-                          , value  : clip2bars(v, 980,  1060)
-                          , index  : 0.20
-                          });
-        break;
-
-      case 'LEAF':
-        arcs.splice(3, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'LEAF'
-                          , cooked : v + 'ppm'
-                          , value  : clip2bars(v,  0, 1200)
-                          , index  : 0.40
                           });
         break;
 
@@ -742,6 +810,18 @@ var climate_device_arcs = function(device) {
                                                : v === 'heat' ?  66
                                                : v === 'cool' ? 100 : 0, 0, 100)
                           , index  : 0.30
+                          });
+        break;
+
+
+// 5th ring
+      case 'pressure':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'PRESSURE'
+                          , cooked : v + 'mb'
+                          , value  : clip2bars(v, 980,  1060)
+                          , index  : 0.20
                           });
         break;
 
@@ -1223,6 +1303,11 @@ var handleArrow = function(evt) {
 	  .style("left", function() {return leftEnd + 'px';});
 }
 
+// Convert actor name to qualified DOM id
+var actor2ID = function(actor) {
+	return actor.replace(/\//g, "_");
+}
+
 // Adapted from http://stackoverflow.com/questions/4726344/
 // To work with d3_Color type
 function textColor(bgColor, arcVal) {
@@ -1257,16 +1342,18 @@ function textColor(bgColor, arcVal) {
   motrr.svg
   romo.svg
   swivl.svg
-  ti-sensor.svg
-  veralite.svg
-  wemo.svg
  */
 
 var entries = {
 // actors
-               '/device/climate/arduino/sensor'             : { img     : 'actors/arduino.svg'
+                '/device/climate/arduino/sensor'            : { img     : 'actors/arduino.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
+                                                              }
+              , '/device/climate/grove/air-quality'         : { img     : 'actors/grove.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              , passive : true
                                                               }
               ,  '/device/climate/nest/control'             : { img     : 'actors/nest.svg'
                                                               , single  : single_nest_drilldown
@@ -1324,7 +1411,7 @@ var entries = {
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
-              , '/device/lighting/hue/bloom'                : { img     : 'actors/hue.svg'
+              , '/device/lighting/hue/bloom'                : { img     : 'actors/hue-bloom.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
@@ -1332,7 +1419,7 @@ var entries = {
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
-              , '/device/lighting/hue/lightstrip'           : { img     : 'actors/hue.svg'
+              , '/device/lighting/hue/lightstrip'           : { img     : 'actors/hue-lightstrip.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               }
@@ -1372,7 +1459,11 @@ var entries = {
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               }
-              , '/device/sensor/arduino/mat'                : { img     : 'actors/arduino.svg'
+              , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/arduino.svg'
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
+                                                              }
+              , '/device/sensor/grove/water'                : { img     : 'actors/grove.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
                                                               }
