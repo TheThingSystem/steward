@@ -91,7 +91,7 @@ var actors = null;
 var events = null;
 var tasks  = null;
 
-var bootstrap = function(ws) {
+var bootstrap = function(steward, ws) {
   list_actors(ws, '', { depth : 'all' }, function(message) {
     var a, actor, d, emptyP, entry, info, name, prop, z;
 
@@ -162,10 +162,14 @@ var bootstrap = function(ws) {
 
         tasks = message.result.tasks;
 
-        apprentice0a(ws);
-        apprentice0b(ws);
-        apprentice0c(ws);
-        apprentice0d(ws);
+if (false) {
+        try {
+          apprentice0a(steward, ws);
+          apprentice0b(steward, ws);
+          apprentice0c(steward, ws);
+          apprentice0d(steward, ws);
+        } catch(ex) { console.log(ex); }
+}
 
         return true;
       });
@@ -185,25 +189,26 @@ var waterTaskUUID        = ':apprentice0:tasks:water';
 var waterVisualUUID      = ':apprentice0:visual:water';
 var waterAudioUUID       = ':apprentice0:audio:water';
 
-var apprentice0a = function(ws) {
-return;
+var apprentice0a = function(steward, ws) {
+  var url = 'http' + (steward.secure ? 's' : '') + '://' + steward.hostname + ':' + steward.port + '/fault.wav' + steward.search;
+
   make_tree(ws, waterEventUUID, 'or',   [ { entityUUID    : waterSensorUUID
-                                          , entityTypes   : [ '/device/sensor/*/water' ]
+                                          , entityTypes   : [ '^/device/sensor/.*/water$' ]
                                           , action        : '.condition'
-                                          , parameter     : { operator: 'equals', operand1: '.[.water].', operand2: 'present' }
+                                          , parameter     : { operator: 'equals', operand1: '.[.water].', operand2: 'detected' }
                                           }
                                         ], 'event', events, create_event, 'observe', function(eventID) {
     console.log(waterEventUUID + ' eventID=' + eventID);
 
     make_tree(ws, waterTaskUUID, 'and', [ { entityUUID    : waterVisualUUID
-                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/bloom' ]
-                                          , action        : 'set'
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/bloom$' ]
+                                          , action        : 'on'
                                           , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 0 } } }
                                           }
                                         , { entityUUID    : waterAudioUUID
-                                          , entityTypes   : [ '/device/media/*/audio' ]
+                                          , entityTypes   : [ '^/device/media/.*/audio$' ]
                                           , action        : 'play'
-                                          , parameter     : { url: '...' }
+                                          , parameter     : { url: url }
                                           }
                                         ], 'task', tasks, create_task, 'perform', function(taskID) {
       console.log(waterTaskUUID + ' taskID=' + taskID);
@@ -228,15 +233,14 @@ var media1TasksUUID      = ':apprentice0:tasks:media1';
 var media1VisualUUID     = ':apprentice0:visual:media1';
 var media1PauseUUID      = ':apprentice0:pause:media1';
 
-var apprentice0b = function(ws) {
-return;
+var apprentice0b = function(steward, ws) {/* jshint unused: false */
   make_tree(ws, media1EventsUUID, 'or', [ { entityUUID    : media1SensorUUID
-                                          , entityTypes   : [ '/device/sensor/arduino/seated-mat' ]
+                                          , entityTypes   : [ '^/device/sensor/arduino/seated-mat$' ]
                                           , action        : '.condition'
                                           , parameter     : { operator: 'equals', operand1: '.[.contact].', operand2: 'off' }
                                           }
                                         , { entityUUID    : media1PlayingUUID
-                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , entityTypes   : [ '^/device/media/appletv/video$' ]
                                           , action        : '.condition'
                                           , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'playing' }
                                           }
@@ -244,12 +248,12 @@ return;
     console.log(media1EventsUUID + ' eventID=' + eventID);
 
     make_tree(ws, media1TasksUUID,'and',[ { entityUUID    : media1VisualUUID
-                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/lightstrip' ]
-                                          , action        : 'set'
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/lightstrip$' ]
+                                          , action        : 'on'
                                           , parameter     : { color: { model: 'rgb', rgb: { r: 255, g: 127, b: 127 } } }
                                           }
                                         , { entityUUID    : media1PauseUUID
-                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , entityTypes   : [ '^/device/media/appletv/video$' ]
                                           , action        : 'pause'
                                           , parameter     : ''
                                           }
@@ -276,28 +280,27 @@ var media2TasksUUID      = ':apprentice0:tasks:media2';
 var media2VisualUUID     = ':apprentice0:visual:media2';
 var media2ResumeUUID     = ':apprentice0:resume:media2';
 
-var apprentice0c = function(ws) {
-return;
+var apprentice0c = function(steward, ws) {/* jshint unused: false */
   make_tree(ws, media2EventsUUID, 'or', [ { entityUUID    : media2SensorUUID
-                                          , entityTypes   : [ '/device/sensor/arduino/seated-mat' ]
+                                          , entityTypes   : [ '^/device/sensor/arduino/seated-mat$' ]
                                           , action        : '.condition'
                                           , parameter     : { operator: 'equals', operand1: '.[.contact].', operand2: 'on' }
                                           }
                                         , { entityUUID    : media2PausedUUID
-                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , entityTypes   : [ '^/device/media/appletv/video$' ]
                                           , action        : '.condition'
-                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'paused' }
+                                          , parameter     : { operator: 'not-equals', operand1: '.[.status].', operand2: 'playing' }
                                           }
                                         ], 'event', events, create_event, 'observe', function(eventID) {
     console.log(media2EventsUUID + ' eventID=' + eventID);
 
     make_tree(ws, media2TasksUUID,'and',[ { entityUUID    : media2VisualUUID
-                                          , entityTypes   : [ '/device/light/blink*', '/device/light/hue/lightstrip' ]
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/lightstrip$' ]
                                           , action        : 'off'
                                           , parameter     : ''
                                           }
                                         , { entityUUID    : media2ResumeUUID
-                                          , entityTypes   : [ '/device/media/*/video' ]
+                                          , entityTypes   : [ '^/device/media/appletv/video$' ]
                                           , action        : 'play'
                                           , parameter     : ''
                                           }
@@ -316,43 +319,125 @@ return;
   });
 };
 
-var climateActivityUUID   = ':apprentice0:activity:climate';
-var climateEventsUUID     = ':apprentice0:events:climate';
-var climateSensorUUID     = ':apprentice0:sensors:climate';
-var climateFanOffUUID     = ':apprentice0:off:climate';
-var climateTasksUUID      = ':apprentice0:tasks:climate';
-var climateFanOnUUID      = ':apprentice0:fan:climate';
+var placeActivityUUID    = ':apprentice0:activity:place';
+var placeEventUUID       = ':apprentice0:events:place';
+var placeStatusUUID      = ':apprentice0:status:place';
+var placeTaskUUID        = ':apprentice0:tasks:place';
+var placeVisualUUID      = ':apprentice0:visual:place';
 
-var apprentice0d = function(ws) {
-return;
-  make_tree(ws, climateEventsUUID,'and',[ { entityUUID    : climateSensorUUID
-                                          , entityTypes   : [ '/device/climate/*/sensor' ]
+var apprentice0d = function(steward, ws) {
+  make_tree(ws, placeEventUUID + ':red', 'or',   [ { entityUUID    : placeStatusUUID + ':red'
+                                          , entityTypes   : [ '^/place$' ]
                                           , action        : '.condition'
-                                          , parameter     : { operator: 'greater-than', operand1: '.[.co2].', operand2: 999 }
-                                          }
-                                        , { entityUUID    : climateFanOffUUID
-                                          , entityTypes   : [ '/device/climate/*/control' ]
-                                          , action        : '.condition'
-                                          , parameter     : { operator: 'equals', operand1: '.[.hvac].', operand2: 'off' }
+                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'red' }
                                           }
                                         ], 'event', events, create_event, 'observe', function(eventID) {
-    console.log(climateEventsUUID + ' eventID=' + eventID);
+    console.log(placeEventUUID + ':red' + ' eventID=' + eventID);
 
-    make_tree(ws, climateTasksUUID,'and',[ { entityUUID    : climateFanOnUUID
-                                          , entityTypes   : [ '/device/climate/*/control' ]
-                                          , action        : 'set'
-                                          , parameter     : 'fan 15'
+    make_tree(ws, placeTaskUUID + ':red', 'and', [ { entityUUID    : placeVisualUUID + ':red'
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/bloom$' ]
+                                          , action        : 'on'
+                                          , parameter     : { color      : { model: 'rgb', rgb: { r: 255, g: 0, b: 0 } }
+                                                            , brightness : 25
+                                                            }
                                           }
                                         ], 'task', tasks, create_task, 'perform', function(taskID) {
-      console.log(climateTasksUUID + ' taskID=' + taskID);
+      console.log(placeTaskUUID + ':red' + ' taskID=' + taskID);
 
-      create_activity(ws, climateActivityUUID, eventID, taskID, function(message) {
+      create_activity(ws, placeActivityUUID + ':red', eventID, taskID, function(message) {
         if ((!message.result) || (!message.result.activity) || (!!message.error)) {
           if (!!message.error) console.log(message.error);
-          throw new Error(climateActivityUUID + ' activity creation failed');
+          throw new Error(placeActivityUUID + ':red' + ' activity creation failed');
         }
 
-        console.log(climateActivityUUID + ' activityID=' + message.result.activity);
+        console.log(placeActivityUUID + ':red' + ' activityID=' + message.result.activity);
+      });
+    });
+  });
+
+  make_tree(ws, placeEventUUID + ':orange', 'or',   [ { entityUUID    : placeStatusUUID + ':orange'
+                                          , entityTypes   : [ '^/place$' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'orange' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(placeEventUUID + ':orange' + ' eventID=' + eventID);
+
+    make_tree(ws, placeTaskUUID + ':orange', 'and', [ { entityUUID    : placeVisualUUID + ':orange'
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/bloom$' ]
+                                          , action        : 'on'
+                                          , parameter     : { color      : { model: 'rgb', rgb: { r: 255, g: 131, b: 0 } }
+                                                            , brightness : 5
+                                                            }
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(placeTaskUUID + ':orange' + ' taskID=' + taskID);
+
+      create_activity(ws, placeActivityUUID + ':orange', eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(placeActivityUUID + ':orange' + ' activity creation failed');
+        }
+
+        console.log(placeActivityUUID + ':orange' + ' activityID=' + message.result.activity);
+      });
+    });
+  });
+
+  make_tree(ws, placeEventUUID + ':blue', 'or',   [ { entityUUID    : placeStatusUUID + ':blue'
+                                          , entityTypes   : [ '^/place$' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'blue' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(placeEventUUID + ':blue' + ' eventID=' + eventID);
+
+							    make_tree(ws, placeTaskUUID + ':blue', 'and', [ { entityUUID    : placeVisualUUID + ':blue'
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/bloom$' ]
+                                          , action        : 'on'
+                                          , parameter     : { color      : { model: 'rgb', rgb: { r: 0, g: 0, b: 255 } }
+                                                            , brightness : 5
+                                                            }
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(placeTaskUUID + ':blue' + ' taskID=' + taskID);
+
+      create_activity(ws, placeActivityUUID + ':blue', eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(placeActivityUUID + ':blue' + ' activity creation failed');
+        }
+
+        console.log(placeActivityUUID + ':blue' + ' activityID=' + message.result.activity);
+      });
+    });
+  });
+
+  make_tree(ws, placeEventUUID + ':green', 'or',   [ { entityUUID    : placeStatusUUID + ':green'
+                                          , entityTypes   : [ '^/place$' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'equals', operand1: '.[.status].', operand2: 'green' }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(placeEventUUID + ':green' + ' eventID=' + eventID);
+
+    make_tree(ws, placeTaskUUID + ':green', 'and', [ { entityUUID    : placeVisualUUID + ':green'
+                                          , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/bloom$' ]
+                                          , action        : 'on'
+                                          , parameter     : { color      : { model: 'rgb', rgb: { r: 0, g: 255, b: 0 } }
+                                                            , brightness : 1
+                                                            }
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(placeTaskUUID + ':green' + ' taskID=' + taskID);
+
+      create_activity(ws, placeActivityUUID + ':green', eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(placeActivityUUID + ':green' + ' activity creation failed');
+        }
+
+        console.log(placeActivityUUID + ':green' + ' activityID=' + message.result.activity);
       });
     });
   });
@@ -375,7 +460,7 @@ var find_all_devices = function(patterns) {
   return devices;
 };
 
-var make_tree = function(ws, treeUUID, operand, entities, treeType, trees, action, create, callback) {
+var make_tree = function(ws, treeUUID, operand, entities, treeType, trees, create, action, callback) {
   var devices, devs, groups, i, id, j, members, entity;
 
   var cb1 = function() {
@@ -412,14 +497,14 @@ var make_tree = function(ws, treeUUID, operand, entities, treeType, trees, actio
   devices = [];
   for (i = 0; i < entities.length; i++) {
     entity = entities[i];
-    devices.concat(find_all_devices(entity.entityTypes));
+    devices = devices.concat(find_all_devices(entity.entityTypes));
   }  
 
   members = [];
   for (i = 0; i < entities.length; i++) {
     entity = entities[i];
-
     devs = find_all_devices(entity.entityTypes);
+
     for (j = 0; j < devs.length; j++) {
       create(ws, entity.entityUUID + ':' + j, devs[j], entity.action, entity.parameter, cb2(entity.entityUUID + ':' + j));
     }
@@ -469,13 +554,6 @@ var add_callback = function(cb) {
 };
 
 var create_activity = function(ws, name, event, task, cb) {
-console.log(JSON.stringify({ path      : '/api/v1/activity/create/' + name
-                         , requestID : reqno
-                         , name      : name
-                         , armed     : true
-                         , event     : event
-                         , task      : task
-                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/activity/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -495,30 +573,16 @@ var create_device = function(ws, name, whatami, info, cb) {
 };
 
 var create_event = function(ws, name, actor, observe, parameter, cb) {
-console.log(JSON.stringify({ path      : '/api/v1/event/create/' + name
-                         , requestID : reqno
-                         , name      : name
-                         , actor     : actor
-                         , observe   : observe
-                         , parameter : parameter || ''
-                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/event/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
                          , actor     : actor
                          , observe   : observe
-                         , parameter : parameter || ''
+                         , parameter : JSON.stringify(parameter) || ''
                          }));
 };
 
 var create_group = function(ws, name, type, operand, members, cb) {
-console.log(JSON.stringify({ path    : '/api/v1/group/create/' + name
-                         , requestID : reqno
-                         , name      : name
-                         , type      : type    || ''
-                         , operand   : operand || ''
-                         , members   : members || []
-                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/group/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -529,13 +593,6 @@ console.log(JSON.stringify({ path    : '/api/v1/group/create/' + name
 };
 
 var create_task = function(ws, name, actor, perform, parameter, cb) {
-console.log(JSON.stringify({ path      : '/api/v1/task/create/' + name
-                         , requestID : reqno
-                         , name      : name
-                         , actor     : actor
-                         , perform   : perform
-                         , parameter : JSON.stringify(parameter) || ''
-                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/task/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
@@ -598,13 +655,6 @@ var list_task = function(ws, taskID, options, cb) {
 };
 
 var modify_group = function(ws, groupID, name, type, operand, members, cb) {
-console.log(JSON.stringify({ path      : '/api/v1/group/modify/' + groupID
-                         , requestID : reqno
-                         , name      : name
-                         , type      : type    || ''
-                         , operand   : operand || ''
-                         , members   : members || []
-                         }));
   ws.send(JSON.stringify({ path      : '/api/v1/group/modify/' + groupID
                          , requestID : add_callback(cb)
                          , name      : name
@@ -729,7 +779,7 @@ var go = function(steward, i) {
     ws2.onclose   = function(event) {/* jshint unused: false */ ws.close(); };
     ws2.onerror   = function(event) {/* jshint unused: false */ ws.close(); };
 
-    try { bootstrap(ws); } catch(ex) { notice(tag, { state: 'bootstrap', message: ex.message }); }
+    try { bootstrap(steward, ws); } catch(ex) { notice(tag, { state: 'bootstrap', message: ex.message }); }
   };
 
   ws.onmessage = function(event) {
@@ -757,10 +807,11 @@ var go = function(steward, i) {
 
 var main = function() {
   var steward = { hostname : window.location.hostname
-                 , port     : window.location.port
-                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                 , search   : '%%UUID%%'
-                 };
+                , port     : window.location.port
+                , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                , search   : '%%UUID%%'
+                , secure   : (window.location.protocol.indexOf('https:') === 0)
+                };
 
   notice('start');
   go(steward, 1);
