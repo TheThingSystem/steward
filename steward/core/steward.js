@@ -390,7 +390,7 @@ exports.forEachAddress = function(callback) {
 exports.clientInfo = function(connection, secureP) {
   var ifname, props;
 
-  props = { loopback : false, subnet: false, local: false };
+  props = { loopback : false, subnet: false, local: false, remoteAddress: connection.remoteAddress };
 
 // NB: usually this is something come in over the cloud
   if (!secureP) return props;

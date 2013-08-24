@@ -16,7 +16,7 @@ unsigned long next_heartbeat = 0;
 
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0x9C, 0x1D };  // Arduino Ethernet
 
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor

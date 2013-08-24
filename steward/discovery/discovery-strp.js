@@ -9,7 +9,7 @@ var dgram       = require('dgram')
 var logger = utility.logger('discovery');
 
 
-var handle = function(message, tag) {
+var handle = function(message, remoteAddress, tag) {
   var didP, i, instance, okP, props, request, requestID, thingPath;
 
   if (!message.requestID) return logger.error(tag, { event: 'report', error: { diagnostic: 'no requestID' } });
@@ -62,11 +62,12 @@ var handle = function(message, tag) {
   }
   if (!didP) return;
 
-  things.protodef(logger, { clientInfo: {}, send: function(data) { register(message, data, tag); } },
+  things.protodef(logger, { clientInfo : { loopback: false, subnet: true, local: true, remoteAddress: remoteAddress }
+                          , send       : function(data) { register(message, data, remoteAddress, tag); } },
                   { prefix: '/api/v1/thing/prototype' }, request, tag);
 };
 
-var register = function(message, data, tag) {
+var register = function(message, data, remoteAddress, tag) {
   var changedP, device, didP, i, info, instance, props, request, requestID, results, thing, thingPath, updated;
 
   try { results = JSON.parse(data); } catch(ex) {
@@ -140,7 +141,8 @@ var register = function(message, data, tag) {
   }
   if (!didP) return;
 
-  things.register(logger, { clientInfo: {}, send: function(data) { update(message, data, tag); } },
+  things.register(logger, { clientInfo : { loopback: false, subnet: true, local: true, remoteAddress: remoteAddress }
+                          , send       : function(data) { update(message, data, tag); } },
                   { prefix: '/api/v1/thing/register' }, request, tag);
 };
 
@@ -187,7 +189,7 @@ exports.start = function() {
     try { report = JSON.parse(message); } catch(ex) {
       return;
     }
-    handle(report, 'udp ' + rinfo.address + ' ' + rinfo.port + ' ' + report.path);
+    handle(report, rinfo.address, 'udp ' + rinfo.address + ' ' + rinfo.port + ' ' + report.path);
   }).on('listening', function() {
     var address = this.address();
 

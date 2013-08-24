@@ -237,7 +237,7 @@ var register = exports.register = function(logger, ws, api, message, tag) {
     for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
          !!thingIDs[id];
          id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-    thingIDs[id] = { udn: udn, clientID: ws.clientInfo.clientID };
+    thingIDs[id] = { udn: udn, clientID: ws.clientInfo.clientID, remoteAddress: ws.clientInfo.remoteAddress };
     thingUDNs[udn] = id;
 
 // NB: should make sure that all of info is defined in props...
@@ -529,7 +529,7 @@ Thing.prototype.observe = function(self, eventID, observe, parameter) {
     for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
          !!eventIDs[id];
          id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-    eventIDs[id] = { eventID: eventID, clientID: self.ws.clientInfo.clientID };
+    eventIDs[id] = { eventID: eventID, clientID: self.ws.clientInfo.clientID, remoteAddress: self.ws.clientInfo.remoteAddress };
     eventUIDs[eventID] = id;
   }
 
@@ -549,7 +549,7 @@ Thing.prototype.perform = function(self, taskID, perform, parameter) {
   for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
        !!taskIDs[id];
        id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
-  taskIDs[id] = { taskID: taskID, clientID: self.ws.clientInfo.clientID };
+  taskIDs[id] = { taskID: taskID, clientID: self.ws.clientInfo.clientID, remoteAddress: self.ws.clientInfo.remoteAddress };
 
   requestID++;
   message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), events: {} };
