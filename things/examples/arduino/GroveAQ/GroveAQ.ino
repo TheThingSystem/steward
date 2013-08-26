@@ -41,7 +41,7 @@ float previous_mq9 = -1;
 char packetBuffer[768];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"off\",\"on\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"detected\",\"absent\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-air-quality\"},\"info\":{\"overall\":";
 PROGMEM prog_char *loopPacket5 = ",\"flame\":\"";
@@ -115,7 +115,7 @@ void loop() {
         && (mq2 == previous_mq2)
         && (mq9 == previous_mq9)
         && (now <  next_heartbeat)) {
-    delay (5000);
+    delay (50);
     return;
   }
 
@@ -123,7 +123,7 @@ void loop() {
   if (aq > 0) previous_aq = aq; else aq = previous_aq;
   previous_mq2 = mq2;
   previous_mq9 = mq9;
-  next_heartbeat = now + 60000;
+  next_heartbeat = now + 45000;
 
   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
   strcat(packetBuffer, ultoa( requestID, buffer, 10) );
@@ -144,7 +144,7 @@ void loop() {
   if (aq > 0) strcat(packetBuffer, itoa( aq, buffer, 10) ); else strcat(packetBuffer, "\"\"");
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-  strcat(packetBuffer,flame ? "on" : "off");
+  strcat(packetBuffer,flame ? "detected" : "absent");
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
   strcat(packetBuffer, dtostrf(mq2, 12, 4, buffer));
@@ -158,7 +158,7 @@ void loop() {
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
 
   sendit();
-  delay (5000);
+  delay (50);
 }
 
 void sendit() {

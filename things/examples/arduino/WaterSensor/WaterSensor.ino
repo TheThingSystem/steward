@@ -93,13 +93,13 @@ void loop() {
     
     
   } else {
-    if ((millis() - lastCallbackTime) > 60000) {
+    if ((millis() - lastCallbackTime) > 45000) {
       callback();
       lastCallbackTime = millis();
     }
   }
   
-  delay(1000);
+  delay(50);
 
 }
 

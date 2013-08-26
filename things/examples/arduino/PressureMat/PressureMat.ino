@@ -19,7 +19,7 @@ byte mac[] = { 0x0, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
 char packetBuffer[512];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/seated-mat\":{\"prototype\":{\"device\":{\"name\":\"7-10# Chair Occupancy Sensor Mat\",\"maker\":\"RECORA\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"on\",\"off\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/seated-mat\":{\"prototype\":{\"device\":{\"name\":\"7-10# Chair Occupancy Sensor Mat\",\"maker\":\"RECORA\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"contact\":[\"detected\",\"absent\"]}},\"instances\":[{\"name\":\"Pressure Mat\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-mat\"},\"info\":{\"contact\":\"";
 PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":";
@@ -80,13 +80,13 @@ void loop() {
     //Serial.print( "Button state = " );
     //Serial.println( buttonState );
     if ( buttonState && !sentPacket ) {
-       Serial.println("Sending contact = on");  
-       send_packet( "on" );       
+       Serial.println("Sending contact = detected");  
+       send_packet( "detected" );       
        sentPacket = 1;
       
     } else if ( !buttonState && !sentPacket ) {
-       Serial.println("Sending contact = off"); 
-       send_packet( "off" );       
+       Serial.println("Sending contact = absent"); 
+       send_packet( "absent" );       
        sentPacket = 1;    
     }
   }
@@ -96,14 +96,14 @@ void loop() {
   }  
   lastButtonState = reading;
   
-  if ((millis() - lastCallbackTime) > 60000) {
+  if ((millis() - lastCallbackTime) > 45000) {
       if ( buttonState ) {
-         Serial.println("Sending heartbeat (on)");    
-         send_packet( "on" );       
+         Serial.println("Sending heartbeat (detected)");    
+         send_packet( "detected" );       
          sentPacket = 1;
       } else {
-         Serial.println("Sending heartbeat (off)");               
-         send_packet( "off" );       
+         Serial.println("Sending heartbeat (absent)");               
+         send_packet( "absent" );       
          sentPacket = 1;     
      }
      lastCallbackTime = millis();

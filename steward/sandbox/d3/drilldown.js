@@ -602,7 +602,7 @@ var single_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'CONTACT'
                           , cooked : v
-                          , value  : clip2bars(v === 'on' ? 100 : 0, 0, 100)
+                          , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
                           , index  : a1
                           });
         break;
@@ -733,8 +733,8 @@ var climate_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'FLAME'
-                          , cooked : v === 'on' ? 'YES!' : 'nothing detected'
-                          , value  : clip2bars(v === 'on' ? 100 : 0, 0, 100)
+                          , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
+                          , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
                           , index  : 0.50
                           });
         break;
