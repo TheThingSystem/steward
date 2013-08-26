@@ -62,7 +62,7 @@ RoboSmart.prototype.connect = function(self) {
       if (err) return logger.error('device/' + self.deviceID, { event: 'discoverServicesAndCharacteristics', diagnostic: err.message });
 
       self.robosmart = r;
-      
+
       self.refresh(self);
     });
   });

@@ -140,14 +140,13 @@ exports.start = function() {
   steward.actors.device.media.chromecast.video =
       { $info     : { type       : '/device/media/chromecast/video'
                     , observe    : [ ]
-                    , perform    : [
-                                     'play'
+                    , perform    : [ 'play'
                                    , 'stop'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing' ]
-                                   , track   : { title       : true 
-                                              , position    : 'milliseconds'
+                                   , track   : { title       : true
+                                               , position    : 'milliseconds'
                                                , duration    : 'milliseconds'
                                                }
                                    , volume  : 'percentage'

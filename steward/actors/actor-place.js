@@ -255,7 +255,7 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
 };
 
 Place.prototype.perform = function(self, taskID, perform, parameter) {
-  var i, params, previous;
+  var i, j, l, params, previous;
 
   if (perform !== 'set') return false;
 
@@ -269,8 +269,16 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.location) {
     place1.info.location = params.location;
-    for (i = 0; i < place1.info.location.length; i++) place1.info.location[i] = place1.info.location[i].toFixed(6);
+    for (i = 0; i < place1.info.location.length; i++) {
+      l = place1.info.location[i] + '';
+      j = l.indexOf('.');
+      if ((j < 0) || ((l.length - j) <= 7)) continue;
+      l = parseFloat(l);
+      if (isNaN(l)) continue;
+      if (!isNaN(l)) place1.info.location[i] = l.toFixed(6);
+    }
   }
+
 // TBD: look at all 'solar' events and set the timer accordingly...
 
   if (!!params.pairing) {
@@ -407,8 +415,15 @@ var validate_perform = function(perform, parameter) {
 
   if (!!params.location) {
     if ((!util.isArray(params.location)) || (params.location.length < 2)) result.invalid.push('location');
-    if ((params.location[0] <  -90) || (params.location[0] >  90)) result.invalid.push('latitude');
-    if ((params.location[1] < -180) || (params.location[1] > 180)) result.invalid.push('longitude');
+    else {
+      if ((isNaN(params.location[0])) || (params.location[0] <  -90) || (params.location[0] >  90)) {
+        result.invalid.push('latitude');
+      }
+      if ((isNaN(params.location[1])) || (params.location[1] < -180) || (params.location[1] > 180)) {
+        result.invalid.push('longitude');
+      }
+      if ((params.length > 2) && (isNaN(params.location[2]))) result.invalid.push('elevation');
+    }
   }
 
   if (!!params.pairing) {
