@@ -103,6 +103,9 @@
   td.status {
     background: green;
   }
+  td.blue {
+    background: blue;
+  }
   td.warning {
     background: orange;
   }
@@ -481,6 +484,7 @@ var onactors = function(message) {
       status = entity.status || '';
       td_status = ((status === 'red') || (status === 'error') || (status === 'reset')) ? 'alert'
                   : (status.indexOf(' ') !== -1) ? 'group'
+                  : (status === 'blue') ? 'blue'
                   : ((status === 'indigo') || (status === 'absent') || (status === 'busy') || (status === 'waiting'))
                       ? 'warning' : 'status';
       if (!!entity.updated) {
