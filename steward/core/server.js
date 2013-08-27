@@ -145,7 +145,7 @@ var start = function(port, secureP) {
 
       if (request.method !== 'GET') {
         logger.info(tag, { event: 'not-allowed', code: 405 });
-        response.writehead(405, { Allow: 'CONNECT' });
+        response.writeHead(405, { Allow: 'CONNECT' });
         return response.end();
       }
 
@@ -246,7 +246,7 @@ var rendezvous0 = function(params, port) {
     if (err) return logger.error('server', { event: 'portfinder.getPort 8881', diagnostic: err.message });
 
     http.createServer(function(request, response) {
-      response.writehead(405, { Allow: 'CONNECT' });
+      response.writeHead(405, { Allow: 'CONNECT' });
       response.end();
     }).on('connect', function(request, socket, head) {
       var cleartext;
