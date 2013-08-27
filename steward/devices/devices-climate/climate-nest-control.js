@@ -183,7 +183,7 @@ exports.start = function() {
                                    , leaf            : [ 'on', 'off' ]
                                    , away            : [ 'on', 'off' ]
                                    , hvac            : [ 'cool', 'heat', 'fan', 'off' ]
-                                   , fan             : [ 'on', 'auto', 'minutes' ]
+                                   , fan             : [ 'on', 'auto', 'milliseconds' ]
                                    , goalTemperature : 'celsius'
                                    }
                     }
