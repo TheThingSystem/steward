@@ -764,8 +764,8 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'LEAF'
-                          , cooked : v + 'ppm'
-                          , value  : clip2bars(v,  0, 1200)
+                          , cooked : v
+                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
                           , index  : 0.40
                           });
         break;

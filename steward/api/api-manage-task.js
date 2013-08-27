@@ -51,7 +51,7 @@ var create = function(logger, ws, api, message, tag) {
     actor = actors;
     try { for (p = 1; p < parts.length; p++) actor = actor[parts[p]]; } catch(ex) { actor = null; }
     if (!actor)                     return error(false,  'internal error');
-    if (!!actor.$validate.perform) {
+    if ((!!actor.$validate) && (!!actor.$validate.perform)) {
       v = actor.$validate.perform(message.perform, message.parameter);
       if ((v.invalid.length > 0) || (v.requires.length > 0)) return error(false, 'invalid parameters ' + stringify(v));
     }

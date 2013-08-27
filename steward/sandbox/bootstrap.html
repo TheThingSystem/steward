@@ -162,14 +162,15 @@ var bootstrap = function(steward, ws) {
 
         tasks = message.result.tasks;
 
-if (false) {
         try {
+if (false) {
           apprentice0a(steward, ws);
           apprentice0b(steward, ws);
           apprentice0c(steward, ws);
           apprentice0d(steward, ws);
-        } catch(ex) { console.log(ex); }
+          apprentice0e(steward, ws);
 }
+        } catch(ex) { console.log(ex); }
 
         return true;
       });
@@ -392,7 +393,7 @@ var apprentice0d = function(steward, ws) {
                                         ], 'event', events, create_event, 'observe', function(eventID) {
     console.log(placeEventUUID + ':blue' + ' eventID=' + eventID);
 
-							    make_tree(ws, placeTaskUUID + ':blue', 'and', [ { entityUUID    : placeVisualUUID + ':blue'
+                                                            make_tree(ws, placeTaskUUID + ':blue', 'and', [ { entityUUID    : placeVisualUUID + ':blue'
                                           , entityTypes   : [ '^/device/lighting/blink', '^/device/lighting/hue/bloom$' ]
                                           , action        : 'on'
                                           , parameter     : { color      : { model: 'rgb', rgb: { r: 0, g: 0, b: 255 } }
@@ -438,6 +439,41 @@ var apprentice0d = function(steward, ws) {
         }
 
         console.log(placeActivityUUID + ':green' + ' activityID=' + message.result.activity);
+      });
+    });
+  });
+};
+
+var co2ActivityUUID    = ':apprentice0:activity:co2';
+var co2EventUUID       = ':apprentice0:events:co2';
+var co2SensorUUID      = ':apprentice0:sensors:co2';
+var co2TaskUUID        = ':apprentice0:tasks:co2';
+var co2FanUUID         = ':apprentice0:fan:co2';
+
+var apprentice0e = function(steward, ws) {
+  make_tree(ws, co2EventUUID, 'or',   [ { entityUUID    : co2SensorUUID
+                                          , entityTypes   : [ '^/device/climate/netatmo/sensor$' ]
+                                          , action        : '.condition'
+                                          , parameter     : { operator: 'greater-than', operand1: '.[.co2].', operand2: 1000 }
+                                          }
+                                        ], 'event', events, create_event, 'observe', function(eventID) {
+    console.log(co2EventUUID + ' eventID=' + eventID);
+
+    make_tree(ws, co2TaskUUID, 'and', [ { entityUUID    : co2FanUUID
+                                          , entityTypes   : [ '^/device/climate/control/' ]
+                                          , action        : 'set'
+                                          , parameter     : { fan: 15 }
+                                          }
+                                        ], 'task', tasks, create_task, 'perform', function(taskID) {
+      console.log(co2TaskUUID + ' taskID=' + taskID);
+
+      create_activity(ws, co2ActivityUUID, eventID, taskID, function(message) {
+        if ((!message.result) || (!message.result.activity) || (!!message.error)) {
+          if (!!message.error) console.log(message.error);
+          throw new Error(co2ActivityUUID + ' activity creation failed');
+        }
+
+        console.log(co2ActivityUUID + ' activityID=' + message.result.activity);
       });
     });
   });

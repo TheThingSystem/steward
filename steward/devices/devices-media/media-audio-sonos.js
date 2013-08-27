@@ -233,6 +233,7 @@ Sonos_Audio.prototype.notify = function(self, headers, content) {
                 || (self.info.track.artist !== track.artist)
                 || (self.info.track.album !== track.album)
                 || (self.info.track.albumArtURI !== track.albumArtURI)) {
+          delete(track.albumArtURL);
           self.info.track = track;
           self.changed();
         }
@@ -248,8 +249,9 @@ Sonos_Audio.prototype.refresh = function(self) {
     if (err) return self.error(self, err,  'currentTrack');
 
     if ((track !== undefined)
-          && (self.info.track.position !== (track.position * 1000))
-          && (self.info.track.duration !== (track.duration * 1000))) {
+          && ((self.info.track.position !== (track.position * 1000))
+               || (self.info.track.duration !== (track.duration * 1000)))) {
+      delete(track.albumArtURL);
       self.info.track = track;
       self.info.track.position *= 1000;
       self.info.track.duration *= 1000;
