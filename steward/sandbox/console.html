@@ -101,9 +101,15 @@
   td.whoami {
   }
   td.status {
+    background: green;
+  }
+  td.warning {
+    background: orange;
   }
   td.alert {
     background: red;
+  }
+  td.group {
   }
   td.info {
   }
@@ -473,7 +479,10 @@ var onactors = function(message) {
 
       entity = entities[actorID];
       status = entity.status || '';
-      td_status = ((status === 'error') || (status === 'reset')) ? 'alert' : 'status';
+      td_status = ((status === 'red') || (status === 'error') || (status === 'reset')) ? 'alert'
+                  : (status.indexOf(' ') !== -1) ? 'group'
+                  : ((status === 'indigo') || (status === 'absent') || (status === 'busy') || (status === 'waiting'))
+                      ? 'warning' : 'status';
       if (!!entity.updated) {
         if (status.length > 0) status += '<br/>';
         status += 'updated: ' + time_ago(entity.updated, true).trim();
