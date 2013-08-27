@@ -167,7 +167,12 @@ var perform = function(logger, ws, api, message, tag) {
   }
 
   results = { requestID: message.requestID };
-  performed = (!!device.perform) ? (device.perform)(device, null, message.perform, message.parameter) : false;
+
+  p = devices.expand(message.parameter);
+  if (!!device.perform) {
+    logger.notice('device perform', { device: 'device/' + device.deviceID, perform: message.perform, parameter: p });
+  }
+  performed = (!!device.perform) ? (device.perform)(device, null, message.perform, p) : false;
   results.result = { status: performed ? 'success' : 'failure' };
 
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }

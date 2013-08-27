@@ -143,7 +143,7 @@ var start = function(port, secureP) {
       meta.method = request.method;
       logger.info(tag, meta);
 
-      if (request.method !== 'GET') {
+      if ((request.method !== 'GET') && (request.method !== 'HEAD')) {
         logger.info(tag, { event: 'invalid method', code: 405, method: request.method });
         response.writeHead(405, { Allow: 'CONNECT' });
         return response.end();
@@ -187,9 +187,9 @@ var start = function(port, secureP) {
 
         if (ct === 'text/html') data = data.toString().replace(/%%UUID%%/g, '?rendezvous=' + steward.uuid);
 
-        logger.info(tag, { code: 200, octets: data.length });
-        response.writeHead(200, { 'Content-Type': ct });
-        response.end(data);
+        logger.info(tag, { code: 200, type: ct, octets: data.length });
+        response.writeHead(200, { 'Content-Type': ct, 'Content-Length': data.length });
+        response.end(request.method === 'GET' ? data : '');
       });
     });
 

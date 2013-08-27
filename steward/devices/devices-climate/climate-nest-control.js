@@ -106,7 +106,7 @@ Sensor.operations = {
         default:
           var time = parseInt(value, 10);
           if (!isNaN(time)) {
-            nest.setFanMode(serial, 'duty-cycle', time);
+            nest.setFanMode(serial, 'timer', time);
           }
         break;
       }
