@@ -144,7 +144,7 @@ var start = function(port, secureP) {
       logger.info(tag, meta);
 
       if (request.method !== 'GET') {
-        logger.info(tag, { event: 'not-allowed', code: 405 });
+        logger.info(tag, { event: 'invalid method', code: 405, method: request.method });
         response.writeHead(405, { Allow: 'CONNECT' });
         return response.end();
       }
@@ -152,7 +152,7 @@ var start = function(port, secureP) {
       if (pathname === '/') pathname= '/index.html';
 // TBD: uncomment this later on
       if (/* (!meta.local) || */ (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
-        logger.info(tag, { event: 'not-allowed', code: 404 });
+        logger.info(tag, { event: 'invalid path', code: 404 });
         response.writeHead(404, { 'Content-Type': 'text/plain' });
         return response.end('404 not found');
       }
