@@ -8,13 +8,19 @@
 
 #include <SPI.h>
 
+
 int requestID = 1;
-unsigned long lastCallbackTime = 0;// the last time the data was written
+unsigned long next_heartbeat = 0;
+
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
 
+
 #define WATER_SENSOR 7
+int previous_leak = -1;
+unsigned long debounce_leak = -1;
+
 
 char packetBuffer[512];
 
@@ -28,110 +34,84 @@ PROGMEM prog_char *loopPacket6 = "}]}}}";
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
 EthernetUDP udp;
 IPAddress ip(224,192,32,19);
-unsigned int port = 22601;   
+unsigned int port = 22601;
 
 void setup() {
   pinMode(WATER_SENSOR, INPUT);
-  
+
   Serial.begin(9600);
   Serial.println("Starting...");
   while(!Serial) { }
-  
+
   Serial.println("Waiting for DHCP address.");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Error: Failed to configure Ethernet using DHCP");
     while(1) {  }
-  } 
-  
+  }
+
   Serial.print("MAC address: ");
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
     if (mac[thisByte] < 0x0a) Serial.print("0");
     Serial.print(mac[thisByte], HEX);
-    Serial.print(":"); 
+    Serial.print(":");
   }
   Serial.println();
-   
+
   Serial.print("IP address: ");
   for (byte thisByte = 0; thisByte < 4; thisByte++) {
     Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print("."); 
+    Serial.print(".");
   }
   Serial.println();
- 
+
   udp.beginMulti(ip,port);
 
-}  
-  
+}
+
 void loop() {
-  int reading = digitalRead(WATER_SENSOR);
+  int leak;
+  char buffer[12];
+  unsigned long now;
 
-  if( isExposedToWater() ) {
-     char buffer[12];
-     strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-     strcat(packetBuffer, ultoa( requestID, buffer, 10) );
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-     for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%02x", mac[thisByte] );
-       strcat(packetBuffer, buffer); 
-     }   
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-     for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%02x", mac[thisByte] );
-       strcat(packetBuffer, buffer); 
-     }   
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-     strcat(packetBuffer, "detected");
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-     strcat(packetBuffer, ultoa( millis(), buffer, 10) );
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
+  now = millis();
 
-     Serial.println(packetBuffer); 
-     udp.beginPacket(udp.remoteIP(), udp.remotePort());
-     udp.write(packetBuffer);
-     udp.endPacket();      
-     requestID = requestID + 1;   
-    
-    
-  } else {
-    if ((millis() - lastCallbackTime) > 45000) {
-      callback();
-      lastCallbackTime = millis();
-    }
+  leak = digitalRead(WATER_SENSOR) == LOW;
+  if (leak) debounce_leak = now + 30000; else if (now <= debounce_leak) leak = 1;
+
+  if ((leak != previous_leak) && (!leak) && (now < next_heartbeat)) { delay(100); return; }
+
+  previous_leak = leak;
+  next_heartbeat = now + 45000;
+
+  strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
+  strcat(packetBuffer, ultoa( requestID, buffer, 10) );
+
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
+  for (byte thisByte = 0; thisByte < 6; thisByte++) {
+    sprintf(buffer, "%02x", mac[thisByte] );
+    strcat(packetBuffer, buffer);
   }
-  
-  delay(50);
 
-}
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
+  for (byte thisByte = 0; thisByte < 6; thisByte++) {
+    sprintf(buffer, "%02x", mac[thisByte] );
+    strcat(packetBuffer, buffer);
+  }
 
-void callback() {
-     char buffer[12];
-     strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-     strcat(packetBuffer, ultoa( requestID, buffer, 10) );
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
-     for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%02x", mac[thisByte] );
-       strcat(packetBuffer, buffer); 
-     }   
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
-     for (byte thisByte = 0; thisByte < 6; thisByte++) {
-       sprintf(buffer, "%02x", mac[thisByte] );
-       strcat(packetBuffer, buffer); 
-     }   
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-     strcat(packetBuffer, "absent");
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-     strcat(packetBuffer, ultoa( millis(), buffer, 10) );
-     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
+  strcat(packetBuffer, leak ? "detected" : "absent");
 
-     Serial.println(packetBuffer); 
-     udp.beginPacket(udp.remoteIP(), udp.remotePort());
-     udp.write(packetBuffer);
-     udp.endPacket();      
-     requestID = requestID + 1;
-}
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
+  strcat(packetBuffer, ultoa( now, buffer, 10) );
 
-boolean isExposedToWater() {
-	if(digitalRead(WATER_SENSOR) == LOW)
-		return true;
-	else return false;
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
+
+  Serial.println(packetBuffer);
+
+  udp.beginPacket(udp.remoteIP(), udp.remotePort());
+  udp.write(packetBuffer);
+  udp.endPacket();
+  requestID = requestID + 1;
+
+  delay(100);
 }

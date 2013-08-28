@@ -32,6 +32,7 @@ var bootable = { prowl          :
                  , info         :
                    { name       : 'prowler'
                    , apikey     : ''
+
                    }
                  }
                , netatmo        :
@@ -79,6 +80,18 @@ var bootable = { prowl          :
                  , actor        : '/device/indicator/text/cosm'
                  , info         :
                    { apikey     : ''
+                   }
+                 }
+               , koubachi        :
+                 { text         : 'If you have a Netatmo weather station, the steward can manage it for you.'
+                 , instructions : 'Enter your app_key and user_credentials.'
+                 , site         : 'https://labs.koubachi.com'
+                 , icon         : ''
+                 , name         : 'koubachi'
+                 , actor        :'/device/gateway/koubachi/cloud'
+                 , info         :
+                   { appkey     : ''
+                   , credentials: ''
                    }
                  }
                };

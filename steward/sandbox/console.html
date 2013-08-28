@@ -505,6 +505,10 @@ var onactors = function(message) {
               if (!!v) v = time_ago(v, true);
               break;
 
+            case 'nextUpdated':
+              if (!!v) v = time_ago(v, false);
+              break;
+
             case 'temperature':
             case 'intTemperature':
             case 'extTemperature':
@@ -513,6 +517,7 @@ var onactors = function(message) {
               break;
 
             case 'humidity':
+            case 'moisture':
               v += '%';
               break;
 

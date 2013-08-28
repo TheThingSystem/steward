@@ -27,9 +27,9 @@ AND these sensors:
     A1 - Grove Gas Sensor (MQ2)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     A2 - Grove Air Quality Sensor - http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
     D6 - Grove Flame Sensor       - http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
-
-This is probably overkill, and sadly, there isn't an NO2 sensor among
-the bunch.
+    A4 - MICS NO2 Sensor          - 
+    
+This is probably overkill, groovy!
 
     
 Next, import this library into Arduino
@@ -68,7 +68,8 @@ value relative to the standard deviation of the data series.
             "on"
           ],
           "smoke": "sigmas",
-          "co": "sigmas"
+          "co": "sigmas",
+          "no2": "sigmas"
         }
       },
       "instances": [
@@ -83,7 +84,8 @@ value relative to the standard deviation of the data series.
             "overall": 140,
             "flame": "off",
             "smoke": 0.9629,
-            "co": 0
+            "co": 0.0919,
+            "no2": 2.3903
           },
           "uptime": 14815
         }
