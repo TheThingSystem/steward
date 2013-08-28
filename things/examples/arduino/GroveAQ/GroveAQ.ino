@@ -39,15 +39,16 @@ float previous_mq2 = -1;
 float previous_mq9 = -1;
 
 #define NO2_SENSOR   A3
+
 float previous_no2 = -1;
 
 
 char packetBuffer[768];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"overall\":\"sigmas\",\"flame\":[\"detected\",\"absent\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\",\"no2\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"airQuality\":\"sigmas\",\"flame\":[\"detected\",\"absent\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\",\"no2\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
-PROGMEM prog_char *loopPacket4 = "-air-quality\"},\"info\":{\"overall\":";
+PROGMEM prog_char *loopPacket4 = "-air-quality\"},\"info\":{\"airQuality\":";
 PROGMEM prog_char *loopPacket5 = ",\"flame\":\"";
 PROGMEM prog_char *loopPacket6 = "\",\"smoke\":";
 PROGMEM prog_char *loopPacket7 = ",\"co\":";

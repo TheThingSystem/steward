@@ -201,10 +201,12 @@ Device.prototype.proplist = function() {
          };
 };
 
+var sensor = null;
+
 Device.prototype.addinfo = function(info, changedP) {
   var self = this;
 
-  var actors, i, path, prop, v;
+  var actors, i, now, params, path, prop, v;
 
   if (!self.$properties) {
     path = self.whatami.split('/');
@@ -216,10 +218,14 @@ Device.prototype.addinfo = function(info, changedP) {
     self.$properties = ((!!actors) && (!!actors.$info)) ? actors.$info.properties : {};
   }
 
+  params = {};
   for (prop in info) {
     if (!info.hasOwnProperty(prop)) continue;
 
     v = info[prop];
+    params[prop] = parseFloat(v);
+    if (isNaN(params[prop])) delete(params[prop]);    
+
     if (self.$properties[prop] === 'sigmas') {
       if (!self.$sigmas) self.$sigmas = {};
       if (!self.$sigmas[prop]) self.$sigmas[prop] = new Sigma();
@@ -230,7 +236,16 @@ Device.prototype.addinfo = function(info, changedP) {
       self.info[prop] = v;
     }
   }
-  if (changedP) self.changed();
+  if (changedP) {
+    self.changed();
+
+    now = new Date().getTime();
+    if ((!self.sensing) || (self.sensing >= now)) {
+      if (!sensor) sensor = require('../devices/device-sensor');
+      self.sensing += 30 * 1000;
+      sensor.update(self.deviceID, params);
+    }
+  }
 };
 
 Device.prototype.getName = function() {
