@@ -1,4 +1,4 @@
-s#include <Dhcp.h>
+#include <Dhcp.h>
 #include <Dns.h>
 #include <Ethernet.h>
 #include <EthernetClient.h>
@@ -22,7 +22,7 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0x9C, 0x1D };  // Arduino Ethernet
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
 #define FLAME_SENSOR  6
 int previous_flame = -1;
-unsigned long debounce_flame = -1;
+unsigned long debounce_flame = 0;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
 #define AQ_SENSOR    A2

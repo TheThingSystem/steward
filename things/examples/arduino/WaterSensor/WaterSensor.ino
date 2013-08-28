@@ -19,7 +19,7 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
 
 #define WATER_SENSOR 7
 int previous_leak = -1;
-unsigned long debounce_leak = -1;
+unsigned long debounce_leak = 0;
 
 
 char packetBuffer[512];
@@ -78,7 +78,7 @@ void loop() {
   leak = digitalRead(WATER_SENSOR) == LOW;
   if (leak) debounce_leak = now + 30000; else if (now <= debounce_leak) leak = 1;
 
-  if ((leak != previous_leak) && (!leak) && (now < next_heartbeat)) { delay(100); return; }
+  if ((leak == previous_leak) && (!leak) && (now < next_heartbeat)) { delay(100); return; }
 
   previous_leak = leak;
   next_heartbeat = now + 45000;
