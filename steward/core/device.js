@@ -108,7 +108,10 @@ exports.review = function() {
 
     state = { waiting : 'warning'
             , busy    : 'warning'
+            , blue    : 'warning'
             , reset   : 'attention'
+            , orange  : 'attention'
+            , red     : 'attention'
             , error   : 'error'
             }[d.status];
     if (!!state) states[state]++;

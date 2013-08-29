@@ -179,8 +179,8 @@ Cloud.prototype.addplant = function(self, plant) {
 
   params = { placement       : plant.location
            , lastSample      : last.getTime()
-           , needsWater      : plant.vmd_watert_pending     ? 'true' : 'false'
-           , needsMist       : plant.vmd_mist_pending       ? 'true' : 'false'
+           , needsWater      : plant.vdm_water_pending      ? 'true' : 'false'
+           , needsMist       : plant.vdm_mist_pending       ? 'true' : 'false'
            , needsFertilizer : plant.vdm_fertilizer_pending ? 'true' : 'false'
            , adviseChange    : plant.vdm_temperature_advice
            , adviseLight     : plant.vdm_light_advice
@@ -189,7 +189,7 @@ Cloud.prototype.addplant = function(self, plant) {
   udn = 'koubachi:' + plant.id;
   if (devices.devices[udn]) {
     device = devices.devices[udn].device;
-    return device.update(sensor, params);
+    return device.update(device, params);
   }
 
   info =  { source: self.deviceID, gateway: self, params: params };

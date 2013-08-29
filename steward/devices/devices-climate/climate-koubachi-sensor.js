@@ -96,9 +96,9 @@ Plant.prototype.update = function(self, params) {
     updateP = true;
   }
 
-  color = ((!self.info.adviseChange) && (!self.info.adviseLight)) ? 'green' : 'orange';
+  color = ((!self.info.adviseChange) && (!self.info.adviseLight)) ? 'green' : 'blue';
   if ((self.info.needsWater === 'true') || (self.info.needsMist === 'true') || (self.info.needsFertilizer === 'true')) {
-    color = (color === 'green') ? 'yellow' : 'red';
+    color = (color === 'green') ? 'orange' : 'red';
   }
   if (self.status !== color) {
     self.status = color;
