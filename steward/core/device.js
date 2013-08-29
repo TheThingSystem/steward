@@ -224,7 +224,7 @@ Device.prototype.addinfo = function(info, changedP) {
 
     v = info[prop];
     params[prop] = parseFloat(v);
-    if (isNaN(params[prop])) delete(params[prop]);    
+    if (isNaN(params[prop])) delete(params[prop]);
 
     if (self.$properties[prop] === 'sigmas') {
       if (!self.$sigmas) self.$sigmas = {};

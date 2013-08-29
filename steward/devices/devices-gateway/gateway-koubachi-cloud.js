@@ -32,6 +32,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'appkey', 'credentials' ];
   self.changed();
   self.timer = null;
+  self.plants = {};
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var macaddr;
@@ -66,7 +67,7 @@ Cloud.prototype.login = function(self) {
 
     if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
     setTimeout(function() { self.login(self); }, 30 * 1000);
-  }).setConfig(self.info.appkey, self.info.credentials).getDevices(function(err, results) {
+  }).setConfig(self.info.appkey, self.info.credentials).getPlants(function(err, results) {
     var i;
 
     if (!!err) { self.koubachi = null; return self.error(self, err); }
@@ -77,7 +78,16 @@ Cloud.prototype.login = function(self) {
     if (!!self.timer) clearInterval(self.timer);
     self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
 
-    for (i = 0; i < results.length; i++) self.addstation(self, results[i].device);
+    for (i = 0; i < results.length; i++) self.plants[results[i].plant.id] = results[i].plant;
+
+    self.koubachi.getDevices(function(err, results) {
+      var i, id;
+
+      if (!!err) { self.koubachi = null; return self.error(self, err); }
+
+      for (i = 0; i < results.length; i++) self.addstation(self, results[i].device);
+      for (id in self.plants) if (self.plants.hasOwnProperty(id)) self.addplant(self, self.plants[id]);
+    });
   });
 };
 
@@ -90,17 +100,26 @@ Cloud.prototype.error = function(self, err) {
 Cloud.prototype.scan = function(self) {
   if (!self.koubachi) return;
 
-  self.koubachi.getDevices(function(err, results) {
+  self.koubachi.getPlants(function(err, results) {
     var i;
 
     if (!!err) { self.koubachi = null; return self.error(self, err); }
 
-    for (i = 0; i < results.length; i++) self.addstation(self, results[i].device);
+    for (i = 0; i < results.length; i++) self.plants[results[i].plant.id] = results[i].plant;
+
+    self.koubachi.getDevices(function(err, results) {
+      var i, id;
+
+      if (!!err) { self.koubachi = null; return self.error(self, err); }
+
+      for (i = 0; i < results.length; i++) self.addstation(self, results[i].device);
+      for (id in self.plants) if (self.plants.hasOwnProperty(id)) self.addplant(self, self.plants[id]);
+    });
   });
 };
 
 Cloud.prototype.addstation = function(self, station) {
-  var info, last, name, next, params, sensor, udn;
+  var i, info, last, name, next, params, plant, plantID, sensor, udn;
 
   try { last = new Date(station.last_transmission);           } catch(ex) { last = new Date(); }
   try { next = new Date(station.next_transmission).getTime(); } catch(ex) {}
@@ -119,9 +138,20 @@ Cloud.prototype.addstation = function(self, station) {
     return sensor.update(sensor, params);
   }
 
+  name = station.hardware_product_type;
+  for (i = 0; i < station.plants.length; i++) {
+    plantID = station.plants[i].id;
+    if (!plantID) continue;
+    plant = self.plants[plantID];
+    if (!plant) continue;
+
+    name = plant.location;
+    break;
+  }
+
   info =  { source: self.deviceID, gateway: self, params: params };
   info.device = { url                          : null
-                , name                         : station.hardware_product_type
+                , name                         : name
                 , manufacturer                 : 'koubachi'
                 , model        : { name        : station.hardware_product_type
                                  , description : ''
@@ -136,6 +166,48 @@ Cloud.prototype.addstation = function(self, station) {
   info.deviceType = '/device/climate/koubachi/sensor';
   info.id = info.device.unit.udn;
   macaddrs[station.mac_address.split('-').join('').split(':').join('').toLowerCase()] = true;
+
+  logger.info('Koubachi ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
+  devices.discover(info);
+  self.changed();
+};
+
+Cloud.prototype.addplant = function(self, plant) {
+  var device, info, last, params, sensor, udn;
+
+  try { last = new Date(plant.updated_at); } catch(ex) { last = new Date(); }
+
+  params = { placement       : plant.location
+           , lastSample      : last.getTime()
+           , needsWater      : plant.vmd_watert_pending     ? 'true' : 'false'
+           , needsMist       : plant.vmd_mist_pending       ? 'true' : 'false'
+           , needsFertilizer : plant.vdm_fertilizer_pending ? 'true' : 'false'
+           , adviseChange    : plant.vdm_temperature_advice
+           , adviseLight     : plant.vdm_light_advice
+           };
+
+  udn = 'koubachi:' + plant.id;
+  if (devices.devices[udn]) {
+    device = devices.devices[udn].device;
+    return device.update(sensor, params);
+  }
+
+  info =  { source: self.deviceID, gateway: self, params: params };
+  info.device = { url                          : null
+                , name                         : plant.name
+                , manufacturer                 : ''
+                , model        : { name        : ''
+                                 , description : ''
+                                 , number      : ''
+                                 }
+                , unit         : { serial      : plant.id
+                                 , udn         : udn
+                                 }
+                };
+
+  info.url = info.device.url;
+  info.deviceType = '/device/climate/koubachi/plant';
+  info.id = info.device.unit.udn;
 
   logger.info('Koubachi ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
   devices.discover(info);

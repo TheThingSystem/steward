@@ -32,7 +32,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'present';
   self.changed();
 
-  utility.broker.subscribe('actors', function(request, taskIDID, actor, perform, parameter) {
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
@@ -57,7 +57,60 @@ Sensor.prototype.update = function(self, params) {
   }
 };
 
+var Plant = exports.Device = function(deviceID, deviceUID, info) {
+  var param, self;
+
+  self = this;
+
+  self.whatami = info.deviceType;
+  self.deviceID = deviceID.toString();
+  self.deviceUID = deviceUID;
+  self.name = info.device.name;
+  self.getName();
+
+  self.info = {};
+  for (param in info.params) {
+    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
+  }
+  self.update(self, info.params);
+  self.changed();
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+  });
+};
+util.inherits(Plant, climate.Device);
+
+
+Plant.prototype.update = function(self, params) {
+  var color, param, updateP;
+
+  updateP = false;
+
+  for (param in params) {
+    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+
+    self.info[param] = params[param];
+    updateP = true;
+  }
+
+  color = ((!self.info.adviseChange) && (!self.info.adviseLight)) ? 'green' : 'orange';
+  if ((self.info.needsWater === 'true') || (self.info.needsMist === 'true') || (self.info.needsFertilizer === 'true')) {
+    color = (color === 'green') ? 'yellow' : 'red';
+  }
+  if (self.status !== color) {
+    self.status = color;
+    updateP = true;
+  }
+
+  if (updateP) self.changed();
+};
+
 exports.start = function() {
+  var colors, status;
+
   steward.actors.device.climate.koubachi = steward.actors.device.climate.koubachi ||
       { $info     : { type: '/device/climate/koubachi' } };
 
@@ -77,4 +130,25 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/climate/koubachi/sensor'] = Sensor;
+
+  colors = [];
+  for (status in devices.rainbow) if (devices.rainbow.hasOwnProperty(status)) colors.push(devices.rainbow[status].color);
+
+  steward.actors.device.climate.koubachi.plant =
+      { $info     : { type       : '/device/climate/koubachi/plant'
+                    , observe    : [ ]
+                    , perform    : [ ]
+                    , properties : { name            : true
+                                   , status          : colors
+                                   , placement       : true
+                                   , lastSample      : 'timestamp'
+                                   , needsWater      : [ 'true', 'false' ]
+                                   , needsMist       : [ 'true', 'false' ]
+                                   , needsFertilizer : [ 'true', 'false' ]
+                                   , adviseChange    : true
+                                   , adviseLight     : true
+                                   }
+                    }
+      };
+  devices.makers['/device/climate/koubachi/plant'] = Plant;
 };

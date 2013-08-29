@@ -485,6 +485,7 @@ var onactors = function(message) {
       td_status = ((status === 'red') || (status === 'error') || (status === 'reset')) ? 'alert'
                   : (status.indexOf(' ') !== -1) ? 'group'
                   : (status === 'blue') ? 'blue'
+                  : (status === 'orange') ? 'warning'
                   : ((status === 'indigo') || (status === 'absent') || (status === 'busy') || (status === 'waiting'))
                       ? 'warning' : 'status';
       if (!!entity.updated) {
