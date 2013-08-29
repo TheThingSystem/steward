@@ -1398,7 +1398,7 @@ var entries = {
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
-              , '/device/indicator/text/cosm'               : { img     : 'actors/xively.svg'
+              , '/device/indicator/text/xively'             : { img     : 'actors/xively.svg'
                                                               , single  : single_indicator_drilldown
                                                               , arcs    : indicator_device_arcs
                                                               }

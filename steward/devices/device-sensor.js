@@ -9,7 +9,8 @@ var sqlite3     = require('sqlite3')
 
 var logger = exports.logger = utility.logger('sensor');
 
-var measures   = { temperature : { symbol: 'C',   units: 'celsius',    type: 'derivedSI'             }
+var measures = exports.measures =
+                 { temperature : { symbol: 'C',   units: 'celsius',    type: 'derivedSI'             }
                  , humidity    : { symbol: '%',   units: 'percentage', type: 'contextDependentUnits' }
                  , co2         : { symbol: 'co2', units: 'ppm',        type: 'contextDependentUnits' }
                  , noise       : { symbol: 'dB',  units: 'decibels',   type: 'derivedUnits'          }

@@ -1,4 +1,4 @@
-// cosm - send measurements to http://cosm.com
+// cosm - send measurements to http://xively.com
 
 var cosm        = require('cosm')
   , util        = require('util')
@@ -7,6 +7,7 @@ var cosm        = require('cosm')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
   , indicator   = require('./../device-indicator')
+  , sensor      = require('./../device-sensor')
   ;
 
 
@@ -31,7 +32,7 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'apikey' ];
   self.changed();
 
-  self.cosm = new cosm.Cosm(info.apikey);
+  self.cosm = new cosm.Cosm(info.apikey, { server: 'https://api.xively.com' });
   self.datastreams = {};
 
   broker.subscribe('readings', function(deviceID, point) { self.update(self, deviceID, point); });
@@ -79,6 +80,7 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   }
 
   self.cosm.create(params, function(err, id) {
+console.log(JSON.stringify('>>> id='+id));
     if (!!err) {
       self.status = 'error';
       self.setInfo();
@@ -219,7 +221,10 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.apikey) result.requires.push('apikey');
-  else if ((typeof info.apikey !== 'string') || (info.apikey.length !== 52)) result.invalid.push('apikey');
+  else if ((typeof info.apikey !== 'string') || (info.apikey.length < 48)) result.invalid.push('apikey');
+
+  if (!info.feed) result.requires.push('feed');
+  else if ((typeof info.feed !== 'string') || (info.feed.length < 8)) result.invalid.push('feed');
 
   if ((!!info.measurements) && (!util.isArray(info.measurements))) result.invalid.push('measurements');
   if ((!!info.sensors) && (!util.isArray(info.sensors))) result.invalid.push('sensors');
@@ -242,22 +247,25 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var measureName, measurements;
+
   steward.actors.device.indicator.text = steward.actors.device.indicator.text ||
       { $info     : { type: '/device/indicator/text' } };
 
-  steward.actors.device.indicator.text.cosm =
-      { $info     : { type       : '/device/indicator/text/cosm'
+  measurements = {};
+  for (measureName in sensor.measures) {
+    if (sensor.measures.hasOwnProperty(measureName)) measurements[measureName] = sensor.measures[measureName].units;
+  }
+
+  steward.actors.device.indicator.text.xively =
+      { $info     : { type       : '/device/indicator/text/xively'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
                                    , status       : [ 'waiting', 'ready', 'error' ]
                                    , apikey       : true
-                                   , measurements : { temperature : 'celsius'
-                                                    , humidity    : 'percentage'
-                                                    , co2         : 'ppm'
-                                                    , noise       : 'decibels'
-                                                    , pressure    : 'millibars'
-                                                    }
+                                   , feed         : true
+                                   , measurements : measurements
                                    , sensors      : []
                                    , private      : [ 'on', 'off' ]
                                    }
@@ -266,5 +274,5 @@ exports.start = function() {
                     ,  perform   : validate_perform
                     }
       };
-  devices.makers['/device/indicator/text/cosm'] = Cosm;
+  devices.makers['/device/indicator/text/xively'] = Cosm;
 };

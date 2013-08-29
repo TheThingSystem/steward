@@ -683,13 +683,14 @@ var bootable = { prowl          :
                  }
                , xively         :
                  { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
-                 , instructions : 'Create an API key with READ, UPDATE, and CREATE permissions.'
+                 , instructions : 'Create a "device" and xively will automatically generate a device key (apikey) and feed'
                  , site         : 'https://xively.com/login'
                  , icon         : ''
                  , name         : 'xively'
-                 , actor        : '/device/indicator/text/cosm'
+                 , actor        : '/device/indicator/text/xively'
                  , info         :
                    { apikey     : ''
+                   , feed       : ''
                    }
                  }
                };
