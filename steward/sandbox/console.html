@@ -505,7 +505,7 @@ var onactors = function(message) {
               if (!!v) v = time_ago(v, true);
               break;
 
-            case 'nextUpdated':
+            case 'nextSample':
               if (!!v) v = time_ago(v, false);
               break;
 
@@ -517,7 +517,6 @@ var onactors = function(message) {
               break;
 
             case 'humidity':
-            case 'moisture':
               v += '%';
               break;
 
@@ -530,7 +529,12 @@ var onactors = function(message) {
               break;
 
             case 'pressure':
+            case 'moisture':
               v += 'mbars';
+              break;
+
+            case 'light':
+              v += 'lx';
               break;
 
             case 'heading':

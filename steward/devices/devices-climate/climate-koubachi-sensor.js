@@ -21,6 +21,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
 
   self.info = {};
   for (param in info.params) {
@@ -31,8 +32,10 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'present';
   self.changed();
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {/* jshint unused: false */
-// name is read-only...
+  utility.broker.subscribe('actors', function(request, taskIDID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Sensor, climate.Device);
@@ -67,7 +70,7 @@ exports.start = function() {
                                    , placement   : true
                                    , lastSample  : 'timestamp'
                                    , nextSample  : 'timestamp'
-                                   , moisture    : 'percentage'
+                                   , moisture    : 'millibars'
                                    , temperature : 'celsius'
                                    , light       : 'lux'
                                    }

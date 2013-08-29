@@ -242,7 +242,7 @@ Device.prototype.addinfo = function(info, changedP) {
     now = new Date().getTime();
     if ((!self.sensing) || (self.sensing < now)) {
       if (!sensor) sensor = require('../devices/device-sensor');
-      self.sensing = now + 30 * 1000;
+      self.sensing = now + 20 * 1000;
       params.lastSample = now;
       sensor.update(self.deviceID, params);
     }

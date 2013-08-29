@@ -100,20 +100,17 @@ Cloud.prototype.scan = function(self) {
 };
 
 Cloud.prototype.addstation = function(self, station) {
-  var info, last, moisture, name, next, params, sensor, udn, x;
+  var info, last, name, next, params, sensor, udn;
 
-  moisture = station.recent_soilmoisture_reading_value;
-  x = moisture.indexOf(' ');
-  if (x !== -1) moisture = moisture.slice(0, x);
   try { last = new Date(station.last_transmission);           } catch(ex) { last = new Date(); }
   try { next = new Date(station.next_transmission).getTime(); } catch(ex) {}
 
   params = { placement   : station.hardware_product_type
            , lastSample  : last.getTime()
-           , nextUpdated : next
-           , moisture    : moisture
-           , temperature : (station.recent_temperature_reading_si_value - 273.15).toFixed(2)
-           , light       : station.recent_light_reading_si_value
+           , nextSample  : next
+           , moisture    : (station.recent_soilmoisture_reading_si_value / 100).toFixed(2)    // pascals to mbars
+           , temperature : station.recent_temperature_reading_si_value.toFixed(2) - 273.15    // kevlin to celsius
+           , light       : station.recent_light_reading_si_value.toFixed(1)
            };
 
   udn = 'koubachi:' + station.mac_address;

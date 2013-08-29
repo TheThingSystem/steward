@@ -19,7 +19,7 @@ var measures = exports.measures =
                  , smoke       : { symbol: 'v',   units: 'voltage',    type: 'contextDependentUnits' }
                  , co          : { symbol: 'co',  units: 'voltage',    type: 'contextDependentUnits' }
                  , no2         : { symbol: 'no2', units: 'voltage',    type: 'contextDependentUnits' }
-                 , moisture    : { symbol: '%',   units: 'percentage', type: 'contextDependentUnits' }
+                 , moisture    : { symbol: 'mb',  units: 'millibars',  type: 'derivedUnits'          }
                  , light       : { symbol: 'lx',  units: 'lux',        type: 'derivedSI'             }
                  };
 
