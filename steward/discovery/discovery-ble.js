@@ -27,7 +27,7 @@ exports.register = function(deviceType, localName, serviceUUIDs) {
 
 exports.start = function() {
   try {
-//    noble       = require('noble');
+    noble       = require('noble');
   } catch(ex) { logger.warning('BLE support disabled', { diagnostic: ex.message } ); }
   if (!noble) return;
 
