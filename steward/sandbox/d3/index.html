@@ -65,7 +65,11 @@ var connectSteward = function(type) {
 
   if (type === "local") {
   	if (storage.hostname !== "") {
+// TEMPORARY
+if ((storage.hostname.indexOf('.thethingsystem.net') === -1) && (storage.hostname.indexOf(':') === -1))
 		steward = storage.protocol + "//" + storage.hostname + ":" + storage.port + "/manage";
+else
+		steward = storage.protocol + "//" + storage.hostname + "/manage";
 	} else {
 		alert("Please enter a local host name or IP address (e.g., 127.0.0.1).");
 		return;
@@ -79,6 +83,7 @@ var connectSteward = function(type) {
   }
   
   ws = new WebSocket(steward);
+console.log(steward);
   
   ws.onopen = function(evt) {
     setConnStatus("Connected");
