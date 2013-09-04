@@ -64,8 +64,6 @@ EOF
       rm -f /home/pi/steward/steward/db/server.key /home/pi/steward/steward/sandbox/server.crt
       echo "unable to create self-signed server certificate" 1>&2
     fi
-  else
-	echo -n "Server key already exists..."
   fi
 
    sleep 5
