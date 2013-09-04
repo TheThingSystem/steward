@@ -7,7 +7,11 @@ if [ ! -f index.js ]; then
   exit 1
 fi
 
-. ~/.nvm/nvm.sh
+if [ "$SUDO_USER" = "pi" ]; then 
+   HOME=/home/pi; 
+   export HOME; 
+fi
+. $HOME/.nvm/nvm.sh
 
 if [ ! -f db/server.key ]; then
   rm -f sandbox/server.crt sandbox/server.sha1
