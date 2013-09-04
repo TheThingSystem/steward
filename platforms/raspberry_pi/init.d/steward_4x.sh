@@ -39,7 +39,7 @@ start) echo "Bringing up Bluetooth LE dongle"
    echo "pid is $PID"
    echo $PID >> $BLUE_PID
    
-   if[ ! -f /home/pi/steward/steward/db/server.key ]; then
+   if [ ! -f /home/pi/steward/steward/db/server.key ]; then
 	 echo -n "Creating server key..."
      rm -f /home/pi/steward/steward/sandbox/server.crt /home/pi/steward/steward/sandbox/server.sha1
 
