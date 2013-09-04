@@ -106,7 +106,7 @@ var validate_perform = function(perform, parameter) {
     if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
     if ((!!params.volume)   && (!media.validVolume(params.volume)))     result.invalid.push('volume');
 
-    if (result.invalid.count > 0) return result;
+    if (result.invalid.length > 0) return result;
   }
 
   return devices.validate_perform(perform, parameter);

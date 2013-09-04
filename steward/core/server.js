@@ -233,6 +233,8 @@ var start = function(port, secureP) {
 
 exports.vous = null;
 
+var responders = 0;
+
 var register = function(params, portno) {
   var didP, options, u;
 
@@ -240,6 +242,7 @@ var register = function(params, portno) {
     if (didP) return;
     didP = true;
 
+    if (responders > 0) responders--;
     setTimeout(function() { register(params, portno); }, secs * 1000);
   };
 
@@ -262,8 +265,7 @@ var register = function(params, portno) {
             , ca      : params.server.ca
             };
   didP = false;
-// should be https...
-  http.request(options, function(response) {
+  https.request(options, function(response) {
     var content = '';
 
     response.setEncoding('utf8');
@@ -278,6 +280,7 @@ var register = function(params, portno) {
 
       u = url.parse('http://' + content);
       rendezvous(params, portno, u);
+      if (responders < 5) register(params, portno);
     }).on('close', function() {
       logger.warning('register', { event:'close', diagnostic: 'premature eof', retry: '1 second' });
 
@@ -288,6 +291,7 @@ var register = function(params, portno) {
 
     retry(10);
   }).end();
+  responders++;
 };
 
 var rendezvous = function(params, portno, u) {
@@ -297,6 +301,7 @@ var rendezvous = function(params, portno, u) {
     if (didP) return;
     didP = true;
 
+    if (responders > 0) responders--;
     setTimeout(function() { register(params, portno); }, secs * 1000);
   };
 
