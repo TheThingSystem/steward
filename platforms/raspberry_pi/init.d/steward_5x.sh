@@ -39,6 +39,34 @@ start) echo "Bringing up Bluetooth LE dongle"
    PID=$!
    echo "pid is $PID"
    echo $PID >> $BLUE_PID
+   
+   if [ ! -f /home/pi/steward/steward/db/server.key ]; then
+	 echo -n "Creating server key..."
+     rm -f /home/pi/steward/steward/sandbox/server.crt /home/pi/steward/steward/sandbox/server.sha1
+
+     export NODE_PATH="/home/pi/steward/steward/"
+     /usr/local/bin/node <<EOF
+require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
+                                   , keyfile  : '/home/pi/steward/steward/db/server.key'
+                                   , certfile : '/home/pi/steward/steward/sandbox/server.crt'
+                                   , destroy  : false }, function(err, data) {
+  if (err) return console.log('keypair generation error: ' + err.message);
+
+  console.log('keypair generated.');
+});
+EOF
+
+    if [ -f /home/pi/steward/steward/db/server.key ]; then 
+      chmod 400 /home/pi/steward/steward/db/server.key
+      chmod 444 /home/pi/steward/steward/sandbox/server.crt
+
+      openssl x509 -sha1 -in /home/pi/steward/steward/sandbox/server.crt -noout -fingerprint > /home/pi/steward/steward/sandbox/server.sha1
+      chmod 444 /home/pi/steward/steward/sandbox/server.sha1
+    else
+      rm -f /home/pi/steward/steward/db/server.key /home/pi/steward/steward/sandbox/server.crt
+      echo "unable to create self-signed server certificate" 1>&2
+    fi
+  fi
 
    sleep 5
    echo -n "Start steward services... "
