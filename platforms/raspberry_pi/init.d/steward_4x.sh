@@ -28,7 +28,6 @@ STEWARD=/usr/local/bin/node
 STEW_PID=/var/run/steward.pid
 STEW_ARGS="/home/pi/steward/platforms/raspberry_pi/server.js"
 STEW_FILE="/var/log/steward.log"
-
 PID=
 
 case "$1" in
@@ -40,14 +39,14 @@ start) echo "Bringing up Bluetooth LE dongle"
    echo "pid is $PID"
    echo $PID >> $BLUE_PID
    
-   if[ ! -f /home/pi/steward/db/server.key ]; then
+   if[ ! -f /home/pi/steward/steward/db/server.key ]; then
 	 echo -n "Creating server key..."
-     rm -f /home/pi/steward/sandbox/server.crt sandbox/server.sha1
+     rm -f /home/pi/steward/steward/sandbox/server.crt /home/pi/steward/steward/sandbox/server.sha1
 
      node <<EOF
 require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
-                                   , keyfile  : '/home/pi/steward/db/server.key'
-                                   , certfile : '/home/pi/steward/sandbox/server.crt'
+                                   , keyfile  : '/home/pi/steward/steward/db/server.key'
+                                   , certfile : '/home/pi/steward/steward/sandbox/server.crt'
                                    , destroy  : false }, function(err, data) {
   if (err) return console.log('keypair generation error: ' + err.message);
 
@@ -55,14 +54,14 @@ require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
 });
 EOF
 
-    if [ -f /home/pi/steward/db/server.key ]; then 
-      chmod 400 /home/pi/steward/db/server.key
-      chmod 444 /home/pi/steward/sandbox/server.crt
+    if [ -f /home/pi/steward/steward/db/server.key ]; then 
+      chmod 400 /home/pi/steward/steward/db/server.key
+      chmod 444 /home/pi/steward/steward/sandbox/server.crt
 
-      openssl x509 -sha1 -in /home/pi/steward/sandbox/server.crt -noout -fingerprint > /home/pi/steward/sandbox/server.sha1
-      chmod 444 /home/pi/steward/sandbox/server.sha1
+      openssl x509 -sha1 -in /home/pi/steward/steward/sandbox/server.crt -noout -fingerprint > /home/pi/steward/steward/sandbox/server.sha1
+      chmod 444 /home/pi/steward/steward/sandbox/server.sha1
     else
-      rm -f /home/pi/steward/db/server.key /home/pi/steward/sandbox/server.crt
+      rm -f /home/pi/steward/steward/db/server.key /home/pi/steward/steward/sandbox/server.crt
       echo "unable to create self-signed server certificate" 1>&2
     fi
   else
