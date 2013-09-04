@@ -87,7 +87,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
             , random_bytes   : false
             , symbols        : false
             , google_auth_qr : true
-            , name           : message.name + ((server.vous) ? ('@' + server.vous) : '')
+            , name           : message.name + ((!!server.vous) ? ('@' + server.vous) : '')
             , issuer         : 'steward'
             };
   data = speakeasy.generate_key(options);

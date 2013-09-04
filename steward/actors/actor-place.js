@@ -3,6 +3,7 @@ var parser      = require('cron-parser')
   , util        = require('util')
   , database    = require('./../core/database')
   , devices     = require('./../core/device')
+  , server      = require('./../core/server')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
   , broker      = utility.broker
@@ -162,6 +163,7 @@ var Place = exports.Place = function(info) {
     self.info.monitoring = (i > 0) ? ('monitoring ' + i + ' intervals, next interval ' + utility.relativity(nextick)) : 'idle';
     info = utility.clone(self.info);
     delete(info.name);
+    if (!!server.vous) info.remote = server.vous;
 
     return { whatami : self.whatami
            , whoami  : 'place/1'
@@ -452,6 +454,7 @@ exports.start = function() {
                                    , pairingCode : true
                                    , physical    : true
                                    , location    : 'coordinates'
+                                   , remote      : true
                                    , solar       : [ 'dawn'
                                                    , 'morning-twilight'
                                                    , 'sunrise'

@@ -204,7 +204,7 @@ var start = function(port, secureP) {
 
     logger.info('listening on ' + wssT + '://*:' + portno);
 
-    if (!secureP) {
+    if (secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
         if (existsP) register(require(__dirname + '/../db/' + steward.uuid).params, portno);
       });
