@@ -43,7 +43,8 @@ start) echo "Bringing up Bluetooth LE dongle"
 	 echo -n "Creating server key..."
      rm -f /home/pi/steward/steward/sandbox/server.crt /home/pi/steward/steward/sandbox/server.sha1
 
-     node <<EOF
+     NODE_PATH=/home/pi/steward/steward/node_modules
+     /usr/local/bin/node <<EOF
 require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
                                    , keyfile  : '/home/pi/steward/steward/db/server.key'
                                    , certfile : '/home/pi/steward/steward/sandbox/server.crt'
