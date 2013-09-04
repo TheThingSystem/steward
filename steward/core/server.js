@@ -1,12 +1,12 @@
 var fs          = require('fs')
   , http        = require('http')
-//, https       = require('https')
+  , https       = require('https')
   , mime        = require('mime')
   , net         = require('net')
   , portfinder  = require('portfinder')
   , speakeasy   = require('speakeasy')
 //, ssh_keygen  = require('ssh-keygen')
-  , tls         = require('tls')
+//, tls         = require('tls')
   , url         = require('url')
   , wsServer    = require('ws').Server
   , steward     = require('./steward')
@@ -185,8 +185,6 @@ var start = function(port, secureP) {
           return response.end(diagnostic);
         }
 
-        if (ct === 'text/html') data = data.toString().replace(/%%UUID%%/g, '?rendezvous=' + steward.uuid);
-
         logger.info(tag, { code: 200, type: ct, octets: data.length });
         response.writeHead(200, { 'Content-Type': ct, 'Content-Length': data.length });
         response.end(request.method === 'GET' ? data : '');
@@ -208,7 +206,7 @@ var start = function(port, secureP) {
 
     if (!secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
-        if (existsP) rendezvous0(require(__dirname + '/../db/' + steward.uuid).params, portno);
+        if (existsP) register(require(__dirname + '/../db/' + steward.uuid).params, portno);
       });
 
       return;
@@ -233,132 +231,120 @@ var start = function(port, secureP) {
 };
 
 
-/*
- * i have a theory:
- *
- *     https.request(...).on('connect', ...)
- *
- * is broken because the socket passed does ciphertext not plaintext.
- */
+exports.vous = null;
 
-var rendezvous0 = function(params, port) {
-  portfinder.getPort({ port: 8881 }, function(err, portno) {
-    if (err) return logger.error('server', { event: 'portfinder.getPort 8881', diagnostic: err.message });
-
-    http.createServer(function(request, response) {
-      response.writeHead(405, { Allow: 'CONNECT' });
-      response.end();
-    }).on('connect', function(request, socket, head) {
-      var cleartext;
-
-      cleartext = tls.connect({ host : params.server.hostname
-                              , port : params.server.port
-                              , ca   : new Buffer(params.server.ca)
-                              }, function() {
-        var h, hello, parts;
-
-        logger.info('tls ' + params.server.hostname + ' ' + params.server.port);
-
-        if (!cleartext.authorized) {
-          logger.error('tlsproxy', { event: 'connect', diagnostic: cleartext.authorizationError });
-
-          socket.write('HTTP/1.1 500 + \r\n\r\n');
-          socket.end();
-          return setTimeout(function() { try { socket.destroy(); } catch(ex) {} }, 1 * 1000);
-        }
-
-        parts = url.parse(request.url);
-        hello = request.method + ' ' + parts.href + ' HTTP/' + request.httpVersion + '\r\n';
-        for (h in request.headers) if (request.headers.hasOwnProperty(h)) hello += h + ': ' + request.headers[h] + '\r\n';
-        hello += '\r\n';
-
-        cleartext.write(hello);
-        cleartext.write(head);
-        socket.pipe(cleartext).pipe(socket);
-      }).on('error', function(err) {
-        logger.error('tlsproxy', { event: 'error', diagnostic: err.message });
-
-        socket.write('HTTP/1.1 500 + \r\n\r\n');
-        socket.end();
-        setTimeout(function() { try { socket.destroy(); } catch(ex) {} }, 1 * 1000);
-      });
-
-    }).on('listening', function() {
-      logger.info('tlsproxy listening on http://127.0.0.1:' + portno);
-
-      rendezvous('127.0.0.1', portno, params, port);
-    }).on('error', function(err) {
-      logger.error('tlsproxy unable to listen on http://127.0.0.0:' + portno, { diagnostic: err.message });
-    }).listen(portno, '127.0.0.1');
-  });
-};
-
-var rendezvous = function(hostname, port, params, portno) {
-  var didP, options;
+var register = function(params, portno) {
+  var didP, options, u;
 
   var retry = function(secs) {
     if (didP) return;
     didP = true;
 
-    setTimeout(function() { rendezvous(hostname, port, params, portno); }, secs * 1000);
+    setTimeout(function() { register(params, portno); }, secs * 1000);
   };
 
-  options = { hostname : hostname
-            , port     : port
-            , path     : 'uuid:' + steward.uuid + '?response=' + speakeasy.totp({ key      : params.base32
-                                                                                , length   : 6
-                                                                                , encoding : 'base32'
-                                                                                , step     : params.step })
-            , method   : 'CONNECT'
-            , agent    : false
+  if (!exports.vous) exports.vous = params.name;
+
+  u = url.parse(params.issuer);
+  options = { host    : params.server.hostname
+            , port    : params.server.port
+            , method  : 'PUT'
+            , path    : '/register/' + params.labels[0]
+            , headers : { authorization : 'TOTP '
+                                        + 'username="' + params.uuid[0] + '", '
+                                        + 'response="' + speakeasy.totp({ key      : params.base32
+                                                                        , length   : 6
+                                                                        , encoding : 'base32'
+                                                                        , step     : params.step }) + '"'
+                        , host          : u.hostname + ':' + params.server.port
+                        }
+            , agent   : false
+            , ca      : params.server.ca
             };
+  didP = false;
+// should be https...
+  http.request(options, function(response) {
+    var content = '';
+
+    response.setEncoding('utf8');
+    response.on('data', function(chunk) {
+      content += chunk.toString();
+    }).on('end', function() {
+      if (response.statusCode !== 200) {
+        logger.error('register', { event: 'response', code: response.statusCode, retry: '15 seconds' });
+
+        return retry(15);
+      }
+
+      u = url.parse('http://' + content);
+      rendezvous(params, portno, u);
+    }).on('close', function() {
+      logger.warning('register', { event:'close', diagnostic: 'premature eof', retry: '1 second' });
+
+      retry(1);
+    });
+  }).on('error', function(err) {
+    logger.error('register', { event: 'error', diagnostic: err.message, retry: '10 seconds' });
+
+    retry(10);
+  }).end();
+};
+
+var rendezvous = function(params, portno, u) {
+  var didP, remote;
+
+  var retry = function(secs) {
+    if (didP) return;
+    didP = true;
+
+    setTimeout(function() { register(params, portno); }, secs * 1000);
+  };
 
   didP = false;
-  http.request(options).on('connect', function(response, cloud, head) {/* jshint unused: false */
-    var local;
+  remote = new net.Socket({ allowHalfOpen: true });
+  remote.on('connect', function() {
+    var head, local;
 
-    logger.info('cloud ' + options.hostname + ' ' + options.port);
+    logger.debug('rendezvous', { event: 'connect', server: u.host });
 
-    if (response.statusCode !== 200) {
-      logger.error('proxy', { event: 'response', code: response.statusCode, retry: '15 seconds' });
+    remote.setNoDelay(true);
+    remote.setKeepAlive(true);
 
-      try { cloud.destroy(); } catch(ex) {}
-      return retry(15);
-    }
-
-    cloud.setNoDelay(true);
-    cloud.setKeepAlive(true);
-
-    cloud.on('data', function(data) {
-      head = Buffer.concat([ head, data]);
+    head = null;
+    local = null;
+    remote.on('data', function(data) {
+      head = (!!head) ? Buffer.concat([ head, data ]) : data;
       if (!!local) return;
 
       local = new net.Socket({ allowHalfOpen: true });
       local.on('connect', function() {
-        logger.debug('proxy', { event: 'connect' });
+        logger.debug('rendezvous', { event: 'connect', server: '127.0.0.1:' + portno });
 
         local.setNoDelay(true);
         local.setKeepAlive(true);
 
         local.write(head);
-        cloud.pipe(local).pipe(cloud);
+        remote.pipe(local).pipe(remote);
       }).on('error', function(err) {
-        logger.error('proxy', { event: 'error', diagnostic: err.message });
+        logger.info('rendezvous', { event: 'error', server: '127.0.0.1:' + portno, diagnostic: err.message });
+
+        try { remote.destroy(); } catch(ex) {}
       }).connect(portno, '127.0.0.1');
 
       retry(0);
-    }).on('error', function(err) {
-      logger.error('cloud', { event: 'error', diagnostic: err.message, retry: '5 seconds' });
-
-      retry(5);
-    }).on('close', function(errorP) {
-      if (errorP) logger.error('cloud', { event: 'close' }); else logger.debug('cloud', { event: 'close' });
-
-      retry(1);
     });
+  }).on('close', function(errorP) {
+    if (errorP) logger.error('rendezvous', { event: 'close', server: u.host });
+    else        logger.debug('rendezvous', { event: 'close', server: u.host });
+
+    retry(1);
   }).on('error', function(err) {
-    logger.error('cloud', { event: 'connect', diagnostic: err.message, retry: '10 seconds' });
+    logger.error('rendezvous', { event: 'error', server: u.host, diagnostic: err.message });
 
     retry(10);
-  }).end();
+  }).on('end', function() {
+    logger.warning('rendezvous', { event: 'end', server: u.host });
+
+    retry(5);
+  }).connect(u.port, u.hostname);
 };

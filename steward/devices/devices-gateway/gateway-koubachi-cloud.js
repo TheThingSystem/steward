@@ -173,7 +173,7 @@ Cloud.prototype.addstation = function(self, station) {
 };
 
 Cloud.prototype.addplant = function(self, plant) {
-  var device, info, last, params, sensor, udn;
+  var device, info, last, params, udn;
 
   try { last = new Date(plant.updated_at); } catch(ex) { last = new Date(); }
 

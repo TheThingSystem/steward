@@ -205,7 +205,7 @@ var waterVisualUUID      = ':apprentice0:visual:water';
 var waterAudioUUID       = ':apprentice0:audio:water';
 
 var apprentice0a = function(steward, ws) {
-  var url = 'http' + (steward.secure ? 's' : '') + '://' + steward.hostname + ':' + steward.port + '/fault.wav' + steward.search;
+  var url = 'http' + (steward.secure ? 's' : '') + '://' + steward.hostname + ':' + steward.port + '/fault.wav';
 
   make_tree(ws, waterEventUUID, 'or',   [ { entityUUID    : waterSensorUUID
                                           , entityTypes   : [ '^/device/sensor/.*/water$' ]
@@ -805,13 +805,13 @@ var go = function(steward, i) {
 
   notice(tag, { state: 'connecting...' });
   opened = 0;
-  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage' + steward.search);
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 
   ws.onopen = function(event) {/* jshint unused: false */
     opened = 1;
     notice(tag, { state: 'open' });
 
-    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console' + steward.search);
+    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
     ws2.onopen    = function(event) {/* jshint unused: false */};
     ws2.onmessage = function(event) {
       var data, i, updates;
@@ -859,7 +859,6 @@ var main = function() {
   var steward = { hostname : window.location.hostname
                 , port     : window.location.port
                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                , search   : '%%UUID%%'
                 , secure   : (window.location.protocol.indexOf('https:') === 0)
                 };
 

@@ -699,14 +699,14 @@ var go = function(steward, i) {
   notice(tag, { state: 'connecting...' });
 
   opened = 0;
-  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console' + steward.search);
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
   ws2 = null;
 
   ws.onopen = function(event) {
     opened = 1;
     notice(tag, { state: 'open' });
 
-    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage' + steward.search);
+    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 
 // when going through a cloud server, need to throttle a bit...
     ws2.onopen = function(event) {
@@ -745,6 +745,7 @@ var go = function(steward, i) {
 
   ws.onmessage = function(event) {
     notice(tag, { state: 'open' });
+console.log(event.data);
     onupdate(JSON.parse(event.data));
   };
 
@@ -767,7 +768,7 @@ var main = function() {
   var steward = { hostname : window.location.hostname
                 , port     : window.location.port
                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                , search   : '%%UUID%%'
+                , secure   : (window.location.protocol.indexOf('https:') === 0)
                 };
 
   notice('start');
