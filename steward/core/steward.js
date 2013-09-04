@@ -7,7 +7,8 @@ var net         = require('net')
   , devices     = require('./device')
   , server      = require('./server')
   , utility     = require('./utility')
-  , discovered  = require('./../discovery/discovery-mac').arp
+  , discovered1 = require('./../discovery/discovery-mac').arp
+  , discovered2 = require('./../discovery/discovery-ssdp').arp
   , activities  = require('./../api/api-manage-activity')
   , events      = require('./../api/api-manage-event')
   , groups      = require('./../api/api-manage-group')
@@ -347,7 +348,8 @@ var listen = function(ifname) {
     } else if (arp.operation === 'reply') {
       if (!exports.uuid) exports.uuid = '2f402f80-da50-11e1-9b23-' + arp.target_ha.split(':').join('');
     }
-    discovered(ifname, arp);
+    discovered1(ifname, arp);
+    discovered2(ifname, arp);
   };
 };
 

@@ -38,9 +38,46 @@ var WeMo_Switch = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.jumpstart(self);
+  self.primer(self);
 };
 util.inherits(WeMo_Switch, plug.Device);
 
+
+WeMo_Switch.prototype.primer = function(self) {/* jshint multistr: true */
+  var action, body;
+
+  action = '"urn:Belkin:service:basicevent:1#GetBinaryState"';
+  body =
+'<u:GetBinaryState xmlns:u="urn:Belkin:service:basicevent:1">\
+   <BinaryState>0</BinaryState>\
+</u:GetBinaryState>';
+
+  discovery.upnp_roundtrip('device/' + self.deviceID, self.url,
+                           { method   : 'POST'
+                           , pathname : '/upnp/control/basicevent1'
+                           , headers  : { SOAPACTION     : action
+                                        , 'Content-Type' : 'text/xml; charset="utf-8"'
+                                        }
+                           },
+'<?xml version="1.0" encoding="utf-8"?>\
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\
+ <s:Body>' + body + '</s:Body>\
+</s:Envelope>', function(err, state, response, result) {
+    var faults, i;
+
+    self.logger.debug('primer: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
+    if (err) return;
+
+    try {
+      self.observe(self, result.results[0]['u:GetBinaryStateResponse'][0]);
+    } catch(ex) {}
+    faults = result.faults;
+    for (i = 0; i < faults.length; i++) {
+      self.logger.error('device/' + self.deviceID,
+                        { event: 'controller', parameter: 'GetBinaryState', diagonstic: stringify(faults[i]) });
+    }
+  });
+};
 
 WeMo_Switch.prototype.jumpstart = function(self) {
   discovery.upnp_subscribe('device/' + self.deviceID, self.url, self.sid, '/upnp/event/basicevent1',
@@ -193,7 +230,6 @@ var validate_perform = function(perform, parameter) {
 
   return result;
 };
-
 
 
 exports.start = function() {

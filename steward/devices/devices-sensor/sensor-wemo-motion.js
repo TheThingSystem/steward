@@ -41,6 +41,7 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.jumpstart(self);
+  self.primer(self);
 };
 util.inherits(WeMo_Motion, sensor.Device);
 util.inherits(WeMo_Motion, require('./../devices-switch/switch-wemo-onoff').Device);

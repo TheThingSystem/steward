@@ -16,10 +16,11 @@ var fs          = require('fs')
 
 var logger = utility.logger('discovery');
 
+var client;
 var listening;
 
 var listen = function(addr, portno) {/* jshint multistr: true */
-  var client, data, filename, ssdp;
+  var data, filename, ssdp;
 
   filename = __dirname + '/../sandbox/index.xml';
   data =
@@ -313,6 +314,35 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
     logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'unknown' });
   }).end(body);
+};
+
+
+var seen = {};
+var waiting = [];
+
+exports.arp = function(ifname, arp) {
+  var p;
+
+  if (!client) {
+    waiting.push({ ifname: ifname, arp: arp });
+    return;
+  }
+
+  test(ifname, arp.sender_ha, arp.sender_pa);
+  test(ifname, arp.target_ha, arp.target_pa);
+
+  while (waiting.length > 0) {
+    p = waiting.pop();
+    test(p.ifname, p.arp.sender_ha, p.arp.sender_pa);
+    test(p.ifname, p.arp.target_ha, p.arp.target_pa);
+  }
+};
+
+var test = function(ifname, macaddr, ipaddr) {
+  if (!!seen[macaddr]) return;
+
+  seen[macaddr] = ipaddr;
+  client.search('ssdp:all', ipaddr);    
 };
 
 
