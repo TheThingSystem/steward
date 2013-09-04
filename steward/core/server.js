@@ -262,7 +262,7 @@ var register = function(params, portno) {
                         , host          : u.hostname + ':' + params.server.port
                         }
             , agent   : false
-            , ca      : params.server.ca
+            , ca      : [ new Buffer(params.server.ca) ]
             };
   didP = false;
   https.request(options, function(response) {
