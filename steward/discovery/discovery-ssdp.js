@@ -320,29 +320,29 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
 var seen = {};
 var waiting = [];
 
-exports.arp = function(ifname, arp) {
+exports.arp = function(ifname, ifaddr, arp) {
   var p;
 
   if (!client) {
-    waiting.push({ ifname: ifname, arp: arp });
+    waiting.push({ ifname: ifname, ifaddr: ifaddr, arp: arp });
     return;
   }
 
-  test(ifname, arp.sender_ha, arp.sender_pa);
-  test(ifname, arp.target_ha, arp.target_pa);
+  test(ifname, ifaddr, arp.sender_ha, arp.sender_pa);
+  test(ifname, ifaddr, arp.target_ha, arp.target_pa);
 
   while (waiting.length > 0) {
     p = waiting.pop();
-    test(p.ifname, p.arp.sender_ha, p.arp.sender_pa);
-    test(p.ifname, p.arp.target_ha, p.arp.target_pa);
+    test(p.ifname, p.ifaddr, p.arp.sender_ha, p.arp.sender_pa);
+    test(p.ifname, p.ifaddr, p.arp.target_ha, p.arp.target_pa);
   }
 };
 
-var test = function(ifname, macaddr, ipaddr) {
+var test = function(ifname, ifaddr, macaddr, ipaddr) {
   if (!!seen[macaddr]) return;
 
   seen[macaddr] = ipaddr;
-  client.search('ssdp:all', ipaddr);    
+  if (ifaddr !== ipaddr) client.search('ssdp:all', ipaddr);    
 };
 
 

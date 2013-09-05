@@ -307,11 +307,11 @@ var review = function() {
 
   states = devices.review();
 
-  state = (states.error       !== 0) ? 'error'
-          : (states.attention !== 0) ? 'attention'
-          : (states.warning   !== 0) ? 'warning' : 'normal';
+  state = (states.error       !== 0)            ? 'error'
+          : (states.attention < states.warning) ? 'warning'
+          : (states.attention !== 0)            ? 'attention'
+          : (states.warning   !== 0)            ? 'warning' : 'normal';
   color = devices.rainbow[state].color;
-  if ((state === 'attention') && (states.warning > 0) && (color === place1.status)) color = devices.rainbow.warning.color;
 
   if (place1.status !== color) {
     place1.status = color;

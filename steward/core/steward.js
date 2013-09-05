@@ -103,14 +103,14 @@ var scan = function() {
 
   for (i = 0; i < performances.length; i++) {
     performance = performances[i];
+// .info
+    logger.notice('perform',
+                { taskID: performance.taskID, perform: performance.perform, parameter: performance.parameter });
 
     for (device in performance.devices) {
       if (!performance.devices.hasOwnProperty(device)) continue;
 
       parameter = devices.expand(performance.parameter);
-// .info
-      logger.notice('perform',
-                  { taskID: performance.taskID, device: device, perform: performance.perform, parameter: parameter });
       broker.publish('actors', 'perform', performance.taskID, device, performance.perform, parameter);
     }
   }
@@ -333,7 +333,7 @@ var report = function(module, entry, now) {
 var loadedP = false;
 var ifaces = exports.ifaces = utility.clone(require('os').networkInterfaces());
 
-var listen = function(ifname) {
+var listen = function(ifname, ifaddr) {
   return function(raw) {
     var arp, packet;
 
@@ -348,8 +348,8 @@ var listen = function(ifname) {
     } else if (arp.operation === 'reply') {
       if (!exports.uuid) exports.uuid = '2f402f80-da50-11e1-9b23-' + arp.target_ha.split(':').join('');
     }
-    discovered1(ifname, arp);
-    discovered2(ifname, arp);
+    discovered1(ifname, ifaddr, arp);
+    discovered2(ifname, ifaddr, arp);
   };
 };
 
@@ -454,7 +454,7 @@ exports.start = function() {
       logger.info('scanning ' + ifname);
       ifaces[ifname] = { addresses: ifaddrs, arp: {} };
       try {
-        pcap.createSession(ifname, 'arp').on('packet', listen(ifname));
+        pcap.createSession(ifname, 'arp').on('packet', listen(ifname, ifaddrs[ifa].address));
         captureP = true;
       } catch(ex) {
 // NB: referencing ifname in this exception catch confuses jshint about whether ifname is var'd above...

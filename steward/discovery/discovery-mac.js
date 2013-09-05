@@ -11,7 +11,7 @@ var logger = utility.logger('discovery');
 var pairings = {};
 
 
-exports.arp = function(ifname, arp) {
+exports.arp = function(ifname, ifaddr, arp) {/* jshint unused: false */
   test(ifname, arp.sender_ha, arp.sender_pa);
   test(ifname, arp.target_ha, arp.target_pa);
 };
