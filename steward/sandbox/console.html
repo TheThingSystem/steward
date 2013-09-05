@@ -700,7 +700,6 @@ var go = function(steward, i) {
 
   opened = 0;
   ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
-console.log(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
   ws2 = null;
 
   ws.onopen = function(event) {
@@ -708,7 +707,6 @@ console.log(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/
     notice(tag, { state: 'open' });
 
     ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
-console.log(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 
 // when going through a cloud server, need to throttle a bit...
     ws2.onopen = function(event) {
