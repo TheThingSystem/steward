@@ -4,37 +4,69 @@
 <title>steward console</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <style>
-  body {
-    font-family:monospace;
-    background: #16161d;
-    color: white;
+@font-face {
+  font-family: "Monsterrat Regular";
+  src: url("d3/montserrat/Montserrat-Regular.ttf");
   }
+  
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
 
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+body {
+  background: #000;
+  color: white;
+  font-size: 11pt;
+  line-height: 16pt;
+  font-family: "Monsterrat Regular";
+  text-align: center;   
+}
+  
+hr { border: 0; color: #333; background-color: #333; height: 4px; }
+  
+pre { color: #999; font-size: 11pt; }  
+  
+a { color: #fff; }  
+h1 { font-size: 22pt; font-family: "Monsterrat Regular";  }
+
+#main { text-align: left; margin: 20px 72px; }
+
+table.short-form td { padding: 10px; }
+
+.form-container { background: url('d3/popovers/assets/window.short.svg') no-repeat; width: 600px; height: 200px; padding: 40px; margin: 30px auto; }
+  
   div {
     display: inline;
   }
 
-  table {
+  table { text-align: left;
   }
 
   td {
     vertical-align: top;
+    padding: 2px 8px;
   }
 
   tr.filler {
-    background: grey;
+    background: #333;
   }
 
   tr.activity {
   }
-  td.activityID {
+  td.activityID { font-size: 11pt; line-height: 13pt; font-family: "Monsterrat Regular"; white-space: nowrap; padding-top: 10px;
   }
-  td.armed {
+  td.armed { padding-top: 10px;
   }
   td.event {
     vertical-align: middle;
   }
-  td.action {
+  td.action { color: #666; padding-top: 10px;
   }
   td.task {
     vertical-align: middle;
@@ -778,6 +810,8 @@ var main = function() {
 </head>
 
 <body onload='main();'>
+<img src="d3/images/thing.sys.logo.black.svg" />
+<hr>
 <div id='activities'></div>
 <hr/><hr/>
 <div id='actors'></div>
