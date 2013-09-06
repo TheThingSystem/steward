@@ -5,10 +5,36 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <style>
   body {
-    font-family:monospace;
-    background: #16161d;
+    background: #000;
     color: white;
+  	font-size: 13pt;
+	font-family: "Trebuchet MS";    
+	text-align: center;
   }
+  
+a { color: #fff; }  
+h1 { text-transform: uppercase; font-size: 22pt; font-family: "Roadgeek 2005 Series D";  }
+
+#main { text-align: left; margin: 20px 72px; }
+
+table.short-form td { padding: 10px; }
+
+.form-container { background: url('d3/popovers/assets/window.short.svg') no-repeat; width: 600px; height: 200px; padding: 40px; margin: 30px auto; }
+  
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series EM";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series EM.otf");
+}  
 </style>
 <script>
 
@@ -285,8 +311,10 @@ var main = function() {
 </head>
 
 <body onload='main();'>
+<img src="d3/images/thing.sys.logo.black.svg" />
+
 <div id='main'>
-<center><strong><font size='+3'>NOTE: THE TEXT ON THIS PAGE IS ACCURATE, BUT NOT USER-FACING.</font></strong></center>
+<h1 style="text-align: center;">NOTE: THE TEXT ON THIS PAGE IS ACCURATE, BUT NOT USER-FACING.</h1>
 
 <h1>tl;dr</h1>
 <ul>
@@ -318,22 +346,25 @@ and the application will automatically focus on the QR code and do the rest.</li
 </ul>
 </p>
 
+<div class="form-container">
 <form name='createForm' onsubmit='return validate_create();' action='#'>
 <table>
 <tr><td>Short Name:</td>
-    <td><input type='text' name='userName' /></td>
-    <td width='120'>&nbsp;</td>
+    <td style="padding-left: 15px;"><input type='text' name='userName' /></td>
+    <td width='20'>&nbsp;</td>
     <td rowspan='3'><a id='otpURL' href=''><img name='qrcode' src='qrcode.png' width='166' height='166' /></a></span></td>
 </tr>
 <tr><td>Descriptive Name:</td>
-    <td><input type='text' name='userComments' /></td>
+    <td style="padding-left: 15px; padding-top: 10px;"><input type='text' name='userComments' /></td>
 </tr>
 <tr valign='top'>
     <td></td>
-    <td><input type='submit' value='Create' /><br/><br/><span id='status'></span></td>
+    <td style="padding-top: 15px; padding-left: 15px;"><input type="image" src="d3/popovers/assets/create.svg" value='Create' /><br/><br/><span id='status'></span></td>
 </tr>
 </table>
 </form>
+</div>
+
 
 <h1>Authenticating a Client</h1>
 <p>
@@ -347,8 +378,9 @@ That identifies the client that is now associated with the user.
 Clients authenticate to the steward, and the user associated with a client is authorized to invoke various API calls.
 </p>
 
+<div class="form-container">
 <form name='testForm' onsubmit='return validate_test();' action='#'>
-<table>
+<table class="short-form">
 <tr><td>Short Name:</td>
     <td><input type='text' name='userName' /></td>
 </tr>
@@ -357,10 +389,11 @@ Clients authenticate to the steward, and the user associated with a client is au
 </tr>
 <tr valign='top'>
     <td></td>
-    <td><input type='submit' value='Test' /><br/><br/><span id='status2'></span></td>
+    <td><input type="image" src="d3/popovers/assets/test.svg" value='Test' /><br/><br/><span id='status2'></span></td>
 </tr>
 </table>
 </form>
+</div>
 
 </div>
 </body>
