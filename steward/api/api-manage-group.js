@@ -549,9 +549,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
     }
 
     p = devices.expand(message.parameter);
-    if (!!entity.perform) {
-      logger.notice('group perform', { device: 'device/' + entity.deviceID, perform: message.perform, parameter: p });
-    }
+    if (!!entity.perform) logger.notice('device/' + entity.deviceID, { api: 'group', perform: message.perform, parameter: p });
     performed = (!!entity.perform) ? (entity.perform)(entity, null, message.perform, p) : false;
     results.devices[member.actor] = { status: performed ? 'success' : 'failure' };
   }

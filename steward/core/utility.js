@@ -75,6 +75,9 @@ var logconfigs = {
   , wearable  : { console: { level: 'debug'  } }
 };
 
+var devices = null;
+var places  = null;
+
 exports.logger = function(x) {
   if (winston.loggers.has(x)) return winston.loggers.get(x);
   var logger = winston.loggers.add(x, logconfigs[x] || { console: { level: 'debug' } });
@@ -82,7 +85,7 @@ exports.logger = function(x) {
 
   logger.logaux = logger.log;
   logger.log = function(level, msg) {
-    var callback, meta;
+    var callback, entity, meta;
 
     if (arguments.length === 3) {
       if (typeof arguments[2] === 'function') {
@@ -94,6 +97,16 @@ exports.logger = function(x) {
     else if (arguments.length === 4) {
       meta = arguments[2];
       callback = arguments[3];
+    }
+
+    if (msg.indexOf('device/') === 0) {
+      if (!devices) devices = require('./device');
+      entity = devices.id2device(msg.substr(7));
+      if (!!entity) msg += ' ' + entity.name;
+    } else if (msg.indexOf('place/') === 0) {
+      if (!places) places = require('./steward').actors.place;
+      if (!!places) entity = places.$lookup(msg.substr(6));
+      if (!!entity) msg += ' ' + entity.name;
     }
 
     switch (level) {
@@ -127,9 +140,9 @@ exports.logfnx = function(logaux, prefix) {
   return f;
 };
 
-var logfnx2 = function(logaux, prefix, errorP) {
+var logfnx2 = function(logaux, prefix, errorP) {/* jshint unused: false */
   return function(msg, props) {
-           if ((!errorP) || ((!!props) && (!!props.event))) return (logaux)(prefix + ': ' + msg, props);
+//         if ((!errorP) || ((!!props) && (!!props.event))) return (logaux)(prefix + ': ' + msg, props);
 
                 if (!props)       props         = { event: msg };
            else if (!props.event) props.event   = msg;

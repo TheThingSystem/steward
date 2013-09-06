@@ -42,7 +42,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
     var macaddr;
 
     if (request === 'attention') {
-      if (self.status === 'reset') self.alert('please check login credentials');
+      if (self.status === 'reset') self.alert('please check login credentials at https://my.netatmo.com/');
 
       for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
       for (macaddr in newaddrs) {
@@ -57,7 +57,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  if ((!!info.email) || (!!info.passphrase)) self.login(self);
+  if ((!!info.email) || (!!info.passphrase)) setTimeout(function() { self.login(self); }, 0);
 };
 util.inherits(Cloud, require('./../device-gateway').Device);
 

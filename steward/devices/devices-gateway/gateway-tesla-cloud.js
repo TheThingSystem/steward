@@ -30,10 +30,11 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'passphrase' ];
   self.changed();
   self.timer = null;
+  self.fails = 0;
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'attention') {
-      if (self.status === 'reset') self.alert('please check login credentials');
+      if (self.status === 'reset') self.alert('please check login credentials at https://www.teslamotors.com/mytesla');
       return;
     }
 
@@ -53,7 +54,8 @@ Cloud.prototype.error = function(self, err) {
   logger.error('device/' + self.deviceID, { diagnostic: err.message });
 
   if (!!self.timer) clearTimeout(self.timer);
-  self.timer = setTimeout(function() { self.scan(self); }, 300 * 1000);
+  if (self.fails < 6) self.fails++;
+  self.timer = setTimeout(function() { self.scan(self); }, self.fails * 300 * 1000);
 };
 
 Cloud.prototype.scan = function(self) {
@@ -70,6 +72,7 @@ Cloud.prototype.scan = function(self) {
   });
 
   if (!!self.timer) clearTimeout(self.timer);
+  self.fails = 0;
   self.timer = setTimeout(function() { self.scan(self); }, 300 * 1000);
 };
 

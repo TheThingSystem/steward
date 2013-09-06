@@ -202,7 +202,7 @@ Gateway.prototype.ping = function(self) {
   }
 */  var meta = { status: self.status };
 
-  logger.info(self.name, meta);
+  logger.info('device/' + self.deviceID, meta);
 };
 
 

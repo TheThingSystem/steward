@@ -38,7 +38,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
     var macaddr;
 
     if (request === 'attention') {
-      if (self.status === 'reset') self.alert('please check login credentials');
+      if (self.status === 'reset') self.alert('please check login credentials at https://my.koubachi.com/');
 
       for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
       for (macaddr in newaddrs) {

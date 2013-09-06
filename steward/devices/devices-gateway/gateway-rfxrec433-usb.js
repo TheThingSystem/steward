@@ -34,13 +34,13 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
 
   self.rfx.logger = utility.logfnx(logger, 'device/' + self.deviceID);
   self.rfx.on('response',  function(type, seqno) {
-    logger.debug('device/' + self.deviceID + ': ' + self.name, { event: 'response',  type:   type, seqno: seqno });
+    logger.debug('device/' + self.deviceID, { event: 'response',  type:   type, seqno: seqno });
   }).on('status',  function(evt) {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'status',    params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'status',    params: evt });
   }).on('elec2',  function(evt) {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'elec2',     params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'elec2',     params: evt });
   }).on('security1',  function(evt) {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'security1', params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'security1', params: evt });
   }).on('temp1',  function(evt) { self.tempX(self, evt);
   }).on('temp2',  function(evt) { self.tempX(self, evt);
   }).on('temp3',  function(evt) { self.tempX(self, evt);
@@ -52,15 +52,15 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   }).on('th4',  function(evt) { self.thX(self, evt);
   }).on('th5',  function(evt) { self.thX(self, evt);
   }).on('lighting1',  function(evt) {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'lighting1', params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'lighting1', params: evt });
   }).on('lighting2',  function(evt) {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'lighting2', params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });
   }).on('lighting5',  function(evt) {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'lighting5', params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'lighting5', params: evt });
   }).on('data',  function(data) {
-    logger.debug('device/' + self.deviceID + ': ' + self.name, { event: 'data',      params: data.toString('hex') });
+    logger.debug('device/' + self.deviceID, { event: 'data',      params: data.toString('hex') });
   }).initialise(function() {
-    logger.info('device/' + self.deviceID + ': ' + self.name,  { event: 'initialize' });
+    logger.info('device/' + self.deviceID,  { event: 'initialize' });
   });
 };
 util.inherits(Gateway, require('./../device-gateway').Device);

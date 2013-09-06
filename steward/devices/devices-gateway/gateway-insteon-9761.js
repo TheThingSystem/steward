@@ -758,7 +758,7 @@ Gateway.prototype.ping = function(self) {
     meta.devices[deviceTypes[device] || device] = devices[device];
   }
 
-  logger.info(self.name, meta);
+  logger.info('device/' + self.deviceID, meta);
 };
 
 
