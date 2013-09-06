@@ -311,15 +311,17 @@ var main = function() {
 <img src="d3/images/thing.sys.logo.black.svg" />
 
 <div id='main'>
-<h1 style="text-align: center;">NOTE: THE TEXT ON THIS PAGE IS ACCURATE, BUT NOT USER-FACING.</h1>
-
 <h1>tl;dr</h1>
 <ul>
 <li>Be on your home network.
 
 <li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
-or some other program that implements <a href='http://tools.ietf.org/html/rfc6238'>time-based one-time passwords (TOTP)</a>.
-There are several out there for all major platforms and desktops.</li>
+or some other program that implements <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords (TOTP)</a>.
+There are several out there for all major platforms and desktops,
+e.g., <a href='https://itunes.apple.com/us/app/securitoken/id467479279?mt=12'>SecuriToken</a> for the Mac.
+Please see also a comprehensive
+<a href='http://en.wikipedia.org/wiki/Google_Authenticator#Implementation'>list of implementations</a>.
+</li>
 
 <li>Scroll to the bottom of this page, fill-in the form, and press "Submit".</li>
 
@@ -378,11 +380,13 @@ Clients authenticate to the steward, and the user associated with a client is au
 <div class="form-container">
 <form name='testForm' onsubmit='return validate_test();' action='#'>
 <table class="short-form">
-<tr><td>Short Name:</td>
+<tr><td>Client ID:</td>
     <td><input type='text' name='userName' /></td>
+    <td>e.g., "root/1"</td>
 </tr>
-<tr><td>Login Code:</td>
+<tr><td>Login code:</td>
     <td><input type='text' name='userCode' /></td>
+    <td>e.g., "123456"</td>
 </tr>
 <tr valign='top'>
     <td></td>
