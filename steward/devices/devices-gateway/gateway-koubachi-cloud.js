@@ -167,7 +167,7 @@ Cloud.prototype.addstation = function(self, station) {
   info.id = info.device.unit.udn;
   macaddrs[station.mac_address.split('-').join('').split(':').join('').toLowerCase()] = true;
 
-  logger.info('Koubachi ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };
@@ -209,7 +209,7 @@ Cloud.prototype.addplant = function(self, plant) {
   info.deviceType = '/device/climate/koubachi/plant';
   info.id = info.device.unit.udn;
 
-  logger.info('Koubachi ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };

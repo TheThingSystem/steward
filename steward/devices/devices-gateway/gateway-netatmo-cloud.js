@@ -160,7 +160,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   info.id = info.device.unit.udn;
   macaddrs[station._id.split('-').join('').split(':').join('').toLowerCase()] = true;
 
-  logger.info('Netatmo ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };

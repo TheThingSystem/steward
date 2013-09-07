@@ -154,7 +154,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
   info.id = info.device.unit.udn;
   macaddrs[station.mac_address] = true;
 
-  logger.info('Nest ' + info.device.name, { id: info.device.unit.serial,  params: info.params });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
   devices.discover(info);
   self.changed();
 };

@@ -98,7 +98,7 @@ Gateway.prototype.thX = function(self, evt) {
   info.deviceType = '/device/climate/oregon-scientific/sensor';
   info.id = info.device.unit.udn;
 
-  logger.info('RFXrec433-usb ' + info.device.name, { id: info.device.unit.serial,  params: params });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: params });
   devices.discover(info);
   self.changed();
 };
@@ -134,6 +134,10 @@ var scan = function() {
       info.id = info.device.unit.udn;
       if (devices.devices[info.id]) return;
 
+      utility.logger('discovery').info(device.serialNumber, { manufacturer : device.manufacturer
+                                                            , vendorID     : device.vendorID
+                                                            , productId    : device.productId
+                                                            });
       devices.discover(info);
     }
   });

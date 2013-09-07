@@ -156,7 +156,7 @@ Gateway.prototype.announce = function(self, id) {
   info.id = info.device.unit.udn;
   if (devices.devices[info.id]) return;
 
-  logger.info(info.device.name, { id: sixtoid(id),  description: deviceType });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: sixtoid(id),  description: deviceType });
   devices.discover(info);
 };
 

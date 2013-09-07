@@ -53,9 +53,10 @@ Cloud.prototype.error = function(self, err) {
   self.changed();
   logger.error('device/' + self.deviceID, { diagnostic: err.message });
 
+  if (self.fails < 11) self.fails++;
+
   if (!!self.timer) clearTimeout(self.timer);
-  if (self.fails < 6) self.fails++;
-  self.timer = setTimeout(function() { self.scan(self); }, self.fails * 300 * 1000);
+  self.timer = setTimeout(function() { self.scan(self); }, (self.fails + 1) * 300 * 1000);
 };
 
 Cloud.prototype.scan = function(self) {
@@ -67,13 +68,13 @@ Cloud.prototype.scan = function(self) {
     try { data = JSON.parse(body); } catch(ex) { return self.error(self, ex); }
     if (!util.isArray(data)) return self.error(self, new Error('expecting an array from Tesla Motors cloud service'));
     self.status = 'ready';
+    self.fails = 0;
 
     for (i = 0; i < data.length; i++) self.addvehicle(self, data[i]);
   });
 
   if (!!self.timer) clearTimeout(self.timer);
-  self.fails = 0;
-  self.timer = setTimeout(function() { self.scan(self); }, 300 * 1000);
+  self.timer = setTimeout(function() { self.scan(self); }, (self.fails + 1) * 300 * 1000);
 };
 
 Cloud.prototype.addvehicle = function(self, vehicle) {
@@ -129,7 +130,7 @@ Cloud.prototype.addvehicle = function(self, vehicle) {
   info.deviceType = '/device/motive/tesla/model-s';
   info.id = info.device.unit.udn;
 
-  logger.info('Tesla Motors ' + info.device.name, { id: info.device.unit.serial });
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial });
   devices.discover(info);
   self.changed();
 };
