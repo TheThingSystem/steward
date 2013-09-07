@@ -64,7 +64,7 @@ exports.start = function() {
                     , perform    : [ ]
                     , properties : { name        : true
                                    , status      : [ 'present' ]
-                                   , coordinates : 'latlng'
+                                   , location    : 'coordinates'
                                    , lastSample  : 'timestamp'
                                    , temperature : 'celsius'
                                    , humidity    : 'percentage'

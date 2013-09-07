@@ -128,7 +128,7 @@ Cloud.prototype.scan = function(self) {
 Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   var info, params, sensor, udn;
 
-  params = { coordinates : coordinates
+  params = { location    : coordinates
            , lastSample  : (!!data.K) ? (data.K * 1000) : null
            , temperature : (!!data.a) ? data.a          : null
            , humidity    : (!!data.b) ? data.b          : null

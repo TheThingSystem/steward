@@ -342,7 +342,7 @@ var test = function(ifname, ifaddr, macaddr, ipaddr) {
   if (!!seen[macaddr]) return;
 
   seen[macaddr] = ipaddr;
-  if (ifaddr !== ipaddr) client.search('ssdp:all', ipaddr);    
+  if (ifaddr !== ipaddr) client.search('ssdp:all', ipaddr);
 };
 
 
