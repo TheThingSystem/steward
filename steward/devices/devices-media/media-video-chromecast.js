@@ -1,5 +1,13 @@
 // Chromecast (Eureka Dongle) media player: www.google.com/chromecast
 
+var mdns;
+
+try {
+  mdns          = require('mdns');
+} catch(ex) { logger.warning('MDNS disabled', { diagnostic: ex.message } ); }
+if (!mdns) return;
+
+
 var Dongle      = require('eureka-dongle')
   , util        = require('util')
   , devices     = require('./../../core/device')

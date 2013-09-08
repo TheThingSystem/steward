@@ -1,11 +1,18 @@
 // AppleTV media player: http://www.appletv.com/developer
 
+var mdns;
+
+try {
+  mdns          = require('mdns');
+} catch(ex) { logger.warning('MDNS disabled', { diagnostic: ex.message } ); }
+if (!mdns) return;
+
+
 var airplay     = require('airplay')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , media       = require('./../device-media')
-  , mdns        = require('mdns')
   , utility     = require('./../../core/utility')
   , url         = require('url')
   ;

@@ -321,9 +321,7 @@ var report = function(module, entry, now) {
   if (last >= require('./device').lastupdated) return;
 
   entry.busyP = true;
-  entry.reporter(logger, { send: function(data) {
-    if (broker.has('status')) broker.publish('status', module, data);
-
+  entry.reporter(logger, { send: function(data) {/* jshint unused: false */
     entry.busyP = false;
     entry.last = now;
   }});

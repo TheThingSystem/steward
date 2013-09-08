@@ -6,13 +6,21 @@ if ((process.arch === 'arm') && (process.platform === 'linux')) {
   return;
 }
 
+
+var mdns;
+
+try {
+  mdns          = require('mdns');
+} catch(ex) { logger.warning('MDNS disabled', { diagnostic: ex.message } ); }
+if (!mdns) return;
+
+
 var
 /*
     axis        = require('axiscam')
   ,
  */
-    mdns        = require('mdns')
-  , util        = require('util')
+    util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
