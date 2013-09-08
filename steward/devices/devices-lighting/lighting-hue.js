@@ -220,7 +220,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     }
   }
 
-  logger.info(self.lights[id].deviceID, { perform: state });
+  logger.info('device/' + self.lights[id].deviceID, { perform: state });
   self.roundtrip(self, 'device/' + self.deviceID,
                  { method: 'PUT', pathname: '/api/' + self.username + '/lights/' + id + '/state'}, state,
                  function(err, state, response, result) {
@@ -359,7 +359,7 @@ Hue.prototype.addlight = function(self, id, props) {
     if ((name !== self.lights[id].name) || (type !== self.lights[id].type)) {
       db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
              { $deviceType: self.lights[id].type, $deviceName: self.lights[id].name, $deviceID: self.lights[id].deviceID });
-      logger.info(self.lights[id].deviceID, childprops(self, id));
+      logger.info('device/' + self.lights[id].deviceID, childprops(self, id));
     }
 
     self.refresh3(self, id, props);
