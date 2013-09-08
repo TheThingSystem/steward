@@ -220,7 +220,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     }
   }
 
-  logger.info(self.name + ' light ' + id, { perform: state });
+  logger.info(self.lights[id].deviceID, { perform: state });
   self.roundtrip(self, 'device/' + self.deviceID,
                  { method: 'PUT', pathname: '/api/' + self.username + '/lights/' + id + '/state'}, state,
                  function(err, state, response, result) {
@@ -359,7 +359,7 @@ Hue.prototype.addlight = function(self, id, props) {
     if ((name !== self.lights[id].name) || (type !== self.lights[id].type)) {
       db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
              { $deviceType: self.lights[id].type, $deviceName: self.lights[id].name, $deviceID: self.lights[id].deviceID });
-      logger.info(self.lights[id].name, childprops(self, id));
+      logger.info(self.lights[id].deviceID, childprops(self, id));
     }
 
     self.refresh3(self, id, props);
@@ -654,7 +654,9 @@ var validate_perform_bulb = function(perform, parameter) {
 
 
 var scan = function() {
-  var options;
+  var logger2, options;
+
+  logger2 = utility.logger('discovery');
 
   options = url.parse('http://www.meethue.com/api/nupnp');
   options.agent = false;
@@ -670,10 +672,10 @@ var scan = function() {
 
       var i, info, results, serialNo;
 
-      if (response.statusCode !== 200) logger.warning('nUPnP', { event: 'http', code: response.statusCode, body: content });
+      if (response.statusCode !== 200) logger2.warning('nUPnP', { event: 'http', code: response.statusCode, body: content });
 
       try { results = JSON.parse(content); } catch(ex) {
-        logger.error('nUPnP', { event: 'JSON', data: content, diagnostic: ex.message });
+        logger2.error('nUPnP', { event: 'JSON', data: content, diagnostic: ex.message });
         results = [];
       }
 
@@ -707,14 +709,14 @@ var scan = function() {
         info.id = info.device.unit.udn;
         if (devices.devices[info.id]) return;
 
-        logger.info('nUPnP ' + info.device.name, { url: info.url });
+        logger2.info('nUPnP ' + info.device.name, { url: info.url });
         devices.discover(info);
       }
     }).on('close', function() {
-      logger.warning('nUPnP', { event: 'http', diagnostic: 'premature eof' });
+      logger2.warning('nUPnP', { event: 'http', diagnostic: 'premature eof' });
     });
   }).on('error', function(err) {
-    logger.error('nUPnP', { event: 'http', options: options, diagnostic: err.message });
+    logger2.error('nUPnP', { event: 'http', options: options, diagnostic: err.message });
   }).end();
 };
 
