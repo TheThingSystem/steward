@@ -225,7 +225,7 @@ var onactors = function(message) {
     loopP = false;
 
     for (id in result.actors) {
-      if ((!result.actors.hasOwnProperty(id)) || (id === '/clipboard') || (id === '/group') || (id === '/place')) continue;
+      if ((!result.actors.hasOwnProperty(id)) || (id === '/group') || (id === '/place')) continue;
       path = id.substr(1).split('/');
       if (path.length !== depth) continue;
       loopP = true;
