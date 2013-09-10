@@ -149,7 +149,7 @@ var statusColor = function(entry) {
 
   if ((rgb.r + rgb.g + rgb.b) > 30) return color;
   return d3.rgb((rgb.r * 2) + 30, (rgb.b * 2) + 30, (rgb.b * 2) + 30);
-}
+};
 
 var statusColor2 = function(entry) {
   var color;

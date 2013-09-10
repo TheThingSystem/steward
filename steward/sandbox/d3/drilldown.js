@@ -1,15 +1,5 @@
-/* TODO:
-
-   Monitoring:
-   - if more than 5 devices in drilldown, use slider
-   - values should be placed within the arc and in a contrasting color
-
-   Control:
-   - all!
-
- */
-
 var actors = {}
+  , place
   , tags   = {}
   , multiple_arcs = []
   , lastUpdated
@@ -158,18 +148,18 @@ var updatePage = function(message) {
   switch (stack.length) {
     case 1:
       document.getElementById("timeagoStamp").innerHTML = d3.timestamp.ago(lastUpdated,true);
-	  for (i = 0; i < devices.length; i++) {
-		actorID = actor2ID(devices[i].actor);
-		document.getElementById(actorID + '-label').style.color = statusColor(devices[i]);
-		document.getElementById(actorID).style.backgroundColor = statusColor(devices[i]);
-	  }
-	  break;
-	case 2:
-	  // update drilldown page
-	  
-	  break;
+          for (i = 0; i < devices.length; i++) {
+                actorID = actor2ID(devices[i].actor);
+                document.getElementById(actorID + '-label').style.color = statusColor(devices[i]);
+                document.getElementById(actorID).style.backgroundColor = statusColor(devices[i]);
+          }
+          break;
+        case 2:
+          // update drilldown page
+          
+          break;
   }
-}
+};
 
 var device_drilldown = function(name, devices, arcs, instructions) {
   var chart, device, div, div2, entry, i, img, trayLeft, trayPages, trayWidth;
@@ -213,45 +203,45 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     
     // Arrow elements for multis > 5
     if (devices.length > 5) {
-		div3 = document.createElement('div');
-		div3.setAttribute('id', 'left-arrow');
-		div3.setAttribute('onclick', 'javascript:handleArrow(event)');
-		div3.innerHTML = '&larr;';
-		div.appendChild(div3);
-		
-		div3 = document.createElement('div');
-		div3.setAttribute('id', 'right-arrow');
-		div3.setAttribute('onclick', 'javascript:handleArrow(event)');
-		div3.innerHTML = '&rarr;';
-		div.appendChild(div3);
+                div3 = document.createElement('div');
+                div3.setAttribute('id', 'left-arrow');
+                div3.setAttribute('onclick', 'javascript:handleArrow(event)');
+                div3.innerHTML = '&larr;';
+                div.appendChild(div3);
+                
+                div3 = document.createElement('div');
+                div3.setAttribute('id', 'right-arrow');
+                div3.setAttribute('onclick', 'javascript:handleArrow(event)');
+                div3.innerHTML = '&rarr;';
+                div.appendChild(div3);
     }
     
     // The little dot navigator below the icon tray
     trayWidth = iconWidth * devices.length;
-	if (devices.length > 5) {
-	   trayPages = Math.ceil(trayWidth / viewportWidth);
-	   trayWidth = iconWidth * 5 * trayPages;
+        if (devices.length > 5) {
+           trayPages = Math.ceil(trayWidth / viewportWidth);
+           trayWidth = iconWidth * 5 * trayPages;
    
-	   pager = document.createElement('p');
-	   pager.setAttribute('style', 'position: relative; top: -5px;');
-	   var pagerElements = '';
-	   for (i = 0; i < trayPages; i++) {
-		  if (i == (lastIconTrayPage - 1)) {
-			 pagerElements += "<span id='bullet" + i + "' class='bullet-on' onclick='javascript:gotoPage(event)'>&bull;</span>";
-		  } else {
-			 pagerElements += "<span id='bullet" + i + "' class='bullet-off' onclick='javascript:gotoPage(event)'>&bull;</span>";
-		  }
-	   }
-	   pager.innerHTML = pagerElements;
-	}
-	trayLeft = ((viewportWidth / 2) - (trayWidth / 2));
-	trayLeft = (trayLeft < 0) ? -(viewportWidth * (lastIconTrayPage - 1)) : trayLeft;
-	
+           pager = document.createElement('p');
+           pager.setAttribute('style', 'position: relative; top: -5px;');
+           var pagerElements = '';
+           for (i = 0; i < trayPages; i++) {
+                  if (i == (lastIconTrayPage - 1)) {
+                         pagerElements += "<span id='bullet" + i + "' class='bullet-on' onclick='javascript:gotoPage(event)'>&bull;</span>";
+                  } else {
+                         pagerElements += "<span id='bullet" + i + "' class='bullet-off' onclick='javascript:gotoPage(event)'>&bull;</span>";
+                  }
+           }
+           pager.innerHTML = pagerElements;
+        }
+        trayLeft = ((viewportWidth / 2) - (trayWidth / 2));
+        trayLeft = (trayLeft < 0) ? -(viewportWidth * (lastIconTrayPage - 1)) : trayLeft;
+        
     // device-viewport and image-tray needed for horizontal scrolling of icons
     div3 = document.createElement('div');
     div3.setAttribute('id', 'device-viewport');
     div3.setAttribute('style', 'position: relative; left:12px; top: 85px; overflow-x: hidden; overflow-y: hidden; width: ' 
-    				  + viewportWidth + 'px; height: 140px;');
+                                  + viewportWidth + 'px; height: 140px;');
     
     div.appendChild(div3);
     
@@ -268,17 +258,17 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .enter().append('div')
        .style('position', 'absolute')
        .style('top', '10px')
-       .style('left', function(d, i) {return (i * actorWidth + 'px')})
+       .style('left', function(d, i) {return (i * actorWidth + 'px'); })
        .style('text-align', 'center')
        .style('width', actorWidth + 'px')
        .style('height', '107px')
        .style('overflow', 'hidden');
        
     actor.append('img')
-       .attr('src', function(d, i) {return entries[devices[i].deviceType].img})
-       .style('background-color', function(d, i) {return statusColor(devices[i])})
+       .attr('src', function(d, i) {return entries[devices[i].deviceType].img; })
+       .style('background-color', function(d, i) {return statusColor(devices[i]); })
        .attr('class', 'actor-grouping')
-       .attr('onclick', function(d, i) {return 'javascript:goforw(' + entries[devices[i].deviceType].single + ', "' + devices[i].actor + '");'});
+       .attr('onclick', function(d, i) {return 'javascript:goforw(' + entries[devices[i].deviceType].single + ', "' + devices[i].actor + '");'; });
     
     div.appendChild(div3);
     
@@ -308,7 +298,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   
   if (document.getElementById("left-arrow")) handleArrowVisibility();
   drawArcs(arcs);
-}
+};
 
 var drawArcs = function(arcs) {
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
@@ -396,7 +386,7 @@ var drawArcs = function(arcs) {
 
 // Commented code part of attempt to animate/bounce arc drawing. To be continued...
 //   var path = g.selectAll("path")
-//   	  .data(arcz.filter(function(d) { return d.value; }), function(d) { return d.name; });
+//        .data(arcz.filter(function(d) { return d.value; }), function(d) { return d.name; });
 //  
 //   path.enter().append("path")
 //       .transition()
@@ -416,52 +406,52 @@ var drawArcs = function(arcs) {
 //       .remove();
  
 //   var path = vis.append("path")
-//       .attr("id", function(d,i){return "a"+i;})
+//       .attr("id", function(d,i){return "a"+i; })
 //       .attr("d", circle);
   
   var arcColor = []; // save to calc contrasting overlaid text color
   
   g.append("path")
-      .style("fill", function(d, i) { arcColor[i] = ((!!d.color) ? d.color : color(i)); return arcColor[i] })
+      .style("fill", function(d, i) { arcColor[i] = ((!!d.color) ? d.color : color(i)); return arcColor[i]; })
       .attr("d", arc);
   
   var g2 = g.append("path")
       .style("fill", "none")
       .style("stroke", "none")
-      .attr("id", function(d,i){return "a"+i;})
+      .attr("id", function(d,i){return "a"+i; })
       .attr("d", arc2);  
     
     // readings
-	var text = g.append("text")
-		.attr("text-anchor", "start")
-		.attr("dx", 4)
-		.attr("dy", 24)
-		.style("font-family", "Roadgeek 2005 Series D")
-		.style("font-size", "12px")
-		.style("color", "#fff");
-		
-	text.append("textPath")
-		.attr("stroke", "none")
-		.attr("fill",function(d,i){return textColor(arcColor[i], arcs[i].value)})
-		.attr("xlink:href",function(d,i){return "#a"+i;})
-		.text(function(d,i){ return convertSymbol(d.cooked) });
+        var text = g.append("text")
+                .attr("text-anchor", "start")
+                .attr("dx", 4)
+                .attr("dy", 24)
+                .style("font-family", "Roadgeek 2005 Series D")
+                .style("font-size", "12px")
+                .style("color", "#fff");
+                
+        text.append("textPath")
+                .attr("stroke", "none")
+                .attr("fill",function(d,i){return textColor(arcColor[i], arcs[i].value); })
+                .attr("xlink:href",function(d,i){return "#a"+i; })
+                .text(function(d,i){ return convertSymbol(d.cooked); });
            
-	// labels
-// 	var text2 = g.append("text")
-// 		.attr("text-anchor", "end")
-// 		.attr("dx", 75)
-// 		.attr("dy", 24)
-// 		.style("font-family", "Roadgeek 2005 Series D")
-// 		.style("font-size", "12px")
-// 		.style("color", "#fff");
-// 		
-// 	text2.append("textPath")
-// 		.attr("stroke","none")
-// 		.attr("fill","white")
-// 		.attr("startOffset", "50%")
-// 		.attr("xlink:href",function(d,i){return "#a"+i;})
-// 		.text(function(d,i){ return convertSymbol(d.label) });
-	
+        // labels
+//      var text2 = g.append("text")
+//              .attr("text-anchor", "end")
+//              .attr("dx", 75)
+//              .attr("dy", 24)
+//              .style("font-family", "Roadgeek 2005 Series D")
+//              .style("font-size", "12px")
+//              .style("color", "#fff");
+//              
+//      text2.append("textPath")
+//              .attr("stroke","none")
+//              .attr("fill","white")
+//              .attr("startOffset", "50%")
+//              .attr("xlink:href",function(d,i){return "#a"+i; })
+//              .text(function(d,i){ return convertSymbol(d.label) });
+        
     
 //   function arcTween(b) {
 //     var i = d3.interpolate( {value: b.start}, b);
@@ -470,17 +460,17 @@ var drawArcs = function(arcs) {
 //     };
 //  }
 
-	function convertSymbol(txt) {
-		var re = /\&deg;/gi;
-		txt = txt.replace(re, "°");
-		re = /\<sup\>2\<\/sup\>/gi;
-		txt = txt.replace(re, "²");
-		re = /\<sub\>2\<\/sub\>/gi;
-		txt = txt.replace(re, "₂");
-		re = /\&sigma;/gi;
-		txt = txt.replace(re, "σ");
-		return txt;
-	}
+        function convertSymbol(txt) {
+                var re = /\&deg;/gi;
+                txt = txt.replace(re, "°");
+                re = /\<sup\>2\<\/sup\>/gi;
+                txt = txt.replace(re, "²");
+                re = /\<sub\>2\<\/sub\>/gi;
+                txt = txt.replace(re, "₂");
+                re = /\&sigma;/gi;
+                txt = txt.replace(re, "σ");
+                return txt;
+        }
 
 };
 
@@ -494,7 +484,7 @@ var single_device_drilldown = function(state, arcs, instructions) {
 };
 
 var single_device_arcs = function(device) {
-  var a0, a1, arcs, brightness, color, delta, level, now;
+  var a0, a1, arcs, brightness, color, delta, level, now, prop, v;
 
   arcs = [];
 
@@ -651,23 +641,15 @@ var single_gateway_drilldown   = single_device_drilldown;
 var gateway_device_arcs        = single_device_arcs;
 var single_indicator_drilldown = single_device_drilldown;
 var indicator_device_arcs      = single_device_arcs;
-var single_presence_drilldown  = single_device_drilldown;
-var presence_device_arcs       = single_device_arcs;
 var single_sensor_drilldown    = single_device_drilldown;
 var sensor_device_arcs         = single_device_arcs;
-var single_switch_drilldown    = single_device_drilldown;
-var switch_device_arcs         = single_device_arcs;
-var single_wearable_drilldown  = single_device_drilldown;
-var wearable_device_arcs       = single_device_arcs;
 
 
 var single_climate_drilldown = function(state) {
-  var device, instructions
+  var device, instructions;
 
   device = actors[state.actor];
-  instructions = 'show data for last week';
-console.log(entries[device.deviceType]);
-  if (!entries[device.deviceType].passive) instructions += '<br />' + 'show forecast for next week';
+  instructions = 'show data for last week (not yet)';
 
   device_drilldown(device.name, [ device ], climate_device_arcs(device), instructions);
 };
@@ -702,7 +684,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'TEMPERATURE'
-                          , cooked : v + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, 18, 28)
                           , index  : 0.60
                           });
@@ -717,6 +699,7 @@ var climate_device_arcs = function(device) {
                           , index  : 0.60
                           });
         break;
+
 
 // 2nd ring
       case 'humidity':
@@ -738,6 +721,27 @@ var climate_device_arcs = function(device) {
                           , index  : 0.50
                           });
         break;
+
+      case 'moisture':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MOISTURE'
+                          , cooked : v + 'mb'
+                          , value  : clip2bars(v, 50,  250)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'needsWater':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'WATER'
+                          , cooked : v === 'true' ? 'NEEDS WATER!' : 'ok'
+                          , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+
 
 // 3rd ring
       case 'co2':
@@ -780,6 +784,26 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'light':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'LIGHT'
+                          , cooked : v + 'lx'
+                          , value  : clip2bars(v,  5000, 25000)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'needsMist':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MIST'
+                          , cooked : v === 'true' ? 'NEEDS MISTING!' : 'ok'
+                          , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
+                          , index  : 0.40
+                          });
+        break;
+
 // 4th ring
       case 'noise':
         arcs.splice(4, 0, { name   : prop
@@ -810,6 +834,27 @@ var climate_device_arcs = function(device) {
                                                : v === 'heat' ?  66
                                                : v === 'cool' ? 100 : 0, 0, 100)
                           , index  : 0.30
+                          });
+        break;
+
+      case 'nextSample':
+        now = new Date().getTime();
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'NEXT SAMPLE'
+                          , cooked : d3.timestamp.ago(v)
+                          , value  : clip2bars((new Date(v).getTime()) - now, 0, 86400 * 1000)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'needsFertilizer':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'FERTILIZER'
+                          , cooked : v === 'true' ? 'NEEDS FERTILIZER!' : 'ok'
+                          , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
+                          , index  : 0.40
                           });
         break;
 
@@ -844,9 +889,13 @@ var climate_device_arcs = function(device) {
 };
 
 
-// temporary...
-var single_nest_drilldown = single_climate_drilldown;
-var device_nest_arcs      = climate_device_arcs;
+var single_thermostat_drilldown = function(state) {
+// there should be a pop-up box available for this drilldown...
+
+  return single_climate_drilldown(state);
+};
+
+var device_thermostat_arcs    = climate_device_arcs;
 
 
 var single_lighting_drilldown = function(state) {
@@ -866,18 +915,20 @@ var lighting_device_arcs = single_device_arcs;
 
 
 var single_media_drilldown = function(state) {
+// there should be a pop-up box available for this drilldown...
+
   var device, instructions;
 
   device = actors[state.actor];
   instructions = (device.status !== 'playing') ? 'play' : 'pause';
-  instructions += '<br/>' + 'adjust volume<br/>'
+  instructions += '<br/>' + 'adjust volume<br/>';
   instructions += (device.info.muted !== 'on') ? 'mute' : 'unmute';
 
   device_drilldown(device.name, [ device ], media_device_arcs(device), instructions);
 };
 
 var media_device_arcs = function(device) {
-  var arcs, now, prop, text, v;
+  var arcs, prop, text, v;
 
   arcs = [];
 
@@ -909,7 +960,7 @@ var media_device_arcs = function(device) {
                           });
 
         text = getTimeString(v.position);
-        if ((text !== '') && (!!v.duration)) text += ' / ' + getTimeString(v.duration)
+        if ((text !== '') && (!!v.duration)) text += ' / ' + getTimeString(v.duration);
         arcs.splice(2, 0, { name   : 'position'
                           , raw    : v.pos || ''
                           , label  : 'POSITION'
@@ -978,7 +1029,10 @@ var getTimeString = function(v) {
   return text;
 };
 
+
 var single_motive_drilldown = function(state) {
+// there should be a pop-up box available for this drilldown...
+
   var device, instructions;
 
   device = actors[state.actor];
@@ -990,7 +1044,7 @@ var single_motive_drilldown = function(state) {
 };
 
 var motive_device_arcs = function(device) {
-  var arcs, cooked, dist, now, prop, v;
+  var arcs, cooked, dist, prop, v;
 
   arcs = [];
 
@@ -1063,10 +1117,10 @@ var motive_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'CHARGER'
                           , cooked : v
-                          , value  :   v === 'charging'      ? .50
-                                     : v === 'regenerating'  ? .375
+                          , value  :   v === 'charging'      ? 0.50
+                                     : v === 'regenerating'  ? 0.375
                                      : v === 'drawing'       ? 0
-                                     : .25
+                                     : 0.25
                           , index  : 0.30
                           });
         break;
@@ -1075,7 +1129,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'INTERIOR'
-                          , cooked : v + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v,  17, 32)
                           , index  : 0.20
                           });
@@ -1106,8 +1160,36 @@ var getDistanceFromLatLonInKm = function (lat1,lon1,lat2,lon2) {
 };
 
 var deg2rad = function(deg) {
-  return deg * (Math.PI/180)
+  return deg * (Math.PI/180);
 };
+
+
+var single_presence_drilldown  = function(state) {
+// there should be a pop-up box available for this drilldown...
+
+  return single_device_drilldown(state);
+};
+var presence_device_arcs       = single_device_arcs;
+
+
+var single_switch_drilldown    = function(state) {
+// there should be a pop-up box available for this drilldown...
+
+  return single_device_drilldown(state);
+};
+
+var switch_device_arcs         = single_device_arcs;
+
+
+var single_wearable_drilldown  = function(state) {
+// there should be a pop-up box available for this drilldown...
+
+  return single_device_drilldown(state);
+};
+
+var wearable_device_arcs       = single_device_arcs;
+
+
 
 var clip2bars = function(v, min, max) {
   if (v < min) v = min;
@@ -1197,7 +1279,7 @@ var tag_drilldown = function(state) {
 
 var set_multiple_labels_and_arcs = function() {
 
-}
+};
 
 var multiple_drilldown = function(name, members) {
   var arc, arcs, arcz, device, devices, entry, i, index; 
@@ -1208,10 +1290,11 @@ var multiple_drilldown = function(name, members) {
   for (i = 0; i < members.length; i++) {
     device = members[i];
     entry = entries[device.deviceType] || entries['default'];
+    if ((!entry) || (!entry.arcs)) continue;
 
     arcz = entry.arcs(device);
 
-    arc = arcz[1];
+    arc = arcz[1] || {};
     arc.id  = device.deviceType.split('/')[3] + ' ' + device.actor.split('/')[1];
     arc.label = device.name;
     arc.index = index;
@@ -1241,46 +1324,46 @@ var multiple_drilldown = function(name, members) {
 // managing multi-drilldown icon display and control
 
 var handleArrowVisibility = function() {
-	var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
-	var trayWidth = parseInt(document.getElementById("image-tray").style.width, 10);
-	var trayLeft = parseInt(document.getElementById("image-tray").style.left, 10);
+        var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
+        var trayWidth = parseInt(document.getElementById("image-tray").style.width, 10);
+        var trayLeft = parseInt(document.getElementById("image-tray").style.left, 10);
     var trayPage = Math.abs(trayLeft / viewPortWidth);
     document.getElementById("bullet" + trayPage).className = "bullet-on";
     lastIconTrayPage = trayPage + 1;
     
-	if (trayLeft >= 0) {
-		document.getElementById("right-arrow").style.display = "none";
-	} else {
-		document.getElementById("right-arrow").style.display = "block";
-	}
-	if (trayWidth + trayLeft <= viewPortWidth) {
-		document.getElementById("left-arrow").style.display = "none";
-	} else {
-		document.getElementById("left-arrow").style.display = "block";
-	}
+        if (trayLeft >= 0) {
+                document.getElementById("right-arrow").style.display = "none";
+        } else {
+                document.getElementById("right-arrow").style.display = "block";
+        }
+        if (trayWidth + trayLeft <= viewPortWidth) {
+                document.getElementById("left-arrow").style.display = "none";
+        } else {
+                document.getElementById("left-arrow").style.display = "block";
+        }
 
-}
+};
 
 var gotoPage = function(evt) {
     if (evt.target.className == "bullet-off") {
-    	var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
-		var pageNum = evt.target.id.slice(6);
-		var leftEnd = -(pageNum * viewPortWidth);
-		lastIconTrayPage = pageNum + 1
-		
-		var tray = d3.select("#image-tray");
-		var transition = d3.transition()
-		  .duration(5000)
-		  .ease("linear");
-		  
-		tray.transition().each("end", function() {
-			clearPager();
-			drawArcs();
-			handleArrowVisibility();
-		})
-	       .style("left", function() {return leftEnd + 'px';});
+        var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
+                var pageNum = evt.target.id.slice(6);
+                var leftEnd = -(pageNum * viewPortWidth);
+                lastIconTrayPage = pageNum + 1;
+                
+                var tray = d3.select("#image-tray");
+                var transition = d3.transition()
+                  .duration(5000)
+                  .ease("linear");
+                  
+                tray.transition().each("end", function() {
+                        clearPager();
+                        drawArcs();
+                        handleArrowVisibility();
+                })
+               .style("left", function() {return leftEnd + 'px'; });
     }
-}
+};
 
 var clearPager = function() {
     var i = 0;
@@ -1288,32 +1371,32 @@ var clearPager = function() {
        document.getElementById("bullet" + i).className = "bullet-off";
        i++;
     }
-}
+};
 
 var handleArrow = function(evt) {
     var leftEnd, tray, startLeft;
-	var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width);
-	
-	clearPager();
-	tray = d3.select("#image-tray");
-	startLeft = parseInt(tray.style("left"));
-	leftEnd = ((evt.target.id === 'left-arrow') ? (startLeft - viewPortWidth) : (startLeft + viewPortWidth));
-	
-	var transition = d3.transition()
-	  .duration(5000)
-	  .ease("linear");
-	  
-	tray.transition().each("end", function() {
-		drawArcs();
-		handleArrowVisibility();
-	})
-	  .style("left", function() {return leftEnd + 'px';});
-}
+        var viewPortWidth = parseInt(document.getElementById("device-viewport").style.width, 10);
+        
+        clearPager();
+        tray = d3.select("#image-tray");
+        startLeft = parseInt(tray.style("left"), 10);
+        leftEnd = ((evt.target.id === 'left-arrow') ? (startLeft - viewPortWidth) : (startLeft + viewPortWidth));
+        
+        var transition = d3.transition()
+          .duration(5000)
+          .ease("linear");
+          
+        tray.transition().each("end", function() {
+                drawArcs();
+                handleArrowVisibility();
+        })
+          .style("left", function() {return leftEnd + 'px'; });
+};
 
 // Convert actor name to qualified DOM id
 var actor2ID = function(actor) {
-	return actor.replace(/\//g, "_");
-}
+        return actor.replace(/\//g, "_");
+};
 
 // Adapted from http://stackoverflow.com/questions/4726344/
 // To work with d3_Color type
@@ -1322,7 +1405,7 @@ function textColor(bgColor, arcVal) {
    if (typeof bgColor === "string") {
      components = getRGBComponents(bgColor);
    } else {
-     components = bgColor
+     components = bgColor;
    }
    bgDelta = (components.r * 0.299) + (components.g * 0.587) + (components.b * 0.114);
    return (((255 - bgDelta) < nThreshold) && (arcVal > 0.015)) ? "#000000" : "#ffffff"; 
@@ -1362,9 +1445,17 @@ var entries = {
                                                               , arcs    : climate_device_arcs
                                                               , passive : true
                                                               }
-              ,  '/device/climate/nest/control'             : { img     : 'actors/nest.svg'
-                                                              , single  : single_nest_drilldown
-                                                              , arcs    : device_nest_arcs
+              , '/device/climate/koubachi/plant'            : { img     : 'actors/koubachi.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              }
+              , '/device/climate/koubachi/sensor'           : { img     : 'actors/koubachi.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              }
+              , '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
+                                                              , single  : single_thermostat_drilldown
+                                                              , arcs    : device_thermostat_arcs
                                                               }
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
                                                               , single  : single_climate_drilldown
