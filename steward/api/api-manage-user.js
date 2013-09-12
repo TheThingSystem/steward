@@ -17,7 +17,7 @@ var keys    = { x509: { key: '', crt: '' }, ssh: { key: '', pub: ''} };
 
 
 var create = exports.create = function(logger, ws, api, message, tag, internalP) {
-  var client, createP, data, options, name, pair, params, results, user, uuid;
+  var client, createP, data, issuer, options, name, pair, params, results, user, uuid;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user creation', message.requestID, permanent, diagnostic);
@@ -83,12 +83,13 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
   results = { requestID: message.requestID };
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
+  issuer = (!!server.vous) ? server.vous.split('.')[0] : 'steward';
   options = { length         : 40
             , random_bytes   : false
             , symbols        : false
             , google_auth_qr : true
-            , name           : message.name + ((!!server.vous) ? ('@' + server.vous) : '')
-            , issuer         : 'steward'
+            , name           : message.name + '@' + issuer
+            , issuer         : issuer
             };
   data = speakeasy.generate_key(options);
   if (!internalP) results.result = { authenticatorURL: data.google_auth_qr, otpURL: data.url() };
@@ -252,6 +253,7 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
   if (!client)                                              return error(false, 'invalid clientID/response pair');
   if (client.clientAuthAlg !== 'otpauth://totp')            return error(true,  'internal error');
 
+console.log('<<<');
   results = { requestID: message.requestID };
   otp = speakeasy.totp({ key      : client.clientAuthKey
                        , length   : message.response.length

@@ -79,6 +79,7 @@ var validate_create = function() {
     , comments = create.userComments.value
     , qrcode   = document.images.qrcode
     , otpURL   = document.getElementById('otpURL')
+    , otpWords  = document.getElementById('otpWords')
     , status   = document.getElementById('status')
     , test     = document.forms.testForm
     ;
@@ -101,7 +102,7 @@ var validate_create = function() {
   if (!!comments) comments = comments.replace(/^\s+|\s+$/g, '');
 
   create_user(ws, name, comments, 'master', function(message) {
-    var x;
+    var w, x, y, z;
 
     if (!!message.result) {
       listall();
@@ -109,6 +110,25 @@ var validate_create = function() {
       qrcode.src = message.result.authenticatorURL;
       otpURL.href = message.result.otpURL;
       status.innerHTML = '<strong><font color="green">success.</strong></font>';
+
+      otpWords.innerHTML = '';
+      w = otpURL.search;
+      x = w.indexOf('secret=');
+      if (x !== -1) {
+        w = w.substring(x + 7);
+        x = w.indexOf('&');
+        if (x !== -1) w = w.substring(0, x);
+        y = '';
+        z = 0;
+        while (w.length > 0) {
+          if (!(z++ % 8)) y += '</tr><tr>';
+          y += '<td>' + w.substring(0, 4) + '</td>';
+          w = w.substring(4);
+        }
+        y = '<table><tr>' + y + '</tr></table>';
+        otpWords.innerHTML = y;
+      }
+
       x = name.indexOf('/');
       if (x !== -1) name = name.slice(0, x);
       test.userName.value = name + '/' + message.result.client;
@@ -144,6 +164,7 @@ var validate_test = function() {
   authenticate_user(ws, name, code, function(message) {
     console.log(JSON.stringify(message));
     if (!!message.result) {
+      listall();
       status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
       return true;
     }
@@ -161,10 +182,9 @@ var validate_test = function() {
 
 var listall = function() {
   list_users(ws, function(message) {
-    var client, clientID, firstP, table, user, x, y;
+    var client, clientID, firstP, table, text, user, x, y;
 
-    table = '<tr><td>User</td><td>Role</td><td>User Info&nbsp;&nbsp;</td>'
-            + '<td>Client</td><td>Name</td><td>Client Info&nbsp;&nbsp;</td><td>Last Login</td></tr>';
+    table = '';
 
     for (x in message.result.users) {
       if (!message.result.users.hasOwnProperty(x)) continue;
@@ -179,7 +199,7 @@ var listall = function() {
 
         clientID = y.split('/').slice(1).join('/');
 
-        table += '<tr><td>'
+        table += '<tr><td>';
         if (firstP) {
           firstP = false;
           table += user.name + '&nbsp;&nbsp;</td><td>' + (user.role || '******') + '&nbsp;&nbsp;</td><td>' + user.comments;
@@ -189,13 +209,19 @@ var listall = function() {
       }
 
       if (firstP) {
-        table += '<tr><td>' + user.name + '&nbsp;&nbsp;</td><td>' + user.comments
+        table += '<tr><td>' + user.name + '&nbsp;&nbsp;</td><td></td><td>' + user.comments
                  + '&nbsp;&nbsp;</td><td></td><td></td><td></td><td>'
                  + (user.lastLogin || '') + '</td></tr>';
       }
     }
 
-    document.getElementById('user-container').innerHTML = '<table>' + table + '</table>';
+    if (table !== '') {
+      text = '<table><tr><td>User</td><td>Role</td><td>User Info&nbsp;&nbsp;</td>'
+              + '<td>Client</td><td>Name</td><td>Client Info&nbsp;&nbsp;</td><td>Last Login</td></tr>'
+              + table + '</table>';
+    } else text = 'None.';
+
+    document.getElementById('user-container').innerHTML = text;
   });
 };
 
@@ -332,7 +358,8 @@ var go = function(steward, i) {
   ws.onerror = function(event) {
     console.log('onerror'); console.log(event);
 
-    try { ws.close (); } catch (ex) {}; ws = null;
+    try { ws.close (); } catch (ex) {}
+    ws = null;
     setTimeout (function() { go(steward, i + 1); }, 5000);
   };
 };
@@ -402,6 +429,7 @@ and the application will automatically focus on the QR code and do the rest.</li
     <td></td>
     <td style="padding-top: 15px; padding-left: 15px;"><input type="image" src="d3/popovers/assets/create.svg" value='Create' /><br/><br/><span id='status'></span></td>
 </tr>
+<tr><td colspan='4'><font color='green'><span id='otpWords'></span></font></td></tr>
 </table>
 </form>
 </div>
