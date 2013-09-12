@@ -379,23 +379,17 @@ var main = function() {
 <img src="d3/images/thing.sys.logo.black.svg" />
 
 <div id='main'>
-<h1>tl;dr</h1>
-<ul>
-<li>Be on your home network.
+	<h1>Client Authentication</h1>
 
-<li>You need a smartphone running <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>,
-<a href='https://www.authy.com/'>Authy</a>,
-or some other program that implements <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords</a> (TOTP).
-There are several out there for all major platforms and desktops,
-e.g., <a href='https://itunes.apple.com/us/app/securitoken/id467479279?mt=12'>SecuriToken</a> for the Mac.
-Please see also a comprehensive
-<a href='http://en.wikipedia.org/wiki/Google_Authenticator#Implementation'>list of implementations</a>.
-</li>
+	<p>Clients authenticate to the steward, and the user associated with a client is authorised to invoke various API calls. A single user may use multiple clients.<p>
 
-<li>Scroll to the bottom of this page, fill-in the form, and press "Submit".</li>
+	<p>If no users are configured on the steward, then an unauthenticated API call from a device on the same network as the steward may be used to create the initial user and client. The steward responds with <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords</a> (TOTP) information allowing the client to authenticate itself.</p>
 
-<li>Launch the authenticator and scan the QR code.</li>
-</ul>
+	<p>if you are on your home network you can create authentication credentials using a smart phone running <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>, <a href='https://www.authy.com/'>Authy</a>, or some other app that implements TOTP. There are several out there for all major platforms and desktops,
+	e.g., <a href='https://itunes.apple.com/us/app/securitoken/id467479279?mt=12'>SecuriToken</a> for the Mac.
+	Please see also a comprehensive
+	<a href='http://en.wikipedia.org/wiki/Google_Authenticator#Implementation'>list of implementations</a>.<p>
+
 
 <h1>Creating an Account</h1>
 <p>
