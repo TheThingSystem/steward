@@ -163,7 +163,7 @@ var listall = function() {
   list_users(ws, function(message) {
     var client, clientID, firstP, table, user, x, y;
 
-    table = '<tr><td>User</td><td>User Info&nbsp;&nbsp;</td>'
+    table = '<tr><td>User</td><td>Role</td><td>User Info&nbsp;&nbsp;</td>'
             + '<td>Client</td><td>Name</td><td>Client Info&nbsp;&nbsp;</td><td>Last Login</td></tr>';
 
     for (x in message.result.users) {
@@ -182,8 +182,8 @@ var listall = function() {
         table += '<tr><td>'
         if (firstP) {
           firstP = false;
-          table += user.name + '&nbsp;&nbsp;</td><td>' + user.comments;
-        } else table += '</td><td>';
+          table += user.name + '&nbsp;&nbsp;</td><td>' + (user.role || '******') + '&nbsp;&nbsp;</td><td>' + user.comments;
+        } else table += '</td><td></td><td>';
         table += '&nbsp;&nbsp;</td><td>' + clientID + '&nbsp;&nbsp</td><td>' + client.name + '&nbsp;&nbsp;</td><td>'
                  + client.comments + '&nbsp;&nbsp;</td><td>' + (client.lastLogin || '') + '</td></tr>';
       }
