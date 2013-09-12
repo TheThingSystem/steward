@@ -5,7 +5,7 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <style>
   body {
-    background: #000;
+    background: #16161D;
     color: white;
   	font-size: 13pt;
 	font-family: "Trebuchet MS";    
@@ -104,6 +104,8 @@ var validate_create = function() {
     var x;
 
     if (!!message.result) {
+      listall();
+
       qrcode.src = message.result.authenticatorURL;
       otpURL.href = message.result.otpURL;
       status.innerHTML = '<strong><font color="green">success.</strong></font>';
@@ -157,6 +159,46 @@ var validate_test = function() {
   return false;
 };
 
+var listall = function() {
+  list_users(ws, function(message) {
+    var client, clientID, firstP, table, user, x, y;
+
+    table = '<tr><td>User</td><td>User Info&nbsp;&nbsp;</td>'
+            + '<td>Client</td><td>Name</td><td>Client Info&nbsp;&nbsp;</td><td>Last Login</td></tr>';
+
+    for (x in message.result.users) {
+      if (!message.result.users.hasOwnProperty(x)) continue;
+      user = message.result.users[x];
+        
+      firstP = true;
+
+      for (y in message.result.clients) {
+        if (!message.result.clients.hasOwnProperty(y)) continue;
+        client = message.result.clients[y];
+        if (user.uuid !== client.uuid) continue;
+
+        clientID = y.split('/').slice(1).join('/');
+
+        table += '<tr><td>'
+        if (firstP) {
+          firstP = false;
+          table += user.name + '&nbsp;&nbsp;</td><td>' + user.comments;
+        } else table += '</td><td>';
+        table += '&nbsp;&nbsp;</td><td>' + clientID + '&nbsp;&nbsp</td><td>' + client.name + '&nbsp;&nbsp;</td><td>'
+                 + client.comments + '&nbsp;&nbsp;</td><td>' + (client.lastLogin || '') + '</td></tr>';
+      }
+
+      if (firstP) {
+        table += '<tr><td>' + user.name + '&nbsp;&nbsp;</td><td>' + user.comments
+                 + '&nbsp;&nbsp;</td><td></td><td></td><td></td><td>'
+                 + (user.lastLogin || '') + '</td></tr>';
+      }
+    }
+
+    document.getElementById('user-container').innerHTML = '<table>' + table + '</table>';
+  });
+};
+
 var events = {};
 
 var go = function(steward, i) {
@@ -168,8 +210,7 @@ var go = function(steward, i) {
                            , fingerprint : '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
                            , requestID   : add_callback(function(message) { console.log(JSON.stringify(message)); })
                            }));
-
-    list_users(ws, function(message) { console.log(JSON.stringify(message)); });
+    listall();
     return;
 
 /*
@@ -316,7 +357,7 @@ var main = function() {
 <li>Be on your home network.
 
 <li>You need a smartphone running  <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>
-or some other program that implements <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords (TOTP)</a>.
+or some other program that implements <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords</a> (TOTP).
 There are several out there for all major platforms and desktops,
 e.g., <a href='https://itunes.apple.com/us/app/securitoken/id467479279?mt=12'>SecuriToken</a> for the Mac.
 Please see also a comprehensive
@@ -396,6 +437,9 @@ Clients authenticate to the steward, and the user associated with a client is au
 </form>
 </div>
 
+<h1>Listing of Users and Clients</h1>
+<div id='user-container'>
+</div>
 </div>
 </body>
 </html>

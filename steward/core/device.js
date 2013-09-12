@@ -349,12 +349,16 @@ Device.prototype.changed = function(now) {
 Device.prototype.alert = function(message) {
   var self = this;
 
-  var info, updated;
+  var info, now, updated;
+
+  now = new Date().getTime();
+  if ((!!self.nextAlert) && (self.nextAlert > now)) return;
+  self.nextAlert = now + (60 * 1000);
 
   if (broker.has('beacon-egress')) {
     info = self.proplist();
 
-    updated = (info.updated || new Date()).getTime();
+    updated = info.updated.getTime() || now;
     delete(info.updated);
 
     broker.publish('beacon-egress', '.updates',

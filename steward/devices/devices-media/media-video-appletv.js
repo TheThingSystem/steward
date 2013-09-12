@@ -21,22 +21,22 @@ var airplay     = require('airplay')
 var logger = media.logger;
 
 var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
+  var parts;
+
   var self = this;
 
-  this.whatami = '/device/media/appletv/video';
-  this.deviceID = deviceID.toString();
-  this.deviceUID = deviceUID;
-  this.name = info.device.name;
-  this.getName();
+  self.whatami = '/device/media/appletv/video';
+  self.deviceID = deviceID.toString();
+  self.deviceUID = deviceUID;
+  self.name = info.device.name;
+  self.getName();
 
-  this.info = {
-    track : { position: 0, duration: 0 }
-  };
-  this.url = info.url;
+  self.info = { track : { url: '', position: 0, duration: 0 } };
 
-  var parts = url.parse(info.url);
+  self.url = info.url;
+  parts = url.parse(info.url);
 
-  this.appletv = new airplay.Device(deviceID, {
+  self.appletv = new airplay.Device(deviceID, {
     host : parts.hostname
   , port: parts.port
   }, function() {
@@ -52,7 +52,6 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
-
 };
 util.inherits(AppleTV, media.Device);
 
@@ -107,7 +106,7 @@ var validate_perform = function(perform, parameter) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
   result = { invalid: [], requires: [] };
 
-  if (!!AppleTV.operations[perform]) return { invalid: [], requires: [] };
+  if (!!AppleTV.operations[perform]) return result;
 
   if (perform === 'set') {
     if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
@@ -204,27 +203,26 @@ exports.start = function() {
   }).start();
 
 
-    steward.actors.device.media.appletv = steward.actors.device.media.appletv ||
-        { $info     : { type: '/device/media/appletv' } };
+  steward.actors.device.media.appletv = steward.actors.device.media.appletv ||
+      { $info     : { type: '/device/media/appletv' } };
 
-    steward.actors.device.media.appletv.video =
-        { $info     : { type       : '/device/media/appletv/video'
-                      , observe    : []
-                      , perform    : [
-                                       'play'
-                                     , 'stop'
-                                     , 'pause'
-                                     ]
-                      , properties : { name    : true
-                                     , status  : [ 'idle', 'playing', 'paused' ]
-                                     , track   : {
-                                         uri         : true
-                                       , position    : 'milliseconds'
-                                       , duration    : 'milliseconds'}
-                                     , volume  : 'percentage'
-                                     }
-                      }
-        , $validate : { perform    : validate_perform }
-        };
-    devices.makers['/device/media/appletv/video'] = AppleTV;
+  steward.actors.device.media.appletv.video =
+      { $info     : { type       : '/device/media/appletv/video'
+                    , observe    : [ ]
+                    , perform    : [ 'play'
+                                   , 'stop'
+                                   , 'pause'
+                                   ]
+                    , properties : { name    : true
+                                   , status  : [ 'idle', 'playing', 'paused' ]
+                                   , track   : { uri         : true
+                                               , position    : 'milliseconds'
+                                               , duration    : 'milliseconds'
+                                               }
+                                   , volume  : 'percentage'
+                                   }
+                    }
+      , $validate : { perform    : validate_perform }
+      };
+  devices.makers['/device/media/appletv/video'] = AppleTV;
 };

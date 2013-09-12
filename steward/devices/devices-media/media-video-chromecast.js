@@ -13,15 +13,14 @@ var Dongle      = require('eureka-dongle')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , media       = require('./../device-media')
+  , utility     = require('./../../core/utility')
   ;
 
 
 var logger = media.logger;
 
-
 var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
-  var self;
-  self = this;
+  var self = this;
 
   self.whatami = '/device/media/chromecast/video';
   self.deviceID = deviceID.toString();
@@ -34,18 +33,19 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   self.chromecast = new Dongle(info.url);
   self.status = 'idle';
   self.changed();
-  self.refreshID = null;
 
   self.chromecast.statusInterval = 2000;
   self.chromecast.start();
 
-  self.info = { track : {} };
+  self.info = { track : { title: '', position: 0, duration: 0} };
 
   self.chromecast.on('error', function(err) {
     logger.error('device/' + self.deviceID, {
         event: 'ramp failure'
       , msg: err.message
     });
+    self.status = 'error';
+    self.changed();
   });
 
   self.chromecast.on('status', function(data) {
@@ -72,6 +72,8 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
       }
 
       if (newStatus !== self.status) {
+        self.chromecast.statusInterval = (newStatus === 'idle') ? (2 * 1000) : 500;
+
         changed = true;
       }
 
@@ -79,6 +81,7 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
     }
 
     applyIf('title');
+    applyIf('image_url', 'albumArtURI');
     applyIf('current_time', 'position', function(v) {
       return (v * 1000).toFixed(0);
     });
@@ -97,45 +100,87 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
     }
   });
 
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
+  });
 };
 util.inherits(Chromecast, media.Device);
 
 
 Chromecast.operations = {
-  'stop' : function(device, params) {/* jshint unused: false */
-    device.stop('YouTube');
+  'stop' : function(self, params) {/* jshint unused: false */
+    self.chromecast.stop('YouTube');
   }
-, 'play' : function(device, params) {/* jshint unused: false */
+, 'play' : function(self, params) {/* jshint unused: false */
+    if (self.status === 'paused') {
+      self.chromecast.resume();
+      self.status = 'playing';
+      self.changed();
+    }
     if (params.url) {
-      device.start('YouTube', params.url);
+      self.chromecast.start('YouTube', params.url);
+    }
+  }
+, pause : function(self, params) {/* jshint unused: false */
+    if (self.status !== 'paused') {
+      self.chromecast.pause();
+      self.status = 'paused';
+      self.changed();
     }
   }
 };
 
 
 Chromecast.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
-  try { params = JSON.parse(parameter); } catch(e) {}
+  var params, position, volume;
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (!!Chromecast.operations[perform]) {
-    Chromecast.operations[perform](this.chromecast, params);
+    Chromecast.operations[perform](self, params);
+
     return steward.performed(taskID);
+  }
+
+  if (perform === 'set') {
+    if (!!params.position) {
+      position = parseFloat(params.position);
+      if (isNaN(position)) {
+        position = 0;
+      }
+
+      self.chromecast.resume(position/1000);
+    }
+
+    if ((!!params.volume) && (media.validVolume(params.volume))) self.chromecast.volume(volume / 100);
+
+    if (!!params.muted) self.chromecast.muted(params.muted === 'on');
   }
 
   return devices.perform(self, taskID, perform, parameter);
 };
 
 var validate_perform = function(perform, parameter) {
-
-  var params, result = { invalid: [], requires: [] };
+  var params, result;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  result = { invalid: [], requires: [] };
 
   if (perform === 'play' && !params.url) {
     result.requires.push('url');
   }
 
   if (!!Chromecast.operations[perform]) return result;
+
+  if (perform === 'set') {
+    if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
+    if ((!!params.volume)   && (!media.validVolume(params.volume)))     result.invalid.push('volume');
+    if ((!!params.muted)    && (params.muted !== 'on') && (params.muted !== 'off')) result.invalid.push('volume');
+
+    if (result.invalid.length > 0) return result;
+  }
 
   return devices.validate_perform(perform, parameter);
 };
@@ -150,10 +195,12 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'play'
                                    , 'stop'
+                                   , 'pause'
                                    ]
                     , properties : { name    : true
-                                   , status  : [ 'idle', 'playing' ]
+                                   , status  : [ 'idle', 'playing', 'paused', 'error' ]
                                    , track   : { title       : true
+                                               , albumArtURI : true
                                                , position    : 'milliseconds'
                                                , duration    : 'milliseconds'
                                                }

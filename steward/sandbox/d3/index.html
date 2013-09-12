@@ -48,45 +48,68 @@ body {
 
 <script type='text/javascript'>
 var stack = [];
-var ws;          // Primary message socket
-var timer;       // Refresh timeout
+var ws;          // Steward /manage socket
 var currActor;   // To carry over actor from one request type to another
 
 var main = function() {
-  goLogin();
+  if (window.location.hostname.match(/127\.0\.0\.1/) || window.location.hostname.match(/steward\.local/)) {
+	  var steward = { hostname : window.location.hostname
+					, port     : window.location.port
+					, protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+					, secure   : (window.location.protocol.indexOf('https:') === 0)
+					};
+	
+	  go(steward);
+  } else {
+    alert("Remote access to your steward coming in a future release.");
+  }
 };
 
-var connectSteward = function(type) {
-  var prev, steward, storage;
+var go = function(steward) {
+  var prev, ws2;
   
-  storage = JSON.parse(getStorage("steward.location"));
-  
-  if (!storage) return;
-
-  if (type === "local") {
-  	if (storage.hostname !== "") {
-// TEMPORARY
-if ((storage.hostname.indexOf('.thethingsystem.net') === -1) && (storage.hostname.indexOf(':') === -1))
-		steward = storage.protocol + "//" + storage.hostname + ":" + storage.port + "/manage";
-else
-		steward = storage.protocol + "//" + storage.hostname + "/manage";
-	} else {
-		alert("Please enter a local host name or IP address (e.g., 127.0.0.1).");
-		return;
-	}
-  } else if (storage.remoteHost !== "") {
-	steward = storage.protocol + "//" + storage.remoteHost + ":" + storage.port + 
-	"/manage?rendezvous=" + storage.search;	  
-  } else {
-	alert("Please enter a remote host URL or IP address.");
-	return;
-  }
-  
-  ws = new WebSocket(steward);
+  // Global socket for ongoing requests to steward
+  ws = null;
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
+  setConnStatus("Connecting to steward&hellip;");
   
   ws.onopen = function(evt) {
     setConnStatus("Connected");
-    activateBtns();
+    setConnStatus("Retrieving Steward Info...");
+    stack.push({ page: home });
+    refreshActors(0);
+  }
+  
+  var beginUpdates = function(evt) {
+    // Socket for streaming .updates
+    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
+    
+    ws2.onmessage = function(event) {
+      var update, state;
+      try {
+        update = JSON.parse(event.data);
+//        console.log(update);
+        if (!update) throw new Error("invalid JSON: " + this.responseText);
+        
+        if (update.hasOwnProperty(".updates") && (update[".updates"].length > 0)) {
+			state = stack.pop();
+			stack.push(state);
+			if (state.hasOwnProperty("onUpdate")) {
+			  state.onUpdate(update[".updates"]);
+			} else {
+			  // Handle update for drilldown pages (multi or single)
+			  onUpdate_drilldown(update[".updates"]);
+			}
+        }
+      } catch(ex) {
+        console.log("Update error: " + ex.message + " with updates: " + update);
+      }
+    }
+    
+    ws2.onclose = function(event) { console.log("/console socket closed"); };
+
+    ws2.onerror = function(event) { console.log("/console socket error"); };
+
   }
   
   ws.onmessage = function(evt) {
@@ -99,46 +122,26 @@ else
       requestID = message.requestID.toString();
       
       switch (requestID) {
-      	case "0": // Draw entire page; not for updates			  
+      	case "0": // Draw entire page & start listening for updates		  
 			  state = stack.pop();
 			  state.message = message;
 			  stack.push(state);
 			  (state.page)(state);
-			  setTimeout(function() {refresh("1");}, 3000);
+			  beginUpdates();
 			  break;
-		case "1": // Refresh changes to home page
+		case "1": // Redraw page while updates already flowing
 			  state = stack.pop();
 			  state.message = message;
 			  stack.push(state);
-			  updatePage(message);
-			  setTimeout(function() {refresh("1");}, 3000);
+			  (state.page)(state);
 			  break;
 		case "2":  // Perform from popover
-			  if (message.result.status === "success") {
-			    setTimeout(function() {refresh("3");}, 3000);
+			  if (message.result.status !== "success") {
+			    console.log("Steward perform status: " + message.result.status);
 			  }
 			  break;
-		case "3": // Perform was successful; now update drilldown screen
-			  devices = mostDevices(message);
-			  actors = {};
-			  for (i = 0; i < devices.length; i++) {
-			    device = devices[i];
-			    actors[device.actor] = device;
-			    if (devices[i].actor === currActor) {
-                  entry = entries[device.deviceType];
-				  if (document.getElementById("device-status")) {
-					d3.select("#device-status")
-					  .style("background-color", statusColor(devices[i]));
-					d3.select("#device-status-detail")
-					  .text(devices[i].status);
-				  }
-			    }
-			  }
-              state = {page: entry.single, actor: currActor};
-              stack.pop();
-              stack.push(state);
-              (state.page)(state);
-  			  break;
+  		 default:
+  		      break;
       }
     } catch(e) {
       console.log(e.message);
@@ -147,7 +150,6 @@ else
   
   ws.onclose = function(evt) {
     ws.close();
-    deactivateBtns();
     setConnStatus("Connection Closed");
   }
   
@@ -168,28 +170,18 @@ var wsSend = function(jsonStr) {
 	}
 }
 
-var refresh = function(reqID) {
-   clearTimeout(timer);
-   if (!reqID) { 
-     reqID = 0;
-     timer = setTimeout(refresh, 5000);
-  }
-   wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: reqID, options: { depth: 'all' }}));  
-}
-  
-var firstRefresh = function() {
-   setConnStatus("Retrieving Steward Info...");
-   stack.push({ page: home });
-   wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: "0", options: { depth: 'all' }}));  
+var refreshActors = function(reqID) {
+  setTimeout(function() {
+   wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: reqID, options: { depth: 'all' }}));}, 0); 
 }
 
 var goback = function() {
   var state = stack.pop();
 
   if (stack.length > 0) state = stack.pop();
+  currActor = (state.actor) ? state.actor : null; 
   stack.push(state);
-  (state.page)(state);
-  refresh("0");
+  refreshActors(1);
 };
 
 var goforw = function(page, actor) {
@@ -197,8 +189,7 @@ var goforw = function(page, actor) {
   currActor = actor; // Save for updating drilldown
   
   stack.push(state);
-  (state.page)(state);
-  refresh("1")
+  refreshActors(1);
 };
 
 var end = function() {
