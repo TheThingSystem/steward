@@ -393,10 +393,7 @@ exports.clientInfo = function(connection, secureP) {
 
   props = { loopback : false, subnet: false, local: false, remoteAddress: connection.remoteAddress };
 
-// NB: usually this is something come in over the cloud
-  if (secureP) return props;
-
-  if (connection.remoteAddress === '127.0.0.1') props.loopback = true;
+  if (connection.remoteAddress === '127.0.0.1') props.loopback = !secureP;
   else {
 // TBD: in node 0.11, this should be reworked....
     for (ifname in ifaces) {
