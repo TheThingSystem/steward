@@ -101,20 +101,20 @@ exports.review = function() {
   var state, states, d, i, ids;
 
   ids = idlist();
-  states = { warning: 0, attention: 0, error: 0 };
+  states = { warning: [], attention: [], error: [] };
   for (i = 0; i < ids.length; i++) {
     d = id2device(ids[i]);
     if (!d) continue;
 
-    state = { waiting : 'warning'
+    state = { blue    : 'warning'
             , busy    : 'warning'
-            , blue    : 'warning'
-            , reset   : 'attention'
+            , waiting : 'warning'
             , orange  : 'attention'
             , red     : 'attention'
+            , reset   : 'attention'
             , error   : 'error'
             }[d.status];
-    if (!!state) states[state]++;
+    if (!!state) states[state].push('device/' + d.deviceID);
   }
 
   return states;
@@ -148,6 +148,11 @@ exports.discover = function(info, callback) {
       devices[deviceUID].device = new (makers[deviceType])(row.deviceID, deviceUID, info);
       devices[deviceUID].proplist = Device.prototype.proplist;
       logger.info('found ' + info.device.name, { deviceType: deviceType });
+
+      db.run('UPDATE devices SET updated=datetime("now") WHERE deviceID=$deviceID',
+         { $deviceID : row.deviceID }, function(err) {
+        if (err) logger.error('devices', { event: 'UPDATE device.deviceUID for ' + deviceUID, diagnostic: err.message });
+      });
       return;
     }
 

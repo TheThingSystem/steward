@@ -78,7 +78,17 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
            || ((!!client) && (client.role === 'master'))
            || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet)
            || (internalP && ws.clientInfo.local);
-/* TBD: verify permitted later on */
+  if (!createP) {
+    params = utility.clone(ws.clientInfo);
+
+    params.event = 'access';
+    params.diagnostic = 'unauthorized';
+    params.role = (!!client) ? client.role : '';
+    params.resource = (!!user) ? ('user/' + user.userID) : '';
+    params.internalP = internalP;
+    logger.warning(tag, params);
+                                                            return error(false, 'unauthorized');
+  }
 
   results = { requestID: message.requestID };
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
@@ -239,6 +249,8 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
 
   if (!exports.db)                                          return error(false, 'database not ready');
 
+  if ((!ws.clientInfo.local) && (!ws.clientInfo.secure))    return error(true,  'encryption required prior to authentication');
+
   clientID = message.path.slice(api.prefix.length + 1);
   if (clientID.length === 0)                                return error(true,  'missing clientID');
   pair = clientID.split('/');
@@ -253,7 +265,6 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
   if (!client)                                              return error(false, 'invalid clientID/response pair');
   if (client.clientAuthAlg !== 'otpauth://totp')            return error(true,  'internal error');
 
-console.log('<<<');
   results = { requestID: message.requestID };
   otp = speakeasy.totp({ key      : client.clientAuthKey
                        , length   : message.response.length

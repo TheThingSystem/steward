@@ -1,12 +1,12 @@
 // AppleTV media player: http://www.appletv.com/developer
 
 var mdns;
-
 try {
   mdns          = require('mdns');
-} catch(ex) { logger.warning('MDNS disabled', { diagnostic: ex.message } ); }
-if (!mdns) return;
-
+} catch(ex) {
+  exports.start = function() {};
+  return;
+}
 
 var airplay     = require('airplay')
   , util        = require('util')
@@ -19,6 +19,7 @@ var airplay     = require('airplay')
 
 
 var logger = media.logger;
+
 
 var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
   var parts;

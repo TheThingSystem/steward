@@ -443,7 +443,7 @@ exports.start = function() {
                    });
   manage.apis.push({ prefix  : '/api/v1/thing/hello'
                    , route   : hello
-                   , access  : manage.access.level.read
+                   , access  : manage.access.level.attach
                    , required : { thingID  : 'id'
                                 , response : true
                                 }

@@ -420,8 +420,6 @@ var modify = function(logger, ws, api, message, tag) {
       triple = { actor: member[2], actorType: member[0], actorID: member[1] };
       triple[member[0] + 'ID'] = member[1];
       group.members.push(triple);
-console.log('>>> INSERT INTO members(groupID, actorType, actorID, created) VALUES($groupID, $actorType, $actorID, datetime("now"))');
-console.log('>>> ' + JSON.stringify({ $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }));
 
       db.run('INSERT INTO members(groupID, actorType, actorID, created) '
              + 'VALUES($groupID, $actorType, $actorID, datetime("now"))',
@@ -434,8 +432,6 @@ console.log('>>> ' + JSON.stringify({ $groupID: groupID, $actorType: triple.acto
       triple[member[0] + 'ID'] = member[1];
       j = group.members.indexOf(members2[i]);
       if (j >= 0) group.members.splice(j, 1);
-console.log('>>> DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID');
-console.log('>>> ' + JSON.stringify({ $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }));
 
       db.run('DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID',
              { $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }, delmember);
@@ -455,8 +451,6 @@ console.log('>>> ' + JSON.stringify({ $groupID: groupID, $actorType: triple.acto
     }
     s3.$groupID = group.groupID;
 
-console.log('>>> ' + s1 + ') ' + s2 + ') WHERE groupID=$groupID');
-console.log('>>> ' + JSON.stringify(s3));
     db.run(s1 + ') ' + s2 + ') WHERE groupID=$groupID', s3, function(err) {
       if (err) {
         logger.error(tag, { event: 'MODIFY groups.groupID for ' + group.groupID, diagnostic: err.message });

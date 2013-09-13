@@ -18,6 +18,7 @@ var actors = {}
 
 var home = function(state) {
   var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, tag, tags;
+  var actorHeight = 80, actorRow = 0, actorWidth = 58;
   
   var self = this;
   
@@ -56,23 +57,22 @@ var home = function(state) {
   div.innerHTML = '<div class="big-instructions" style="padding-top: 0px;">We are ready.<br />'
                   + '<span style="color: #666;">Please send instructions.</span></div>'
                   + '<div class="small-instructions">'
-                  + '<span id="sName" style="color:' + place.status + ';">' + place.name + '</span>'
+                  + '<span id="sName" style="color:' + place.status + '; cursor: pointer;" onclick=showSettings()>' + place.name + '</span>'
                   + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
 
 
   div = document.createElement('div');
   div.setAttribute('class', 'actors');
-  chart.appendChild(div);
 
   for (a = i = 0; i < devices.length; i++) {
     device = devices[i];
     entry = entries[device.deviceType] || entries['default'];
     if ((!entry) || (!entry.img)) continue;
 
-    if ((a > 0) && ((a % 12) === 0)) div.appendChild(document.createElement('p'));
     actor = document.createElement('div');
-    actor.setAttribute('class', 'actor' + (a + 1));
+    actor.setAttribute('class', 'actor-home');
+    actor.setAttribute('style', 'top:' + (actorRow * actorHeight) + 'px; left:' + (actorWidth * (a % 12)) + 'px;');
     actor.innerHTML = '<p class="actor-name" id="' + actor2ID(device.actor) + '-label" style="color: ' + statusColor(device) + '">' + device.name + '</p>';
     img = document.createElement('img');
     img.setAttribute('src', entry.img);
@@ -84,7 +84,10 @@ var home = function(state) {
 
     actors[device.actor] = device;
     a++;
+    if ((a > 0) && ((a % 12) === 0)) actorRow++;
   }
+  div.setAttribute('style', 'overflow-y: ' + ((actorRow > 2) ? 'scroll' : 'hidden') + '; overflow-x: hidden;');
+  chart.appendChild(div);
 
   div = document.createElement('div');
   div.setAttribute('class', 'tags');
@@ -152,7 +155,6 @@ var home = function(state) {
   self.onUpdate = function(updates) {
     var actorID;
     lastUpdated = [];
-    //updates[0].updated;
     
     for (var i = 0; i < updates.length; i++) {
       if (updates[i].whatami.match(/\/device\/gateway\//)) continue;
@@ -161,12 +163,13 @@ var home = function(state) {
         continue;
       }
       actorID = actor2ID(updates[i].whoami);
-      document.getElementById(actorID + '-label').style.color = statusColor(updates[i]);
-      document.getElementById(actorID).style.backgroundColor = statusColor(updates[i]);
+      if (document.getElementById(actorID)) {
+        document.getElementById(actorID).style.backgroundColor = statusColor(updates[i]);
+        document.getElementById(actorID + '-label').style.color = statusColor(updates[i]);
+      }
       lastUpdated.push(updates[i].updated);
     }
     lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
-    document.getElementById("timeagoStamp").innerHTML = d3.timestamp.ago(lastUpdated,true);
   }
 };
 
@@ -363,7 +366,8 @@ var device_drilldown = function(name, devices, arcs, instructions) {
 
 var drawArcs = function(arcs) {
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
-    
+  var MAXARCS = 7;
+  
   chart = document.getElementById("chart");
   if (document.getElementById("arcCanvas")) {
      chart.removeChild(document.getElementById("labels"));
@@ -381,13 +385,21 @@ var drawArcs = function(arcs) {
   if (!arcs) arcs = multiple_arcs;
   
   trayLeft = (document.getElementById("image-tray")) ? parseInt(d3.select("#image-tray").style("left"), 10) : null;
-  if (isNaN(trayLeft) | arcs.length < 5) {
+  if ((trayLeft == null) || (arcs.length < 5)) {
     i = 0;
-    limit = arcs.length;
+	limit = arcs.length;
   } else {
     i = Math.abs(trayLeft) / 50;
     limit = ((i + 5) > arcs.length) ? arcs.length : (i + 5);
   }
+
+//   if (isNaN(trayLeft) | arcs.length < 5) {
+//     i = 0;
+//     limit = arcs.length;
+//   } else {
+//     i = Math.abs(trayLeft) / 50;
+//     limit = ((i + MAXARCS) > arcs.length) ? arcs.length : (i + MAXARCS);
+//   }
   
   index = 0.7; // Reassign index values for arcs subset
   for (; i < limit; i++) {

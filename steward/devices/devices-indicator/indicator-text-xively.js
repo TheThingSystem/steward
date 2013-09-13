@@ -80,7 +80,6 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
   }
 
   self.cosm.create(params, function(err, id) {
-console.log(JSON.stringify('>>> id='+id));
     if (!!err) {
       self.status = 'error';
       self.setInfo();

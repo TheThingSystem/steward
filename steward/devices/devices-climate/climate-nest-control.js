@@ -138,7 +138,7 @@ var checkParam = function(key, params, result, allowNumeric, map) {
 
     var defined = typeof map[params[key]] !== 'undefined';
 
-    if ((!defined && !allowNumeric) || (!defined && allowNumeric && isNaN(parseInt(params[key], 10)))) {
+    if (((!defined) && (!allowNumeric)) || ((!defined) && allowNumeric && isNaN(parseInt(params[key], 10)))) {
       result.invalid.push(key);
     }
   }

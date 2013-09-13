@@ -1,7 +1,14 @@
 // RoboSmart Lightbulb: http://www.smarthome-labs.com
 
+var robosmart;
+try {
+    robosmart   = require('robosmart');
+} catch(ex) {
+  exports.start = function() {};
+  return;
+}
+
 var util        = require('util')
-  , robosmart   = require('robosmart')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')

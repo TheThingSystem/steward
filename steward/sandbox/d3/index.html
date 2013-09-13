@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head> 
-<title>steward</title> 
+<title>&#x24e3; the thing system</title> 
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
 <meta http-equiv="cache-control" content="no-cache" />
 
@@ -9,6 +9,11 @@
 // please do not change this section... it is trying to emulate what status board provides
 // cf., http://www.panic.com/statusboard/docs/diy_tutorial.pdf
 
+@font-face {
+  font-family: "Monsterrat Regular";
+  src: url("montserrat/Montserrat-Regular.ttf");
+  }
+  
 @font-face {
   font-family: "Roadgeek 2004 Series C";
   src: url("roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
@@ -53,11 +58,17 @@ var currActor;   // To carry over actor from one request type to another
 
 var main = function() {
   if (window.location.hostname.match(/127\.0\.0\.1/) || window.location.hostname.match(/steward\.local/)) {
+//   	  var steward = { hostname : "199.223.216.16"
+// 					, port     : "62357"
+// 					, protocol : 'wss:'
+// 					, secure   : true
+// 					};
 	  var steward = { hostname : window.location.hostname
 					, port     : window.location.port
 					, protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
 					, secure   : (window.location.protocol.indexOf('https:') === 0)
 					};
+//  console.log(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 	
 	  go(steward);
   } else {
@@ -71,11 +82,11 @@ var go = function(steward) {
   // Global socket for ongoing requests to steward
   ws = null;
   ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
-  setConnStatus("Connecting to steward&hellip;");
+//  setConnStatus("Connecting to steward&hellip;");
   
   ws.onopen = function(evt) {
-    setConnStatus("Connected");
-    setConnStatus("Retrieving Steward Info...");
+//    setConnStatus("Connected");
+//    setConnStatus("Retrieving Steward Info...");
     stack.push({ page: home });
     refreshActors(0);
   }
@@ -102,7 +113,7 @@ var go = function(steward) {
 			}
         }
       } catch(ex) {
-        console.log("Update error: " + ex.message + " with updates: " + update);
+        console.log("Update error: " + ex.message + " with update for: " + update[".updates"][0].whoami);
       }
     }
     
@@ -140,7 +151,7 @@ var go = function(steward) {
 			    console.log("Steward perform status: " + message.result.status);
 			  }
 			  break;
-  		 default:
+  		default:
   		      break;
       }
     } catch(e) {
@@ -150,13 +161,13 @@ var go = function(steward) {
   
   ws.onclose = function(evt) {
     ws.close();
-    setConnStatus("Connection Closed");
+//    setConnStatus("Connection Closed");
   }
   
   ws.onerror = function(evt) {
     console.log("WebSocket Error: " + evt.reason);
     ws.close()
-    setConnStatus("Connection Closed");
+//    setConnStatus("Connection Closed");
     location.reload();
   }
   
@@ -193,7 +204,7 @@ var goforw = function(page, actor) {
 };
 
 var end = function() {
-  setConnStatus("Closing Connection...");
+//  setConnStatus("Closing Connection...");
   ws.close();
 }
 

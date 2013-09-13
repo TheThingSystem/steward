@@ -154,16 +154,25 @@ var Place = exports.Place = function(info) {
     delete(self.info.coordinates);
     self.setInfo();
   }
+  self.info.review = [];
 
   self.proplist = function() {
-    var eventID, i, info;
+    var eventID, i, info, name;
 
     i = 0;
     for (eventID in events) if (events.hasOwnProperty(eventID)) i++;
     self.info.monitoring = (i > 0) ? ('monitoring ' + i + ' intervals, next interval ' + utility.relativity(nextick)) : 'idle';
     info = utility.clone(self.info);
     delete(info.name);
-    if (!!server.vous) info.remote = server.vous;
+    if (!!server.vous) {
+      info.remote = server.vous;
+
+      name = server.vous.split('.')[0];
+      if (self.name !== name) {
+        self.name = name;
+        self.changed();
+      }
+    }
 
     return { whatami : self.whatami
            , whoami  : 'place/1'
@@ -303,18 +312,25 @@ Place.prototype.makecode = function() {
 };
 
 var review = function() {
-  var color, state, states;
+  var color, examine, state, states;
 
   states = devices.review();
 
-  state = (states.error       !== 0)            ? 'error'
-          : (states.attention < states.warning) ? 'warning'
-          : (states.attention !== 0)            ? 'attention'
-          : (states.warning   !== 0)            ? 'warning' : 'normal';
+  state = (states.error.length       > 0)                     ? 'error'
+          : (states.attention.length < states.warning.length) ? 'warning'
+          : (states.attention.length > 0)                     ? 'attention'
+          : (states.warning.length   > 0)                     ? 'warning' : 'normal';
   color = devices.rainbow[state].color;
 
   if (place1.status !== color) {
     place1.status = color;
+    place1.changed();
+  }
+
+  examine = states.attention.concat(states.error);
+  if (examine.length > 0) examine.sort();
+  if (place1.info.review.join(',') !== examine.join(',')) {
+    place1.info.review = examine;
     place1.changed();
   }
 
@@ -455,6 +471,7 @@ exports.start = function() {
                                    , physical    : true
                                    , location    : 'coordinates'
                                    , remote      : true
+                                   , review      : []
                                    , solar       : [ 'dawn'
                                                    , 'morning-twilight'
                                                    , 'sunrise'

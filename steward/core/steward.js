@@ -391,8 +391,13 @@ exports.forEachAddress = function(callback) {
 exports.clientInfo = function(connection, secureP) {
   var ifname, props;
 
-  props = { loopback : false, subnet: false, local: false, remoteAddress: connection.remoteAddress };
+  props = { loopback      : false
+          , subnet        : false
+          , local         : false
+          , remoteAddress : connection.remoteAddress
+          , secure        : secureP };
 
+// NB: note that https://127.0.0.1 is remote access
   if (connection.remoteAddress === '127.0.0.1') props.loopback = !secureP;
   else {
 // TBD: in node 0.11, this should be reworked....
@@ -407,7 +412,13 @@ exports.clientInfo = function(connection, secureP) {
   }
 
   props.local = props.loopback || props.subnet;
+
   return props;
+};
+
+// NB: this is the access policy for read-only access
+exports.readP = function(clientInfo) {
+  return (clientInfo.loopback || (clientInfo.subnet && clientInfo.secure) || (!!clientInfo.userID));
 };
 
 

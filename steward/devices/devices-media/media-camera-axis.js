@@ -1,19 +1,13 @@
 // +++ under development
 // Axis network cameras - http://www.axis.com/products/video/camera/
 
-if ((process.arch === 'arm') && (process.platform === 'linux')) {
+var mdns;
+try {
+  mdns          = require('mdns');
+} catch(ex) {
   exports.start = function() {};
   return;
 }
-
-
-var mdns;
-
-try {
-  mdns          = require('mdns');
-} catch(ex) { logger.warning('MDNS disabled', { diagnostic: ex.message } ); }
-if (!mdns) return;
-
 
 var
 /*
@@ -29,6 +23,7 @@ var
 
 
 var logger = media.logger;
+
 
 var Axis_Camera = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;

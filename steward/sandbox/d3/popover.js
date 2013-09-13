@@ -33,8 +33,8 @@ function dragmove(d) {
 var showPop = function(device, entry) {
 
    var w = 598, h = 497, t = 100, l = 83;
-   console.log("showPop() for device=" + JSON.stringify(device));
-   console.log("showPop() for entry=" + JSON.stringify(entry));
+//   console.log("showPop() for device=" + JSON.stringify(device));
+//   console.log("showPop() for entry=" + JSON.stringify(entry));
    
    var deviceID = device.actor.slice(device.actor.lastIndexOf("/"));
    newPerform.path = "/api/v1/device/perform" + deviceID;
@@ -176,7 +176,7 @@ var showPop = function(device, entry) {
 	function addCIE(x, y) {
 		var cie1931 = device.info.color.cie1931
 	    var regisCoords = regCoords(cie1931.x, cie1931.y);
-	    console.log(regisCoords);
+//	    console.log(regisCoords);
 		pop.append("canvas")
 			.attr("id", "cie-gamut")
 			.attr("width", "300")

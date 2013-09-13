@@ -5,6 +5,7 @@ var server      = require('./../core/server')
 
 
 var logger = exports.logger = utility.logger('manage');
+var places = null;
 
 var apis = exports.apis = [];
 var access = exports.access = { level : { read    :    1
@@ -96,11 +97,15 @@ var accessP = function(api, clientInfo, tag) {
       return false;
   }
 
-  if (!(levels & api.access)) {
-/* TBD: uncomment this later on
-    logger.warning(tag, { event: 'access', diagnostic: 'unauthorized', level: api.access, role: role });
+  if (!places) places = require('./../actors/actor-place');
+  if ((!places.place1.info.insecure) && (!(levels & api.access))) {
+    logger.warning(tag, { event      : 'access'
+                        , diagnostic : 'unauthorized'
+                        , role       : role
+                        , resource   : 'manage'
+                        , level      : utility.value2key(access, api.access)
+                        });
     return false;
- */
   }
 
   return true;

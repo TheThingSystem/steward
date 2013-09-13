@@ -1,191 +1,18 @@
-/*
-*/
 
-var ws2; // For gettings/setting configuration info only
-
-var loginpg = function(state) {
-  var btn, chart, chkbox, div, div2, form, img, lbl, radio, span, txtbox, steward, storage;
-  
-  storage = JSON.parse(getStorage("steward.location"));
-  
-  var steward = { hostname : window.location.hostname
-                 , port     : window.location.port
-                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                 , search   : '%%UUID%%'
-                 };
-
-  chart = document.getElementById('chart');
-  while (chart.lastChild) chart.removeChild(chart.lastChild);
-  chart.style.backgroundImage = '';
-
+var showSettings = function() {
+  var btn, chart, chkbox, div, div2, form, img, lbl, option, radio, select, settings, span, txtbox;
 
   div = document.createElement('div');
-  div.setAttribute('class', 'logo');
-  img = document.createElement('img');
-  img.setAttribute('src', 'images/thing.sys.logo.black.svg');
-  div.appendChild(img);
-  chart.appendChild(div);
-  
-  div = document.createElement('div');
-  div.setAttribute('class', 'status');
-  div.setAttribute('id', 'connectStatus');
-  div.innerHTML = (ws && ws.readyState === 1) ? "Connected" :"Not Connected";
-  chart.appendChild(div);
-  
-  div = document.createElement('div');
-  div.setAttribute('id', 'login');
-  
-  div2 = document.createElement('div');
-  div2.setAttribute('class', 'big-instructions');
-  div2.innerHTML = "Sign In";
-  div.appendChild(div2);
+  div.setAttribute('id', 'settings');
   
   form = document.createElement('form');
-  form.setAttribute('id', 'login-form');
-  
-  radio = document.createElement('input');
-  radio.setAttribute('type', 'radio');
-  radio.setAttribute('name', 'log-type');
-  radio.setAttribute('id', 'local');
-  radio.checked = ((storage != null) ? (storage.lastlogin === 'local') : true);
-  radio.setAttribute('onclick', 'javascript:setLoginTxtBoxes(event)');
-  form.appendChild(radio);  
-  lbl = document.createElement('label');
-  lbl.setAttribute('for', 'local');
-  lbl.innerHTML = 'Local';
-  form.appendChild(lbl);
-
-  radio = document.createElement('input');
-  radio.setAttribute('type', 'radio');
-  radio.setAttribute('name', 'log-type');
-  radio.setAttribute('id', 'remote');
-  radio.checked = ((storage != null) ? (storage.lastlogin === 'remote') : false);
-  radio.setAttribute('onclick', 'javascript:setLoginTxtBoxes(event)');
-  form.appendChild(radio);
-  lbl = document.createElement('label');
-  lbl.setAttribute('for', 'remote');
-  lbl.innerHTML = 'Remote';
-  form.appendChild(lbl);
-  
-  chkbox = document.createElement('input');
-  chkbox.setAttribute('type', 'checkbox');
-  chkbox.setAttribute('name', 'secure');
-  chkbox.setAttribute('id', 'secure');
-  chkbox.setAttribute('onclick', 'javascript:setProtocol(event)');
-  chkbox.checked = ((storage != null) ? (storage.protocol === 'wss:') : (steward.protocol === 'wss:'));
-  form.appendChild(chkbox);  
-  lbl = document.createElement('label');
-  lbl.innerHTML = 'Secure Connection';
-  lbl.setAttribute('for', 'secure');
-  form.appendChild(lbl);
-  
-  lbl = document.createElement('label');
-  lbl.setAttribute('for', 'url');
-  lbl.setAttribute('id', 'urlbox');
-  lbl.setAttribute('style', ((storage != null) ? ((storage.lastlogin === "local") ? "display: block" : "display: none") : 'display: block'));
-  lbl.innerHTML = 'Hostname or IP Address:&nbsp;&nbsp;';
-
-  txtbox = document.createElement('input');
-  txtbox.setAttribute('type', 'text');
-  txtbox.setAttribute('id', 'localURL');
-  txtbox.setAttribute('size', '40');
-  txtbox.setAttribute('value', (storage != null) ? storage.hostname : steward.hostname);
-  lbl.appendChild(txtbox);
-  form.appendChild(lbl);
-
-  
-  lbl = document.createElement('label');
-  lbl.setAttribute('for', 'uuid');
-  lbl.setAttribute('id', 'uuidbox');
-  lbl.setAttribute('style', ((storage != null) ? ((storage.lastlogin === "remote") ? "display: block" : "display: none") : 'display: none'));
-  lbl.setAttribute('disabled', 'true');
-  lbl.innerHTML = 'UUID:&nbsp;&nbsp;';
-
-  txtbox = document.createElement('input');
-  txtbox.setAttribute('type', 'text');
-  txtbox.setAttribute('size', '40');
-  txtbox.setAttribute('id', 'uuid');
-  txtbox.setAttribute('value', (storage != null) ? storage.search : '');
-  lbl.appendChild(txtbox);
-  
-
-  form.appendChild(lbl);
-
-  btn = document.createElement('input');
-  btn.setAttribute('id', 'toConnect');
-  btn.setAttribute('type', 'button');
-  btn.setAttribute('onclick', 'javascript:signIn()');
-  btn.setAttribute('value', 'Connect');
-  form.appendChild(btn);
-
-  btn = document.createElement('input');
-  btn.setAttribute('id', 'signout');
-  btn.setAttribute('type', 'button');
-  btn.setAttribute('onclick', 'javascript:signOut()');
-  btn.setAttribute('value', 'Sign Out');
-  btn.setAttribute('disabled', 'true');
-  form.appendChild(btn);
-
-  btn = document.createElement('input');
-  btn.setAttribute('id', 'toHome');
-  btn.setAttribute('type', 'button');
-  btn.setAttribute('onclick', 'javascript:goHome()');
-  btn.setAttribute('value', 'Home');
-  btn.setAttribute('disabled', 'true');
-  form.appendChild(btn);
-
-  btn = document.createElement('input');
-  btn.setAttribute('id', 'toConfig');
-  btn.setAttribute('type', 'button');
-  btn.setAttribute('onclick', 'javascript:goConfig()');
-  btn.setAttribute('value', 'Configure');
-  btn.setAttribute('disabled', 'true');
-  form.appendChild(btn);
-
-  div.appendChild(form);
-  chart.appendChild(div);
-  
-//   if (ws && ws.readyState === 1) {
-//     activateBtns();
-// //     document.getElementById("toConnect").disabled = true;
-// //     document.getElementById("signout").disabled = false;
-// //     document.getElementById("toHome").disabled = false;
-// //     document.getElementById("toConfig").disabled = false;
-//   }
-}
-
-var configpg = function() {
-  var btn, chart, chkbox, div, div2, form, img, lbl, option, radio, select, span, txtbox;
-
-  chart = document.getElementById('chart');
-  while (chart.lastChild) chart.removeChild(chart.lastChild);
-  chart.style.backgroundImage = '';
-
-
-  div = document.createElement('div');
-  div.setAttribute('class', 'logo');
-  img = document.createElement('img');
-  img.setAttribute('src', 'images/thing.sys.logo.black.svg');
-  div.appendChild(img);
-  chart.appendChild(div);
-  
-  div = document.createElement('div');
-  div.setAttribute('class', 'status');
-  div.setAttribute('id', 'connectStatus');
-  div.innerHTML = (ws && ws.readyState === 1) ? "Connected" :"Not Connected";
-  chart.appendChild(div);
-  
-  div = document.createElement('div');
-  div.setAttribute('id', 'config');
+  form.setAttribute('id', 'place-form');
   
   div2 = document.createElement('div');
-  div2.setAttribute('class', 'big-instructions');
-  div2.innerHTML = "Configure Steward";
-  div.appendChild(div2);
+  div2.setAttribute('class', 'form-heading');
+  div2.innerHTML = "Steward Place Settings";
+  form.appendChild(div2);
   
-  form = document.createElement('form');
-  form.setAttribute('id', 'config-form');
-
   form.appendChild(labeledBox('Steward Name', 'stewardName', 50, ''));
   form.appendChild(labeledBox('Street Address', 'physical', 70, ''));
   div2 = document.createElement('div');
@@ -205,9 +32,20 @@ var configpg = function() {
   form.appendChild(labeledBox('Latitude', 'latitude', 20, ''));
   form.appendChild(labeledBox('Longitude', 'longitude', 20, ''));
 
+  btn = document.createElement('input');
+  btn.setAttribute('type', 'button');
+  btn.setAttribute('value', 'Save Place Settings');
+  btn.setAttribute('onclick', 'javascript:savePlace(event)');
+  form.appendChild(btn);
+
+  div.appendChild(form);
+
+  form = document.createElement('form');
+  form.setAttribute('id', 'cloud-form');
+
   div2 = document.createElement('div');
-  div2.setAttribute('class', 'big-instructions');
-  div2.innerHTML = "Networked Products & Services";
+  div2.setAttribute('class', 'form-heading');
+  div2.innerHTML = "Cloud Services";
   form.appendChild(div2);
 
   select = document.createElement('select');
@@ -215,24 +53,30 @@ var configpg = function() {
   select = addBootables(select);
   form.appendChild(select);
   
+  span = document.createElement('span')
+  span.setAttribute('id', 'cloud-instructions');
+  span.innerText = bootable[select.value].text;
+  form.appendChild(span);
+  
   var labelArray = labeledBoxes(select);
   form.appendChild(labelArray[0]);
   form.appendChild(labelArray[1]);
   
   btn = document.createElement('input');
   btn.setAttribute('type', 'button');
-  btn.setAttribute('id', 'cancelConf');
-  btn.setAttribute('value', 'Cancel');
-  btn.setAttribute('onclick', 'javascript:cancelConfig(event)');
-  form.appendChild(btn);
-  btn = document.createElement('input');
-  btn.setAttribute('type', 'button');
-  btn.setAttribute('value', 'Save');
-  btn.setAttribute('onclick', 'javascript:saveConfig(event)');
+  btn.setAttribute('value', 'Add Cloud Service');
+  btn.setAttribute('onclick', 'javascript:addCloud(event)');
   form.appendChild(btn);
 
   div.appendChild(form);
-  chart.appendChild(div);
+  
+  img = document.createElement('img');
+  img.setAttribute('src', 'popovers/assets/done_on.svg');
+  img.setAttribute('style', 'position:absolute; top: 30px; left: 600px; cursor: pointer');
+  img.setAttribute('onclick', 'javascript:closeSettings(event)');
+  div.appendChild(img);
+  document.body.appendChild(div);
+  
   
   document.getElementById("stewardName").addEventListener('change', function(evt) {place_info.name = evt.target.value});
   document.getElementById("physical").addEventListener('change', function(evt) {place_info.physical = evt.target.value});
@@ -242,8 +86,7 @@ var configpg = function() {
   document.getElementById("bootChoice0").addEventListener('change', stowInfo);
   document.getElementById("bootChoice1").addEventListener('change', stowInfo);
 
-  
-  connectConfig();
+  fillPlaceFields();
   
   // Create label & text input elements
   function labeledBox(lblTxt, boxID, size, val, pwd) {
@@ -276,13 +119,18 @@ var configpg = function() {
   
   // Populate select element with networked product names
   function addBootables(select) {
+    var optgroup, option
     var keys = getKeys(bootable);
+    
+    optgroup = document.createElement('optgroup');
+    optgroup.setAttribute('label', 'Choose a Service');
+    select.appendChild(optgroup);
 
     for (var i = 0; i < keys.length; i++) {
       option = document.createElement('option');
       option.setAttribute('value', keys[i]);
       option.innerHTML = keys[i];
-      select.appendChild(option);
+      optgroup.appendChild(option);
     }
     return select;
   }
@@ -296,27 +144,18 @@ var configpg = function() {
   
 }
 
-var setProtocol = function(evt) {
-  var proto = (evt.target.checked) ? "wss://" : "ws://";
-  d3.select("#protoTxt").text(proto);
-}
-
-var setLoginTxtBoxes = function(evt) {
-  var where = evt.target.id;
-  if (where == "local") {
-    document.getElementById("urlbox").style.display = "block";
-    document.getElementById("uuidbox").style.display = "none";
-  } else {
-    document.getElementById("urlbox").style.display = "none";
-    document.getElementById("uuidbox").style.display = "block";
-  }
-
+var closeSettings = function(evt) {
+  if (document.getElementById("settings")) document.body.removeChild(document.getElementById("settings"));
+//  ws.close();
+  stack = [];
+  setTimeout(main, 500);
 }
 
 var pickBootable = function(evt) {
   var choice = evt.target.value;
   var info = bootable[choice].info;
   var keys = Object.keys(info);
+  document.getElementById("cloud-instructions").innerText = bootable[choice].text;
   document.getElementById("bootChoice0").labels[0].firstChild.innerHTML = keys[0] + ":&nbsp;&nbsp;";
   document.getElementById("bootChoice0").value = info[keys[0]];
   if (keys[1]) {
@@ -335,96 +174,6 @@ var stowInfo = function(evt) {
   for (var i = 0; i < keys.length; i++) {
     bootable[choice].info[keys[i]] = document.getElementById("bootChoice" + i).value;
   }
-}
-
-// Local Storage functions
-var hasLocalStorage = function() {
-  try {
-    return "localStorage" in window && (window["localStorage"] !== null);
-  } catch(e) {
-    return false;
-  }
-}
-
-var setStorage = function(name, value) {
-  return (hasLocalStorage) ? localStorage.setItem(name, value) : null;
-}
-
-var getStorage = function(name) {
-  return (hasLocalStorage) ? localStorage.getItem(name) : null;
-}
-
-var setConnStatus = function(txt) {
-  if (document.getElementById('connectStatus')) {
-  	document.getElementById('connectStatus').innerHTML = txt;
-  } else {
-//  	alert(txt);
-  }
-}
-
-var activateBtns = function() {
-  if (document.getElementById("login")) {
-    document.getElementById("toConnect").disabled = true;
-    document.getElementById("signout").disabled = false;
-    document.getElementById("toHome").disabled = false;
-    document.getElementById("toConfig").disabled = false;
-  }
-}
-
-var deactivateBtns = function() {
-  if (document.getElementById("login")) {
-    document.getElementById("toConnect").disabled = false;
-    document.getElementById("signout").disabled = true;
-    document.getElementById("toHome").disabled = true;
-    document.getElementById("toConfig").disabled = true;
-  }
-}
-
-var goLogin = function() {
-  stack.pop();
-  var state = { page: loginpg };
-  (state.page)(state);
-}
-
-var signIn = function() {
-  var steward, type;
-  setConnStatus("Connecting...");
-  type = (document.getElementById("local").checked) ? "local" : "remote";
-  
-  if (hasLocalStorage) {
-    steward = {"hostname"   : document.getElementById("localURL").value,
-               "port"       : getPort(),
-               "protocol"   : (document.getElementById("secure").checked) ? "wss:" : "ws:",
-               "search"     : document.getElementById("uuid").value,
-               "remoteHost" : "199.223.216.16",
-               "lastlogin"  : type};
-      
-    setStorage("steward.location", JSON.stringify(steward));
-  }
-
-  connectSteward(type);
-  
-  function getPort() {
-  	if (type === "local") {
-  		return (document.getElementById("secure").checked) ? "8888" : "8887";
-  	} else {
-  		return (document.getElementById("secure").checked) ? "8899" : "8888";
-  	}
-  }
-}
-
-var signOut = function() {
-  ws.close();
-//  deactivateBtns();
-}
-
-var goHome = function() {
-  firstRefresh();
-}
-
-var goConfig = function() {
-  var state = { page: configpg };
-  (state.page)(state);
 }
 
 function geolocate() {
@@ -487,108 +236,48 @@ function geocode() {
   }
 }
 
-// // Websocket connection for configuration
-var connectConfig = function() {
-  var prev, steward, storage, type;
-  
-  storage = JSON.parse(getStorage("steward.location"));
-  
-  if (!storage) return;
 
-  type = storage.lastlogin;
-  if (type === "local") {
-	steward = storage.protocol + "//" + storage.hostname + ":" + storage.port + "/manage";
-  } else {
-	steward = storage.protocol + "//" + storage.remoteHost + ":" + storage.port + 
-	  "/manage?rendezvous=" + storage.search;
-  }
-  
-  ws2 = new WebSocket(steward);
-  
-  ws2.onopen = function(evt) {
-       ws2.send(JSON.stringify({ path: '/api/v1/actor/list/', requestID: 1, options: { depth: 'all' }}));  
-  }
-  
-  ws2.onmessage = function(evt) {
-    var message;
-    
-    try {
-      message = JSON.parse(evt.data);
-      requestID = message.requestID.toString();
-      switch (requestID) {
-        case '1': onactors(message);	 break;
-        case '2': onplace(message);      break;
-        case '3': ondevices(message);    break;
-        default: console.log(message);	 break;
-      }
-      
-    } catch(e) {
-      console.log(e.message);
-    }
-  }
-  
-  ws2.onclose = function(evt) {
-    ws2.close();
-    ws2 = null;
-  }
-  
-  ws2.onerror = function(evt) {
-    console.log("WebSocket Error: " + evt.reason);
-    setConnStatus("Connection Closed");
-  }
-}
-
-var onactors = function(message) {
-  var actor, actors, entry, info;
-  actors = message.result;
-  
-  actor = actors["/place"]["place/1"];
-  place_info.name = actor.name;
-  place_info.physical = actor.info.physical;
-  if (actor.info.location) place_info.location = actor.info.location;
-  
-  for (name in bootable) {
-    if (!bootable.hasOwnProperty(name)) continue;
-    
-    entry = bootable[name];
-    actor = entry.actor;
-    if (actors[actor]) {
-      info = actors[actor][Object.keys(actors[actor])].info;
-      entry.info = info;
-    }
-  }
-  
-  fillConfigFields();
-}
-
-var onplace = function(message) {
-    console.log("Updating place/1: " + message.actors["place/1"].status);
-    goLogin();
-}
-
-var ondevices = function(message) {
-    console.log("Device saved");
-    goLogin();
-}
-
-var fillConfigFields = function() {
+var fillPlaceFields = function() {
   var entry, keys;
-  document.getElementById("stewardName").value = place_info.name || "";
-  document.getElementById("physical").value = place_info.physical || "";
+  document.getElementById("stewardName").value = place.name || "";
+  document.getElementById("physical").value = place.info.physical || "";
   if (place_info.location) {
-	  document.getElementById("latitude").value = place_info.location[0] || "";
-	  document.getElementById("longitude").value = place_info.location[1] || "";
+	  document.getElementById("latitude").value = place.info.location[0] || "";
+	  document.getElementById("longitude").value = place.info.location[1] || "";
   }
   
-  entry = bootable[document.getElementById("bootableChoice").value];
-  keys = Object.keys(entry.info);
-  for (var i = 0; i < keys.length; i++) {
-    document.getElementById("bootChoice" + i).value = entry.info[keys[i]];
-  }
 }
 
-var cancelConfig = function(evt) {
-	goLogin();
+var savePlace = function(evt) {
+  var val = JSON.stringify({ path    : '/api/v1/actor/perform/place'
+                         , requestID : "3"
+                         , perform   : "set"
+                         , parameter : JSON.stringify(place_info) || ''
+                         });
+  wsSend(val);
+}
+
+var addCloud = function(evt) {
+  var val, emptyP = false, entry;
+  var name = document.getElementById("bootableChoice").value;
+  var info = bootable[name].info;
+
+  entry = bootable[name];
+  for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
+  if (!emptyP) {
+    val = JSON.stringify({ path      : '/api/v1/device/create/' + name
+                         , requestID : "3"
+                         , name      : name
+                         , whatami   : entry.actor
+                         , info      : info || {}
+                         });
+//    console.log("Sending: " + val);
+    wsSend(val);
+    alert(name + " cloud service added to the steward.")
+    document.getElementById("bootChoice0").value = "";
+    document.getElementById("bootChoice1").value = "";
+  }
+
 }
 
 var saveConfig = function(evt) {

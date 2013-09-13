@@ -19,6 +19,7 @@ if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
 
 var logger = utility.logger('server');
 
+var places = null;
 var routes = exports.routes = {};
 
 
@@ -149,20 +150,29 @@ var start = function(port, secureP) {
         return response.end();
       }
 
-      if (pathname === '/') pathname= '/index.html';
-// TBD: uncomment this later on
-      if (/* (!meta.local) || */ (pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
+      pathname = { '/'        : '/index.html'
+                 , '/client'  : '/client.html'
+                 , '/console' : '/console.html' 
+                 }[pathname] || pathname;
+
+      if (!places) places = require('./../actors/actor-place');
+
+      if ((!places.place1.info.insecure) && (!steward.readP(meta))) {
+        delete(meta.method);
+
+        meta.event = 'access';
+        meta.diagnostic = 'unauthorized';
+        meta.resource = pathname;
+        logger.warning(tag, meta);
+
+        response.writeHead(403, { 'Content-Type': 'text/plain' });
+        return response.end('403 not allowed');
+      }
+
+      if ((pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'invalid path', code: 404 });
         response.writeHead(404, { 'Content-Type': 'text/plain' });
         return response.end('404 not found');
-      }
-
-      if (pathname === '/uuid.js') {
-        ct = 'var uuid = "' + steward.uuid + '";\n';
-
-        logger.info(tag, { code: 200, octets: ct.length });
-        response.writeHead(200, { 'Content-Type': 'application/javascript' });
-        return response.end(ct);
       }
 
       pathname = __dirname + '/../sandbox/' + decodeURI(pathname.slice(1));

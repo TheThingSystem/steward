@@ -1,7 +1,14 @@
 // http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
 
-var sensortag   = require('sensortag')
-  , util        = require('util')
+var sensortag;
+try {
+    sensortag   = require('sensortag');
+} catch(ex) {
+  exports.start = function() {};
+  return;
+}
+
+var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')

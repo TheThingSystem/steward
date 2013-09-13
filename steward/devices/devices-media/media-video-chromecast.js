@@ -1,12 +1,12 @@
 // Chromecast (Eureka Dongle) media player: www.google.com/chromecast
 
 var mdns;
-
 try {
   mdns          = require('mdns');
-} catch(ex) { logger.warning('MDNS disabled', { diagnostic: ex.message } ); }
-if (!mdns) return;
-
+} catch(ex) {
+  exports.start = function() {};
+  return;
+}
 
 var Dongle      = require('eureka-dongle')
   , util        = require('util')
@@ -18,6 +18,7 @@ var Dongle      = require('eureka-dongle')
 
 
 var logger = media.logger;
+
 
 var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
@@ -168,7 +169,7 @@ var validate_perform = function(perform, parameter) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
   result = { invalid: [], requires: [] };
 
-  if (perform === 'play' && !params.url) {
+  if ((perform === 'play') && (!params.url)) {
     result.requires.push('url');
   }
 
