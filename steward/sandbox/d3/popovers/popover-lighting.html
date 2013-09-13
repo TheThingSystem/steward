@@ -24,48 +24,12 @@
 
 body {
   font-family: "Roadgeek 2005 Series D", sans-serif;
+  font-size: 18px;
   background: #000 !important;
   margin: 0px; padding: 0px;
   color: #fff;
 }
 
-
-#actor { position: absolute; top: 14px; left: 15px; }
-#popover-name { position: absolute; top: 30px; left: 65px; }
-
-#cie-gamut { position: absolute; top: 170px; left: 170px; }
-#axis { position: absolute; top: 187px; left: 153px; }
-#y { position: absolute; top: 187px; left: 160px; }
-#x { position: absolute; top: 445px; left: 430px; }
-#rule-horizontal { position: absolute; top: 317px; left: 160px; }
-#rule-vertical { position: absolute; top: 337px; left: 336px; }
-#registration { position: absolute; top: 305px; left: 324px; }
-#cie-label { position: absolute; top: 142px; left: 159px; }
-
-#interval-label { position: absolute; top: 27px; left: 299px; }
-#interval-slider { position: absolute; top: 25px; left: 357px; }
-#interval-knob   { position: absolute; top: 25px; left: 357px; }
-#on-off-slider { position: absolute; top: 25px; left: 339px; }
-#on-off-knob { position: absolute; top: 25px; left: 339px; }
-#on-label { position: absolute; top: 27px; left: 317px; }
-#off-label { position: absolute; top: 27px; left: 393px; }
-
-#device-status { position: absolute; top: 85px; left: 156px; height: 24px; width: 148px; }
-#device-status-label { position: absolute; top: 90px; left: 30px; }
-#power { position: absolute; top: 85px; left: 421px; height: 24px; width: 148px; }
-#power-label { position: absolute; top: 90px; left: 358px; }
-
-#brightness { position: absolute; top: 173px; left: 66px; }
-#brightness-knob { position: absolute; top: 298px; left: 62px; }
-#brightness-grid { position: absolute; top: 181px; left: 57px; }
-#brightness-label { position: absolute; top: 142px; left: 31px; }
-#brightness-readout { position: absolute; top: 307px; left: 30px; }
-
-#transition { position: absolute; top: 173px; left: 509px; }
-#transition-knob { position: absolute; top: 298px; left: 505px; }
-#transition-grid { position: absolute; top: 181px; left: 500px; }
-#transition-label { position: absolute; top: 142px; left: 479px; }
-#transition-readout { position: absolute; top: 305px; left: 550px; }
 
 .label { 
         font-family: "Roadgeek 2005 Series D";
@@ -97,56 +61,111 @@ body {
 #send { position: absolute; top: 24px; left: 437px; }
 #cancel { position: absolute; top: 24px; left: 507px; }
 
+#window-top 
+	{ position: absolute; top: 0px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
+	
+	#actor { position: absolute; top: 14px; left: 15px; }
+	#popover-name { position: absolute; top: 30px; left: 65px; }
+	#on-off-slider { position: absolute; top: 25px; left: 339px; }
+	#on-off-knob { position: absolute; top: 25px; left: 339px; }
+	#on-label { position: absolute; top: 28px; left: 317px; }
+	#off-label { position: absolute; top: 28px; left: 393px; }
+	
+	
+
+#window-middle 
+	{ position: absolute; top: 60px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
+
+	#device-status { position: absolute; top: 22px; left: 156px; height: 24px; width: 148px; }
+	#device-status-label { position: absolute; top: 28px; left: 30px; }
+	#power { position: absolute; top: 22px; left: 421px; height: 24px; width: 148px; }
+	#power-label { position: absolute; top: 28px; left: 358px; }
+
+#window-left-bottom 
+	{ position: absolute; top: 120px; left: 0px; width: 140px; height: 375px; z-index: 1px; }
+
+#window-center-bottom 
+	{ position: absolute; top: 120px; left: 140px; width: 320px; height: 375px; z-index: 1px; }
+
+	#cie-gamut { position: absolute; top: 50px; left: 30px; }
+	#axis { position: absolute; top: 67px; left: 13px; }
+	#y { position: absolute; top: 67px; left: 20px; }
+	#x { position: absolute; top: 325px; left: 290px; }
+	#rule-horizontal { position: absolute; top: 187px; left: 20px; }
+	#rule-vertical { position: absolute; top: 207px; left: 196px; }
+	#registration { position: absolute; top: 175px; left: 184px; }
+	#cie-label { margin: 20px 0px 0px 20px; }
+
+
+#window-right-bottom 
+	{ position: absolute; top: 120px; left: 459px; width: 138px; height: 375px; z-index: 1px; }
+
+	.slider { position: absolute; top: 43px; left: 54px; }
+	.slider-knob { position: absolute; top: 168px; left: 50px; }
+	.slider-grid { position: absolute; top: 51px; left: 45px; }
+	.slider-label { position: absolute; top: 20px; left: 24px; }
+	.slider-readout { position: absolute; top: 175px; left: 95px; }
+
+
+.window { }
+
 </style>
 </head> 
 
 
 <body> 
 
-<img src="assets/window.bkg.svg" />
 
-<div id="actor"><img src="assets/hue.svg" style="width: 43px;" /></div>
-<div id="popover-name" class="popover-name">Dining (south)</div>
+<div class="window">
+	<img src="assets/window.bkg.svg" style="z-index: 0px;" />
 
-<div id="cie-gamut"><img src="assets/CIE.png" style="width: 300px;" /></div>
-<div id="axis"><img src="assets/axis.svg" /></div>
-<div id="x" class="label">X</div>
-<div id="y" class="label">Y</div>
-<div id="rule-horizontal"><img src="assets/white.horizontal.svg" /></div>
-<div id="rule-vertical"><img src="assets/white.vertical.svg" /></div>
-<div id="registration"><img src="assets/registration.svg" /></div>
-<div id="cie-label" class="label">COLOR TEMPERATURE</div>
+<div id="window-top">
+	<div id="actor"><img src="assets/hue.svg" style="width: 43px;" /></div>
+	<div id="popover-name" class="popover-name">Dining (south)</div>
+</div>
 
-<!--
-<div id="interval-label" class="small-label">INTERVAL</div>
-<div id="interval-slider"><img src="assets/slider.small.svg" /></div>
-<div id="interval-knob"><img src="assets/knob.small.svg" /></div>
--->
+<div id="window-middle">
+	<div id="device-status-label" class="label">DEVICE STATUS</div>
+	<div id="device-status" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
+	<div id="power-label" class="label">POWER</div>
+	<div id="power" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
+</div>
 
-<div id="on-off-slider"><img src="assets/slider.on-off.svg" /></div>
-<div id="on-off-knob"><img src="assets/knob.small.svg" /></div>
-<div id="on-label" class="small-label">ON</div>
-<div id="off-label" class="small-label">OFF</div>
+<div id="window-center-bottom">
+	<div id="cie-gamut"><img src="assets/CIE.png" style="width: 300px;" /></div>
+	<div id="axis"><img src="assets/axis.svg" /></div>
+	<div id="x" class="label">X</div>
+	<div id="y" class="label">Y</div>
+	<div id="rule-horizontal"><img src="assets/white.horizontal.svg" /></div>
+	<div id="rule-vertical"><img src="assets/white.vertical.svg" /></div>
+	<div id="registration"><img src="assets/registration.svg" /></div>
+	<div id="cie-label" class="label">COLOR TEMPERATURE</div>
+</div>
 
-<div id="device-status" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
-<div id="device-status-label" class="label">DEVICE STATUS</div>
-<div id="power" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
-<div id="power-label" class="label">POWER</div>
+	<div id="on-off-slider"><img src="assets/slider.on-off.svg" /></div>
+	<div id="on-off-knob"><img src="assets/knob.small.svg" /></div>
+	<div id="on-label" class="small-label">ON</div>
+	<div id="off-label" class="small-label">OFF</div>
 
-<div id="brightness-grid"><img src="assets/grid.svg" /></div>
-<div id="brightness"><img src="assets/slider.large.svg" /></div>
-<div id="brightness-knob"><img src="assets/knob.large.svg" /></div>
-<div id="brightness-label" class="label">BRIGHTNESS</div>
-<div id="brightness-readout" class="small-label">00</div>
+<div id="window-left-bottom">
+	<div class="slider-grid"><img src="assets/grid.svg" /></div>
+	<div class="slider"><img src="assets/slider.large.svg" /></div>
+	<div class="slider-knob"><img src="assets/knob.large.svg" /></div>
+	<div class="slider-label" class="label">BRIGHTNESS</div>
+	<div class="slider-readout small-label">00</div>
+</div>
 
-<div id="transition-grid"><img src="assets/grid.svg" /></div>
-<div id="transition"><img src="assets/slider.large.svg" /></div>
-<div id="transition-knob"><img src="assets/knob.large.svg" /></div>
-<div id="transition-label" class="label">TRANSITION</div>
-<div id="transition-readout" class="small-label">00</div>
+<div id="window-right-bottom">
+	<div class="slider-grid"><img src="assets/grid.svg" /></div>
+	<div class="slider"><img src="assets/slider.large.svg" /></div>
+	<div class="slider-knob"><img src="assets/knob.large.svg" /></div>
+	<div class="slider-label" class="label">TRANSITION</div>
+	<div class="slider-readout small-label">00</div>
+</div>
 
-<div id="send" class="label"><img src="assets/send.svg" style="height: 22px;" /></div>
-<div id="cancel" class="label"><img src="assets/cancel.svg" style="height: 22px;" /></div>
+	<div id="send" class="label"><img src="assets/send.svg" style="height: 22px;" /></div>
+	<div id="cancel" class="label"><img src="assets/cancel.svg" style="height: 22px;" /></div>
+</div>
 
 </body>
 </html>
