@@ -60,7 +60,7 @@ exports.start = function() {
                   , unit         : { udn: peripheral.uuid }
                   };
     info.url = info.device.url;
-    info.deviceType = deviceType || '/device/presence/fob';
+    info.deviceType = deviceType || '/device/presence/fob/ble';
     info.id = 'uuid:' + info.device.unit.udn;
     if (devices.devices[info.id]) return;
 

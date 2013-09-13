@@ -112,12 +112,15 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var fob, register;
+  var register;
 
   register = require('./../../discovery/discovery-ble').register;
 
-  steward.actors.device.presence.fob =
-      { $info     : { type       : '/device/presence/fob'
+  steward.actors.device.presence.fob = steward.actors.device.presence.fob ||
+      { $info     : { type: '/device/presence/fob' } };
+
+  steward.actors.device.presence.fob.ble =
+      { $info     : { type       : '/device/presence/fob/ble'
                     , observe    : [ ]
                     , perform    : [ 'alert' ]
                     , properties : { name   : true
@@ -128,15 +131,14 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  fob = utility.clone(steward.actors.device.presence.fob);
-  devices.makers['/device/presence/fob'] = Fob;
+  devices.makers['/device/presence/fob/ble'] = Fob;
 
-  steward.actors.device.presence.fob.inrange = utility.clone(fob);
+  steward.actors.device.presence.fob.inrange = utility.clone(steward.actors.device.presence.fob.ble);
   steward.actors.device.presence.fob.inrange.$info.type = '/device/presence/fob/inrange';
   devices.makers['/device/presence/fob/inrange'] = Fob;
   register('/device/presence/fob/inrange', 'Philips AEA1000', [ '1802', '1803' ]);
 
-  steward.actors.device.presence.fob.hone = utility.clone(fob);
+  steward.actors.device.presence.fob.hone = utility.clone(steward.actors.device.presence.fob.ble);
   steward.actors.device.presence.fob.hone.$info.type = '/device/presence/fob/hone';
   devices.makers['/device/presence/fob/hone'] = Fob;
   register('/device/presence/fob/hone', 'Hone', [ '1802' ]);
