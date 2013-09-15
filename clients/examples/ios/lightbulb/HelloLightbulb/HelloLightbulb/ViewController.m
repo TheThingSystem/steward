@@ -16,7 +16,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    wssRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"wss://dastardly.local:8888/manage"]];
+    wssRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://dastardly.local:8887/manage"]];
 
 }
 
