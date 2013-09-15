@@ -17,7 +17,7 @@ function onRequest(request, response) {
     var pathname = url.parse(request.url).pathname;
 	response.writeHead(200, {"Content-Type":"text/html"});
 	
-	ws = new WebSocket('wss://localhost:8888/manage');
+	ws = new WebSocket('ws://127.0.0.1:8887/manage');
 	console.log("Created websocket.");	
 	
 	ws.onopen = function(event) {

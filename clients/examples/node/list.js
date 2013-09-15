@@ -5,7 +5,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 var util = require("util");
 var WebSocket = require('ws');
 
-var ws = new WebSocket('wss://localhost:8888/manage');
+var ws = new WebSocket('ws://127.0.0.1:8887/manage');
 console.log("Created websocket.");
 
 ws.onopen = function(event) {

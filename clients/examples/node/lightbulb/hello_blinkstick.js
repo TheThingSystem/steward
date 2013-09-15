@@ -16,7 +16,7 @@ function onRequest(request, response) {
 
 	response.writeHead(200, {"Content-Type":"text/plain"});
 	
-	ws = new WebSocket('wss://localhost:8888/manage');
+	ws = new WebSocket('ws://127.0.0.1:8887/manage');
 	console.log("Created websocket.");	
 	
 	ws.onopen = function(event) {
