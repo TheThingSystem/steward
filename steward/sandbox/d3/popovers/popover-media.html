@@ -29,32 +29,44 @@ body {
   color: #fff;
 }
 
-#actor { position: absolute; top: 14px; left: 15px; }
-#popover-name { position: absolute; top: 30px; left: 65px; }
+#done { position: absolute; top: 24px; left: 400px; }
 
-#media-controls { position: absolute; top: 17px; left: 404px; }
+#primary-controls 
+	{ position: absolute; top: 0px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
+	
+	#actor { position: absolute; top: 14px; left: 15px; }
+	#popover-name { position: absolute; top: 30px; left: 65px; }
 
-#device-status { position: absolute; top: 85px; left: 156px; height: 24px; width: 148px; }
-#device-status-label { position: absolute; top: 90px; left: 30px; }
-#power { position: absolute; top: 85px; left: 421px; height: 24px; width: 148px; }
-#power-label { position: absolute; top: 90px; left: 358px; }
+#device-status-wrapper
+	{ position: absolute; top: 65px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
+	.device-status { position: absolute; top: 22px; left: 156px; height: 24px; width: 146px; background:url('assets/slider.transparent.svg'); background-position: -2px 0; }
+	.device-status-label { position: absolute; top: 28px; left: 30px; }
+	.power { position: absolute; top: 22px; left: 420px; height: 24px; width: 146px; background:url('assets/slider.transparent.svg'); background-position: -2px 0; }
+	.power-label { position: absolute; top: 28px; left: 356px; }
 
-#now-playing-label { position: absolute; top: 142px; left: 40px; }
 
-#display-album { position: absolute; top: 167px; left: 33px; }
-#display-album-label { position: absolute; top: 177px; left: 43px; }
-#display-artist { position: absolute; top: 217px; left: 33px; }
-#display-artist-label { position: absolute; top: 227px; left: 43px; }
-#display-track { position: absolute; top: 268px; left: 33px; }
-#display-track-label { position: absolute; top: 278px; left: 43px; }
+#metadata-wrapper { position: absolute;  top: 142px; left: 30px; width: 335px; height: 180px;}
+	.now-playing-label { position: absolute; top: 0x; left: 10px; white-space: nowrap; }
+	.display-album { position: absolute; top: 26px; left: 0px; height: 34px; width: 332px; color: #69cef6; background:url('assets/display.svg'); }
+	.display-artist { position: absolute; top: 76px; left: 0px; height: 34px; width: 332px; color: #69cef6; background:url('assets/display.svg'); }
+	.display-track { position: absolute; top: 124px; left: 0px; height: 34px; width: 332px; color: #69cef6; background:url('assets/display.svg'); }
 
-#volume-control-knob { position: absolute; top: 154px; left: 382px; }
-#volume-control-bkg { position: absolute; top: 154px; left: 382px; }
+#volume-control-wrapper { position: absolute; top: 154px; left: 382px; }
+	.volume-control-knob { position: absolute; top: 0px; left: 0px; }
+	.volume-control-bkg { position: absolute; top: 0px; left: 0px; }
 
-#track-progress { position: absolute; top: 342px; left: 40px; }
-#track-progress-label { position: absolute; top: 322px; left: 40px; }
+#track-progress { position: absolute;  top: 142px; left: 30px; width: 335px; height: 180px; }
+	.track-progress { position: absolute; top: 342px; left: 40px; height: 30px; width: 520px;  background:url('assets/track-progress.svg'); }
+	.track-progress-label { position: absolute; top: 322px; left: 40px; }
+	.track-progress-knob { position: absolute; top: 2px; left: 232px; width: 14px; }
 
-#media-controls-alt { position: absolute; top: 386px; left: 38px; }
+#media-controls-wrapper { position: absolute; top: 386px; left: 38px; width: 220px; height: 70px;  }
+	.media-button-one { width: 55px; height: 60px; position: absolute; top: 0px; left: 0px; }
+	.media-button-two { width: 55px; height: 60px; position: absolute; top: 0px; left: 45px; }
+	.media-button-three { width: 55px; height: 60px; position: absolute; top: 0px; left: 112px; }
+	.media-button-four { width: 55px; height: 60px; position: absolute; top: 0px; left: 170px; }
+	img.media-button { width: 50px; }
+	img.media-button-big { width: 63px; }
 
 #equalizer { position: absolute; top: 345px; left: 258px; }
 
@@ -67,6 +79,7 @@ body {
         text-transform: uppercase;
 }
 
+.label-padding { position: absolute; top: 12px; left: 11px; }
 .small-label { 
         font-family: "Roadgeek 2005 Series D";
         font-size: 12px;
@@ -85,8 +98,7 @@ body {
         height: 65px;
 }
 
-#send { position: absolute; top: 24px; left: 437px; }
-#cancel { position: absolute; top: 24px; left: 507px; }
+#done { position: absolute; top: 24px; left: 507px; }
 
 </style>
 </head> 
@@ -94,39 +106,49 @@ body {
 
 <body> 
 
-<img src="assets/window.two-panel.bkg.svg" />
+<div class="window">
+	<img src="assets/window.two-panel.bkg.svg" style="z-index: 0px;" />
 
-<div id="actor"><img src="assets/sonos_playbar.svg" style="width: 43px;" /></div>
-<div id="popover-name" class="popover-name">Center Hallway</div>
+<div id="primary-controls">
+	<div id="actor"><img src="assets/sonos_playbar.svg" style="width: 43px;" /></div>
+	<div id="popover-name" class="popover-name">Center Hallway</div>
+</div>
 
-<!-- <div id="media-controls"><img src="assets/media.controller.svg" /></div> -->
+<div id="device-status-wrapper">
+	<div class="device-status-label" class="label">DEVICE STATUS</div>
+	<div class="device-status" style="background-color: #fff"></div>
+	<div class="power-label" class="label">POWER</div>
+	<div class="power" style="background-color: #fff"></div>
+</div>
 
-<div id="device-status" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
-<div id="device-status-label" class="label">DEVICE STATUS</div>
-<div id="power" style="background-color: #fff"><img src="assets/slider.transparent.svg" /></div>
-<div id="power-label" class="label">POWER</div>
+<div id="metadata-wrapper">
+	<div class="now-playing-label small-label">NOW PLAYING</div>
+	<div class="display-album"><span class="label-padding">ALBUM</span></div>
+	<div class="display-artist"><span class="label-padding">ARTISTS</span></div>
+	<div class="display-track"><span class="label-padding">TRACK</span></div>
+</div>
 
-<div id="now-playing-label" class="small-label">NOW PLAYING</div>
+<div id="volume-control-wrapper">
+	<div class="volume-control-knob"><img src="assets/volume.control.bkg.svg" /></div>
+	<div class="volume-control-bkg"><img src="assets/volume.control.svg" /></div>
+</div>
 
-<div id="display-album"><img src="assets/display.svg" /></div>
-<div id="display-album-label" class="label" style="color: #69cef6">ALBUM</div>
-<div id="display-artist"><img src="assets/display.svg" /></div>
-<div id="display-artist-label" class="label" style="color: #69cef6">ARTIST</div>
-<div id="display-track"><img src="assets/display.svg" /></div>
-<div id="display-track-label" class="label" style="color: #69cef6">TRACK LISTING</div>
+<div id="track-progress-wrapper">
+	<div class="track-progress"><img src="assets/track-progress-knob.svg" class="track-progress-knob" /></div>
+	<div class="track-progress-label small-label">TRACK PROGRESS</div>
+</div>
 
-<div id="volume-control-knob"><img src="assets/volume.control.bkg.svg" /></div>
-<div id="volume-control-bkg"><img src="assets/volume.control.svg" /></div>
-
-<div id="track-progress"><img src="assets/track_progress.svg" /></div>
-<div id="track-progress-label" class="small-label">TRACK PROGRESS</div>
-
-<div id="media-controls-alt"><img src="assets/media.controller.alt.svg" /></div>
+<div id="media-controls-wrapper">
+	<div class="media-button-one"><img src="assets/media-button-one.svg" class="media-button" /></div>
+	<div class="media-button-two"><img src="assets/media-button-two.svg" class="media-button-big" /></div>
+	<div class="media-button-three"><img src="assets/media-button-three.svg" class="media-button-big" /></div>
+	<div class="media-button-four"><img src="assets/media-button-four.svg" class="media-button" /></div>
+</div>
 
 <div id="equalizer"><img src="assets/equalizer.svg" /></div>
 
-<div id="send" class="label"><img src="assets/send.svg" style="height: 22px;" /></div>
-<div id="cancel" class="label"><img src="assets/cancel.svg" style="height: 22px;" /></div>
+	<div id="done" class="label"><img src="assets/done.svg" style="height: 22px;" /></div>
+</div>
 
 </body>
 </html>
