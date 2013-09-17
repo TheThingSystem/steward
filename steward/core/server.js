@@ -157,6 +157,9 @@ var start = function(port, secureP) {
 
       if (!places) places = require('./../actors/actor-place');
 
+/* NB: everything "interesting" should be via WebSockets, not HTML...
+       if that changes, we can add an exception list here.
+
       if ((!places.place1.info.insecure) && (!steward.readP(meta))) {
         delete(meta.method);
 
@@ -168,6 +171,7 @@ var start = function(port, secureP) {
         response.writeHead(403, { 'Content-Type': 'text/plain' });
         return response.end('403 not allowed');
       }
+ */
 
       if ((pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'invalid path', code: 404 });

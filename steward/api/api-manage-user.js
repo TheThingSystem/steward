@@ -271,7 +271,7 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
                        , encoding : 'base32'
                        , step     : client.clientAuthParams.step
                        });
-  if (otp !== message.response) {
+  if (otp !== message.response.toString()) {
     results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
   } else {
     results.result = { userID: user.userID, role: user.userRole };
@@ -616,7 +616,7 @@ exports.start = function() {
                    });
   manage.apis.push({ prefix  : '/api/v1/user/authenticate'
                    , route   : authenticate
-                   , access  : manage.access.level.read
+                   , access  : manage.access.level.none
                    , required : { clientID : 'id'
                                 , response : true
                                 }

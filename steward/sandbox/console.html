@@ -190,6 +190,11 @@ table.short-form td { padding: 10px; }
   span.missing {
     background: red;
   }
+
+  table.short-form td { padding: 10px; }
+
+  .form-container-short { background: url('d3/popovers/assets/window.form.short.svg') no-repeat; width: 600px; height: 180px; padding: 30px; margin: 30px auto; }
+  .form-container table { width: 600px; }
 </style>
 <script src='js-beautify-master/beautify.js'></script>
 <script>
@@ -800,23 +805,44 @@ var notice = function(message, meta) {
 };
 
 var go = function(steward, i) {
-  var opened, ws, ws2;
+  var firstP, readyP, waitP, ws, ws2;
   var tag = 'connection #' + i + ' to ' + steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console';
+
+  var onlogin = function(message) {
+    if (!!message.result) {
+      waitP = false;
+      status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      setTimeout(function() {
+        document.getElementById('login').style.display = 'none';
+        document.forms.loginForm.userCode.value = '';
+        delete(steward.primer);
+      }, 2 * 1000);
+      return;
+    }
+
+    if (!!message.error) {
+      status2.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+    }
+  };
 
   notice(tag, { state: 'connecting...' });
 
-  opened = 0;
+  readyP = firstP = false;
+  waitP = true;
   ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
   ws2 = null;
 
   ws.onopen = function(event) {
-    opened = 1;
+    readyP = true;
     notice(tag, { state: 'open' });
+
+    if (!!steward.primer) ws.send(JSON.stringify(steward.primer));
+    firstP = true;
 
     ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 
     ws2.onopen = function(event) {
-      ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
+      if (!!steward.primer) ws2.send(JSON.stringify(steward.primer));
     };
 
     ws2.onmessage = function(event) {
@@ -828,12 +854,15 @@ var go = function(steward, i) {
         switch (requestID) {
           case '1': onactivities(message); break;
           case '2': onactors(message);     break;
+          case '7': onlogin(message);      break;
           default:  console.log(message);  break;
         }
       } catch (ex) {
         onupdate({ monitor: [{ date: new Date().toISOString(), level: 'error', message: ex.message, meta: { error: ex } }] });
       };
       setTimeout(function() {
+        if (waitP) return;
+
         if (requestID !== '1') {
           ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
         } else {
@@ -848,12 +877,27 @@ var go = function(steward, i) {
   };
 
   ws.onmessage = function(event) {
+    var message;
     notice(tag, { state: 'open' });
+
+    if (firstP) {
+      firstP = false;
+
+      message = JSON.parse(event.data);
+//      if ((!!message.error) && (!!message.error.permanent)) {
+        document.getElementById('login').style.display = 'block';
+        return;
+//      }
+
+      waitP = false;
+      ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
+    }
+
     onupdate(JSON.parse(event.data));
   };
 
   ws.onclose = function(event) {
-    notice(tag, { state: (opened ? 'closed' : 'error'), code: event.code, message: event.reason });
+    notice(tag, { state: (readyP ? 'closed' : 'error'), code: event.code, message: event.reason });
     setTimeout (function() { go(steward, i + 1); }, 2500);
   };
 
@@ -867,12 +911,32 @@ var go = function(steward, i) {
   };
 };
 
-var main = function() {
+var login = function() {
+  var form     = document.forms.loginForm
+    , name     = form.userName.value
+    , code     = form.userCode.value
+    , status2  = document.getElementById('status2')
+    ;
+
+  status2.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    alert('invalid login code');
+    return false;
+  }
+
+  main(name, code);
+  return false;
+};
+
+var main = function(name, code) {
   var steward = { hostname : window.location.hostname
                 , port     : window.location.port
                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
                 , secure   : (window.location.protocol.indexOf('https:') === 0)
                 };
+  if (!!name) steward.primer = { path: '/api/v1/user/authenticate/' + name, requestID: "7", response: code };
 
   notice('start');
   go(steward, 1);
@@ -882,7 +946,25 @@ var main = function() {
 </head>
 
 <body onload='main();'>
-<img src="d3/images/thing.sys.logo.black.svg" />
+<img src='d3/images/thing.sys.logo.black.svg' />
+<div id='login' class='form-container-short' style='display: none;'>
+<form name='loginForm' onsubmit='return login();' action='#'>
+<table class='short-form'>
+<tr><td>Client ID:</td>
+    <td><input type='text' name='userName' /></td>
+    <td>e.g., 'root/1'</td>
+</tr>
+<tr><td>Login code:</td>
+    <td><input type='text' name='userCode' /></td>
+    <td>e.g., '123456'</td>
+</tr>
+<tr valign='top'>
+    <td></td>
+    <td><input type='image' src='d3/popovers/assets/test.svg' value='Login' /><br/><br/><span id='status2'></span></td>
+</tr>
+</table>
+</form>
+</div>
 <hr>
 <div id='activities'></div>
 <hr/><hr/>
