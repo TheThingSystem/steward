@@ -842,7 +842,9 @@ var go = function(steward, i) {
     ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 
     ws2.onopen = function(event) {
-      if (!!steward.primer) ws2.send(JSON.stringify(steward.primer));
+      if (!!steward.primer) return ws2.send(JSON.stringify(steward.primer));
+
+      ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
     };
 
     ws2.onmessage = function(event) {
@@ -884,10 +886,11 @@ var go = function(steward, i) {
       firstP = false;
 
       message = JSON.parse(event.data);
-//      if ((!!message.error) && (!!message.error.permanent)) {
+      if ((!!message.error) && (!!message.error.permanent)) {
+        notice('error: ' + message.error.diagnostic);
         document.getElementById('login').style.display = 'block';
         return;
-//      }
+      }
 
       waitP = false;
       ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
