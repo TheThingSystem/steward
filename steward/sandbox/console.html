@@ -722,7 +722,7 @@ var onupdate = function(update) {
   update = update || {};
 
   for (category in update) {
-    if (!update.hasOwnProperty(category)) continue;
+    if ((!update.hasOwnProperty(category)) || (category === 'requestID')) continue;
 
     data = signals[category] || [];
 
