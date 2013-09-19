@@ -879,24 +879,26 @@ var go = function(steward, i) {
   };
 
   ws.onmessage = function(event) {
-    var message;
+    var message = JSON.parse(event.data);
+
     notice(tag, { state: 'open' });
 
     if (firstP) {
       firstP = false;
 
-      message = JSON.parse(event.data);
-      if ((!!message.error) && (!!message.error.permanent)) {
+      if ((!!message.requestID) && (!!message.error) && (!!message.error.permanent)) {
         notice('error: ' + message.error.diagnostic);
         document.getElementById('login').style.display = 'block';
         return;
       }
 
       waitP = false;
-      ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
+      try {
+        ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'tree' }}));
+      } catch(ex) {}
     }
 
-    onupdate(JSON.parse(event.data));
+    onupdate(message);
   };
 
   ws.onclose = function(event) {

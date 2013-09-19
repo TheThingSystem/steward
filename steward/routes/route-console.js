@@ -18,6 +18,8 @@ var consoleX = function(ws, tag) {
   ws.on('message', function(data, flags) {
     var message;
 
+    if (!places) places = require('./../actors/actor-place');
+
     if (!!flags.binary) return;
     message = null;
     try { message = JSON.parse(data); } catch(ex) { return; }
@@ -33,7 +35,7 @@ var consoleX = function(ws, tag) {
   broker.subscribe('beacon-egress', function(category, datum) {
     var data = {};
 
-    if ((!places.place1.info.insecure) && (!steward.readP(ws.clientInfo))) return;
+    if ((!!places) && (!places.place1.info.insecure) && (!steward.readP(ws.clientInfo))) return;
 
     if (!util.isArray(datum)) datum = [ datum ];
     data[category] = datum;
@@ -42,9 +44,7 @@ var consoleX = function(ws, tag) {
     try { ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} }); } catch(ex) {}
   });
 
-  if (!places) places = require('./../actors/actor-place');
-
-  if ((!!places.place1.info.insecure) || (steward.readP(ws.clientInfo))) {
+  if ((!places) || (!!places.place1.info.insecure) || (steward.readP(ws.clientInfo))) {
     try { ws.send(stringify(utility.signals)); } catch(ex) {}
     broker.publish('actors', 'attention');
     return broker.publish('actors', 'ping');
@@ -59,7 +59,7 @@ var consoleX = function(ws, tag) {
 
   try {
     ws.send(stringify({ error: { permanent: true, diagnostic: 'access control' }}), function(err) {
-      if (err) try {ws.terminate(); } catch(ex) {}
+      if (err) try { ws.terminate(); } catch(ex) {}
     });
   } catch(ex) {}
 };
@@ -67,7 +67,7 @@ var consoleX = function(ws, tag) {
 var consoleX2 = function(logger, ws, data, tag) {/* jshint unused: false */
   try { ws.send(data); } catch(ex) { console.log(ex); }
 
-  if ((!!places.place1.info.insecure) || (steward.readP(ws.clientInfo))) {
+  if ((!places) || (!!places.place1.info.insecure) || (steward.readP(ws.clientInfo))) {
     try { ws.send(stringify(utility.signals)); } catch(ex) {}
     broker.publish('actors', 'attention');
     broker.publish('actors', 'ping');
