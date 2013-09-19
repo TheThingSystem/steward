@@ -1,4 +1,3 @@
-// +++ under development
 // Nest - the learning thermostat: http://nest.com
 
 var util        = require('util')

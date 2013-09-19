@@ -55,6 +55,8 @@ util.inherits(Axis_Camera, media.Device);
 
 
 exports.start = function() {
+if (true) return;
+
   var discovery = utility.logger('discovery');
 
   steward.actors.device.media.axis = steward.actors.device.media.axis ||
