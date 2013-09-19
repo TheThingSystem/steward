@@ -56,7 +56,7 @@ var consoleX = function(ws, tag) {
   meta.diagnostic = 'unauthorized';
   meta.resource = 'console';
   logger.warning(tag, meta);
-    
+
   try {
     ws.send(stringify({ error: { permanent: true, diagnostic: 'access control' }}), function(err) {
       if (err) try {ws.terminate(); } catch(ex) {}

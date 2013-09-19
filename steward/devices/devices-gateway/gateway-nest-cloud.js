@@ -55,7 +55,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  if ((!!info.email) || (!!info.passphrase)) self.login(self);
+  if ((!!info.email) && (!!info.passphrase)) self.login(self);
 };
 util.inherits(Cloud, require('./../device-gateway').Device);
 

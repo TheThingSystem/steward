@@ -62,7 +62,6 @@ var pair2 = function(logger, ws, data, tag) {
 
   if ((!!results) && (!!results.result) && (!results.error)) {
     results.result.success = true;
-console.log('>>> 1');
     results.result.thingID = results.result.client;
     delete(results.result.user);
     delete(results.result.client);
@@ -296,7 +295,6 @@ var update = function(logger, ws, api, message, tag) {
     child = devices.devices[thingIDs[thingID].udn];
     if (!child)                                             return error(true, 'internal error');
     device = child.device;
-console.log('>>> 2');
     if (!device.thingID) {
       results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid thing' } };
     }
@@ -406,7 +404,6 @@ var readyP = function() {
     rows.forEach(function(thing) {
       var thingPath = thing.thingUID;
 
-console.log('>>> 3');
       things[thingPath] = { thingID         : thing.thingID.toString()
                           , thingUID        : thingPath
                           , thingName       : thing.thingName
@@ -490,7 +487,6 @@ var Thing = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.params.name;
   self.ws = info.params.ws;
-console.log('>>> 4');
   self.thingID = info.params.thingID;
   self.status = info.params.status;
   delete(info.params);

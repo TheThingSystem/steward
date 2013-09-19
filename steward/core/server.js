@@ -152,7 +152,7 @@ var start = function(port, secureP) {
 
       pathname = { '/'        : '/index.html'
                  , '/client'  : '/client.html'
-                 , '/console' : '/console.html' 
+                 , '/console' : '/console.html'
                  }[pathname] || pathname;
 
       if (!places) places = require('./../actors/actor-place');
