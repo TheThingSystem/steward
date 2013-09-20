@@ -15,10 +15,10 @@ var places = null;
 var consoleX = function(ws, tag) {
   var meta;
 
+  if (!places) places = require('./../actors/actor-place');
+
   ws.on('message', function(data, flags) {
     var message;
-
-    if (!places) places = require('./../actors/actor-place');
 
     if (!!flags.binary) return;
     message = null;

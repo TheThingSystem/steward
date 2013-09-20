@@ -886,7 +886,7 @@ var go = function(steward, i) {
     if (firstP) {
       firstP = false;
 
-      if ((!!message.requestID) && (!!message.error) && (!!message.error.permanent)) {
+      if ((!!message.error) && (!!message.error.permanent)) {
         notice('error: ' + message.error.diagnostic);
         document.getElementById('login').style.display = 'block';
         return;
