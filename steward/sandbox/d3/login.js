@@ -10,33 +10,43 @@ var showSettings = function() {
   
   div2 = document.createElement('div');
   div2.setAttribute('class', 'form-heading');
+  div2.setAttribute('style', 'margin-top:0px');
   div2.innerHTML = "Steward Place Settings";
   form.appendChild(div2);
   
-  form.appendChild(labeledBox('Steward Name', 'stewardName', 50, ''));
-  form.appendChild(labeledBox('Street Address', 'physical', 70, ''));
+  form.appendChild(labeledBox('STEWARD NAME', 'stewardName', 50, ''));
+  form.appendChild(labeledBox('STREET ADDRESS', 'physical', 70, ''));
   div2 = document.createElement('div');
   div2.setAttribute('class', 'big-instructions');
   div2.innerHTML = "Coordinates";
   btn = document.createElement('input');
-  btn.setAttribute('type', 'button');
+  btn.setAttribute('type', 'image');
+  btn.setAttribute('src', 'images/form-button-one-blue.svg');
   btn.setAttribute('value', 'Use Browser Geolocation');
-  btn.setAttribute('onclick', 'javascript:geolocate()');
+  btn.setAttribute('style', 'float: right; margin-right: -10px;');
+  btn.setAttribute('onclick', 'javascript:return geolocate()');
   div2.appendChild(btn);
   btn = document.createElement('input');
-  btn.setAttribute('type', 'button');
+  btn.setAttribute('type', 'image');
+  btn.setAttribute('src', 'images/form-button-two-blue.svg');
   btn.setAttribute('value', 'Use Geocoding from Street Address');
-  btn.setAttribute('onclick', 'javascript:geocode()');
+  btn.setAttribute('style', 'float: right;');
+  btn.setAttribute('onclick', 'javascript:return geocode()');
   div2.appendChild(btn);
   form.appendChild(div2);
-  form.appendChild(labeledBox('Latitude', 'latitude', 20, ''));
-  form.appendChild(labeledBox('Longitude', 'longitude', 20, ''));
-
-  btn = document.createElement('input');
-  btn.setAttribute('type', 'button');
-  btn.setAttribute('value', 'Save Place Settings');
-  btn.setAttribute('onclick', 'javascript:savePlace(event)');
-  form.appendChild(btn);
+  
+  div2 = document.createElement('div');
+  div2.setAttribute('class', 'formtext-container-left');
+  div2.setAttribute('style', 'margin-bottom: 20px');
+  div2.appendChild(labeledBox('LATITUDE', 'latitude', 20, ''));
+  form.appendChild(div2);
+  
+  div2 = document.createElement('div');
+  div2.setAttribute('class', 'formtext-container-right');
+  div2.setAttribute('style', 'margin-bottom: 20px');
+  div2.appendChild(labeledBox('LONGITUDE', 'longitude', 20, ''));
+  form.appendChild(div2);
+  form.appendChild(document.createElement('hr'));
 
   div.appendChild(form);
 
@@ -55,7 +65,7 @@ var showSettings = function() {
   
   span = document.createElement('span')
   span.setAttribute('id', 'cloud-instructions');
-  span.innerText = bootable[select.value].text;
+  span.innerHTML = "&larr; " + bootable[select.value].text;
   form.appendChild(span);
   
   var labelArray = labeledBoxes(select);
@@ -63,25 +73,27 @@ var showSettings = function() {
   form.appendChild(labelArray[1]);
   
   btn = document.createElement('input');
-  btn.setAttribute('type', 'button');
+  btn.setAttribute('type', 'image');
+  btn.setAttribute('src', 'images/form-button-four-blue.svg');
   btn.setAttribute('value', 'Add Cloud Service');
-  btn.setAttribute('onclick', 'javascript:addCloud(event)');
+  btn.setAttribute('style', 'float: right; margin-right: -10px; margin-top: 10px;');
+  btn.setAttribute('onclick', 'javascript:return addCloud(event);');
+
   form.appendChild(btn);
 
-  div.appendChild(form);
-  
   img = document.createElement('img');
   img.setAttribute('src', 'popovers/assets/done_on.svg');
-  img.setAttribute('style', 'position:absolute; top: 30px; left: 600px; cursor: pointer');
-  img.setAttribute('onclick', 'javascript:closeSettings(event)');
-  div.appendChild(img);
+  img.setAttribute('style', 'float: right; margin-right: -10px;  margin-top: 10px; clear: both;');
+  img.setAttribute('onclick', 'javascript:return closeSettings(event);');
+  form.appendChild(img);
+  div.appendChild(form);
   document.body.appendChild(div);
   
   
-  document.getElementById("stewardName").addEventListener('change', function(evt) {place_info.name = evt.target.value});
-  document.getElementById("physical").addEventListener('change', function(evt) {place_info.physical = evt.target.value});
-  document.getElementById("latitude").addEventListener('change', function(evt) {place_info.location[0] = evt.target.value});
-  document.getElementById("longitude").addEventListener('change', function(evt) {place_info.location[1] = evt.target.value});
+  document.getElementById("stewardName").addEventListener('change', function(evt) {place_info.name = evt.target.value; savePlace(event); });
+  document.getElementById("physical").addEventListener('change', function(evt) {place_info.physical = evt.target.value; savePlace(event); });
+  document.getElementById("latitude").addEventListener('change', function(evt) {place_info.location[0] = evt.target.value; savePlace(event); });
+  document.getElementById("longitude").addEventListener('change', function(evt) {place_info.location[1] = evt.target.value; savePlace(event); });
   document.getElementById("bootableChoice").addEventListener('change', pickBootable);
   document.getElementById("bootChoice0").addEventListener('change', stowInfo);
   document.getElementById("bootChoice1").addEventListener('change', stowInfo);
@@ -92,7 +104,6 @@ var showSettings = function() {
   function labeledBox(lblTxt, boxID, size, val, pwd) {
 	  lbl = document.createElement('label');
 	  lbl.setAttribute('for', boxID);
-	  lbl.setAttribute('style', 'display: block; text-transform: capitalize');
 	  span = document.createElement('span');
 	  span.innerHTML = lblTxt + ':&nbsp;&nbsp;';
 	  lbl.appendChild(span);
@@ -100,6 +111,7 @@ var showSettings = function() {
 	  txtbox = document.createElement('input');
 	  txtbox.setAttribute('type', (pwd) ? 'password' : 'text');
 	  txtbox.setAttribute('id', boxID);
+	  txtbox.setAttribute('class', 'formtext');
 	  txtbox.setAttribute('size', size);
 	  txtbox.setAttribute('value', val);
 	  lbl.appendChild(txtbox);
@@ -112,8 +124,8 @@ var showSettings = function() {
     var choice = select.value;
     var keys = getKeys(bootable[choice].info);
     var labels = [];
-    labels[0] = labeledBox(keys[0], 'bootChoice0', 20, bootable[choice].info[keys[0]]);
-    labels[1] = labeledBox(keys[1], 'bootChoice1', 20, bootable[choice].info[keys[1]], true);
+    labels[0] = labeledBox(keys[0].toUpperCase(), 'bootChoice0', 20, bootable[choice].info[keys[0]]);
+    labels[1] = labeledBox(keys[1].toUpperCase(), 'bootChoice1', 20, bootable[choice].info[keys[1]], true);
     return labels;
   }
   
@@ -146,20 +158,20 @@ var showSettings = function() {
 
 var closeSettings = function(evt) {
   if (document.getElementById("settings")) document.body.removeChild(document.getElementById("settings"));
-//  ws.close();
   stack = [];
   setTimeout(main, 500);
+  return false;
 }
 
 var pickBootable = function(evt) {
   var choice = evt.target.value;
   var info = bootable[choice].info;
   var keys = Object.keys(info);
-  document.getElementById("cloud-instructions").innerText = bootable[choice].text;
-  document.getElementById("bootChoice0").labels[0].firstChild.innerHTML = keys[0] + ":&nbsp;&nbsp;";
+  document.getElementById("cloud-instructions").innerHTML = "&larr; " + bootable[choice].text;
+  document.getElementById("bootChoice0").labels[0].firstChild.innerHTML = keys[0].toUpperCase() + ":&nbsp;&nbsp;";
   document.getElementById("bootChoice0").value = info[keys[0]];
   if (keys[1]) {
-    document.getElementById("bootChoice1").labels[0].firstChild.innerHTML = keys[1] + ":&nbsp;&nbsp;";
+    document.getElementById("bootChoice1").labels[0].firstChild.innerHTML = keys[1].toUpperCase() + ":&nbsp;&nbsp;";
     document.getElementById("bootChoice1").value = info[keys[1]];
     document.getElementById("bootChoice1").labels[0].style.visibility = "visible";
   } else {
@@ -182,6 +194,7 @@ function geolocate() {
 	  place_info.location = [ pos.coords.latitude, pos.coords.longitude ];
 	  document.getElementById("latitude").value  = pos.coords.latitude;
 	  document.getElementById("longitude").value = pos.coords.longitude;
+	  savePlace();
 	},
 	function(err) {
 	  switch (err.code) {
@@ -199,6 +212,7 @@ function geolocate() {
 	  }
 	},
 	{'enableHighAccuracy': false, 'timeout': 10000, 'maximumAge': 0});
+	return false;
 
 }
 
@@ -220,6 +234,7 @@ function geocode() {
 			  place_info.location = [ message.geometry.location.lat, message.geometry.location.lng ];
 			  document.getElementById("latitude").value  = message.geometry.location.lat;
 			  document.getElementById("longitude").value = message.geometry.location.lng;
+			  savePlace();
 			  
 			} else {
 			  alert('Sorry, the address cannot be converted to coordinates.');
@@ -234,6 +249,7 @@ function geocode() {
   } else {
     alert("Please enter a street address.");
   }
+  return false;
 }
 
 
@@ -241,7 +257,7 @@ var fillPlaceFields = function() {
   var entry, keys;
   document.getElementById("stewardName").value = place.name || "";
   document.getElementById("physical").value = place.info.physical || "";
-  if (place_info.location) {
+  if (place.info.location) {
 	  document.getElementById("latitude").value = place.info.location[0] || "";
 	  document.getElementById("longitude").value = place.info.location[1] || "";
   }
@@ -271,50 +287,12 @@ var addCloud = function(evt) {
                          , whatami   : entry.actor
                          , info      : info || {}
                          });
-//    console.log("Sending: " + val);
     wsSend(val);
     alert(name + " cloud service added to the steward.")
     document.getElementById("bootChoice0").value = "";
     document.getElementById("bootChoice1").value = "";
   }
 
-}
-
-var saveConfig = function(evt) {
-  var emptyP, entry, info, val;
-  
-  document.getElementById("cancelConf").disabled = true;
-  evt.target.value = "Saving...";
-  
-  // place
-  val = JSON.stringify({ path    : '/api/v1/actor/perform/place'
-                         , requestID : "2"
-                         , perform   : "set"
-                         , parameter : JSON.stringify(place_info) || ''
-                         });
-  console.log("Sending: " + val);
-  ws2.send(val);
-
-  // devices
-  for (name in bootable) {
-    if (!bootable.hasOwnProperty(name)) continue;
-    
-    entry = bootable[name];
-    info = entry.info;
-    emptyP = false;
-    for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
-    if (!emptyP) {
-      val = JSON.stringify({ path      : '/api/v1/device/create/' + name
-                         , requestID : "3"
-                         , name      : name
-                         , whatami   : entry.actor
-                         , info      : info || {}
-                         });
-      console.log("Sending: " + val);
-      ws2.send(val);
-    }
-    
-  }
 }
 
 var place_info   = { name        : 'Home'

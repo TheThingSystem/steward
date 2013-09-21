@@ -1,13 +1,3 @@
-/* TODO:
-
-   Monitoring:
-   - if more than 5 devices in drilldown, use slider
-   - values should be placed within the arc and in a contrasting color
-
-   Control:
-   - all!
-
- */
 
 var actors = {}
   , place
@@ -157,7 +147,15 @@ var home = function(state) {
     lastUpdated = [];
     
     for (var i = 0; i < updates.length; i++) {
-      if (updates[i].whatami.match(/\/device\/gateway\//)) continue;
+      if ((updates[i].info.whatami && updates[i].info.whatami.match(/\/device\/gateway\//)) ||
+       (updates[i].whatami && updates[i].whatami.match(/\/device\/gateway\//))) {
+        if (updates[i].level && updates[i].level === "alert") {
+          alert(updates[i].message);
+        }
+      
+        continue;
+      
+      }
       if (updates[i].whatami.match(/\/place/)) {
         lastUpdated.push(updates[i].updated);
         continue;
@@ -175,7 +173,7 @@ var home = function(state) {
 
 var onUpdate_drilldown = function(updates) {
   var actor, arc, arcs, arcz, category, entry, i, j, update;
-  var arcColor = []; // save to calc contrasting overlaid text color
+//  var arcColor = []; // save to calc contrasting overlaid text color
   for (i = 0; i < updates.length; i++) {
     update = updates[i];
     if (update.whatami.match(/\/device\/gateway\//)) continue;
@@ -189,6 +187,7 @@ var onUpdate_drilldown = function(updates) {
     actors[update.whoami].updated = update.updated;
     
     entry = entries[update.whatami];
+    currDevice.entry = entry;
     arcs = entry.arcs(update);
     
     if (document.getElementById("device-viewport")) {
@@ -207,9 +206,12 @@ var onUpdate_drilldown = function(updates) {
       }
     } else {
       // Update single drilldown page
-      if (update.whoami !== currActor) continue;
+      if (update.whoami !== currDevice.actor) continue;
+      currDevice.device.status = update.status;
+      currDevice.device.info = update.info;
       document.getElementById("actor-big-icon").style.backgroundColor = statusColor(update);
       document.getElementById("actor-big-name").style.color = statusColor(update);
+      document.getElementById("single-device-instructions").innerHTML = entry.instrux(currDevice.device);
       drawArcs(arcs);
       // Update popover controls, if present
 	  if (document.getElementById("device-status")) {
@@ -237,7 +239,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     instructions = '<div class="big-instructions">'
                   + '<span style="color: #666;">Send me instructions.</span>'
                   + '</div>'
-                  + '<div class="small-instructions" style="cursor: pointer">'
+                  + '<div id="single-device-instructions" class="small-instructions" style="cursor: pointer">'
                   + instructions
                   + '</div>';
   }
@@ -347,7 +349,9 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     div.appendChild(div2);
   } else {
     device = devices[0];
+    currDevice.device = device;
     entry = entries[device.deviceType] || entries['default'];
+    currDevice.entry = entry;
     div.innerHTML = '<img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /><br />'
                     + '<div id="toPopover" class="big-instructions">'
                     + '<span class="actor-name" id="actor-big-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
@@ -356,8 +360,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   }
   chart.appendChild(div);
   if (document.getElementById("toPopover")) {
-    document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(' 
-                    + JSON.stringify(device) + ',' + JSON.stringify(entry) + ');');
+    document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(currDevice.device , currDevice.entry);');
   }
   
   if (document.getElementById("left-arrow")) handleArrowVisibility();
@@ -371,7 +374,6 @@ var drawArcs = function(arcs) {
   chart = document.getElementById("chart");
   if (document.getElementById("arcCanvas")) {
      chart.removeChild(document.getElementById("labels"));
-//     chart.removeChild(document.getElementById("readings"));
     chart.removeChild(document.getElementById("arcCanvas"));
   }
 
@@ -393,14 +395,6 @@ var drawArcs = function(arcs) {
     limit = ((i + 5) > arcs.length) ? arcs.length : (i + 5);
   }
 
-//   if (isNaN(trayLeft) | arcs.length < 5) {
-//     i = 0;
-//     limit = arcs.length;
-//   } else {
-//     i = Math.abs(trayLeft) / 50;
-//     limit = ((i + MAXARCS) > arcs.length) ? arcs.length : (i + MAXARCS);
-//   }
-  
   index = 0.7; // Reassign index values for arcs subset
   for (; i < limit; i++) {
      labels += arcs[i].label + '<br />';
@@ -413,14 +407,6 @@ var drawArcs = function(arcs) {
 
   div.innerHTML = '<div class="labels" style="white-space: nowrap; width: 190px; overflow: hidden; -o-text-overflow: ellipsis; text-overflow: ellipsis; ">' + labels + '</div>';
   chart.appendChild(div);
-// 
-// Replaced by arced text below
-//   div = document.createElement('div');
-//   div.setAttribute('id', 'readings');
-//   div.setAttribute('style',
-//                    'position: absolute; top: 56px; left: 392px; font-size: 12px; font-weight: normal; text-align: left; color: #fff;');
-//   div.innerHTML = '<div class="labels">' + values + '</div>';
-//   chart.appendChild(div);
 
 
 // Based on http://vis.stanford.edu/protovis/ex/chart.html
@@ -513,22 +499,6 @@ var drawArcs = function(arcs) {
 		.attr("id", function(d,i){return "arcTextPath" + i})
 		.text(function(d,i){ return convertSymbol(d.cooked); });
            
-	// labels
-// 	var text2 = g.append("text")
-// 		.attr("text-anchor", "end")
-// 		.attr("dx", 75)
-// 		.attr("dy", 24)
-// 		.style("font-family", "Roadgeek 2005 Series D")
-// 		.style("font-size", "12px")
-// 		.style("color", "#fff");
-// 		
-// 	text2.append("textPath")
-// 		.attr("stroke","none")
-// 		.attr("fill","white")
-// 		.attr("startOffset", "50%")
-// 		.attr("xlink:href",function(d,i){return "#a"+i;})
-// 		.text(function(d,i){ return convertSymbol(d.label) });
-	
     
 //   function arcTween(b) {
 //     var i = d3.interpolate( {value: b.start}, b);
@@ -713,6 +683,9 @@ var single_device_instructions = function(device) {
   }
 };
 
+var no_instructions = function(device) {
+  return '';
+}
 
 var single_gateway_drilldown   = single_device_drilldown;
 var gateway_device_arcs        = single_device_arcs;
@@ -726,10 +699,17 @@ var single_climate_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = 'show data for last week (not yet)';
+  instructions = single_climate_instructions(device);
 
   device_drilldown(device.name, [ device ], climate_device_arcs(device), instructions);
 };
+
+var single_climate_instructions = function(device) {
+  instructions = 'show data for last week (not yet)';
+  return instructions;
+};
+
+
 
 var climate_device_arcs = function(device) {
   var arcs, now, prop, v;
@@ -978,13 +958,18 @@ var single_lighting_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
+  instructions = single_lighting_instructions(device);
+
+  device_drilldown(device.name, [ device ], lighting_device_arcs(device), instructions);
+};
+
+var single_lighting_instructions = function(device) {
   instructions = (device.status === 'off') ? 'turn on' : 'turn off';
   if (device.status === 'on') {
     if (!!device.info.brightness) instructions += '<br/>adjust brightness';
     if ((!!device.info.color) && (!device.info.color.fixed)) instructions += '<br/>adjust color';
   }
-
-  device_drilldown(device.name, [ device ], lighting_device_arcs(device), instructions);
+  return instructions;
 };
 
 var lighting_device_arcs = single_device_arcs;
@@ -996,11 +981,16 @@ var single_media_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = (device.status !== 'playing') ? 'play' : 'pause';
-  instructions += '<br/>' + 'adjust volume<br/>';
-  instructions += (device.info.muted !== 'on') ? 'mute' : 'unmute';
+  instructions = single_media_instructions(device);
 
   device_drilldown(device.name, [ device ], media_device_arcs(device), instructions);
+};
+
+var single_media_instructions = function(device) {
+  instructions = (device.status !== 'playing') ? 'play' : 'pause';
+  if (device.info.volume) instructions += '<br/>' + 'adjust volume<br/>';
+  if (device.info.muted) instructions += (device.info.muted !== 'on') ? 'mute' : 'unmute';
+  return instructions;
 };
 
 var media_device_arcs = function(device) {
@@ -1112,12 +1102,17 @@ var single_motive_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = (device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors';
-  instructions += '<br/>' + 'flash headlights<br/>' + 'honk horn<br/>' + 'adjust air conditioning';
-  if (device.info.sunroof !== 'none') instructions += '<br/>' + 'adjust sunroof';
+  instructions = single_motive_instructions(device);
 
   device_drilldown(device.name, [ device ], motive_device_arcs(device), instructions);
 };
+
+var single_motive_instructions = function(device) {
+  instructions = (device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors';
+  instructions += '<br/>' + 'flash headlights<br/>' + 'honk horn<br/>' + 'adjust air conditioning';
+  if (device.info.sunroof !== 'none') instructions += '<br/>' + 'adjust sunroof';
+  return instructions
+}
 
 var motive_device_arcs = function(device) {
   var arcs, cooked, dist, prop, v;
@@ -1378,7 +1373,6 @@ var multiple_drilldown = function(name, members) {
     arcs.push(arc);
 
     devices.push(device);
-//    if (devices.length >= 5) break;
   }
 
   switch (devices.length) {
@@ -1515,32 +1509,39 @@ var entries = {
                 '/device/climate/arduino/sensor'            : { img     : 'actors/arduino.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/climate/grove/air-quality'         : { img     : 'actors/grove.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
+                                                              , instrux : no_instructions
                                                               , passive : true
                                                               }
               , '/device/climate/koubachi/plant'            : { img     : 'actors/koubachi-plant.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
+                                                              , instrux : no_instructions
                                                               }
               , '/device/climate/koubachi/sensor'           : { img     : 'actors/koubachi.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
+                                                              , instrux : no_instructions
                                                               }
               , '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
                                                               , single  : single_thermostat_drilldown
                                                               , arcs    : device_thermostat_arcs
+                                                              , instrux : single_climate_instructions
                                                               }
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
+                                                              , instrux : single_climate_instructions
                                                               }
               , '/device/climate/oregon-scientific/sensor'  : { img     : 'actors/oregon-scientific.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
-                                                              }
+                                                              , instrux : single_climate_instructions
+                                                             }
               , '/device/gateway/insteon/hub'               : { img     : 'actors/insteon-hub.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
@@ -1568,10 +1569,12 @@ var entries = {
               , '/device/indicator/text/xively'             : { img     : 'actors/xively.svg'
                                                               , single  : single_indicator_drilldown
                                                               , arcs    : indicator_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/indicator/text/prowl'              : { img     : 'actors/prowl.svg'
                                                               , single  : single_indicator_drilldown
                                                               , arcs    : indicator_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/indicator/text/status'             : { img     : 'actors/HTML5.svg'
                                                               , single  : single_indicator_drilldown
@@ -1580,102 +1583,127 @@ var entries = {
               , '/device/lighting/blink1/led'               : { img     : 'actors/blink1.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/lighting/blinkstick/led'           : { img     : 'actors/blinkstick.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/lighting/hue/bloom'                : { img     : 'actors/hue-bloom.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/lighting/hue/bulb'                 : { img     : 'actors/hue.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/lighting/hue/lightstrip'           : { img     : 'actors/hue-lightstrip.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/lighting/insteon/led'              : { img     : 'actors/insteon-led.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/lighting/robosmart/led'            : { img     : 'actors/robosmart.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
                                                               }
               , '/device/media/appletv/video'               : { img     : 'actors/appletv.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
+                                                              , instrux : single_media_instructions
                                                               }
               , '/device/media/chromecast/video'            : { img     : 'actors/chromecast.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
+                                                              , instrux : single_media_instructions
                                                               }
               , '/device/media/sonos/audio'                 : { img     : 'actors/sonos-playbar.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
+                                                              , instrux : single_media_instructions
                                                               }
               , '/device/media/roku/video'                  : { img     : 'actors/roku3.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
+                                                              , instrux : single_media_instructions
                                                               }
               , '/device/motive/tesla/model-s'              : { img     : 'actors/tesla-motors.svg'
                                                               , single  : single_motive_drilldown
                                                               , arcs    : motive_device_arcs
+                                                              , instrux : single_motive_instructions
                                                               }
               , 'device/presence/fob/hone'                  : { img     : 'actors/hone.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/presence/fob/inrange'              : { img     : 'actors/philips-inrange.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/presence/fob'                      : { img     : 'actors/presence-fob.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/arduino.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/sensor/grove/water'                : { img     : 'actors/grove.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
-                                                              }
+                                                               , instrux : single_device_instructions
+                                                             }
               , '/device/sensor/texas-instruments/sensortag': { img     : 'actors/ti-sensor.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/sensor/wemo/motion'                : { img     : 'actors/wemo-sensor.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
+                                                              , instrux : no_instructions
                                                               }
               , '/device/switch/insteon/dimmer'             : { img     : 'actors/insteon-dimmer.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/switch/insteon/onoff'              : { img     : 'actors/insteon-plug.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/switch/wemo/onoff'                 : { img     : 'actors/wemo-plug.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/wearable/watch/cookoo'             : { img     : 'actors/cookoo.svg'
                                                               , single  : single_wearable_drilldown
                                                               , arcs    : wearable_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , '/device/wearable/watch/metawatch'          : { img     : 'actors/metawatch.svg'
                                                               , single  : single_wearable_drilldown
                                                               , arcs    : wearable_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
               , 'default'                                   : { img     : 'actors/t.svg'
                                                               , single  : single_device_drilldown
                                                               , arcs    : single_device_arcs
+                                                              , instrux : single_device_instructions
                                                               }
 
 // categories

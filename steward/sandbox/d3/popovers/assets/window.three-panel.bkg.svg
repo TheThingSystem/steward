@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" inkscape:version="0.48.2 r9819" sodipodi:docname="window.ai" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="598.57px"
+	 height="497.348px" viewBox="0 0 598.57 497.348" enable-background="new 0 0 598.57 497.348" xml:space="preserve">
+<sodipodi:namedview  inkscape:zoom="0.15424837" fit-margin-top="0" guidetolerance="10" inkscape:window-width="640" inkscape:window-height="480" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:pageshadow="2" borderopacity="1" inkscape:pageopacity="0" gridtolerance="10" objecttolerance="10" id="namedview4" bordercolor="#666666" pagecolor="#ffffff" inkscape:cx="233.25125" inkscape:cy="271.12" inkscape:window-x="0" inkscape:current-layer="g10" showgrid="false" fit-margin-bottom="0" fit-margin-right="0" fit-margin-left="0">
+	</sodipodi:namedview>
+<rect x="0.602" y="-0.562" fill="#717272" width="597.447" height="496.421"/>
+<path fill="#1D1D1D" d="M459.737,130.651h-0.627H139.739h-0.751H15.038v343.044c0,2.756,2.234,4.99,4.99,4.99h117.864h1.096h0.751
+	H459.11h0.627h1.229h5.009h112.724c2.754,0,4.991-2.234,4.991-4.99V130.651H459.737z"/>
+<path fill="#343434" d="M593.451,488.549c0,1.379-1.117,2.494-2.494,2.494H7.692c-1.377,0-2.494-1.115-2.494-2.494V7.286
+	c0-1.377,1.117-2.495,2.494-2.495h583.265c1.377,0,2.494,1.118,2.494,2.495V488.549z"/>
+<polyline fill="#1D1D1D" points="15.038,130.651 15.038,62.1 583.568,62.1 583.568,129.403 14.81,129.403 "/>
+<text transform="matrix(1 0 0 1 372.0703 38.5811)" display="none" fill="#231F20" stroke="#231F20" stroke-width="1.2415" font-family="'Roadgeek2005SeriesD'" font-size="12.4768">OFF</text>
+<text transform="matrix(1 0 0 1 371.5723 38.2065)" display="none" fill="#FFFFFF" font-family="'Roadgeek2005SeriesD'" font-size="12.4768">OFF</text>
+<path fill="#1D1D1D" d="M137.587,479.691H19.724c-2.757,0-4.992-2.236-4.992-4.992V131.654h122.703v348.038H137.587z"/>
+</svg>

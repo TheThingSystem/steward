@@ -278,11 +278,14 @@ p.actor-name {
 }
 
 /* configure screen elements */
+
+hr { border: 0; color: #333; background-color: #333; height: 4px; clear: both; margin-right: -10px; }
+
 #settings {
         position: absolute;
         top: 120px;
-        left: 60px;
-        width: 800px;
+        left: 0px;
+        width: 780px;
         height: 700px;
         background-color: #000;
         text-align: left;
@@ -292,8 +295,8 @@ p.actor-name {
 
 #place-form {
         position: relative;
-        top: 100px;
-        left: 80px;
+        top: 30px;
+        left: 50px;
         font-family: "Monsterrat Regular";
         font-size: 20pt;
         color: #fff;
@@ -303,8 +306,8 @@ p.actor-name {
 
 #cloud-form {
         position: relative;
-        top: 160px;
-        left: 80px;
+        top: 30px;
+        left: 50px;
         font-family: "Monsterrat Regular";
         font-size: 20pt;
         color: #fff;
@@ -312,13 +315,35 @@ p.actor-name {
 
 }
 
-.form-heading {
-        font-family: "Monsterrat Regular";
-        font-size: 26pt;
+.big-instructions { font-size: 16pt; margin-top: 42px; }
+
+label {
+        font-family: "Roadgeek 2004 Series C";
+        text-transform: uppercase;
+        font-size: 12pt;
         line-height: 30px;
         margin-bottom: 5px;
+        display: block;
+}
+
+input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; padding: 3px; color: #999;         
+		font-family: "Monsterrat Regular";
+        font-size: 14pt;
+ }
+
+.formtext-container-left { width: 48%; float: left; margin-top: 10px; }
+.formtext-container-right { width: 48%; float: right; margin-top: 10px; }
+
+.form-heading {
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+        line-height: 30px;
+        margin-bottom: 5px;
+		margin-top: 30px;        
+		text-align: center;
+		clear: both;
 }
 
 #cloud-instructions {
-		font-size: 12pt;
+		font-size: 11pt;
 }

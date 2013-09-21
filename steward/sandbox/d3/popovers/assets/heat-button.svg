@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg3503" sodipodi:docname="heat-button.ai" inkscape:version="0.48.2 r9819" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="61.594px"
+	 height="23.615px" viewBox="0 0 61.594 23.615" enable-background="new 0 0 61.594 23.615" xml:space="preserve">
+<sodipodi:namedview  pagecolor="#ffffff" borderopacity="1" id="namedview3505" inkscape:window-width="640" fit-margin-top="0" objecttolerance="10" bordercolor="#666666" gridtolerance="10" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-height="480" inkscape:cx="30.76125" showgrid="false" fit-margin-left="0" fit-margin-right="0" fit-margin-bottom="0" inkscape:zoom="0.23838384" inkscape:cy="12.1375" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="0" inkscape:current-layer="g3511">
+	</sodipodi:namedview>
+<g id="g3511" transform="matrix(1.25,0,0,-1.25,-351.73875,506.4775)" inkscape:label="heat-button" inkscape:groupmode="layer">
+	<g id="g3545">
+		<g id="g3547">
+			<g id="g3553">
+				<g id="g3555">
+					
+						<linearGradient id="path3563_1_" gradientUnits="userSpaceOnUse" x1="232.4789" y1="372.5812" x2="233.4789" y2="372.5812" gradientTransform="matrix(0 23.6145 -23.6145 0 9104.335 -5103.5791)">
+						<stop  offset="0" style="stop-color:#747576"/>
+						<stop  offset="1" style="stop-color:#373536"/>
+					</linearGradient>
+					<path id="path3563" inkscape:connector-curvature="0" fill="url(#path3563_1_)" d="M289.264,405.182
+						c-4.339,0-7.873-4.237-7.873-9.445l0,0c0-5.211,3.534-9.447,7.873-9.447l0,0h33.529c4.342,0,7.873,4.237,7.873,9.447l0,0
+						c0,5.208-3.531,9.445-7.873,9.445l0,0H289.264z"/>
+				</g>
+			</g>
+		</g>
+	</g>
+	<g id="g3565">
+		<g id="g3567">
+			<g id="g3573">
+				<g id="g3575">
+					
+						<linearGradient id="path3583_1_" gradientUnits="userSpaceOnUse" x1="231.6219" y1="398.3554" x2="232.6219" y2="398.3554" gradientTransform="matrix(0 21.7419 21.7419 0 -8354.9883 -4648.8677)">
+						<stop  offset="0" style="stop-color:#747576"/>
+						<stop  offset="1" style="stop-color:#373536"/>
+					</linearGradient>
+					<path id="path3583" inkscape:connector-curvature="0" fill="url(#path3583_1_)" d="M289.264,404.434
+						c-3.924,0-7.12-3.903-7.12-8.696l0,0c0-4.795,3.196-8.697,7.12-8.697l0,0h33.529c3.927,0,7.122,3.902,7.122,8.697l0,0
+						c0,4.793-3.195,8.696-7.122,8.696l0,0H289.264z"/>
+				</g>
+			</g>
+		</g>
+	</g>
+	<g id="g3585">
+		<g id="g3587">
+			<g id="g3593">
+				<g id="g3595">
+					
+						<linearGradient id="path3605_1_" gradientUnits="userSpaceOnUse" x1="230.9242" y1="399.2211" x2="231.9242" y2="399.2211" gradientTransform="matrix(0 20.4236 20.4236 0 -7847.5044 -4328.7349)">
+						<stop  offset="0" style="stop-color:#373536"/>
+						<stop  offset="0.9948" style="stop-color:#747576"/>
+						<stop  offset="1" style="stop-color:#747576"/>
+					</linearGradient>
+					<path id="path3605" inkscape:connector-curvature="0" fill="url(#path3605_1_)" d="M289.264,403.906
+						c-3.661,0-6.644-3.665-6.644-8.168l0,0c0-4.505,2.982-8.17,6.644-8.17l0,0h33.529c3.666,0,6.641,3.665,6.641,8.17l0,0
+						c0,4.503-2.975,8.168-6.641,8.168l0,0H289.264z"/>
+				</g>
+			</g>
+		</g>
+	</g>
+	<g id="g3607">
+		<g>
+			<defs>
+				<rect id="SVGID_1_" x="-76.5" y="-99" width="765" height="990"/>
+			</defs>
+			<clipPath id="SVGID_2_">
+				<use xlink:href="#SVGID_1_"  overflow="visible"/>
+			</clipPath>
+			<g id="g3609" clip-path="url(#SVGID_2_)">
+				<g id="g3615" transform="translate(297.3105,391.9668)">
+					<path id="path3617" inkscape:connector-curvature="0" fill="#FFFFFF" d="M0,0v3.645h-3.046V0h-1.323v8.363h1.323v-3.37H0v3.37
+						h1.323V0H0z"/>
+				</g>
+				<g id="g3619" transform="translate(300.627,391.9668)">
+					<path id="path3621" inkscape:connector-curvature="0" fill="#FFFFFF" d="M0,0v8.363h4.931V7.04H1.324V4.993h2.435V3.645H1.324
+						V1.35h3.87V0.001L0,0L0,0z"/>
+				</g>
+				<g id="g3623" transform="translate(310.0488,398.0078)">
+					<path id="path3625" inkscape:connector-curvature="0" fill="#FFFFFF" d="M0,0l-0.861-2.346h1.673L0,0z M2.109-6.041
+						L1.286-3.693h-2.609l-0.823-2.348h-1.411l2.884,8.363h1.311l2.884-8.363H2.109z"/>
+				</g>
+				<g id="g3627" transform="translate(317.3223,399.1567)">
+					<path id="path3629" inkscape:connector-curvature="0" fill="#FFFFFF" d="M0,0V-7.19h-1.323V0h-1.909v1.173h5.168V0H0z"/>
+				</g>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>
