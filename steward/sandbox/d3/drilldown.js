@@ -1669,10 +1669,15 @@ var entries = {
                                                               , arcs    : sensor_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
+              , '/device/sensor/arduino/water'              : { img     : 'actors/arduino.svg'
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
+                                                              , instrux : single_device_instructions
+                                                             }
               , '/device/sensor/grove/water'                : { img     : 'actors/grove.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
-                                                               , instrux : single_device_instructions
+                                                              , instrux : single_device_instructions
                                                              }
               , '/device/sensor/texas-instruments/sensortag': { img     : 'actors/ti-sensor.svg'
                                                               , single  : single_sensor_drilldown
