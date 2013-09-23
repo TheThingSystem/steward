@@ -50,18 +50,23 @@ var add_callback = function(cb) {
 };
 
 var create_user = function(ws, name, comments, role, cb) {
-  var x = name.indexOf('/');
+  var u, x = name.indexOf('/');
 
   if ((x === -1) && (!!users['user/' + name])) {
     name += '/' + nextClientID;
     x = name.indexOf('/');
   }
+  if (role !== 'master') {
+    for (u in users) if (users.hasOwnProperty(u)) break;
+    if (!u) role = 'master';
+  }
+
   ws.send(JSON.stringify({ path       : '/api/v1/user/create/' + name
                          , requestID  : add_callback(cb)
                          , name       : (x !== -1) ? name.slice(x + 1) : name
-                         , comments   : comments
+                         , comments   : (x !== -1) ? '' : comments
                          , role       : role
-                         , clientName : 'bootstrap'
+                         , clientName : (x !== -1) ? comments : 'bootstrap'
                          }));
 };
 

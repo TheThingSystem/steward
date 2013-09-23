@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" sodipodi:docname="insteon_LED.svg" inkscape:version="0.48.1 r9760" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<sodipodi:namedview  bordercolor="#666666" pagecolor="#ffffff" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="0" inkscape:cx="22.318501" inkscape:window-height="1156" showgrid="false" inkscape:current-layer="Layer_1" inkscape:cy="22.318501" inkscape:pageshadow="2" id="namedview11726" inkscape:pageopacity="0" borderopacity="1" gridtolerance="10" inkscape:zoom="21.013957" inkscape:window-width="1910" guidetolerance="10" objecttolerance="10">
+	</sodipodi:namedview>
+<g id="g11706">
+	<g id="g11708">
+	</g>
+	<g id="g11712">
+	</g>
+	<g id="g11716">
+	</g>
+	<g id="g11720">
+	</g>
+</g>
+<g>
+	<path fill="#FFFFFF" d="M22.32,43.063c-11.498,0-20.815-9.317-20.815-20.812c0-11.5,9.317-20.821,20.815-20.821
+		c11.496,0,20.816,9.321,20.816,20.821C43.136,33.743,33.816,43.064,22.32,43.063z"/>
+	<path d="M26.394,28.295c-0.232-0.125-0.522-0.035-0.647,0.199c-0.009,0.012-0.72,1.299-3.13,1.299c-2.408,0-3.34-1.257-3.383-1.318
+		c-0.148-0.215-0.447-0.269-0.666-0.119c-0.219,0.15-0.271,0.447-0.123,0.666c0.051,0.07,1.225,1.73,4.172,1.73
+		c2.983,0,3.938-1.734,3.978-1.811C26.717,28.709,26.628,28.418,26.394,28.295z"/>
+	<circle cx="28.422" cy="22.342" r="1.174"/>
+	<path d="M21.537,26.026h2.633c0.266,0,0.479-0.214,0.479-0.479s-0.214-0.479-0.479-0.479h-1.912l1.404-3.364
+		c0.101-0.244-0.016-0.525-0.26-0.628c-0.243-0.104-0.524,0.013-0.628,0.258l-1.683,4.029c-0.061,0.148-0.045,0.316,0.043,0.449
+		C21.226,25.946,21.377,26.026,21.537,26.026z"/>
+	<circle cx="16.557" cy="22.342" r="1.174"/>
+	<path d="M22.465,3.102c-10.573,0-19.146,8.572-19.146,19.146c0,10.569,8.573,19.143,19.146,19.143
+		c10.575,0,19.144-8.572,19.145-19.143C41.61,11.673,33.039,3.102,22.465,3.102z M21.477,8.638
+		c6.172-0.601,9.883,3.465,10.918,8.641c-6.277,0.278-13.078,0.039-19.557,0.119C13.629,12.652,16.637,9.111,21.477,8.638z
+		 M18.957,18.117c0,0.359,0,0.721,0,1.08c-1.48,0-2.961,0-4.439,0c0-0.359,0-0.721,0-1.08
+		C15.997,18.117,17.477,18.117,18.957,18.117z M11.758,25.077c-1.613,0.146-1.474-3.901-0.24-4.079
+		C12.071,21.885,11.605,23.791,11.758,25.077z M23.515,34.795c-7.709,0.633-12.014-5.967-10.798-14.877c2.36,0,4.72,0,7.079,0
+		c0.277-0.207,0.044-0.916,0.121-1.321c0.079,0,0.159,0,0.238,0c0.897,0.314,1.136,1.889,0.841,3
+		c-0.446,0.088-2.07,0.699-0.722,1.68c1.751-0.445,1.57-3.305,0.843-4.68c3.799,0,7.598,0,11.396,0
+		C33.447,27.654,30.617,34.213,23.515,34.795z M33.475,25.077c0-1.36,0-2.722,0-4.079C34.918,20.984,34.891,25.084,33.475,25.077z"
+		/>
+</g>
+</svg>

@@ -206,7 +206,7 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
         margin: 0px auto;
 }
  
-#chart div.tags { position: absolute; top: 545px; left: 180px; width: 680px; height: 50px; }
+#chart div.tags { position: absolute; top: 545px; left: 180px; width: 500px; height: 50px; }
 #chart span.tag { text-align: center; position: relative; padding: 3px 8px; margin: 12px 2px; background-color: #333;
 	cursor: pointer;
 	-moz-border-radius: 10px;

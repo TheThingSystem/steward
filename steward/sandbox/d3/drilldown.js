@@ -7,7 +7,7 @@ var actors = {}
   , lastIconTrayPage = 1;
 
 var home = function(state) {
-  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, tag, tags;
+  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, tag;
   var actorHeight = 80, actorRow = 0, actorWidth = 58;
   
   var self = this;
@@ -115,6 +115,7 @@ var home = function(state) {
   for (prop in categories) if (categories.hasOwnProperty(prop)) a++;
   a = (a >= 11) ? 0 : Math.floor((12 - a) / 2);
   for (prop in categories) if (categories.hasOwnProperty(prop)) {
+    if (prop === "gateway" || prop === "indicator") continue;
     entry = entries[prop] || entries['default'];
     if ((!entry) || (!entry.img)) continue;
 
@@ -705,7 +706,7 @@ var single_climate_drilldown = function(state) {
 };
 
 var single_climate_instructions = function(device) {
-  instructions = 'show data for last week (not yet)';
+  instructions = 'show data for last week';
   return instructions;
 };
 
@@ -990,6 +991,14 @@ var single_media_instructions = function(device) {
   instructions = (device.status !== 'playing') ? 'play' : 'pause';
   if (device.info.volume) instructions += '<br/>' + 'adjust volume<br/>';
   if (device.info.muted) instructions += (device.info.muted !== 'on') ? 'mute' : 'unmute';
+  return instructions;
+};
+
+var single_thermostat_instructions = function(device) {
+  instructions = "";
+  if (device.info.hvac) instructions += (device.info.hvac !== 'on') ? 'turn on HVAC' : 'turn off HVAC';
+  instructions += '<br/>' + 'set desired temperature';
+  if (device.info.fan) instructions += '<br/>' + 'set fan time';
   return instructions;
 };
 
@@ -1530,7 +1539,7 @@ var entries = {
               , '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
                                                               , single  : single_thermostat_drilldown
                                                               , arcs    : device_thermostat_arcs
-                                                              , instrux : single_climate_instructions
+                                                              , instrux : single_thermostat_instructions
                                                               }
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
                                                               , single  : single_climate_drilldown

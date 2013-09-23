@@ -5,6 +5,7 @@ var onOffKnob = { "diam": 18 };
 var onOffSlider = { "min": 25, "max": 71 - onOffKnob.diam };
 var newPerform = { "path":"", "requestID":"2", "perform":"", "parameter":{} };
 
+// d3 drag functions
 var drag = d3.behavior.drag()
     .origin(Object)
     .on("drag", dragmove)
@@ -131,7 +132,7 @@ function dragmove(d) {
 var showPop = function(device, entry) {
   // Popover window positioning/dimensions
   var w, h, t, l;
-    
+
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/lighting/":
 		w = 485, h = 497, t = 100, l = 133;
@@ -201,27 +202,6 @@ var showPop = function(device, entry) {
 				break;
 		}	
 	}
-
-    function popoverIcon(device) {
-		switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
-			case "/device/lighting/":
-				return "popovers/assets/hue.svg";
-				break;
-			case "/device/media/":
-				return "popovers/assets/sonos_playbar.svg";
-				break;
-			case "/device/climate/":
-				return "popovers/assets/nest.svg";
-				break;
-			case "/device/switch/":
-				return "popovers/assets/generic-plug.svg";
-				break;
-			default:
-				return "popovers/assets/hue.svg"; // Need generic icon
-				break;
-		}	
-    
-    }
     
 	function carryonFunc(device) {
 		switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
@@ -302,7 +282,7 @@ var showPop = function(device, entry) {
        } else {
 		   elem
 			.style("left", "50px")
-			.style("top", bigSlider.min + "px");
+			.style("top", bigSlider.max + "px");
        }
        div.append("div")
          .attr("class", function() {return (hasBrightness) ? "slider-label label" : "slider-label label-disabled"})
@@ -495,7 +475,7 @@ var showPop = function(device, entry) {
      div.append("div")
        .attr("id", "actor")
        .append("img")
-         .attr("src", "popovers/assets/nest.svg")
+         .attr("src", function(d, i) {return "popovers/assets/" + entries[device.deviceType].img; })
          .attr("width", "43px");
      div.append("div")
        .attr("class", "popover-name")
@@ -668,8 +648,9 @@ var showPop = function(device, entry) {
      var canvas = div.append("svg")
        .attr("width", 310)
        .attr("height", 310)
-       .style("position", "relative")
-       .style("top", "-310px");
+       .style("position", "absolute")
+       .style("top", "0px")
+       .style("left", "0px");
      var group = canvas.append("g")
        .attr("transform", "translate(155,155)");
      var r = 110;
@@ -778,6 +759,32 @@ var showPop = function(device, entry) {
    function carryonEmpty() {
        var elem;
        carryonCommon("done-wide");
+       
+       div = pop.append("span")
+           .attr("id", "hard-hat-area")
+           .style("background-color", "#367ad2")
+           .style("position", "absolute")
+           .style("left", "100px")
+           .style("top", "175px")
+           .style("width", "400px")
+           .style("height", "150px")
+           .style("text-align", "center")
+		   .style("transform", "rotate(-20deg)")
+		   .style("-moz-border-radius", "20px")
+		   .style("-webkit-border-radius", "20px")
+		   .style("border-radius", "20px")
+		   .style("border", "6px solid #000");
+       div.append("p")
+       	   .style("color", "#fff")
+       	   .style("font-size", "32pt")
+       	   .style("margin", "28px 0px 28px 0px")
+       	   .style("padding", "0px")
+       	   .html("Coming soon!");
+       div.append("p")
+       	   .style("color", "#000")
+       	   .style("margin", "0px")
+       	   .style("padding", "0px")
+           .html("(This is a developer preview, and all of our<br />features are not yet functional. Check back soon.)");
    };
    
 	function carryonCommon(doneClass) {
@@ -787,7 +794,7 @@ var showPop = function(device, entry) {
 	  div.append("div")
 	    .attr("id", "actor")
 	    .append("img")
-	      .attr("src", popoverIcon(device))
+	      .attr("src", function(d, i) {return "popovers/assets/" + entries[device.deviceType].img; })
 	      .style("width", "43px");
 	  div.append("div")
 	    .attr("id", "popover-name").attr("class", "popover-name")
