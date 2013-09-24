@@ -1,8 +1,6 @@
 The Thing System Steward
 =======
 
-**NOTE: To read this, you must be under Friend-DA from Carl. If you are not under Friend DA, you should not be reading this. This software is being actively developed and now is nearly ready for release.**
-
 The home has evolved from one computer in a back room to a network of computing devices all over the house. Many of these are user-facing devices, such as tablets, laptops, and desktops. However increasingly, the home network has a number of special-purpose devices—things—that turns the home network into a network not just for the user, but for their devices; a network of things.
 
 The trouble with these things is that none of them talk to each other. They might be informing us, quantifying the world around us and allowing us to make better decisions, but it's still us that has to make the decisions, and the more things there are, the more decisions there are to make. The Internet of Things isn't connected together, not like the other Internet, the digital one. Right now its a series of—mostly proprietary—islands that don't talk to each other. We’re become a mechanical turk inside other people’s software.
