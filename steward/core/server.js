@@ -73,6 +73,8 @@ exports.start = function() {
   utility.acquire(logger, __dirname + '/../routes', /^route-.*\.js/, 6, -3, ' route');
 };
 
+var securePort = 0;
+
 var start = function(port, secureP) {
   portfinder.getPort({ port: port }, function(err, portno) {
     var server;
@@ -97,6 +99,8 @@ var start = function(port, secureP) {
           exports.x509 = { key: key, crt: crt };
         } else return logger.error('no startup certificate', { cert: crt });
       } else return logger.error('no startup key', { key: key });
+
+      securePort = portno;
     }
 
     server = new wsServer(options).on('connection', function(ws) {
@@ -136,7 +140,8 @@ var start = function(port, secureP) {
     server.on('request', function(request, response) {
       var ct;
 
-      var pathname = url.parse(request.url).pathname;
+      var u = url.parse(request.url);
+      var pathname = u.pathname;
       var tag = httpsT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
       var meta = steward.clientInfo(request.connection, secureP);
 
@@ -172,6 +177,19 @@ var start = function(port, secureP) {
         return response.end('403 not allowed');
       }
  */
+      if ((!places.place1.info.insecure)
+              && (!secureP)
+              && (securePort !== 0)
+              && (request.connection.localAddress !== '127.0.0.1')) {
+        var location = 'https://' + request.connection.localAddress + ':' + securePort;
+
+        if (!!u.pathname) location += u.pathname;
+        if (!!u.hash)     location += u.hash;
+
+        logger.info(tag, { event: 'request', code: 307, location: location });
+        response.writeHead(307, { location: location, 'content-length' : 0 });
+        return response.end();
+      }
 
       if ((pathname.indexOf('/') !== 0) || (pathname.indexOf('..') !== -1)) {
         logger.info(tag, { event: 'invalid path', code: 404 });
