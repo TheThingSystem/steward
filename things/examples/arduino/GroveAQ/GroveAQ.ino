@@ -16,13 +16,22 @@ unsigned long next_heartbeat = 0;
 
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0x9C, 0x1D };  // Arduino Ethernet
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0x9C, 0x1C };  // Arduino Ethernet
 
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
 #define FLAME_SENSOR  6
 int previous_flame = -1;
 unsigned long debounce_flame = 0;
+
+#define Vref         4.95
+
+// logic taken from http://www.seeedstudio.com/wiki/Grove_-_HCHO_Sensor
+#define HCHO_SENSOR  A4
+int previous_hcho  = -1;
+
+#define NO2_SENSOR   A3
+float previous_no2 = -1;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
 #define AQ_SENSOR    A2
@@ -31,30 +40,26 @@ AirQuality AQsensor;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
 #define MQ2_SENSOR   A1
-#define Vref         4.95
 float previous_mq2 = -1;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
 #define MQ9_SENSOR   A0
 float previous_mq9 = -1;
 
-#define NO2_SENSOR   A3
-
-float previous_no2 = -1;
-
 
 char packetBuffer[768];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"airQuality\":\"sigmas\",\"flame\":[\"detected\",\"absent\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\",\"no2\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/grove/air-quality\":{\"prototype\":{\"device\":{\"name\":\"Grove Air Quality Sensor Array\",\"maker\":\"sensors from Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"airQuality\":\"sigmas\",\"flame\":[\"detected\",\"absent\"],\"smoke\":\"sigmas\",\"co\":\"sigmas\",\"no2\":\"sigmas\",\"hcho\":\"sigmas\"}},\"instances\":[{\"name\":\"Air Quality Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-air-quality\"},\"info\":{\"airQuality\":";
 PROGMEM prog_char *loopPacket5 = ",\"flame\":\"";
 PROGMEM prog_char *loopPacket6 = "\",\"smoke\":";
 PROGMEM prog_char *loopPacket7 = ",\"co\":";
 PROGMEM prog_char *loopPacket8 = ",\"no2\":";
-PROGMEM prog_char *loopPacket9 = "},\"uptime\":";
-PROGMEM prog_char *loopPacket10= "}]}}}";
+PROGMEM prog_char *loopPacket9 = ",\"hcho\":";
+PROGMEM prog_char *loopPacket10= "},\"uptime\":";
+PROGMEM prog_char *loopPacket11= "}]}}}";
 
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
 EthernetUDP udp;
@@ -98,7 +103,7 @@ void setup() {
 
 void loop() {
   int   aq, flame;
-  float mq2, mq9, no2;
+  float hcho, mq2, mq9, no2;
   char  buffer[24];
   unsigned long now;
 
@@ -112,21 +117,25 @@ void loop() {
   if (aq > 0) aq = AQsensor.first_vol;
   Serial.print("AQ sensor "); Serial.print(aq, DEC); Serial.println();
 
-  mq2 = ((float) analogRead(MQ2_SENSOR)) / 1023 * Vref;
+  hcho = (((float) analogRead(HCHO_SENSOR)) * Vref) / 1023;
+  Serial.print("HCHO sensor "); Serial.print(hcho); Serial.println();
+
+  mq2 = (((float) analogRead(MQ2_SENSOR)) * Vref) / 1023;
   Serial.print("MQ2 sensor "); Serial.print(mq2); Serial.println();
 
-  mq9 = ((float) analogRead(MQ9_SENSOR)) / 1023 * Vref;
+  mq9 = (((float) analogRead(MQ9_SENSOR)) * Vref) / 1023;
   Serial.print("MQ9 sensor "); Serial.print(mq9); Serial.println();
 
-  no2 = ((float) analogRead(NO2_SENSOR)) / 1023 * Vref;
+  no2 = (((float) analogRead(NO2_SENSOR)) * Vref) / 1023;
   Serial.print("NO2 sensor "); Serial.print(no2); Serial.println();
 
   if ((flame == previous_flame)
         && (!flame)
         && ((aq < 0) || (aq == previous_aq))
+        && (hcho == previous_hcho)
         && (mq2 == previous_mq2)
-        && (no2 == previous_no2)
         && (mq9 == previous_mq9)
+        && (no2 == previous_no2)
         && (now <  next_heartbeat)) {
     delay (100);
     return;
@@ -134,6 +143,7 @@ void loop() {
 
   previous_flame = flame;
   if (aq > 0) previous_aq = aq; else aq = previous_aq;
+  previous_hcho = hcho;
   previous_mq2 = mq2;
   previous_mq9 = mq9;
   previous_no2 = no2;
@@ -170,9 +180,12 @@ void loop() {
   strcat(packetBuffer, dtostrf(no2, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
-  strcat(packetBuffer, ultoa( now, buffer, 10) );
+  strcat(packetBuffer, dtostrf(hcho, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket10) );
+  strcat(packetBuffer, ultoa( now, buffer, 10) );
+
+  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket11) );
 
   sendit();
   delay (100);

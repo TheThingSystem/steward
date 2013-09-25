@@ -9,7 +9,7 @@ Start with:
 
     Arduino UNO       - http://arduino.cc/en/Main/arduinoBoardUno
 
-    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
+    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.2
 
     Ether Shield      - http://arduino.cc/en/Main/ArduinoEthernetShield
 
@@ -19,15 +19,24 @@ OR
 
     Stacking headers  - http://www.adafruit.com/products/85
 
-    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
+    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.2
+
+OR
+
+    EtherMega         - http://www.freetronics.com/products/ethermega-arduino-mega-2560-compatible-with-onboard-ethernet
+
+    Stacking headers  - http://www.adafruit.com/products/85
+
+    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.2
 
 AND these sensors:
 
     A0 - Grove Gas Sensor (MQ9)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     A1 - Grove Gas Sensor (MQ2)   - http://www.seeedstudio.com/wiki/Grove_-_Gas_Sensor
     A2 - Grove Air Quality Sensor - http://www.seeedstudio.com/wiki/Grove_-_Air_Quality_Sensor
+    A4 - Grove HCHO Sensor        - http://www.seeedstudio.com/wiki/Grove_-_HCHO_Sensor
     D6 - Grove Flame Sensor       - http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
-    A4 - MICS NO2 Sensor          - 
+    A3 - MICS NO2 Sensor          - http://www.cdiweb.com/ProductDetail/MICS2710-SGX-Sensortech-Limited/333415/
     
 This is probably overkill, groovy!
 
@@ -37,7 +46,7 @@ Next, import this library into Arduino
     http://www.seeedstudio.com/wiki/File:AirQuality_Sensor.zip
 
 Note that when the AQ sensor starts, it takes 20 seconds before
-returning control back to set-up.
+returning control back to setup().
 
     
 A report via the STRP looks like the following. Note that the properties
