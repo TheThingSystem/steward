@@ -17,7 +17,7 @@ DHT dht(dhtPin, DHTTYPE);
 
 int requestID = 1;
 
-// The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
+// The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x1A, 0x08 };  // Arduino MEGA
 
 char packetBuffer[512];

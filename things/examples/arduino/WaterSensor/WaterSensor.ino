@@ -13,7 +13,7 @@ int requestID = 1;
 unsigned long next_heartbeat = 0;
 
 
-// The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the curcuit board.
+// The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
 
 
