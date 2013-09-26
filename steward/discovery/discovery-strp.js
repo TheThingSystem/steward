@@ -48,6 +48,7 @@ var handle = function(message, remoteAddress, tag) {
     didP = true;
     if ((!props.prototype.name) && (!props.prototype.status)) continue;
 
+    props.prototype.properties.lastSample = 'timestamp';
     request.things[thingPath] = { observe    : []
                                 , perform    : []
                                 , device     : props.prototype.device
@@ -126,6 +127,7 @@ var register = function(message, data, remoteAddress, tag) {
         }
         device.ping(device);
         if (!!instance.uptime) device.bootime = updated - instance.uptime;
+        device.info.lastSample = updated;
         device.addinfo(instance.info, changedP);
         continue;
       }

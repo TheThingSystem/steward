@@ -148,6 +148,7 @@ ModelS.prototype.scan = function(self) {
         self.info.trunk = doors;
       }
 
+      self.info.lastSample = new Date().getTime();
       if (didP) self.changed();
     });
 
@@ -177,6 +178,7 @@ ModelS.prototype.scan = function(self) {
         self.info.extTemperature = data.outside_temp;
       }
 
+      self.info.lastSample = new Date().getTime();
       if (didP) self.changed();
     });
 
@@ -209,6 +211,7 @@ ModelS.prototype.scan = function(self) {
         }
       } else if (!self.info.velocity) self.info.velocity = '0';
 
+      self.info.lastSample = new Date().getTime();
       if (didP) self.changed();
       if (self.vehicle.updatingP != didP) {
         self.vehicle.updatingP = didP;
@@ -247,6 +250,7 @@ ModelS.prototype.scan = function(self) {
         self.info.charger = charger;
       }
 
+      self.info.lastSample = new Date().getTime();
       if (didP) self.changed();
     });
   });
@@ -470,6 +474,7 @@ exports.start = function() {
                                    ]
                     , properties : { name           : true
                                    , status         : [ 'ready', 'reset', 'waiting' ]
+                                   , lastSample     : 'timestamp'
                                    , charger        : [ 'connected'
                                                       , 'charging'
                                                       , 'completed'
