@@ -27,6 +27,7 @@ var home = function(state) {
   chart = document.getElementById('chart');
 
   div = document.createElement('div');
+  div.setAttribute('id', 'logo');
   div.setAttribute('class', 'logo');
   img = document.createElement('img');
   img.setAttribute('src', 'images/thing.sys.logo.black.svg');
@@ -227,10 +228,8 @@ var onUpdate_drilldown = function(updates) {
 
 var device_drilldown = function(name, devices, arcs, instructions) {
   var chart, device, div, div2, entry, i, img, trayLeft, trayPages, trayWidth;
-  var iconWidth = 50; // Determine this algorithmically below
+  var iconWidth = 50;
   var viewportWidth = iconWidth * 5;
-  
-  var self = this;
   
   chart = document.getElementById('chart');
   while (chart.lastChild) chart.removeChild(chart.lastChild);

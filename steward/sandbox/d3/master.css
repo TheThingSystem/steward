@@ -257,25 +257,27 @@ p.actor-name {
 /* log in screen elements */
 #login {
         position: absolute;
-        top: 250px;
-        left: 208px;
-        width: 500px;
-        text-align: left;
+        left: 72px;
+        width: 600px;
+        height: 210px;
+        text-align: center;
 }
 
-#login-form {
-        position: relative;
-        font-family: "Roadgeek 2005 Series D";
-        font-size: 24px;
-        color: #fff;
-        font-weight: normal;
-
+.form-container-short { 
+		background: url('popovers/assets/window.form.short.svg') no-repeat;
+		width: 600px; 
+		height: 200px; 
+		padding: 30px; 
+		margin: 20px auto;
 }
 
-#login label {
-        margin-right: 30px;
-        line-height: 24px;
+#login form {
+		margin: 15px 110px;
 }
+
+.form-container table { width: 600px; }
+table.short-form td { padding: 10px; font-size: 18px; text-align: left; }
+
 
 /* configure screen elements */
 

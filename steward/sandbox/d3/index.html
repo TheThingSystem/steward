@@ -5,6 +5,7 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
 <meta http-equiv="cache-control" content="no-cache" />
 
+
 <style>
 // please do not change this section... it is trying to emulate what status board provides
 // cf., http://www.panic.com/statusboard/docs/diy_tutorial.pdf
@@ -55,117 +56,195 @@ body {
 
 <script type='text/javascript'>
 var stack = [];
-var ws;          // Steward /manage socket
+var ws2;          // Steward /manage socket
 var currDevice = {actor: "", device: {}, entry: {}};   // To carry over actor from one request type to another
 
-var main = function() {
-  if (window.location.hostname.match(/127\.0\.0\.1/) || window.location.hostname.match(/steward\.local/)) {
-	  var steward = { hostname : window.location.hostname
-					, port     : window.location.port
-					, protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-					, secure   : (window.location.protocol.indexOf('https:') === 0)
-					};
-	
-	  go(steward);
-  } else {
-    alert("Remote access to your steward coming in a future release.");
+var login = function(evt) {
+  var form     = document.forms.loginForm
+    , name     = form.userName.value
+    , code     = form.userCode.value
+    , loginStatus  = document.getElementById('loginStatus')
+    ;
+
+  loginStatus.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    alert('invalid login code');
+    return false;
   }
+
+  main(name, code);
+  return false;
+};
+
+var main = function(name, code) {
+  var steward = { hostname : window.location.hostname
+				, port     : window.location.port
+				, protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+				, secure   : (window.location.protocol.indexOf('https:') === 0)
+				};
+
+  if (!!name) steward.primer = { path: '/api/v1/user/authenticate/' + name, requestID: "7", response: code };
+
+  go(steward);
 };
 
 var go = function(steward) {
-  var prev, ws2;
+  var firstP, readyP, waitP, ws;
   
-  // Global socket for ongoing requests to steward
+  readyP = firstP = false;
+  waitP = true;
   ws = null;
-  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
+  ws2 = null;
+  
+  
+  // Socket for streaming updates from steward
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
   
   ws.onopen = function(evt) {
-    stack.push({ page: home });
-    refreshActors(0);
-  }
-  
-  var beginUpdates = function(evt) {
-    // Socket for streaming .updates
-    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
+    readyP = true;
     
-    ws2.onmessage = function(event) {
-      var update, state;
-      try {
-        update = JSON.parse(event.data);
-        if (!update) throw new Error("invalid JSON: " + this.responseText);
-        
-        if (update.hasOwnProperty(".updates") && (update[".updates"].length > 0)) {
-			state = stack.pop();
-			stack.push(state);
-			if (state.hasOwnProperty("onUpdate")) {
-			  state.onUpdate(update[".updates"]);
-			} else {
-			  // Handle update for drilldown pages (multi or single)
-			  onUpdate_drilldown(update[".updates"]);
-			}
-        }
-      } catch(ex) {
-        console.log("Update error: " + ex.message + " with update for: " + update[".updates"][0].whoami);
+    if (!!steward.primer) ws.send(JSON.stringify(steward.primer));
+    firstP = true;
+    // Global socket for ongoing commands to steward
+    ws2 = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
+    
+    ws2.onopen = function(evt) {
+      if (!!steward.primer) {
+        ws2.send(JSON.stringify(steward.primer));
+      } else {
+        stack.push({ page: home });
+        refreshActors(0);
       }
     }
-    
-    ws2.onclose = function(event) { console.log("/console socket closed"); };
-
-    ws2.onerror = function(event) { console.log("/console socket error"); };
+  
+    ws2.onmessage = function(evt) {
+      var device, devices, entry, i, message, msgHash, requestID, state;
+	
+      try {
+	    message = JSON.parse(evt.data);
+	    if (!message) throw new Error("invalid JSON: " + this.responseText);
+	  
+        requestID = message.requestID.toString();
+	  
+        if ((!!message.error) && (!message.error.permanent) && (requestID !== "7")) return;
+        
+	    switch (requestID) {
+	      case "0": // Draw entire page & start listening for updates		  
+			  state = stack.pop();
+			  state.message = message;
+			  stack.push(state);
+			  (state.page)(state);
+			  break;
+	      case "1": // Redraw page while updates already flowing
+			  state = stack.pop();
+			  state.message = message;
+			  stack.push(state);
+			  (state.page)(state);
+			  break;
+	      case "2":  // Perform from popover
+			  if (message.result.status !== "success") {
+				console.log("Steward perform status: " + message.result.status);
+			  }
+			  break;
+	      case "7":  // Remote login
+			  onlogin(message);
+			  stack.push({ page: home });
+			  refreshActors(0);
+			  break;
+	      default:
+			  break;
+	    }
+      } catch(e) {
+	    console.log(e);
+	  }
+    }
+  
+    ws2.onclose = function(evt) {
+	  console.log("/manage socket closed");
+    }
+  
+    ws2.onerror = function(evt) {
+	  console.log("/manage socket error: " + evt.reason);
+	  ws2.close()
+	  location.reload();
+    }
 
   }
-  
-  ws.onmessage = function(evt) {
-    var device, devices, entry, i, message, msgHash, requestID, state;
     
+  ws.onmessage = function(evt) {
+    var update, state;
+    var message = JSON.parse(evt.data);
+      
+    if (firstP) {
+      firstP = false;
+        
+      if ((!!message.error) && (!!message.error.permanent)) {
+        if (!document.getElementById("login")) {
+          if (!document.getElementById("logo")) {
+            var chart = document.getElementById('chart');
+			div = document.createElement('div');
+			div.setAttribute('id', 'logo');
+			div.setAttribute('class', 'logo');
+			img = document.createElement('img');
+			img.setAttribute('src', 'images/thing.sys.logo.black.svg');
+			div.appendChild(img);
+			chart.appendChild(div);
+		  }
+          showLogin();
+
+        }
+        return;
+      }
+      waitP = false;
+    }
+      
     try {
       message = JSON.parse(evt.data);
       if (!message) throw new Error("invalid JSON: " + this.responseText);
-      
-      requestID = message.requestID.toString();
-      
-      switch (requestID) {
-      	case "0": // Draw entire page & start listening for updates		  
-			  state = stack.pop();
-			  state.message = message;
-			  stack.push(state);
-			  (state.page)(state);
-			  beginUpdates();
-			  break;
-		case "1": // Redraw page while updates already flowing
-			  state = stack.pop();
-			  state.message = message;
-			  stack.push(state);
-			  (state.page)(state);
-			  break;
-		case "2":  // Perform from popover
-			  if (message.result.status !== "success") {
-			    console.log("Steward perform status: " + message.result.status);
-			  }
-			  break;
-  		default:
-  		      break;
+        
+      if (message.hasOwnProperty(".updates") && (message[".updates"].length > 0)) {
+    	state = stack.pop();
+    	stack.push(state);
+		if (state.hasOwnProperty("onUpdate")) {
+		  state.onUpdate(message[".updates"]);
+		} else if (document.getElementById("chart").children.length > 1) {
+		  // Handle update for drilldown pages (multi or single)
+		  onUpdate_drilldown(message[".updates"]);
+		}
       }
-    } catch(e) {
-      console.log(e);
+    } catch(ex) {
+      console.log("Update error: " + ex.message + " with update for: " + message[".updates"][0].whoami);
     }
   }
+    
+  ws.onclose = function(event) { console.log("/console socket closed"); };
+  ws.onerror = function(event) { console.log("/console socket error"); };
+
   
-  ws.onclose = function(evt) {
-    ws.close();
-  }
-  
-  ws.onerror = function(evt) {
-    console.log("WebSocket Error: " + evt.reason);
-    ws.close()
-    location.reload();
-  }
-  
+  var onlogin = function(message) {
+    var loginStatus = document.getElementById("loginStatus");
+    if (!!message.result) {
+      waitP = false;
+      loginStatus.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      setTimeout(function() {
+        hideLogin();
+        delete(steward.primer);
+      }, 2 * 1000);
+      return;
+    }
+
+    if (!!message.error) {
+      loginStatus.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+    }
+  };
+
 }
 
 var wsSend = function(jsonStr) {
-	if (ws && ws.readyState == 1) {
-	  ws.send(jsonStr);
+	if (ws2 && ws2.readyState == 1) {
+	  ws2.send(jsonStr);
 	} else {
 	  console.log("Lost Connection");
 	}
@@ -173,8 +252,8 @@ var wsSend = function(jsonStr) {
 
 var refreshActors = function(reqID) {
   setTimeout(function() {
-   wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: reqID, options: { depth: 'all' }}));}, 0); 
-}
+    wsSend(JSON.stringify({ path: '/api/v1/actor/list/', requestID: reqID, options: { depth: 'all' }}));}, 0); 
+  }
 
 var goback = function() {
   var state = stack.pop();
@@ -194,7 +273,7 @@ var goforw = function(page, actor) {
 };
 
 var end = function() {
-  ws.close();
+  ws2.close();
 }
 
 </script>

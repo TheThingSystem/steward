@@ -1,3 +1,69 @@
+var showLogin = function() {
+  var div, form, table, td, tr;
+  
+  div = d3.select("body")
+  	.append("div")
+  	.attr("id", "login")
+  	.classed("form-container-short", true)
+  	.style("display", "block")
+  	.style("top", "-210px");
+  form = div.append("form")
+  	.attr("name", "loginForm")
+  	.attr("action", "#");
+  table = form.append("table")
+    .classed("short-form", true);
+    
+  tr = table.append("tr");
+  tr.append("td").text("Client ID:");
+  tr.append("td")
+  	.append("input")
+  	  .attr("type", "text")
+  	  .attr("name", "userName");
+  tr.append("td").text("e.g., \'root/1\'");
+  
+  tr = table.append("tr");
+  tr.append("td").text("Login code:");
+  tr.append("td")
+  	.append("input")
+  	  .attr("type", "text")
+  	  .attr("name", "userCode")
+  	  .attr("onkeyup", "javascript:submitLogin(event)");
+  tr.append("td").text("e.g., \'123456\'");
+
+  tr = table.append("tr");
+  tr.append("td");
+  td = tr.append("td")
+    .style("text-align", "center");
+  td.append("img")
+  	  .attr("src", "popovers/assets/login.svg")
+  	  .style("cursor", "pointer")
+  	  .on("click", login);
+  tr = table.append("tr")
+    .append("td")
+  	.attr("colspan", "3")
+  	.style("text-align", "center")
+  	.style("padding-bottom", "15px")
+    .attr("id", "loginStatus");
+
+  d3.select("#login")
+    .style("top", "-240px")
+    .transition()
+    .duration(600)
+    .style("top", "120px");
+    
+};
+
+var hideLogin = function() {
+  d3.select("#login")
+    .style("top", "120px")
+    .transition()
+    .duration(600)
+    .style("top", "-240px")
+    .remove();
+}
+var submitLogin = function(evt) {
+    if (evt.keyCode === 13) login();
+  }
 
 var showSettings = function() {
   var btn, chart, chkbox, div, div2, form, img, lbl, option, radio, select, settings, span, txtbox;
@@ -159,7 +225,10 @@ var showSettings = function() {
 var closeSettings = function(evt) {
   if (document.getElementById("settings")) document.body.removeChild(document.getElementById("settings"));
   stack = [];
-  setTimeout(main, 500);
+  stack.push({ page: home });
+  refreshActors(0);
+
+//  setTimeout(main, 500);
   return false;
 }
 
@@ -300,16 +369,28 @@ var place_info   = { name        : 'Home'
                    , location : [ 39.50000, -98.35000 ]
                    };
 
-var bootable = { prowl          :
-                 { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Generate an API key.'
-                 , site         : 'https://prowlapp.com/login.php'
+var bootable = { koubachi          :
+                 { text         : 'If you have a Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
+                 , instructions : 'Enter your appkey and credentials.'
+                 , site         : 'https://mykoubachi.com'
                  , icon         : ''
-                 , name         : 'prowler'
-                 , actor        : '/device/indicator/text/prowl'
+                 , name         : 'koubachi'
+                 , actor        : '/device/gateway/koubachi/cloud'
                  , info         :
-                   { name       : 'prowler'
-                   , apikey     : ''
+                   { appkey     : 'koubachi'
+                   , credentials: ''
+                   }
+                 }
+               , nest           :
+                 { text         : 'If you have a Nest thermostat, the steward can manage it for you.'
+                 , instructions : 'Enter your email address and password.'
+                 , site         : 'https://home.nest.com'
+                 , icon         : ''
+                 , name         : 'nest'
+                 , actor        : '/device/gateway/nest/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
                    }
                  }
                , netatmo        :
@@ -324,16 +405,16 @@ var bootable = { prowl          :
                    , passphrase : ''
                    }
                  }
-               , nest           :
-                 { text         : 'If you have a Nest thermostat, the steward can manage it for you.'
-                 , instructions : 'Enter your email address and password.'
-                 , site         : 'https://home.nest.com'
+               , prowl          :
+                 { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
+                 , instructions : 'Generate an API key.'
+                 , site         : 'https://prowlapp.com/login.php'
                  , icon         : ''
-                 , name         : 'nest'
-                 , actor        : '/device/gateway/nest/cloud'
+                 , name         : 'prowler'
+                 , actor        : '/device/indicator/text/prowl'
                  , info         :
-                   { email      : ''
-                   , passphrase : ''
+                   { name       : 'prowler'
+                   , apikey     : ''
                    }
                  }
                , tesla          :
