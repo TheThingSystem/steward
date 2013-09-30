@@ -148,6 +148,7 @@ var Place = exports.Place = function(info) {
   delete(self.info.device);
   if (!self.info.pairing) self.info.pairing = 'on';
   if (self.info.pairing !== 'code') delete(self.info.pairingCode); else self.makecode();
+  if (!self.info.strict) self.info.strict = 'on';
 // temporary
   if (!!self.info.coordinates) {
     self.info.location = self.info.coordinates;
@@ -302,6 +303,11 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
     else if ((place1.info.pairing === 'code') && (previous !== 'code')) self.makecode();
   }
 
+  if (!!params.strict) {
+    if ({ off  : true
+        , on   : true }[params.strict]) place1.info.strict = params.string;
+  }
+
   self.setInfo();
 
   return steward.performed(taskID);
@@ -450,6 +456,11 @@ var validate_perform = function(perform, parameter) {
          , code : true }[parameter]) result.invalid.push('parameter');
   }
 
+  if (!!params.string) {
+    if (!{ off  : true
+         , on   : true }[parameter]) result.invalid.push('parameter');
+  }
+
   return result;
 };
 
@@ -468,6 +479,7 @@ exports.start = function() {
                                    , status      : colors
                                    , pairing     : [ 'off', 'on', 'code' ]
                                    , pairingCode : true
+                                   , strict      : [ 'off', 'on' ]
                                    , physical    : true
                                    , location    : 'coordinates'
                                    , remote      : true

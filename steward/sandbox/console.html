@@ -593,7 +593,7 @@ var onactors = function(message) {
               break;
 
             case 'humidity':
-              v += '%';
+              if (!isNaN(v)) v = v.toFixed(2) + '%';
               break;
 
             case 'co2':
@@ -611,6 +611,10 @@ var onactors = function(message) {
 
             case 'light':
               v += 'lx';
+              break;
+
+            case 'altitude':
+              if (!isNaN(v)) v = Math.round(v) + 'm';
               break;
 
             case 'heading':

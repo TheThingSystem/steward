@@ -165,7 +165,7 @@ var start = function(port, secureP) {
 /* NB: everything "interesting" should be via WebSockets, not HTML...
        if that changes, we can add an exception list here.
 
-      if ((!places.place1.info.insecure) && (!steward.readP(meta))) {
+      if ((places.place1.info.strict !== 'off') && (!steward.readP(meta))) {
         delete(meta.method);
 
         meta.event = 'access';
@@ -177,7 +177,7 @@ var start = function(port, secureP) {
         return response.end('403 not allowed');
       }
  */
-      if ((!places.place1.info.insecure)
+      if ((places.place1.info.strict !== 'off')
               && (!secureP)
               && (securePort !== 0)
               && (request.connection.localAddress !== '127.0.0.1')) {

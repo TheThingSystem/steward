@@ -35,7 +35,7 @@ var consoleX = function(ws, tag) {
   broker.subscribe('beacon-egress', function(category, datum) {
     var data = {};
 
-    if ((!!places) && (!places.place1.info.insecure) && (!steward.readP(ws.clientInfo))) return;
+    if ((!!places) && (places.place1.info.strict !== 'off') && (!steward.readP(ws.clientInfo))) return;
 
     if (!util.isArray(datum)) datum = [ datum ];
     data[category] = datum;
@@ -44,7 +44,7 @@ var consoleX = function(ws, tag) {
     try { ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} }); } catch(ex) {}
   });
 
-  if ((!places) || (!!places.place1.info.insecure) || (steward.readP(ws.clientInfo))) {
+  if ((!places) || (places.place1.info.strict === 'off') || (steward.readP(ws.clientInfo))) {
     try { ws.send(stringify(utility.signals)); } catch(ex) {}
     broker.publish('actors', 'attention');
     return broker.publish('actors', 'ping');
@@ -67,7 +67,7 @@ var consoleX = function(ws, tag) {
 var consoleX2 = function(logger, ws, data, tag) {/* jshint unused: false */
   try { ws.send(data); } catch(ex) { console.log(ex); }
 
-  if ((!places) || (!!places.place1.info.insecure) || (steward.readP(ws.clientInfo))) {
+  if ((!places) || (places.place1.info.strict === 'off') || (steward.readP(ws.clientInfo))) {
     try { ws.send(stringify(utility.signals)); } catch(ex) {}
     broker.publish('actors', 'attention');
     broker.publish('actors', 'ping');

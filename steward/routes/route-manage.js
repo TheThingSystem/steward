@@ -98,7 +98,7 @@ var accessP = function(api, clientInfo, tag) {
   }
 
   if (!places) places = require('./../actors/actor-place');
-  if ((!places.place1.info.insecure) && (!(levels & api.access))) {
+  if ((places.place1.info.strict !== 'off') && (!(levels & api.access))) {
     logger.warning(tag, { event      : 'access'
                         , diagnostic : 'unauthorized'
                         , role       : role
