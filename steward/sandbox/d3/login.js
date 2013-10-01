@@ -80,6 +80,15 @@ var showSettings = function() {
   div2.innerHTML = "Steward Place Settings";
   form.appendChild(div2);
   
+  select = document.createElement('select');
+  select.setAttribute('id', 'strictLAN');
+  select = addStrict(select);
+  form.appendChild(select);
+  span = document.createElement('span')
+  span.setAttribute('id', 'lan-instructions');
+  span.innerHTML = "&larr; Require secure (HTTPS) connection over LAN";
+  form.appendChild(span);
+  
   form.appendChild(labeledBox('STEWARD NAME', 'stewardName', 50, ''));
   form.appendChild(labeledBox('STREET ADDRESS', 'physical', 70, ''));
   div2 = document.createElement('div');
@@ -160,6 +169,7 @@ var showSettings = function() {
   document.getElementById("physical").addEventListener('change', function(evt) {place_info.physical = evt.target.value; savePlace(event); });
   document.getElementById("latitude").addEventListener('change', function(evt) {place_info.location[0] = evt.target.value; savePlace(event); });
   document.getElementById("longitude").addEventListener('change', function(evt) {place_info.location[1] = evt.target.value; savePlace(event); });
+  document.getElementById("strictLAN").addEventListener('change', pickStrict);
   document.getElementById("bootableChoice").addEventListener('change', pickBootable);
   document.getElementById("bootChoice0").addEventListener('change', stowInfo);
   document.getElementById("bootChoice1").addEventListener('change', stowInfo);
@@ -195,9 +205,28 @@ var showSettings = function() {
     return labels;
   }
   
+  // Populate select element with strict mode choices
+  function addStrict(select) {
+    var optgroup, option;
+    
+    optgroup = document.createElement('optgroup');
+    optgroup.setAttribute('label', 'Strict Mode');
+    select.appendChild(optgroup);
+    
+    option = document.createElement('option');
+    option.setAttribute('value', 'on');
+    option.innerHTML = 'yes';
+    optgroup.appendChild(option);
+    option = document.createElement('option');
+    option.setAttribute('value', 'off');
+    option.innerHTML = 'no';
+    optgroup.appendChild(option);
+    return select;
+  }
+  
   // Populate select element with networked product names
   function addBootables(select) {
-    var optgroup, option
+    var optgroup, option;
     var keys = getKeys(bootable);
     
     optgroup = document.createElement('optgroup');
@@ -230,6 +259,11 @@ var closeSettings = function(evt) {
 
 //  setTimeout(main, 500);
   return false;
+}
+
+var pickStrict = function(evt) {
+  place_info.strict = evt.target.value || '';
+  savePlace();
 }
 
 var pickBootable = function(evt) {
@@ -324,18 +358,18 @@ function geocode() {
 
 var fillPlaceFields = function() {
   var entry, keys;
-  document.getElementById("stewardName").value = place.name || "";
-  document.getElementById("physical").value = place.info.physical || "";
+  document.getElementById("stewardName").value = place_info.name = place.name || "";
+  document.getElementById("physical").value = place_info.physical = place.info.physical || "";
   if (place.info.location) {
-	  document.getElementById("latitude").value = place.info.location[0] || "";
-	  document.getElementById("longitude").value = place.info.location[1] || "";
+	  document.getElementById("latitude").value = place_info.location[0] = place.info.location[0] || "";
+	  document.getElementById("longitude").value = place_info.location[1] = place.info.location[1] || "";
   }
-  
+  document.getElementById("strictLAN").value = place_info.strict = place.info.strict || "";
 }
 
 var savePlace = function(evt) {
   var val = JSON.stringify({ path    : '/api/v1/actor/perform/place'
-                         , requestID : "3"
+                         , requestID : "2"
                          , perform   : "set"
                          , parameter : JSON.stringify(place_info) || ''
                          });
@@ -366,7 +400,8 @@ var addCloud = function(evt) {
 
 var place_info   = { name        : 'Home'
                    , physical    : ''
-                   , location : [ 39.50000, -98.35000 ]
+                   , location    : [ 39.50000, -98.35000 ]
+                   , strict      : 'on'
                    };
 
 var bootable = { koubachi          :
