@@ -369,7 +369,7 @@ var fillPlaceFields = function() {
 
 var savePlace = function(evt) {
   var val = JSON.stringify({ path    : '/api/v1/actor/perform/place'
-                         , requestID : "2"
+                         , requestID : "3"
                          , perform   : "set"
                          , parameter : JSON.stringify(place_info) || ''
                          });

@@ -148,6 +148,11 @@ var go = function(steward) {
 				console.log("Steward perform status: " + message.result.status);
 			  }
 			  break;
+	      case "3":  // Perform from settings
+			  if (message.actors["place/1"] && message.actors["place/1"].status !== "success") {
+				console.log("Steward perform status: " + message.result.status);
+			  }
+			  break;
 	      case "7":  // Remote login
 			  onlogin(message);
 			  stack.push({ page: home });
