@@ -305,7 +305,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.strict) {
     if ({ off  : true
-        , on   : true }[params.strict]) place1.info.strict = params.string;
+        , on   : true }[params.strict]) place1.info.strict = params.strict;
   }
 
   self.setInfo();
@@ -453,12 +453,12 @@ var validate_perform = function(perform, parameter) {
   if (!!params.pairing) {
     if (!{ off  : true
          , on   : true
-         , code : true }[parameter]) result.invalid.push('parameter');
+         , code : true }[params.pairing]) result.invalid.push('pairing');
   }
 
-  if (!!params.string) {
+  if (!!params.strict) {
     if (!{ off  : true
-         , on   : true }[parameter]) result.invalid.push('parameter');
+         , on   : true }[params.strict]) result.invalid.push('strict');
   }
 
   return result;
