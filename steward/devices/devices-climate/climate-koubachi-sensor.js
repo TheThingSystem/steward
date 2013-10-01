@@ -1,4 +1,4 @@
-// koubachi - personal weather station: http://www.koubachi.com
+// koubachi - interactive plant care: http://www.koubachi.com
 
 var util        = require('util')
   , devices     = require('./../../core/device')

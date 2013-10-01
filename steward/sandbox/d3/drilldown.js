@@ -1523,7 +1523,11 @@ var entries = {
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
-                                                              , passive : true
+                                                              }
+              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/t.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              , instrux : no_instructions
                                                               }
               , '/device/climate/koubachi/plant'            : { img     : 'actors/koubachi-plant.svg'
                                                               , single  : single_climate_drilldown
@@ -1534,6 +1538,11 @@ var entries = {
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
+                                                              }
+              , '/device/climate/ecobee/control'              : { img     : 'actors/ecobee.svg'
+                                                              , single  : single_thermostat_drilldown
+                                                              , arcs    : device_thermostat_arcs
+                                                              , instrux : single_thermostat_instructions
                                                               }
               , '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
                                                               , single  : single_thermostat_drilldown
