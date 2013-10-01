@@ -103,6 +103,10 @@ var childprops = function(self, light) {
     } else if (child.state.colormode === 'xy') {
       color.model       = 'cie1931';
       color.cie1931     = { x: child.state.xy[0], y: child.state.xy[1] };
+    } else {
+      color.model       = 'hue';
+      color.hue         = 0;
+      color.saturation  = 0;
     }
     child.info = { color: color, brightness: percentageBri(child.state.bri) };
     child.updated = props.updated;
