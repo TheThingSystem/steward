@@ -206,8 +206,9 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
         margin: 0px auto;
 }
  
-#chart div.tags { position: absolute; top: 545px; left: 180px; width: 500px; height: 50px; }
+#chart div.tags { position: absolute; top: 545px; left: 180px; width: 500px; height: 50px; text-align: center; }
 #chart span.tag { text-align: center; position: relative; padding: 3px 8px; margin: 12px 2px; background-color: #333;
+	line-height: 28px; font-size: 14px; white-space: nowrap;
 	cursor: pointer;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
@@ -317,10 +318,21 @@ hr { border: 0; color: #333; background-color: #333; height: 4px; clear: both; m
 
 }
 
+#strict-form {
+        position: relative;
+        top: 30px;
+        left: 50px;
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+        color: #fff;
+        font-weight: normal;
+
+}
+
 .big-instructions { font-size: 16pt; margin-top: 42px; }
 
 label {
-        font-family: "Roadgeek 2004 Series C";
+        font-family: "Roadgeek 2005 Series C";
         text-transform: uppercase;
         font-size: 12pt;
         line-height: 30px;
@@ -347,9 +359,9 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 }
 
 #cloud-instructions {
-		font-size: 11pt;
+		font-size: 10pt;
 }
 
 #lan-instructions {
-		font-size: 11pt;
+		font-size: 10pt;
 }

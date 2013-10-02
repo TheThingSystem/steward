@@ -302,27 +302,7 @@ var showPop = function(device, entry) {
        }
        newPerform.perform = device.status;
        
-       if (device.info.color) {
-         var color = device.info.color;
-         switch (color.model) {
-        	case 'temperature': 
-        		addTemp(color.temperature);
-        		break;
-        	case 'cie1931':     
-        		addCIE(color.cie1931.x ,color.cie1931.y);
-        		break;
-        	case 'hue':         
-        		addHSV((color.hue, color.saturation / 100, entry.info.brightness / 100).rgb());
-        		break;
-        	case 'rgb':         
-        		addRGB(color.rgb.r, color.rgb.g, color.rgb.b);
-        		break;
-        	default:            
-        		break;
-		 }
-       } else {
-         addDisabledColor();
-       }
+       ColorPickerMgr.addColorPicker(pop, device.info);
    }
    
    function carryonMedia() {
@@ -823,177 +803,6 @@ var showPop = function(device, entry) {
 
     };
     
-	// Append model-specific color model pickers
-	function addCIE(x, y) {
-		var cie1931 = device.info.color.cie1931
-	    var regisCoords = regCoords(cie1931.x, cie1931.y);
-		pop.append("canvas")
-			.attr("id", "cie-gamut")
-			.attr("width", "300")
-			.attr("height", "300");
-			//.on("click", grabColors);
-	    pop.append("img")
-			.attr("id", "registration").attr("src", "popovers/assets/registration.svg")
-			.style("left", regisCoords.x + "px")
-			.style("top", regisCoords.y + "px");
-	    pop.append("img")
-			.attr("id", "axis").attr("src", "popovers/assets/axis.svg")
-			.on("click", passEvent);
-	    pop.append("div")
-			.attr("id", "color-label").attr("class", "label colorpicker-label")
-			.text("COLOR TEMPERATURE");
-		var canvas = document.getElementById("cie-gamut");
-		canvas.addEventListener("click", grabColors);
-		if (canvas.getContext) {
-			var ctx = canvas.getContext("2d");
-			ctx.fillStyle = "rgb(29,29,29)";
-			ctx.fillRect(0,0,300,300);
-			
-			var img = new Image();
-			img.src = "popovers/assets/cie.png";
-			
-			img.onload = function () {
-			   ctx.drawImage(img, 0, 0, 300, 300);
-			}
-		}
-		
-		// redirect event from frontmost axis img elem to canvas
-		function passEvent() {
-			var evt = d3.event;
-			var newEvt;
-			var canvas = document.getElementById("cie-gamut");
-			newEvt = document.createEvent("MouseEvents");
-			newEvt.initMouseEvent("click", false, false, null, 0, 0, 0, evt.offsetX, evt.offsetY, false, false, false, false, 0, null);
-			canvas.dispatchEvent(newEvt);
-		}
-		
-	    function grabColors(evt) {
-			var result = {};
-			var canvas = document.getElementById("cie-gamut");
-			var ctx = canvas.getContext("2d");
-			var x = evt.clientX;
-			var y = evt.clientY;
-			var imgData = ctx.getImageData(x, y, 1, 1).data;
-			if (imgData[0] != 29 && imgData[1] != 29 && imgData[2] != 29) {
-				setCIECoords(evt);
-				d3.select("#registration")
-					.style("left", function() {return canvas.offsetLeft + x - 12 + "px";})
-					.style("top", function() {return canvas.offsetTop + y + "px";})
-	   		}
-		}
-		
-		function setCIECoords(evt) {
-			var x = evt.clientX - 34;
-			var y = evt.clientY - 18;
-			var width = evt.target.width * 1.08;
-			var height = evt.target.height;
-			var scaleX = Math.abs(x/width);
-			var scaleY = Math.abs(0.84 - y/height);
-			var result = {"x": scaleX, "y": scaleY};
-			newPerform.parameter.color.cie1931 = result;
-			sendData();
-		}
-		
-		function regCoords(x, y) {
-			var v = parseInt((x * 220) / 0.735) + 170;
-			var h = parseInt((y * 250) / 0.84) + 225;
-			return {"x": v, "y": h};
-		}
-
-	};
-	
-	function addHSV(h, s, v) {
-	  var cp, div, div2;
-	  
-	  div = pop.append("div")
-	        .attr("id", "colorpicker-container");
-	  div.append("div")
-	        .attr("id", "color-picker")
-			.attr("class", "cp-skin");
-      pop.append("div")
-			.attr("id", "color-label").attr("class", "label colorpicker-label")
-			.text("COLOR TEMPERATURE");
-	  cp = ColorPicker(document.getElementById("color-picker"),
-
-        function(hex, hsv, rgb) {
-          newPerform.parameter.color.hue = hsv.h;
-          newPerform.parameter.color.saturation = hsv.s;
-          sendData();
-
-        });
-	  cp.setHsv({h:h, s:s, v:v});
-	};
-	
-	function addRGB(r, g, b) {
-	  var cp, div, div2;
-	  
-	  div = pop.append("div")
-	        .attr("id", "colorpicker-container");
-	  div.append("div")
-	        .attr("id", "color-picker")
-			.attr("class", "cp-skin");
-      pop.append("div")
-			.attr("id", "color-label").attr("class", "label colorpicker-label")
-			.text("COLOR TEMPERATURE");
-	  cp = ColorPicker(document.getElementById("color-picker"),
-
-        function(hex, hsv, rgb) {
-          newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
-          sendData();
-        });
-	  cp.setRgb({r:r, g:g, b:b});
-	};
-	
-	// Convert temperature to rgb and send rgb values to steward
-	function addTemp(temp) {
-	  var rgb = d3.mired.rgb(temp);
-	  var cp, div, div2;
-	  
-	  div = pop.append("div")
-	        .attr("id", "colorpicker-container");
-	  div.append("div")
-	        .attr("id", "color-picker")
-			.attr("class", "cp-skin");
-      pop.append("div")
-			.attr("id", "color-label").attr("class", "label colorpicker-label")
-			.text("COLOR TEMPERATURE");
-	  
-	  newPerform.parameter.color.model = "rgb";
-	  cp = ColorPicker(document.getElementById("color-picker"),
-
-        function(hex, hsv, rgb) {
-          newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
-          delete newPerform.parameter.color.temperature;
-          sendData();
-        });
-	  cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
-	};
-	
-	function addDisabledColor() {
-	  var cp, div, div2;
-	  
-	  div = pop.append("div")
-	        .attr("id", "colorpicker-container");
-	  div.append("div")
-	        .attr("id", "color-picker")
-			.attr("class", "cp-skin");
-      pop.append("div")
-			.attr("id", "color-label").attr("class", "label-disabled colorpicker-label")
-			.text("COLOR TEMPERATURE");
-	  cp = ColorPicker(document.getElementById("color-picker"),
-        function(hex, hsv, rgb) {
-      });
-      div.append("div")
-       .attr("id", "blocker")
-       .style("position", "absolute")
-       .style("width", "298px")
-       .style("height", "290px")
-       .style("top", "0px")
-       .style("left", "0px")
-       .style("background-image", "url(popovers/assets/blocker.svg)");
-
-	};
-
 	function toggleOnOff() {
 	   var endLeft
 	   if (newPerform.perform === "on") {
@@ -1055,6 +864,316 @@ var showPop = function(device, entry) {
 	};
 	
 };
+
+var ColorPickerMgr = {
+	addColorPicker : function(pop, info) {
+	   if (info.color) {
+         var color = info.color;
+         switch (color.model) {
+        	case 'temperature': 
+        		addTemp(color.temperature);
+        		break;
+        	case 'cie1931':     
+        		addCIE(color.cie1931.x ,color.cie1931.y);
+        		break;
+        	case 'hue':         
+        		addHSV((color.hue, color.saturation / 100, entry.info.brightness / 100).rgb());
+        		break;
+        	case 'rgb':         
+        		addRGB(color.rgb.r, color.rgb.g, color.rgb.b);
+        		break;
+        	default:            
+        		break;
+		 }
+       } else {
+         addDisabledColor();
+       }
+       
+       function addTemp(temp) {
+	     var rgb = d3.mired.rgb(temp);
+	     var cp, div, div2;
+	  
+	     div = pop.append("div")
+	        .attr("id", "colorpicker-container");
+	     div.append("div")
+	        .attr("id", "color-picker")
+			.attr("class", "cp-skin");
+         pop.append("div")
+			.attr("id", "color-label").attr("class", "label colorpicker-label")
+			.text("COLOR TEMPERATURE");
+	  
+	     newPerform.parameter.color.model = "rgb";
+	     cp = ColorPicker(document.getElementById("color-picker"),
+
+         function(hex, hsv, rgb) {
+           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+           delete newPerform.parameter.color.temperature;
+           sendData();
+         });
+         
+	     cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
+       };
+       
+       function addCIE(x, y) {
+		 var cie1931 = info.color.cie1931
+	     var regisCoords = ColorPickerMgr.regCoords(cie1931.x, cie1931.y);
+		 pop.append("canvas")
+			.attr("id", "cie-gamut")
+			.attr("width", "300")
+			.attr("height", "300");
+			//.on("click", grabColors);
+	     pop.append("img")
+			.attr("id", "registration").attr("src", "popovers/assets/registration.svg")
+			.style("left", regisCoords.x + "px")
+			.style("top", regisCoords.y + "px");
+	     pop.append("img")
+			.attr("id", "axis").attr("src", "popovers/assets/axis.svg")
+			.on("click", passEvent);
+	     pop.append("div")
+			.attr("id", "color-label").attr("class", "label colorpicker-label")
+			.text("COLOR TEMPERATURE");
+		 var canvas = document.getElementById("cie-gamut");
+		 canvas.addEventListener("click", grabColors);
+		 if (canvas.getContext) {
+		   var ctx = canvas.getContext("2d");
+		   ctx.fillStyle = "rgb(29,29,29)";
+		   ctx.fillRect(0,0,300,300);
+			
+		   var img = new Image();
+		   img.src = "popovers/assets/cie.png";
+			
+		   img.onload = function () {
+			 ctx.drawImage(img, 0, 0, 300, 300);
+		   }
+		 }
+		
+		 // redirect event from frontmost axis img elem to canvas
+	     function passEvent() {
+		   var evt = d3.event;
+		   var newEvt;
+		   var canvas = document.getElementById("cie-gamut");
+		   newEvt = document.createEvent("MouseEvents");
+		   newEvt.initMouseEvent("click", false, false, null, 0, 0, 0, evt.offsetX, evt.offsetY, false, false, false, false, 0, null);
+		   canvas.dispatchEvent(newEvt);
+	     }
+		
+	     function grabColors(evt) {
+		   var result = {};
+		   var canvas = document.getElementById("cie-gamut");
+		   var ctx = canvas.getContext("2d");
+		   var x = evt.clientX;
+		   var y = evt.clientY;
+		   var imgData = ctx.getImageData(x, y, 1, 1).data;
+		   if (imgData[0] != 29 && imgData[1] != 29 && imgData[2] != 29) {
+		     setCIECoords(evt);
+		     d3.select("#registration")
+			   .style("left", function() {return canvas.offsetLeft + x - 12 + "px";})
+			   .style("top", function() {return canvas.offsetTop + y + "px";})
+	   		 }
+		 }
+		
+		 function setCIECoords(evt) {
+		   var x = evt.clientX - 34;
+		   var y = evt.clientY - 18;
+		   var width = evt.target.width * 1.08;
+		   var height = evt.target.height;
+		   var scaleX = Math.abs(x/width);
+		   var scaleY = Math.abs(0.84 - y/height);
+		   var result = {"x": scaleX, "y": scaleY};
+		   newPerform.parameter.color.cie1931 = result;
+		   sendData();
+		 }
+       };
+       
+       function addHSV(h, s, v) {
+	     var cp, div, div2;
+		  
+		 div = pop.append("div")
+				.attr("id", "colorpicker-container");
+		 div.append("div")
+				.attr("id", "color-picker")
+				.attr("class", "cp-skin");
+		 pop.append("div")
+				.attr("id", "color-label").attr("class", "label colorpicker-label")
+				.text("COLOR TEMPERATURE");
+		 cp = ColorPicker(document.getElementById("color-picker"),
+	
+		 function(hex, hsv, rgb) {
+		   newPerform.parameter.color.hue = hsv.h;
+		   newPerform.parameter.color.saturation = hsv.s;
+		   sendData();
+		 });
+		 
+		 cp.setHsv({h:h, s:s, v:v});
+       };
+       
+       function addRGB(r, g, b) {
+	     var cp, div, div2;
+	  
+	     div = pop.append("div")
+	        .attr("id", "colorpicker-container");
+	     div.append("div")
+	        .attr("id", "color-picker")
+			.attr("class", "cp-skin");
+         pop.append("div")
+			.attr("id", "color-label").attr("class", "label colorpicker-label")
+			.text("COLOR TEMPERATURE");
+	     cp = ColorPicker(document.getElementById("color-picker"),
+
+         function(hex, hsv, rgb) {
+           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+           sendData();
+         });
+         
+	     cp.setRgb({r:r, g:g, b:b});
+       };
+       
+       function addDisabledColor() {
+	     var cp, div, div2;
+	  
+	     div = pop.append("div")
+	        .attr("id", "colorpicker-container");
+	     div.append("div")
+	        .attr("id", "color-picker")
+			.attr("class", "cp-skin");
+         pop.append("div")
+			.attr("id", "color-label").attr("class", "label-disabled colorpicker-label")
+			.text("COLOR TEMPERATURE");
+	     cp = ColorPicker(document.getElementById("color-picker"),
+         function(hex, hsv, rgb) {
+         });
+      
+         div.append("div")
+           .attr("id", "blocker")
+           .style("position", "absolute")
+           .style("width", "298px")
+           .style("height", "290px")
+           .style("top", "0px")
+           .style("left", "0px")
+           .style("background-image", "url(popovers/assets/blocker.svg)");
+	};
+
+
+	},
+	updateColorPicker : function(info) {
+	   if (info.color) {
+         var color = info.color;
+         switch (color.model) {
+        	case 'temperature': 
+        		updateTemp(color.temperature);
+        		break;
+        	case 'cie1931':     
+        		updateCIE(color.cie1931.x ,color.cie1931.y);
+        		break;
+        	case 'hue':         
+        		updateHSV((color.hue, color.saturation / 100, entry.info.brightness / 100).rgb());
+        		break;
+        	case 'rgb':         
+        		updateRGB(color.rgb.r, color.rgb.g, color.rgb.b);
+        		break;
+        	default:            
+        		break;
+		 }
+       }
+       
+       function updateTemp(temp) {
+	     var rgb = d3.mired.rgb(temp);
+	     newPerform.parameter.color.model = "rgb";
+         newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+         delete newPerform.parameter.color.temperature;
+	     var cp = ColorPicker(document.getElementById("color-picker"));
+	     cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
+       
+       };
+       
+       function updateCIE(x, y) {
+	     var regisCoords = ColorPickerMgr.regCoords(x, y);
+         d3.select("#registration")
+			.style("left", regisCoords.x + "px")
+			.style("top", regisCoords.y + "px");
+       };
+       
+       function updateHSV(h, s, v) {
+		 cp = ColorPicker(document.getElementById("color-picker"));
+		 newPerform.parameter.color.hue = hsv.h;
+		 newPerform.parameter.color.saturation = hsv.s;
+		 cp.setHsv({h:h, s:s, v:v});       
+       };
+       
+       function updateRGB(r, g, b) {
+	     cp = ColorPicker(document.getElementById("color-picker"));
+         newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+	     cp.setRgb({r:r, g:g, b:b});       
+       };
+	
+	},
+	
+	regCoords : function(x, y) {
+	  var v = parseInt((x * 220) / 0.735) + 170;
+	  var h = parseInt((y * 250) / 0.84) + 225;
+	  return {"x": v, "y": h};
+    }
+
+};
+
+var updatePopover = function(device, update) {
+  switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
+	case "/device/climate/":
+	  break;
+	case "/device/indicator/":
+	  break;
+	case "/device/lighting/":
+	  updateLightingPop();
+	  break;
+	case "/device/media/":
+	  break;
+	case "/device/motive/":
+	  break;
+	case "/device/presence/":
+	  break;
+	case "/device/sensor/":
+	  break;
+	case "/device/switch/":
+	  break;
+	case "/device/wearable/":
+	  break;
+	default:
+	  break;
+  }
+
+  function updateLightingPop() {
+	if (document.getElementById("device-status")) {
+	  d3.select("#device-status")
+		.style("background-color", statusColor(update));
+	  d3.select("#device-status-detail")
+		.text(update.status);
+	}
+	if (document.getElementById("on-off-knob")) {
+	  d3.select("#on-off-knob")
+		 .transition()
+		 .duration(600)
+         .style("left", function() { return ((device.status === "on") ? onOffSlider.max : onOffSlider.min) + "px" });
+	}
+	if (update.info.color) {
+	  ColorPickerMgr.updateColorPicker(update.info);
+	}
+	if (device.info.hasOwnProperty("brightness")) {
+	  d3.select("#brightness-knob")
+		 .transition()
+		 .duration(600)
+		 .style("top", hueBrightTop(update.info.brightness));
+	  d3.select("#slider-readout")
+		 .transition()
+		 .duration(600)
+		 .style("top", parseInt(hueBrightTop(update.info.brightness)) + 7 + "px")
+		 .text(update.info.brightness + "%");
+	}
+	newPerform.perform = update.status;
+	newPerform.parameter = update.info;
+  }
+
+}
+
 
 function hueBrightTop(value) {
 	var max = bigSlider.max;

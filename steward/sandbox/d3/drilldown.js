@@ -216,12 +216,10 @@ var onUpdate_drilldown = function(updates) {
       document.getElementById("single-device-instructions").innerHTML = entry.instrux(currDevice.device);
       drawArcs(arcs);
       // Update popover controls, if present
-	  if (document.getElementById("device-status")) {
-	    d3.select("#device-status")
-	      .style("background-color", statusColor(update));
-	    d3.select("#device-status-detail")
-	      .text(update.status);
+      if (document.getElementById("pop-substrate")) {
+        updatePopover(currDevice.device, update);
       }
+      
     }
   }
 };

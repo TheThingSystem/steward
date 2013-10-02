@@ -79,16 +79,7 @@ var showSettings = function() {
   div2.setAttribute('style', 'margin-top:0px');
   div2.innerHTML = "Steward Place Settings";
   form.appendChild(div2);
-  
-  select = document.createElement('select');
-  select.setAttribute('id', 'strictLAN');
-  select = addStrict(select);
-  form.appendChild(select);
-  span = document.createElement('span')
-  span.setAttribute('id', 'lan-instructions');
-  span.innerHTML = "&larr; Require secure (HTTPS) connection over LAN";
-  form.appendChild(span);
-  
+    
   form.appendChild(labeledBox('STEWARD NAME', 'stewardName', 50, ''));
   form.appendChild(labeledBox('STREET ADDRESS', 'physical', 70, ''));
   div2 = document.createElement('div');
@@ -121,6 +112,31 @@ var showSettings = function() {
   div2.setAttribute('style', 'margin-bottom: 20px');
   div2.appendChild(labeledBox('LONGITUDE', 'longitude', 20, ''));
   form.appendChild(div2);
+  form.appendChild(document.createElement('hr'));
+  
+  div.appendChild(form);
+
+  form = document.createElement('form');
+  form.setAttribute('id', 'strict-form');
+
+  div2 = document.createElement('div');
+  div2.setAttribute('class', 'form-heading');
+  div2.innerHTML = "Security Services";
+  form.appendChild(div2);
+
+  select = document.createElement('select');
+  select.setAttribute('id', 'strictLAN');
+  select = addStrict(select);
+  form.appendChild(select);
+
+  span = document.createElement('span')
+  span.setAttribute('id', 'lan-instructions');
+  span.innerHTML = "&larr; " + "Require secure connection over LAN for clients (disable if you are using Arduino-based clients)";
+  form.appendChild(span);
+  
+  
+  div.appendChild(form);
+  document.body.appendChild(div);
   form.appendChild(document.createElement('hr'));
 
   div.appendChild(form);
