@@ -493,4 +493,3 @@ var bootable = { koubachi          :
                    }
                  }
                };
-
