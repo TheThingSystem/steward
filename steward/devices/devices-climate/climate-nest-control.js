@@ -79,40 +79,41 @@ Sensor.operations = {
       }
     });
 
-
     attempt_perform('hvac', function(value) {
       switch (value) {
         case 'off':
         case 'cool':
         case 'heat':
           nest.setTargetTemperatureType(serial, value);
-        break;
+          break;
 
         case 'fan':
           nest.setFanModeOn(serial);
-        break;
+          break;
       }
     });
 
     attempt_perform('fan', function(value) {
-      switch (value) {
+      var time;
 
+      switch (value) {
         case 'on':
         case 'auto':
           nest.setFanMode(serial, value);
-        break;
+          break;
 
         default:
-          var time = parseInt(value, 10);
-          if (!isNaN(time)) {
-            nest.setFanMode(serial, 'timer', time);
-          }
-        break;
+          time = parseInt(value, 10);
+          if (!isNaN(time)) nest.setFanMode(serial, 'timer', time);
+          break;
       }
     });
 
     attempt_perform('goalTemperature', function(value) {
-      nest.setTemperature(serial, value);
+      var goalTemperature;
+
+      goalTemperature = parseInt(value, 10);
+      if (!isNaN(goalTemperature)) nest.setTemperature(serial, goalTemperature);
     });
 
     return performed;
@@ -156,7 +157,7 @@ var validate_perform = function(perform, parameter) {
       }
 
       checkParam('away', params, result, false, { on: 1, off: 1 });
-      checkParam('hvac', params, result, false, { heat: 1, cool: 1, off: 1, fan: 1 });
+      checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
       checkParam('fan', params, result, true, { on: 1, auto: 1 });
       checkParam('goalTemperature', params, result, true, {});
     }
