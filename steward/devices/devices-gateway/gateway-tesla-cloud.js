@@ -56,7 +56,7 @@ Cloud.prototype.error = function(self, err) {
   if (self.fails < 11) self.fails++;
 
   if (!!self.timer) clearTimeout(self.timer);
-  self.timer = setTimeout(function() { self.scan(self); }, (self.fails + 1) * 300 * 1000);
+  self.timer = setTimeout(function() { self.scan(self); }, (self.fails + 1) * 600 * 1000);
 };
 
 Cloud.prototype.scan = function(self) {
@@ -74,7 +74,7 @@ Cloud.prototype.scan = function(self) {
   });
 
   if (!!self.timer) clearTimeout(self.timer);
-  self.timer = setTimeout(function() { self.scan(self); }, (self.fails + 1) * 300 * 1000);
+  self.timer = setTimeout(function() { self.scan(self); }, (self.fails + 1) * 600 * 1000);
 };
 
 Cloud.prototype.addvehicle = function(self, vehicle) {

@@ -103,10 +103,15 @@ ModelS.prototype.refresh = function(self) {
 ModelS.prototype.scan = function(self) {
 // NB: i doubt the clearTimeout() is needed...
   if (!!self.timer) clearTimeout(self.timer);
-  self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 300 ) * 1000);
+  self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 5 : 300 ) * 1000);
 
   tesla.mobile_enabled(self.vehicle.id, function(data) {
     if (utility.toType(data) === 'error') {
+      if (data.message.indexOf('429:') === 0) {
+        self.updatingP = false;
+        if (!!self.timer) clearTimeout(self.timer);
+        self.timer = setTimeout(function() { self.refresh(self); }, 600 * 1000);
+      }
       return logger.error('device/' + self.deviceID, { event: 'mobile_enabled', diagnostic: data.message });
     }
 
@@ -217,7 +222,7 @@ ModelS.prototype.scan = function(self) {
         self.vehicle.updatingP = didP;
 
         if (!!self.timer) clearTimeout(self.timer);
-        self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 1 : 300 ) * 1000);
+        self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 5 : 300 ) * 1000);
       }
     });
 
