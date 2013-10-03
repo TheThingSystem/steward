@@ -11,7 +11,7 @@
 #include "AirQuality.h"
 
 
-int requestID = 1;
+unsigned long requestID = 1;
 unsigned long next_heartbeat = 0;
 
 

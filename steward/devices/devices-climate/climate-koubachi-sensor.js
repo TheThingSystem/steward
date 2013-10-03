@@ -41,10 +41,14 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Sensor, climate.Device);
 
 
-Sensor.prototype.update = function(self, params) {
+Sensor.prototype.update = function(self, params, status) {
   var param, updateP;
 
   updateP = false;
+  if ((!!status) && (status !== self.status)) {
+    self.status = status;
+    updateP = true;
+  }
   for (param in params) {
     if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
 

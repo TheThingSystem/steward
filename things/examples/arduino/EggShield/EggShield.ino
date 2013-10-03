@@ -18,7 +18,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 EggBus eggBus;
 
-int requestID = 1;
+unsigned long requestID = 1;
 
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x17, 0x2D };  // Arduino Ethernet Shield
 
@@ -117,7 +117,7 @@ void loop() {
   
   char buffer[24];
   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-  strcat(packetBuffer, itoa( requestID, buffer, 10) );
+  strcat(packetBuffer, ultoa( requestID, buffer, 10) );
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
       sprintf(buffer, "%x", mac[thisByte] );
@@ -137,7 +137,7 @@ void loop() {
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
   strcat(packetBuffer, dtostrf(h,4,2,buffer));
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket8) );
-  strcat(packetBuffer, itoa( millis(), buffer, 10) );
+  strcat(packetBuffer, ultoa( millis(), buffer, 10) );
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
 
   Serial.println(packetBuffer); 

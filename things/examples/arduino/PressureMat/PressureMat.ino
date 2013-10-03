@@ -10,7 +10,7 @@
 
 void send_packet( char * state );
 
-int requestID = 1;
+unsigned long requestID = 1;
 unsigned long lastCallbackTime = 0;// the last time the data was written
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
@@ -115,7 +115,7 @@ void send_packet( char * state ) {
   
    char buffer[12];
    strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
-   strcat(packetBuffer, itoa( requestID, buffer, 10) );
+   strcat(packetBuffer, ultoa( requestID, buffer, 10) );
    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
    for (byte thisByte = 0; thisByte < 6; thisByte++) {
      sprintf(buffer, "%x", mac[thisByte] );
@@ -129,7 +129,7 @@ void send_packet( char * state ) {
    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
    strcat(packetBuffer, state);
    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-   strcat(packetBuffer, itoa( millis()/1000, buffer, 10) );
+   strcat(packetBuffer, ultoa( millis(), buffer, 10) );
    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
 
    Serial.println(packetBuffer); 

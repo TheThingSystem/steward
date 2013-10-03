@@ -1522,7 +1522,7 @@ var entries = {
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
                                                               }
-              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/t.svg'
+              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/data-sensing-lab.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions

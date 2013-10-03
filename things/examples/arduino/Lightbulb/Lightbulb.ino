@@ -46,7 +46,7 @@ String totp;
 String epoch;
 
 // WEBSOCKET
-int requestID = 1;
+unsigned long requestID = 1;
 char packetBuffer[BUFFER_LEN];
 String responseData;
 
