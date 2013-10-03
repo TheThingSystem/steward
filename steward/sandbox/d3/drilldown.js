@@ -350,7 +350,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     currDevice.device = device;
     entry = entries[device.deviceType] || entries['default'];
     currDevice.entry = entry;
-    div.innerHTML = '<img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /><br />'
+    div.innerHTML = '<div style="width: 155px; height: 155px; position: relative; left: 62px; overflow: hidden;"><img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /></div>'
                     + '<div id="toPopover" class="big-instructions">'
                     + '<span class="actor-name" id="actor-big-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
                     + instructions
