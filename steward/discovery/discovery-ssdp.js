@@ -94,7 +94,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     for (i = 1; i < lines.length; i++) {
       j = lines[i].indexOf(':');
       if (j <= 0) break;
-      info.ssdp[lines[i].substring(0, j)] = lines[i].substring(j + 2);
+      info.ssdp[lines[i].substring(0, j)] = lines[i].substring(j + 1).trim();
     }
 
     if (info.ssdp.ST === 'upnp:rootdevice') {
@@ -128,17 +128,9 @@ var listen = function(addr, portno) {/* jshint multistr: true */
                                    }
                                  ];
             }
-            if (!data.root.device[0].serialNumber) {
-              data.root.device[0].serialNumber = (!!data.root.device[0].serialNum) ? data.root.device[0].serialNum : [ '' ];
-            }
-
-            if (!data.root.device[0].modelDescription) {
-              data.root.device[0].modelDescription = [''];
-            }
-
-            if (!data.root.device[0].modelNumber) {
-              data.root.device[0].modelNumber = [''];
-            }
+            if (!data.root.device[0].serialNumber) data.root.device[0].serialNumber = data.root.device[0].serialNum || [ '' ];
+            if (!data.root.device[0].modelDescription) data.root.device[0].modelDescription = [''];
+            if (!data.root.device[0].modelNumber) data.root.device[0].modelNumber = [''];
 
             info.device = {
                 url          : (!!data.root.URLBase) ? data.root.URLBase[0] : o.protocol + '//' + o.host + '/'

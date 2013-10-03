@@ -213,6 +213,7 @@ var showPop = function(device, entry) {
 				break;
 			case "/device/climate/":
 			    switch(device.deviceType) {
+			      case ("/device/climate/ecobee/control"):
 			      case ("/device/climate/nest/control"):
 				    return carryonClimate;
 				    break;

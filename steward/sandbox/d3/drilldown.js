@@ -1537,7 +1537,7 @@ var entries = {
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
                                                               }
-              , '/device/climate/ecobee/control'              : { img     : 'actors/ecobee.svg'
+              , '/device/climate/ecobee/control'            : { img     : 'actors/ecobee.svg'
                                                               , single  : single_thermostat_drilldown
                                                               , arcs    : device_thermostat_arcs
                                                               , instrux : single_thermostat_instructions
