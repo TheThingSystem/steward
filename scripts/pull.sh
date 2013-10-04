@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ ! -f run.sh ]; then
   echo "usage: pull.sh (from the steward/steward directory)" 1>&2
