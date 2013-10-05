@@ -461,7 +461,7 @@ var showPop = function(device, entry) {
      div.append("div")
        .attr("class", "popover-name")
        .attr("id", "popover-name")
-       .text("Nest Thermostat");
+       .text("Climate Control");
        
      if (device.info.hvac) {
 		 div.append("div")
