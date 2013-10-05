@@ -95,7 +95,7 @@ var home = function(state) {
     tag.setAttribute('class', 'tag');
     tag.setAttribute('id', 'tag' + (a + 1));
     tag.setAttribute('onclick', 'javascript:goforw(tag_drilldown, "' + prop + '");');
-    tag.innerHTML = prop;
+    tag.innerHTML = prop.replace(/\s/g, '&nbsp;');
     div.appendChild(tag);
     if (++a >= 12) break;
   }
