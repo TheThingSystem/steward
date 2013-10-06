@@ -97,6 +97,9 @@ var home = function(state) {
     tag.setAttribute('onclick', 'javascript:goforw(tag_drilldown, "' + prop + '");');
     tag.innerHTML = prop.replace(/\s/g, '&nbsp;');
     div.appendChild(tag);
+    span = document.createElement('span');
+    span.innerHTML = ' '; // there's a space between quotes
+    div.appendChild(span);
     if (++a >= 12) break;
   }
 
