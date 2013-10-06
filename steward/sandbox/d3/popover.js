@@ -898,7 +898,8 @@ var ColorPickerMgr = {
 	        .attr("id", "colorpicker-container");
 	     div.append("div")
 	        .attr("id", "color-picker")
-			.attr("class", "cp-skin");
+			.attr("class", "cp-skin")
+			.on("click", function() { setTimeout(sendData, 50)});
          pop.append("div")
 			.attr("id", "color-label").attr("class", "label colorpicker-label")
 			.text("COLOR TEMPERATURE");
@@ -909,7 +910,6 @@ var ColorPickerMgr = {
          function(hex, hsv, rgb) {
            newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
            delete newPerform.parameter.color.temperature;
-           sendData();
          });
          
 	     cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
@@ -993,7 +993,8 @@ var ColorPickerMgr = {
 				.attr("id", "colorpicker-container");
 		 div.append("div")
 				.attr("id", "color-picker")
-				.attr("class", "cp-skin");
+				.attr("class", "cp-skin")
+				.on("click", function() { setTimeout(sendData, 50)});
 		 pop.append("div")
 				.attr("id", "color-label").attr("class", "label colorpicker-label")
 				.text("COLOR TEMPERATURE");
@@ -1002,7 +1003,6 @@ var ColorPickerMgr = {
 		 function(hex, hsv, rgb) {
 		   newPerform.parameter.color.hue = hsv.h;
 		   newPerform.parameter.color.saturation = hsv.s;
-		   sendData();
 		 });
 		 
 		 cp.setHsv({h:h, s:s, v:v});
@@ -1015,7 +1015,8 @@ var ColorPickerMgr = {
 	        .attr("id", "colorpicker-container");
 	     div.append("div")
 	        .attr("id", "color-picker")
-			.attr("class", "cp-skin");
+			.attr("class", "cp-skin")
+			.on("click", function() { setTimeout(sendData, 50)});
          pop.append("div")
 			.attr("id", "color-label").attr("class", "label colorpicker-label")
 			.text("COLOR TEMPERATURE");
@@ -1023,7 +1024,6 @@ var ColorPickerMgr = {
 
          function(hex, hsv, rgb) {
            newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
-           sendData();
          });
          
 	     cp.setRgb({r:r, g:g, b:b});
@@ -1059,6 +1059,7 @@ var ColorPickerMgr = {
 	updateColorPicker : function(info) {
 	   if (info.color) {
          var color = info.color;
+         newPerform.parameter = info;
          switch (color.model) {
         	case 'temperature': 
         		updateTemp(color.temperature);
@@ -1078,40 +1079,88 @@ var ColorPickerMgr = {
        }
        
        function updateTemp(temp) {
-	     var rgb = d3.mired.rgb(temp);
-	     newPerform.parameter.color.model = "rgb";
-         newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
-         delete newPerform.parameter.color.temperature;
-	     var cp = ColorPicker(document.getElementById("color-picker"));
-	     cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
-       
+         if (colorModelHasChanged('temperature')) {
+           removeCIEPicker();
+           ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
+         } else {
+	       var rgb = d3.mired.rgb(temp);
+	       newPerform.parameter.color.model = "rgb";
+           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+           delete newPerform.parameter.color.temperature;
+	       var cp = ColorPicker(document.getElementById("color-picker"));
+	       cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
+         }
        };
        
        function updateCIE(x, y) {
-	     var regisCoords = ColorPickerMgr.regCoords(x, y);
-         d3.select("#registration")
-			.style("left", regisCoords.x + "px")
-			.style("top", regisCoords.y + "px");
+         if (colorModelHasChanged('cie1931')) {
+           removeRGBPicker();
+           ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
+         } else {
+  	       var regisCoords = ColorPickerMgr.regCoords(x, y);
+           d3.select("#registration")
+			  .style("left", regisCoords.x + "px")
+			  .style("top", regisCoords.y + "px");
+		 }
        };
        
        function updateHSV(h, s, v) {
-		 cp = ColorPicker(document.getElementById("color-picker"));
-		 newPerform.parameter.color.hue = hsv.h;
-		 newPerform.parameter.color.saturation = hsv.s;
-		 cp.setHsv({h:h, s:s, v:v});       
+         if (colorModelHasChanged('hue')) {
+           removeCIEPicker();
+           ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
+         } else {
+		   cp = ColorPicker(document.getElementById("color-picker"));
+		   newPerform.parameter.color.hue = hsv.h;
+		   newPerform.parameter.color.saturation = hsv.s;
+		   cp.setHsv({h:h, s:s, v:v});
+		 }
        };
        
        function updateRGB(r, g, b) {
-	     cp = ColorPicker(document.getElementById("color-picker"));
-         newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
-	     cp.setRgb({r:r, g:g, b:b});       
+         if (colorModelHasChanged('rgb')) {
+           removeCIEPicker();
+           ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
+         } else {
+	       cp = ColorPicker(document.getElementById("color-picker"));
+           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+	       cp.setRgb({r:r, g:g, b:b});
+	     }
        };
+       
+       function colorModelHasChanged(newModel) {
+         var result = false;
+         switch (newModel) {
+           case 'cie1931':
+              if (!document.getElementById('cie-gamut')) result = true;
+              break;
+           case 'temperature':
+           case 'hue':
+           case 'rgb':
+              if (!document.getElementById('colorpicker-container')) result = true;
+              break;
+           default:
+              break;
+         }
+         return result;
+       }
+       
+       function removeCIEPicker() {
+         d3.select("#cie-gamut").remove();
+         d3.select("#registration").remove();
+         d3.select("#axis").remove();
+         d3.select("#color-label").remove();
+       }
+       
+       function removeRGBPicker() {
+         d3.select("#colorpicker-container").remove();
+         d3.select("#color-label").remove();
+       }
 	
 	},
 	
 	regCoords : function(x, y) {
-	  var v = parseInt((x * 220) / 0.735) + 170;
-	  var h = parseInt((y * 250) / 0.84) + 225;
+	  var v = parseInt((x * 314.86), 10) + 169;
+	  var h = 444 - parseInt((y * 316.67), 10) ;
 	  return {"x": v, "y": h};
     }
 
