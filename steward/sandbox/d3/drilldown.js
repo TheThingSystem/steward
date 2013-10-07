@@ -191,7 +191,7 @@ var onUpdate_drilldown = function(updates) {
     actors[update.whoami].status = update.status;
     actors[update.whoami].updated = update.updated;
     
-    entry = entries[update.whatami];
+    entry = entries[update.whatami] || entries['default'];
     currDevice.entry = entry;
     arcs = entry.arcs(update);
     
@@ -669,7 +669,7 @@ var single_device_instructions = function(device) {
 
   switch (device.status) {
     case 'present':
-     return 'send alert';
+     return '';
 
     case 'off':
       return 'turn on';
@@ -700,7 +700,7 @@ var single_climate_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = single_climate_instructions(device);
+  instructions = entries[device.deviceType].instrux(device);
 
   device_drilldown(device.name, [ device ], climate_device_arcs(device), instructions);
 };
@@ -947,19 +947,22 @@ var climate_device_arcs = function(device) {
 
 
 var single_thermostat_drilldown = function(state) {
-// there should be a pop-up box available for this drilldown...
+  var device, instructions;
 
-  return single_climate_drilldown(state);
+  device = actors[state.actor];
+  instructions = entries[device.deviceType].instrux(device);
+
+  device_drilldown(device.name, [ device ], thermostat_device_arcs(device), instructions);
 };
 
-var device_thermostat_arcs    = climate_device_arcs;
+var thermostat_device_arcs    = climate_device_arcs;
 
 
 var single_lighting_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = single_lighting_instructions(device);
+  instructions = entries[device.deviceType].instrux(device);
 
   device_drilldown(device.name, [ device ], lighting_device_arcs(device), instructions);
 };
@@ -982,7 +985,7 @@ var single_media_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = single_media_instructions(device);
+  instructions = entries[device.deviceType].instrux(device);
 
   device_drilldown(device.name, [ device ], media_device_arcs(device), instructions);
 };
@@ -1111,7 +1114,7 @@ var single_motive_drilldown = function(state) {
   var device, instructions;
 
   device = actors[state.actor];
-  instructions = single_motive_instructions(device);
+  instructions = entries[device.deviceType].instrux(device);
 
   device_drilldown(device.name, [ device ], motive_device_arcs(device), instructions);
 };
@@ -1542,12 +1545,12 @@ var entries = {
                                                               }
               , '/device/climate/ecobee/control'            : { img     : 'actors/ecobee.svg'
                                                               , single  : single_thermostat_drilldown
-                                                              , arcs    : device_thermostat_arcs
+                                                              , arcs    : thermostat_device_arcs
                                                               , instrux : single_thermostat_instructions
                                                               }
               , '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
                                                               , single  : single_thermostat_drilldown
-                                                              , arcs    : device_thermostat_arcs
+                                                              , arcs    : thermostat_device_arcs
                                                               , instrux : single_thermostat_instructions
                                                               }
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
@@ -1676,22 +1679,22 @@ var entries = {
               , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/arduino.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : no_instructions
                                                               }
               , '/device/sensor/arduino/water'              : { img     : 'actors/arduino.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : no_instructions
                                                              }
               , '/device/sensor/grove/water'                : { img     : 'actors/grove.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : no_instructions
                                                              }
               , '/device/sensor/texas-instruments/sensortag': { img     : 'actors/ti-sensor.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : no_instructions
                                                               }
               , '/device/sensor/wemo/motion'                : { img     : 'actors/wemo-sensor.svg'
                                                               , single  : single_sensor_drilldown
