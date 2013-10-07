@@ -331,7 +331,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .style('overflow', 'hidden');
        
     actor.append('img')
-       .attr('src', function(d, i) {return entries[devices[i].deviceType].img; })
+       .attr('src', function(d, i) {entry = entries[devices[i].deviceType] || entries['default']; return entry.img; })
        .style('background-color', function(d, i) {return statusColor(devices[i]); })
        .attr('class', 'actor-grouping')
        .attr('id', function(d, i) {return actor2ID(devices[i].actor) + "-tray-icon";})
