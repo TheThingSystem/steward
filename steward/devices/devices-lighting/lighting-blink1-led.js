@@ -49,7 +49,7 @@ Blink1.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (perform === 'set') return self.setName(params.name);
 
-  state.color = [ 0, 0, 0];
+  state.color = [ 0, 0, 0 ];
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return;
   else {

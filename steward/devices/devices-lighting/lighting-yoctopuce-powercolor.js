@@ -26,18 +26,15 @@ var PowerColor = exports.Device = function(deviceID, deviceUID, info) {
   self.info = {};
 
   if (self.led.isOnline()) {
-    self.led.get_logicalName_async(function(ctx, result, message) {
-console.log('>>> result=' + JSON.stringify(result) + ' message=' + message);
-      if (result !== yapi.YAPI_SUCCESS) {
-        return logger.error('device/' + self.deviceID,  { event: 'get_logicalName', diagnostic: message });
+    self.led.get_logicalName_async(function(ctx, led, result) {
+      if (result === yapi.Y_LOGICALNAME_INVALID) {
+        return logger.error('device/' + self.deviceID,  { event: 'get_logicalName', diagnostic: 'logicalName invalid' });
       }
 
-/*
       if ((!result) || (result.length === 0) || (result === self.name)) return;
         
       logger.info('device/' + self.deviceID, { event: 'get_logicalName', result: result });
       self.setName(result);
-*/
     });
   }
 
@@ -47,17 +44,19 @@ console.log('>>> result=' + JSON.stringify(result) + ' message=' + message);
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  self.led.get_rgbColor_async(function(ctx, result, message) {
-console.log('>>> result=' + JSON.stringify(result) + ' message=' + message);
-    if (result !== yapi.YAPI_SUCCESS) {
-      return logger.error('device/' + self.deviceID,  { event: 'get_rgbColor', diagnostic: message });
+  self.led.get_rgbColor_async(function(ctx, led, result) {
+    var rgb;
+
+    if (result === yapi.Y_RGBCOLOR_INVALID) {
+      return logger.error('device/' + self.deviceID,  { event: 'get_rgbColor', diagnostic: 'rgbColor invalid' });
     }
 
-/*
-    self.status = 'on';
-    self.info.color = { model: 'rgb', rgb: { r: r, g: g, b: b } };
+console.log('>>> typeof='+typeof result);
+    rgb = lighting.colors.hexToRGB(result.toString(16));
+
+    self.status = ((rgb[0] !== 0) || (rgb[1] !== 0) || (rgb[2] !== 0)) ? 'on' : 'off';
+    self.info.color = { model: 'rgb', rgb: { r: rgb[0], g: rgb[1], b: rgb[2] } };
     self.changed();
-*/
   });
 };
 util.inherits(PowerColor, lighting.Device);
@@ -71,7 +70,7 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (perform === 'set') return self.setName(params.name);
 
-  state.color = [ 0, 0, 0];
+  state.color = [ 0, 0, 0 ];
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return;
   else {
@@ -86,14 +85,13 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-  self.led.setColor(state.color[0], state.color[1], state.color[2], function(err) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'setColor', state: state, diagnostic: err.message });
+  if (self.led.set_rgbColor((state.color[0] << 16) + (state.color[1] << 8) + state.color[2]) === yapi.Y_RGBCOLOR_INVALID) {
+    return logger.error('device/' + self.deviceID,  { event: 'get_rgbColor', diagnostic: 'rgbColor invalid' });
+  }
 
-    self.status = state.on ? 'on' : 'off';
-    self.info.color = { model: 'rgb', rgb: { r: state.color[0], g: state.color[1], b: state.color[2] } };
-    self.changed();
-  });
-
+  self.status = state.on ? 'on' : 'off';
+  self.info.color = state.color;
+  self.changed();
 
   return steward.performed(taskID);
 };
@@ -140,7 +138,6 @@ exports.start = function() {
                     , properties : { name       : true
                                    , status     : [ 'waiting', 'on', 'off' ]
                                    , color      : { model: [ { rgb         : { r: 'u8', g: 'u8', b: 'u8' } }
-                                                           , { hue         : { hue: 'degrees', saturation: 'percentage' } }
                                                            ]
                                                   }
                                    }
