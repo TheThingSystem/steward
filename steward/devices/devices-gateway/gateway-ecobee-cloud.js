@@ -254,8 +254,6 @@ Ecobee.prototype.setAway = function(self, sensor, mode) {
                   , isCoolOff             : false
                   , isHeatOff             : false
                   , fan                   : ((climate.coolFan === 'auto') || (climate.heatFan === 'auto')) ? 'auto' : 'on'
-                  , vent                  : climate.vent
-                  , ventilatorMinOnTime   : climate.ventiltatorMinOnTime
                   , isTemperatureRelative : false
                   , isTemperatureAbsolute : true
                   };

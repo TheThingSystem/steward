@@ -6,6 +6,7 @@ var tinycolor   = require('tinycolor2')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , hub         = require('./../devices-gateway/gateway-yoctopuce-hub')
   , lighting    = require('./../device-lighting')
   ;
 
