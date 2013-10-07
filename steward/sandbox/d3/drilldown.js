@@ -1636,6 +1636,11 @@ var entries = {
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
                                                               }
+              , '/device/lighting/yoctopuce/powercolor'     : { img     : 'actors/yoctopuce.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
+                                                              }
               , '/device/media/appletv/video'               : { img     : 'actors/appletv.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs

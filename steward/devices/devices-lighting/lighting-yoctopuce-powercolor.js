@@ -51,8 +51,7 @@ var PowerColor = exports.Device = function(deviceID, deviceUID, info) {
       return logger.error('device/' + self.deviceID,  { event: 'get_rgbColor', diagnostic: 'rgbColor invalid' });
     }
 
-console.log('>>> typeof='+typeof result);
-    rgb = lighting.colors.hexToRGB(result.toString(16));
+    rgb = lighting.colors.getRGBColor(('000000' + result.toString(16)).slice(-6));
 
     self.status = ((rgb[0] !== 0) || (rgb[1] !== 0) || (rgb[2] !== 0)) ? 'on' : 'off';
     self.info.color = { model: 'rgb', rgb: { r: rgb[0], g: rgb[1], b: rgb[2] } };
