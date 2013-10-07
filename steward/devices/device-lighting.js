@@ -321,10 +321,6 @@ var colors = function () {
             }
             return xy;
         },
-
-        getRGBColor : function (h) {
-            return hexToRGB(h);
-        },
         hexFullRed:     "FF0000",
         hexFullGreen:   "00FF00",
         hexFullBlue:    "0000FF",

@@ -617,8 +617,6 @@ var validate_perform_bulb = function(perform, parameter) {
 
   if (perform !== 'on') result.invalid.push('perform');
 
-  if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
-
   color = params.color;
   if (!!color) {
     switch (color.model) {
@@ -629,6 +627,7 @@ var validate_perform_bulb = function(perform, parameter) {
         case 'hue':
           if (!lighting.validHue(color.hue)) result.invalid.push('color.hue');
           if (!lighting.validSaturation(color.saturation)) result.invalid.push('color.saturation');
+          if (!params.brightness) result.requires.push('brightness');
           break;
 
         case 'cie1931':
@@ -644,6 +643,8 @@ var validate_perform_bulb = function(perform, parameter) {
           break;
     }
   }
+
+  if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 
   if ((!!params.transition) && (parseInt(params.transition, 10) < 0)) result.invalid.push('transition');
 
