@@ -189,4 +189,6 @@ exports.start = function() {
       , $validate : {  perform   : validate_perform }
       };
   devices.makers['/device/lighting/yoctopuce/powercolor'] = PowerColor;
+
+  hub.register('Yocto-PowerColor', '/device/lighting/yoctopuce/powercolor');
 };

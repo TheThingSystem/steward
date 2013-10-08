@@ -180,6 +180,7 @@ var start = function(port, secureP) {
       if ((places.place1.info.strict !== 'off')
               && (!secureP)
               && (securePort !== 0)
+              && (pathname !== '/index.xml')
               && (request.connection.localAddress !== '127.0.0.1')) {
         var location = 'https://' + request.connection.localAddress + ':' + securePort;
 

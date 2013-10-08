@@ -12,6 +12,7 @@ var util        = require('util')
 var logger   = exports.logger = utility.logger('gateway');
 
 var modules  = {};
+var products = {};
 
 
 var Hub = exports.Device = function(deviceID, deviceUID, info) {
@@ -50,7 +51,7 @@ util.inherits(Hub, require('./../device-gateway').Device);
 
 
 Hub.prototype.addstation = function(module) {
-  var info, modelNumber, prefix, productName, serialNumber, suffix, x;
+  var info, modelNumber, productName, serialNumber, suffix, x;
 
   var self = this;
 
@@ -64,26 +65,11 @@ Hub.prototype.addstation = function(module) {
   if (x !== -1) modelNumber = serialNumber.substring(0, x);
 
   switch (productName) {
-    case 'Yocto-CO2':
-      prefix = '/device/climate';
-return;
-      break;
-
-    case 'Yocto-Light':
-    case 'Yocto-Meteo':
-    case 'Yocto-VOC':
-      prefix = '/device/climate';
-return;
-      break;
-
-    case 'Yocto-PowerColor':
-      prefix = '/device/lighting';
-      break;
-
     case 'YoctoHub-Ethernet':
       return;
 
     default:
+      if (!!products[productName]) break;
       return logger.error('device/' + self.deviceID, { event: 'unknown module', result: productName });
   }
 
@@ -100,13 +86,18 @@ return;
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = prefix + '/yoctopuce/' + suffix.toLowerCase();
+  info.deviceType = products[productName];
   info.id = info.device.unit.udn;
 console.log(JSON.stringify(info.device));
 
   logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial, type: productName });
   devices.discover(info);
   self.changed();
+};
+
+
+exports.register = function(productName, deviceType) {
+  products[productName] = deviceType;
 };
 
 
