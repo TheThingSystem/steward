@@ -242,7 +242,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 };
 
 var authenticate = exports.authenticate = function(logger, ws, api, message, tag) {
-  var client, clientID, date, meta, now, otp, pair, params, results, user;
+  var client, clientID, date, i, meta, now, pair, params, results, user;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user authentication', message.requestID, permanent, diagnostic);
@@ -269,22 +269,20 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
   results = { requestID: message.requestID };
 
 // compare against previous, current, and next key to avoid worrying about clock synchornization...
-  now = parseInt(Date.now() / 1000, 10);
+  now = [ parseInt(Date.now() / 1000, 10) ];
+  now.push(now[0] - 30);
+  now.push(now[0] + 30);
   params = { key      : client.clientAuthKey
            , length   : message.response.length
            , encoding : 'base32'
            , step     : client.clientAuthParams.step
-           , time     : now
            };
-  otp = [ speakeasy.totp(params) ];
-  params.time = now - 30;
-  otp.push(speakeasy.totp(params));
-  params.time = now + 30;
-  otp.push(speakeasy.totp(params));
-
-  if (otp.indexOf(message.response.toString()) === -1) {
-    results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
-  } else {
+  for (i = 0; i < now.length; i++) {
+    params.time = now[i];
+    if (speakeasy.totp(params) === message.response.toString()) break;
+  }
+  if (i >= now.length) results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
+  else {
     results.result = { userID: user.userID, role: user.userRole };
     ws.clientInfo.userID = user.userID;
     ws.clientInfo.clientID = clientID;
