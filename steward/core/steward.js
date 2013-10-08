@@ -389,7 +389,10 @@ exports.forEachAddress = function(callback) {
 };
 
 exports.clientInfo = function(connection, secureP) {
-  var ifname, props;
+  var props;
+/*
+  var ifname;
+ */
 
   props = { loopback      : false
           , subnet        : false

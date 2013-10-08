@@ -96,11 +96,6 @@ var accessP = function(api, clientInfo, tag) {
       logger.warning(tag, { event: 'access', diagnostic: 'unknown authorization role', role: role });
       return false;
   }
-console.log('>>> clientInfo='+JSON.stringify(clientInfo)
-+' user='+JSON.stringify(user || {})
-+' levels='+JSON.stringify(levels)
-+' api.access='+JSON.stringify(api.access)
-+' role='+JSON.stringify(role));
 
   if (!places) places = require('./../actors/actor-place');
   if ((api.access !== access.level.none) && (places.place1.info.strict !== 'off') && (!(levels & api.access))) {

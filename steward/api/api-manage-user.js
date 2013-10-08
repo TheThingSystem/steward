@@ -78,10 +78,6 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
            || ((!!client) && (client.role === 'master'))
            || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet)
            || (internalP && ws.clientInfo.local);
-console.log('>>> clientInfo='+JSON.stringify(ws.clientInfo)
-+' client='+JSON.stringify(client || {})
-+' user='+JSON.stringify(user || {})
-+' internalP='+JSON.stringify(internalP));
 
   if (!createP) {
     params = utility.clone(ws.clientInfo);
@@ -246,7 +242,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 };
 
 var authenticate = exports.authenticate = function(logger, ws, api, message, tag) {
-  var client, clientID, date, meta, now, otp, pair, results, user;
+  var client, clientID, date, meta, now, otp, pair, params, results, user;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user authentication', message.requestID, permanent, diagnostic);
@@ -271,12 +267,22 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
   if (client.clientAuthAlg !== 'otpauth://totp')            return error(true,  'internal error');
 
   results = { requestID: message.requestID };
-  otp = speakeasy.totp({ key      : client.clientAuthKey
-                       , length   : message.response.length
-                       , encoding : 'base32'
-                       , step     : client.clientAuthParams.step
-                       });
-  if (otp !== message.response.toString()) {
+
+// compare against previous, current, and next key to avoid worrying about clock synchornization...
+  now = parseInt(Date.now() / 1000, 10);
+  params = { key      : client.clientAuthKey
+           , length   : message.response.length
+           , encoding : 'base32'
+           , step     : client.clientAuthParams.step
+           , time     : now
+           };
+  otp = [ speakeasy.totp(params) ];
+  params.time = now - 30;
+  otp.push(speakeasy.totp(params));
+  params.time = now + 30;
+  otp.push(speakeasy.totp(params));
+
+  if (otp.indexOf(message.response.toString()) === -1) {
     results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
   } else {
     results.result = { userID: user.userID, role: user.userRole };
