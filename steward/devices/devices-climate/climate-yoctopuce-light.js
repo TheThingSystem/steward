@@ -77,16 +77,11 @@ Sensor.prototype.scan = function(self) {
   if (self.status !== 'present') return;
 
   self.light.get_currentValue_async(function(ctx, led, result) {
-    var params;
-
     if (result === yapi.Y_LCURRENTVALUE_INVALID) {
       return logger.error('device/' + self.deviceID, { event: 'get_currentValue', diagnostic: 'currentValue invalid' });
     }
 
-    params = { lastSample : new Date().getTime()
-             , light        : result
-             };
-    self.update(self, params);
+    self.update(self, { lastSample: new Date().getTime(), light: result });
   });
 };
 
