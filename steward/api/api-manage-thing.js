@@ -427,7 +427,7 @@ exports.start = function() {
 
   manage.apis.push({ prefix   : '/api/v1/thing/pair'
                    , route    : pair
-                   , access   : manage.access.level.read    // does its own checking...
+                   , access   : manage.access.level.none    // does its own checking...
                    , required : { uuid       : true
                                 , name       : true
                                 }

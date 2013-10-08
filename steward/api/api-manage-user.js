@@ -596,7 +596,7 @@ exports.start = function() {
 
   manage.apis.push({ prefix   : '/api/v1/user/create'
                    , route    : create
-                   , access   : manage.access.level.read    // does its own checking...
+                   , access   : manage.access.level.none    // does its own checking...
                    , required : { uuid       : true
                                 , name       : true
                                 }

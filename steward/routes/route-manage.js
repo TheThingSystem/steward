@@ -103,7 +103,7 @@ console.log('>>> clientInfo='+JSON.stringify(clientInfo)
 +' role='+JSON.stringify(role));
 
   if (!places) places = require('./../actors/actor-place');
-  if ((places.place1.info.strict !== 'off') && (!(levels & api.access))) {
+  if ((api.access !== access.level.none) && (places.place1.info.strict !== 'off') && (!(levels & api.access))) {
     logger.warning(tag, { event      : 'access'
                         , diagnostic : 'unauthorized'
                         , role       : role
