@@ -314,7 +314,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       continue;
     }
 
-    if (!!actor.$validate.perform) {
+    if ((!!actor.$validate) && (!!actor.$validate.perform)) {
       v = actor.$validate.perform(task.perform, task.parameter);
       if ((v.invalid.length > 0) || (v.requires.length > 0)) {
         results.devices[member.actor] = { status: 'failure', diagnostic: 'invalid parameters ' + stringify(v) };
