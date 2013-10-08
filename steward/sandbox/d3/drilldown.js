@@ -758,6 +758,16 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'voc':
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'VOC'
+                          , cooked : v + 'ppm'
+                          , value  : clip2bars(v, 450, 900)
+                          , index  : 0.60
+                          });
+        break;
+
 // 2nd ring
       case 'humidity':
         arcs.splice(2, 0, { name   : prop
