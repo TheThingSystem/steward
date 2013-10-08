@@ -25,7 +25,7 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x17, 0x2D };  // Arduino Ethernet Shield
 char packetBuffer[768];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/arduino/sensor\":{\"prototype\":{\"device\":{\"name\":\"Arduino with EggShield\",\"maker\":\"Arduino\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"no2\":\"ppm\",\"co\":\"ppm\",\"temperature\":\"celsius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Air Quality\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/eggshield/sensor\":{\"prototype\":{\"device\":{\"name\":\"Arduino with EggShield\",\"maker\":\"EggShield\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"no2\":\"ppm\",\"co\":\"ppm\",\"temperature\":\"celsius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Air Quality\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-egg-shield\"},\"info\":{\"no2\":";
 PROGMEM prog_char *loopPacket5 = ",\"co\":";
