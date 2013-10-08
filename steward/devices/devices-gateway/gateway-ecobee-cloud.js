@@ -470,7 +470,8 @@ Cloud.prototype.addstation = function(self, id, station, name, actual, lastModif
            , goalTemperature : actual.goalTemperature || actual.temperature
            , humidity        : actual.humidity
            , hvac            : actual.hvacMode
-           , away            : actual.isOccupied ? 'off' : 'on'
+           , away            : actual.isOccupied ? 'off'     : 'on'
+           , status          : actual.connected  ? 'present' : 'absent'
            };
 
   udn = 'ecobee:' + id;

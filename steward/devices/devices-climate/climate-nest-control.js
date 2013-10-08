@@ -24,12 +24,15 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.serial = info.device.unit.serial;
 
   self.info = {};
+  if (!!info.params.status) {
+    self.status = info.params.status;
+    delete(info.params.status);
+  } else self.status = 'present';
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
   sensor.update(self.deviceID, info.params);
 
-  self.status = 'present';
   self.changed();
   self.gateway = info.gateway;
 
@@ -180,7 +183,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name            : true
-                                   , status          : [ 'present' ]
+                                   , status          : [ 'present', 'absent' ]
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'

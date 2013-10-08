@@ -70,7 +70,7 @@ Hub.prototype.addstation = function(module) {
 
     default:
       if (!!products[productName]) break;
-      return logger.error('device/' + self.deviceID, { event: 'unknown module', result: productName });
+      return logger.warning('device/' + self.deviceID, { event: 'unknown module', result: productName });
   }
 
   info =  { source: self.deviceID, gateway: self, module: module };

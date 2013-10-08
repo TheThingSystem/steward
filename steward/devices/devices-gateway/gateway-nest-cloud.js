@@ -111,13 +111,14 @@ Cloud.prototype.scan = function(self) {
 
     for (id in data.device) {
       if (data.device.hasOwnProperty(id)) {
-        self.addstation(self, id, data.device[id], name, away, data.shared[id], data.track[id].$timestamp);
+        self.addstation(self, id, data.device[id], name, away, data.shared[id], data.track[id].$timestamp,
+                        data.track[id].online);
       }
     }
   });
 };
 
-Cloud.prototype.addstation = function(self, id, station, name, away, data, timestamp) {
+Cloud.prototype.addstation = function(self, id, station, name, away, data, timestamp, online) {
   var info, params, sensor, udn;
 
   params = { lastSample      : timestamp
@@ -126,15 +127,16 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
            , humidity        : station.current_humidity
            , hvac            : (!!data.hvac_ac_state)           ? 'cool'
                                    : (!!data.hvac_heater_state) ? 'heat'
-                                   : (!!data.hvac_fan_state)    ? 'fan' : 'off'
-           , away            : (!!away)                         ? 'on'  : 'off'
-           , leaf            : (!!station.leaf)                 ? 'on'  : 'off'
+                                   : (!!data.hvac_fan_state)    ? 'fan'     : 'off'
+           , away            : (!!away)                         ? 'on'      : 'off'
+           , leaf            : (!!station.leaf)                 ? 'on'      : 'off'
+           , status          : online                           ? 'present' : 'absent'
            };
 
   udn = 'nest:' + id;
   if (devices.devices[udn]) {
     sensor = devices.devices[udn].device;
-    return sensor.update(sensor, params);
+    return sensor.update(sensor, params, online ? 'present' : 'absent');
   }
 
   info =  { source: self.deviceID, gateway: self, params: params };

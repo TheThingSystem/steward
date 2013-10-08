@@ -25,7 +25,6 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.revision = info.revision;
 
   self.info = {};
-
   if (!!info.params.status) {
     self.status = info.params.status;
     delete(info.params.status);
