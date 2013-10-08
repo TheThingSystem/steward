@@ -1566,12 +1566,48 @@ var entries = {
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_climate_instructions
                                                               , pop     : 'history_pop'
-                                                             }
+                                                              }
+              , '/device/climate/yoctopuce/co2'             : { img     : 'actors/yoctopuce.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              , instrux : single_climate_instructions
+                                                              , pop     : 'history_pop'
+                                                              }
+              , '/device/climate/yoctopuce/light'           : { img     : 'actors/yoctopuce.svg'
+                                                               , single  : single_climate_drilldown
+                                                               , arcs    : climate_device_arcs
+                                                               , instrux : single_climate_instructions
+                                                               , pop     : 'history_pop'
+                                                              }
+              , '/device/climate/yoctopuce/meteo'           : { img     : 'actors/yoctopuce.svg'
+                                                               , single  : single_climate_drilldown
+                                                               , arcs    : climate_device_arcs
+                                                               , instrux : single_climate_instructions
+                                                               , pop     : 'history_pop'
+                                                              }
+              , '/device/climate/yoctopuce/voc'             : { img     : 'actors/yoctopuce.svg'
+                                                               , single  : single_climate_drilldown
+                                                               , arcs    : climate_device_arcs
+                                                               , instrux : single_climate_instructions
+                                                               , pop     : 'history_pop'
+                                                              }
+              , '/device/gateway/ecobee/cloud'              : { img     : 'actors/ecobee.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
               , '/device/gateway/insteon/hub'               : { img     : 'actors/insteon-hub.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
               , '/device/gateway/insteon/smartlinc'         : { img     : 'actors/smart-linc.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/koubachi/cloud'            : { img     : 'actors/koubachi.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/nest/cloud'                : { img     : 'actors/nest.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
@@ -1584,6 +1620,14 @@ var entries = {
                                                               , arcs    : gateway_device_arcs
                                                               }
               , '/device/gateway/sonos/bridge'              : { img     : 'actors/sonos-bridge.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/tesla/cloud'               : { img     : 'actors/tesla-motors.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/yoctopuce/ethernet'        : { img     : 'actors/yoctopuce.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }

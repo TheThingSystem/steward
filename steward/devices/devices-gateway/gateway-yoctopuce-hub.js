@@ -1,4 +1,4 @@
-// Yoctopuce: http://yoctopuce.com
+// YoctoHub-Ethernet: http://yoctopuce.com
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -88,7 +88,6 @@ Hub.prototype.addstation = function(module) {
   info.url = info.device.url;
   info.deviceType = products[productName];
   info.id = info.device.unit.udn;
-console.log(JSON.stringify(info.device));
 
   logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial, type: productName });
   devices.discover(info);
