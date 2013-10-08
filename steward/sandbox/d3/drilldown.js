@@ -1547,21 +1547,25 @@ var entries = {
                                                               , single  : single_thermostat_drilldown
                                                               , arcs    : thermostat_device_arcs
                                                               , instrux : single_thermostat_instructions
+                                                              , pop     : 'thermostat_pop'
                                                               }
               , '/device/climate/nest/control'              : { img     : 'actors/nest.svg'
                                                               , single  : single_thermostat_drilldown
                                                               , arcs    : thermostat_device_arcs
                                                               , instrux : single_thermostat_instructions
+                                                              , pop     : 'thermostat_pop'
                                                               }
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_climate_instructions
+                                                              , pop     : 'history_pop'
                                                               }
               , '/device/climate/oregon-scientific/sensor'  : { img     : 'actors/oregon-scientific.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_climate_instructions
+                                                              , pop     : 'history_pop'
                                                              }
               , '/device/gateway/insteon/hub'               : { img     : 'actors/insteon-hub.svg'
                                                               , single  : single_gateway_drilldown
@@ -1605,66 +1609,79 @@ var entries = {
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/blinkstick/led'           : { img     : 'actors/blinkstick.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/hue/bloom'                : { img     : 'actors/hue-bloom.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/hue/bulb'                 : { img     : 'actors/hue.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/hue/lightstrip'           : { img     : 'actors/hue-lightstrip.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/insteon/led'              : { img     : 'actors/insteon-led.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/robosmart/led'            : { img     : 'actors/robosmart.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/yoctopuce/powercolor'     : { img     : 'actors/yoctopuce.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
                                                               }
               , '/device/media/appletv/video'               : { img     : 'actors/appletv.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               , instrux : single_media_instructions
+                                                              , pop     : 'media_pop'
                                                               }
               , '/device/media/chromecast/video'            : { img     : 'actors/chromecast.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               , instrux : single_media_instructions
+                                                              , pop     : 'media_pop'
                                                               }
               , '/device/media/sonos/audio'                 : { img     : 'actors/sonos-playbar.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               , instrux : single_media_instructions
+                                                              , pop     : 'media_pop'
                                                               }
               , '/device/media/roku/video'                  : { img     : 'actors/roku3.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               , instrux : single_media_instructions
+                                                              , pop     : 'media_pop'
                                                               }
               , '/device/motive/tesla/model-s'              : { img     : 'actors/tesla-motors.svg'
                                                               , single  : single_motive_drilldown
                                                               , arcs    : motive_device_arcs
                                                               , instrux : single_motive_instructions
+                                                              , pop     : 'motive_pop'
                                                               }
               , 'device/presence/fob/hone'                  : { img     : 'actors/hone.svg'
                                                               , single  : single_presence_drilldown
@@ -1710,16 +1727,19 @@ var entries = {
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
                                                               , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
                                                               }
               , '/device/switch/insteon/onoff'              : { img     : 'actors/insteon-plug.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
                                                               , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
                                                               }
               , '/device/switch/wemo/onoff'                 : { img     : 'actors/wemo-plug.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
                                                               , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
                                                               }
               , '/device/wearable/watch/cookoo'             : { img     : 'actors/cookoo.svg'
                                                               , single  : single_wearable_drilldown

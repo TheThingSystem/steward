@@ -175,7 +175,7 @@ var showPop = function(device, entry) {
      .attr("height", "0")
      .style("top", w / 2 + "px")
      .style("left", h / 2 + "px")
-     .transition().each("end", carryonFunc(device))
+     .transition().each("end", finishPopover(device, entry))
      .duration(600)
      .attr("width", w)
      .attr("height", h)
@@ -203,37 +203,30 @@ var showPop = function(device, entry) {
 		}	
 	}
     
-	function carryonFunc(device) {
-		switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
-			case "/device/lighting/":
-				return carryonLighting;
+	function finishPopover(device, entry) {
+		switch (entry.pop) {
+			case "lighting_pop":
+				return finishLighting;
 				break;
-			case "/device/media/":
-				return carryonMedia;
+			case "media_pop":
+				return finishMedia;
 				break;
-			case "/device/climate/":
-			    switch(device.deviceType) {
-			      case ("/device/climate/ecobee/control"):
-			      case ("/device/climate/nest/control"):
-				    return carryonClimate;
-				    break;
-				  default:
-				    return carryonEmpty;
-				    break;
-				}
-			case "/device/switch/":
-				return carryonSwitch;
+			case "thermostat_pop":
+			    return finishClimate;
+				break;
+			case "switch_pop":
+				return finishSwitch;
 				break;
 			default:
-				return carryonEmpty;
+				return finishEmpty;
 				break;
 		}
 	}
 	
-   function carryonLighting() {
+   function finishLighting() {
        var div, elem;
-       carryonCommon("done-narrow");
-       carryonStatus();
+       finishCommon("done-narrow");
+       finishStatus();
        
        div = pop.append("div")
          .attr("id", "on-off-slider-wrapper");
@@ -306,7 +299,7 @@ var showPop = function(device, entry) {
        ColorPickerMgr.addColorPicker(pop, device.info);
    }
    
-   function carryonMedia() {
+   function finishMedia() {
      var div, elem, disabled = "-disabled";
      switch(device.status) {
     	case "playing":
@@ -319,8 +312,8 @@ var showPop = function(device, entry) {
     	  newPerform.perform = "stop";
     	  break;
      }
-     carryonCommon("done-wide");
-     carryonStatus();
+     finishCommon("done-wide");
+     finishStatus();
      
      div = pop.append("div")
        .attr("id", "metadata-wrapper");
@@ -447,7 +440,7 @@ var showPop = function(device, entry) {
      }
    }
    
-   function carryonClimate() {
+   function finishClimate() {
      var div, div2, elem;
      newPerform.perform = "set";
      
@@ -655,10 +648,10 @@ var showPop = function(device, entry) {
 
    }
 
-   function carryonSwitch() {
+   function finishSwitch() {
      var div, elem;
      newPerform.perform = device.status;
-     carryonCommon("done-narrow");
+     finishCommon("done-narrow");
      
      var hasLevel = device.info.hasOwnProperty("level");
      div = pop.append("div")
@@ -737,9 +730,9 @@ var showPop = function(device, entry) {
    };
 
 
-   function carryonEmpty() {
+   function finishEmpty() {
        var elem;
-       carryonCommon("done-wide");
+       finishCommon("done-wide");
        
        div = pop.append("span")
            .attr("id", "hard-hat-area")
@@ -768,7 +761,7 @@ var showPop = function(device, entry) {
            .html("(This is a developer preview, and all of our<br />features are not yet functional. Check back soon.)");
    };
    
-	function carryonCommon(doneClass) {
+	function finishCommon(doneClass) {
 	  var div, div2;
 	  div = pop.append("div")
 	    .attr("id", "primary-controls");
@@ -778,7 +771,11 @@ var showPop = function(device, entry) {
 	      .attr("src", function(d, i) {return "popovers/assets/" + entries[device.deviceType].img; })
 	      .style("width", "43px");
 	  div.append("div")
-	    .attr("id", "popover-name").attr("class", "popover-name")
+	    .attr("id", "popover-name")
+	    .attr("class", "popover-name")
+	    .attr("contenteditable", "true")
+	    .on("blur", setDeviceName)
+	    .on("keydown", setDeviceName)
         .text(device.name);
       
       pop.append("img")
@@ -789,7 +786,7 @@ var showPop = function(device, entry) {
         .on("click", cancel);
 	};
 	
-	function carryonStatus() {
+	function finishStatus() {
 	  div = pop.append("div")
         .attr("id", "device-status-wrapper");
       div.append("div")
@@ -851,6 +848,35 @@ var showPop = function(device, entry) {
 	  }
 	  sendData();
 	};
+	
+	function makeEditable() {
+	  var elem = d3.event.target;
+	  elem.contentEditable = true;
+	};
+	
+	function setDeviceName() {
+	  var elem = d3.event.target;
+	  if (d3.event.keyCode) {
+	    if (d3.event.keyCode !== 13) {
+	      return true;
+	    } else {
+	      d3.event.preventDefault();
+	    }
+	  }
+	  if (elem.innerText === "" || elem.innerText === "\n") {
+	    elem.innerText = device.name;
+	  } else if (elem.innerText !== device.name) {
+	    var cmd = { path     : newPerform.path,
+	                perform  : "set",
+	                requestID: "2",
+	                parameter: { name : elem.innerText} };
+	    cmd.parameter = JSON.stringify(cmd.parameter);
+//console.log("Sending: " + JSON.stringify(cmd));
+        wsSend(JSON.stringify(cmd));
+        currDevice.device.name = elem.innerText;
+        document.getElementById("actor-big-name").innerText = elem.innerText;
+	  }
+	};
 
 	function cancel() {
      d3.select("#popBg")
@@ -860,8 +886,8 @@ var showPop = function(device, entry) {
 	};
 	
 	function removePop() {
-		d3.select("#blocker").remove(); 
-		pop.remove();
+	  d3.select("#blocker").remove(); 
+	  pop.remove();
 	};
 	
 };
