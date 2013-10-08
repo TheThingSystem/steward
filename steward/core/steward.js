@@ -401,6 +401,9 @@ exports.clientInfo = function(connection, secureP) {
   if (connection.remoteAddress === '127.0.0.1') props.loopback = !secureP;
   else {
 // TBD: in node 0.11, this should be reworked....
+//      would prefer to distinguish between on the same subnet or not
+    props.subnet = true;
+/*
     for (ifname in ifaces) {
       if (!ifaces.hasOwnProperty(ifname)) continue;
 
@@ -409,6 +412,7 @@ exports.clientInfo = function(connection, secureP) {
         break;
       }
     }
+ */
   }
 
   props.local = props.loopback || props.subnet;

@@ -98,6 +98,8 @@ var accessP = function(api, clientInfo, tag) {
   }
 console.log('>>> clientInfo='+JSON.stringify(clientInfo)
 +' user='+JSON.stringify(user || {})
++' levels='+JSON.stringify(levels)
++' api.access='+JSON.stringify(api.access)
 +' role='+JSON.stringify(role));
 
   if (!places) places = require('./../actors/actor-place');
@@ -106,7 +108,7 @@ console.log('>>> clientInfo='+JSON.stringify(clientInfo)
                         , diagnostic : 'unauthorized'
                         , role       : role
                         , resource   : 'manage'
-                        , level      : utility.value2key(access, api.access)
+                        , level      : utility.value2key(access.levels, api.access)
                         });
     return false;
   }
