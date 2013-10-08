@@ -221,19 +221,19 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
 
 
 exports.start = function() {
-  manage.apis.push({ prefix  : '/api/v1/actor/list'
-                   , options : { depth: 'flat' }
-                   , route   : list
-                   , access  : manage.access.level.read
+  manage.apis.push({ prefix   : '/api/v1/actor/list'
+                   , options  : { depth: 'flat' }
+                   , route    : list
+                   , access   : manage.access.level.read
                    , optional : { actor      : 'id'
                                 , depth      : [ 'flat', 'tree', 'all' ]
                                 }
                    , response : {}
                    , comments : [ 'if present, the actor is specified as the path suffix' ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/actor/perform'
-                   , route   : perform
-                   , access  : manage.access.level.perform
+  manage.apis.push({ prefix   : '/api/v1/actor/perform'
+                   , route    : perform
+                   , access   : manage.access.level.perform
                    , required : { prefix     : true
                                 , perform    : true
                                 }

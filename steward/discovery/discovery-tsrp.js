@@ -1,3 +1,5 @@
+// Thing Sensor Reporting Protocol
+
 var dgram       = require('dgram')
   , util        = require('util')
   , devices     = require('./../core/device')

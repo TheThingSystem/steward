@@ -324,9 +324,9 @@ var proplist = exports.proplist = function(id, event) {
 exports.start = function() {
   readyP();
 
-  manage.apis.push({ prefix  : '/api/v1/event/create'
-                   , route   : create
-                   , access  : manage.access.level.write
+  manage.apis.push({ prefix   : '/api/v1/event/create'
+                   , route    : create
+                   , access   : manage.access.level.write
                    , required : { uuid       : true
                                 , name       : true
                                 , actor      : 'actor'
@@ -340,19 +340,19 @@ exports.start = function() {
                                 , 'the task actor must resolve to a device or a group of devices'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/event/list'
-                   , options : { depth: 'flat' }
-                   , route   : list
-                   , access  : manage.access.level.read
+  manage.apis.push({ prefix   : '/api/v1/event/list'
+                   , options  : { depth: 'flat' }
+                   , route    : list
+                   , access   : manage.access.level.read
                    , optional : { event      : 'id'
                                 , depth      : [ 'flat', 'tree', 'all' ]
                                 }
                    , response : {}
                    , comments : [ 'if present, the event is specified as the path suffix' ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/event/delete'
-                   , route   : remove
-                   , access  : manage.access.level.write
+  manage.apis.push({ prefix   : '/api/v1/event/delete'
+                   , route    : remove
+                   , access   : manage.access.level.write
                    });
 };
 

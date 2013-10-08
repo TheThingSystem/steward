@@ -78,6 +78,11 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
            || ((!!client) && (client.role === 'master'))
            || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet)
            || (internalP && ws.clientInfo.local);
+console.log('>>> clientInfo='+JSON.stringify(ws.clientInfo)
++' client='+JSON.stringify(client || {})
++' user='+JSON.stringify(user || {})
++' internalP='+JSON.stringify(internalP));
+
   if (!createP) {
     params = utility.clone(ws.clientInfo);
 
@@ -589,9 +594,9 @@ exports.start = function() {
 
   fetch();
 
-  manage.apis.push({ prefix  : '/api/v1/user/create'
-                   , route   : create
-                   , access  : manage.access.level.read    // does its own checking...
+  manage.apis.push({ prefix   : '/api/v1/user/create'
+                   , route    : create
+                   , access   : manage.access.level.read    // does its own checking...
                    , required : { uuid       : true
                                 , name       : true
                                 }
@@ -604,19 +609,19 @@ exports.start = function() {
                                 , 'the default role is "resident"'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/user/list'
-                   , options : { depth: 'flat' }
-                   , route   : list
-                   , access  : manage.access.level.read
+  manage.apis.push({ prefix   : '/api/v1/user/list'
+                   , options  : { depth: 'flat' }
+                   , route    : list
+                   , access   : manage.access.level.read
                    , optional : { user       : 'id'
                                 , depth      : [ 'flat', 'tree', 'all' ]
                                 }
                    , response : {}
                    , comments : [ 'if present, the user is specified as the path suffix' ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/user/authenticate'
-                   , route   : authenticate
-                   , access  : manage.access.level.none
+  manage.apis.push({ prefix   : '/api/v1/user/authenticate'
+                   , route    : authenticate
+                   , access   : manage.access.level.none
                    , required : { clientID : 'id'
                                 , response : true
                                 }
@@ -624,9 +629,9 @@ exports.start = function() {
                    , comments : [ 'the clientID is specified as the path suffix, e.g., .../mrose/1'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/user/prime'
-                   , route   : prime
-                   , access  : manage.access.level.write
+  manage.apis.push({ prefix   : '/api/v1/user/prime'
+                   , route    : prime
+                   , access   : manage.access.level.write
                    , required : { clientID : 'id'
                                 }
                    , optional : { fingerprint : true

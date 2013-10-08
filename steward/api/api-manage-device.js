@@ -216,9 +216,9 @@ var readyP = function() {
 exports.start = function() {
   readyP();
 
-  manage.apis.push({ prefix  : '/api/v1/device/create'
-                   , route   : create
-                   , access  : manage.access.level.write
+  manage.apis.push({ prefix   : '/api/v1/device/create'
+                   , route    : create
+                   , access   : manage.access.level.write
                    , required : { uuid       : true
                                 , name       : true
                                 , whatami    : 'prototype-name'
@@ -232,19 +232,19 @@ exports.start = function() {
                                 , 'the property-list must be valid for the device'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/device/list'
-                   , options : { depth: 'flat' }
-                   , route   : list
-                   , access  : manage.access.level.read
+  manage.apis.push({ prefix   : '/api/v1/device/list'
+                   , options  : { depth: 'flat' }
+                   , route    : list
+                   , access   : manage.access.level.read
                    , optional : { device     : 'id'
                                 , depth      : [ 'flat', 'tree', 'all' ]
                                 }
                    , response : {}
                    , comments : [ 'if present, the device is specified as the path suffix' ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/device/perform'
-                   , route   : perform
-                   , access  : manage.access.level.perform
+  manage.apis.push({ prefix   : '/api/v1/device/perform'
+                   , route    : perform
+                   , access   : manage.access.level.perform
                    , required : { deviceID   : 'id'
                                 , perform    : true
                                 }

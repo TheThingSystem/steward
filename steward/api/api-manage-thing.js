@@ -425,9 +425,9 @@ var readyP = function() {
 exports.start = function() {
   readyP();
 
-  manage.apis.push({ prefix  : '/api/v1/thing/pair'
-                   , route   : pair
-                   , access  : manage.access.level.read    // does its own checking...
+  manage.apis.push({ prefix   : '/api/v1/thing/pair'
+                   , route    : pair
+                   , access   : manage.access.level.read    // does its own checking...
                    , required : { uuid       : true
                                 , name       : true
                                 }
@@ -438,9 +438,9 @@ exports.start = function() {
                    , comments : [ 'the uuid is specified as the pair suffix'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/thing/hello'
-                   , route   : hello
-                   , access  : manage.access.level.attach
+  manage.apis.push({ prefix   : '/api/v1/thing/hello'
+                   , route    : hello
+                   , access   : manage.access.level.attach
                    , required : { thingID  : 'id'
                                 , response : true
                                 }
@@ -448,30 +448,30 @@ exports.start = function() {
                    , comments : [ 'the thingID is specified as the path suffix, e.g., .../1'
                                 ]
                    });
-  manage.apis.push({ prefix  : '/api/v1/thing/prototype'
-                   , route   : prototype
-                   , access  : manage.access.level.attach
+  manage.apis.push({ prefix   : '/api/v1/thing/prototype'
+                   , route    : prototype
+                   , access   : manage.access.level.attach
                    , required : { things   : true
                                 }
                    , comments : []
                    });
-  manage.apis.push({ prefix  : '/api/v1/thing/register'
-                   , route   : register
-                   , access  : manage.access.level.attach
+  manage.apis.push({ prefix   : '/api/v1/thing/register'
+                   , route    : register
+                   , access   : manage.access.level.attach
                    , required : { things   : true
                                 }
                    , comments : []
                    });
-  manage.apis.push({ prefix  : '/api/v1/thing/update'
-                   , route   : update
-                   , access  : manage.access.level.attach
+  manage.apis.push({ prefix   : '/api/v1/thing/update'
+                   , route    : update
+                   , access   : manage.access.level.attach
                    , required : { things   : true
                                 }
                    , comments : []
                    });
-  manage.apis.push({ prefix  : '/api/v1/thing/report'
-                   , route   : report
-                   , access  : manage.access.level.attach
+  manage.apis.push({ prefix   : '/api/v1/thing/report'
+                   , route    : report
+                   , access   : manage.access.level.attach
                    , required : { events   : true
                                 }
                    , comments : []
