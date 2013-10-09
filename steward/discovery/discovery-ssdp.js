@@ -74,7 +74,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
   }).on('advertise-bye', function(heads) {
     logger.debug('advertise-bye', { heads: stringify(heads) });
   }).on('response', function(msg, rinfo) {
-    var i, j, o;
+    var i, j, localP, o;
 
     logger.debug('UPnP response', { rinfo: stringify(rinfo) });
 
@@ -104,6 +104,10 @@ var listen = function(addr, portno) {/* jshint multistr: true */
         logger.warning('discovery', { event: 'bogus SSDP response', responder: rinfo, location: o.hostname });
         return;
       }
+
+      localP = false;
+      steward.forEachAddress(function(addr) { if (o.hostname === addr) { localP = true; } });
+      if (localP) return;
 
       http.get(o, function(response) {
         var content = '';
