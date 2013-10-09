@@ -1,4 +1,4 @@
-// Yocto-Meteo: http://www.yoctopuce.com
+// Yocto-Meteo: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-meteo
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -163,7 +163,7 @@ exports.start = function() {
                                    , pressure    : 'millibars'
                                    }
                     }
-      , $validate : {  perform   : devices.validate_perform }
+      , $validate : {  perform   : hub.validate_perform }
       };
   devices.makers['/device/climate/yoctopuce/meteo'] = Sensor;
 

@@ -1,4 +1,4 @@
-// YoctoHub-Ethernet: http://yoctopuce.com
+// YoctoHub-Ethernet: http://www.yoctopuce.com/EN/products/extensions-and-networking/yoctohub-ethernet
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -94,6 +94,29 @@ Hub.prototype.addstation = function(module) {
   self.changed();
 };
 
+exports.validate_perform = function(perform, parameter) {
+  var params = {}
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (perform !== 'set') {
+    result.invalid.push('perform');
+    return result;
+  }
+  if (!parameter) {
+    result.requires.push('parameter');
+    return result;
+  }
+
+  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (!params.name) result.requires.push('name');
+
+  if (!yapi.yCheckLogicalName(params.name)) result.invalid.push('name');
+
+  return result;
+};
+
 
 exports.register = function(productName, deviceType) {
   products[productName] = deviceType;
@@ -114,7 +137,7 @@ exports.start = function() {
                                    , status : [ 'ready' ]
                                    }
                     }
-      , $validate : { perform    : devices.validate_perform
+      , $validate : { perform    : exports.validate_perform
                     }
       };
   devices.makers['YoctoHub-Ethernet'] = Hub;

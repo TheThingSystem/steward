@@ -1,4 +1,4 @@
-// Yocto-PowerColor: http://www.yoctopuce.com
+// Yocto-PowerColor: http://www.yoctopuce.com/EN/products/usb-actuators/yocto-powercolor
 
 var tinycolor   = require('tinycolor2')
   , util        = require('util')
@@ -137,10 +137,7 @@ var validate_perform = function(perform, parameter) {
   }
   try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (perform === 'set') {
-    if (!params.name) result.requires.push('name');
-    return result;
-  }
+  if (perform === 'set') return hub.validate_perform(perform, parameter);
 
   if (perform !== 'on') result.invalid.push('perform');
 

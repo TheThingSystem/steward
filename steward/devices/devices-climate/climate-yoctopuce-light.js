@@ -1,4 +1,4 @@
-// Yocto-LIGHT: http://www.yoctopuce.com
+// Yocto-LIGHT: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-light
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -134,7 +134,7 @@ exports.start = function() {
                                    , light      : 'lux'
                                    }
                     }
-      , $validate : {  perform   : devices.validate_perform }
+      , $validate : {  perform   : hub.validate_perform }
       };
   devices.makers['/device/climate/yoctopuce/light'] = Sensor;
 

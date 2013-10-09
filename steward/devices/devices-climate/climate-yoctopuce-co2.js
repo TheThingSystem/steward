@@ -1,4 +1,4 @@
-// Yocto-CO2: http://www.yoctopuce.com
+// Yocto-CO2: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-co2
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -133,7 +133,7 @@ exports.start = function() {
                                    , co2        : 'ppm'
                                    }
                     }
-      , $validate : {  perform   : devices.validate_perform }
+      , $validate : {  perform   : hub.validate_perform }
       };
   devices.makers['/device/climate/yoctopuce/co2'] = Sensor;
 

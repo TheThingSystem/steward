@@ -614,6 +614,7 @@ var validate_perform_bulb = function(perform, parameter) {
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');
+    else result.invalid.push('name'); // sigh, not supported by Hue
     return result;
   }
 
