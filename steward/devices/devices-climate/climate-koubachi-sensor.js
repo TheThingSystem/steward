@@ -130,6 +130,7 @@ exports.start = function() {
                                    , light       : 'lux'
                                    }
                     }
+      , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['/device/climate/koubachi/sensor'] = Sensor;
 
@@ -151,6 +152,7 @@ exports.start = function() {
                                    , adviseLight     : true
                                    }
                     }
+      , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['/device/climate/koubachi/plant'] = Plant;
 };

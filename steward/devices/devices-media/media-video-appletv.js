@@ -169,40 +169,41 @@ AppleTV.prototype.refresh = function() {
 exports.start = function() {
   var discovery = utility.logger('discovery');
 
-  mdns.createBrowser(mdns.tcp('airplay')).on('serviceUp', function(service) {
+  try {
+    mdns.createBrowser(mdns.tcp('airplay')).on('serviceUp', function(service) {
+      var model = service.txtRecord.model.match(/([\d]*),([\d]*)/).slice(1).join('.');
+      var info =  { source  : 'mdns'
+                  , device  : { url          : 'http://' + service.host + ':' + service.port + '/'
+                              , name         : service.name
+                              , manufacturer : 'APPLE'
+                              , model        : { name        : service.name
+                                               , description : service.name
+                                               , number      : model
+                                               }
+                              , unit         : { serial      : service.txtRecord.macaddress
+                                               , udn         : 'uuid:' + service.txtRecord.macaddress
+                                               }
+                                }
+                  };
 
-    var model = service.txtRecord.model.match(/([\d]*),([\d]*)/).slice(1).join('.');
-    var info =  { source  : 'mdns'
-                , device  : { url          : 'http://' + service.host + ':' + service.port + '/'
-                            , name         : service.name
-                            , manufacturer : 'APPLE'
-                            , model        : { name        : service.name
-                                             , description : service.name
-                                             , number      : model
-                                             }
-                            , unit         : { serial      : service.txtRecord.macaddress
-                                             , udn         : 'uuid:' + service.txtRecord.macaddress
-                                             }
-                              }
-                };
+      info.url = info.device.url;
 
-    info.url = info.device.url;
-
-    info.deviceType = '/device/media/appletv/video';
-    info.id = info.device.unit.udn;
-    if (devices.devices[info.id]) return;
-
-    discovery.info('mDNS ' + info.device.name, { url: info.url });
-    devices.discover(info);
-
-  }).on('serviceDown', function(service) {
-    discovery.debug('_airplay._tcp', { event: 'down', name: service.name, host: service.host });
-  }).on('serviceChanged', function(service) {
-    discovery.debug('_airplay._tcp', { event: 'changed', name: service.name, host: service.host });
-  }).on('error', function(err) {
-    discovery.error('_airplay._tcp', { event: 'mdns', diagnostic: err.message });
-  }).start();
-
+      info.deviceType = '/device/media/appletv/video';
+      info.id = info.device.unit.udn;
+      if (devices.devices[info.id]) return;
+  
+      discovery.info('mDNS ' + info.device.name, { url: info.url });
+      devices.discover(info);
+    }).on('serviceDown', function(service) {
+      discovery.debug('_airplay._tcp', { event: 'down', name: service.name, host: service.host });
+    }).on('serviceChanged', function(service) {
+      discovery.debug('_airplay._tcp', { event: 'changed', name: service.name, host: service.host });
+    }).on('error', function(err) {
+      discovery.error('_airplay._tcp', { event: 'mdns', diagnostic: err.message });
+    }).start();
+  } catch(ex) {
+      discovery.error('_airplay._tcp', { event: 'browse', diagnostic: ex.message });
+  }
 
   steward.actors.device.media.appletv = steward.actors.device.media.appletv ||
       { $info     : { type: '/device/media/appletv' } };

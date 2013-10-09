@@ -145,6 +145,7 @@ exports.discover = function(info, callback) {
     } else if (row !== undefined) {
       if (!!callback) callback(null, null);
 
+      if (!info.device.name) info.device.name = 'device/' +  row.deviceID;
       devices[deviceUID].device = new (makers[deviceType])(row.deviceID, deviceUID, info);
       devices[deviceUID].proplist = Device.prototype.proplist;
       logger.info('found ' + info.device.name, { deviceType: deviceType });
@@ -169,6 +170,7 @@ exports.discover = function(info, callback) {
 
       deviceID = this.lastID;
 
+      if (!info.device.name) info.device.name = 'device/' +  deviceID;
       devices[deviceUID].device = new (makers[deviceType])(deviceID, deviceUID, info);
       devices[deviceUID].proplist = Device.prototype.proplist;
       logger.notice('adding ' + info.device.name, { deviceType: deviceType });
@@ -266,7 +268,7 @@ Device.prototype.getName = function() {
       logger.error('devices', { event: 'SELECT device.deviceName for ' + self.deviceID, diagnostic: err.message });
       return;
     }
-    if (row !== undefined) {
+    if ((row !== undefined) && (!!row.deviceName) && (self.name !== row.deviceName)) {
       self.name = row.deviceName;
       self.changed();
     }
@@ -282,7 +284,7 @@ Device.prototype.setName = function(deviceName) {
          { $deviceName: deviceName, $deviceID : self.deviceID }, function(err) {
     if (err) {
       logger.error('devices', { event: 'UPDATE device.deviceName for ' + self.deviceID, diagnostic: err.message });
-    } else {
+    } else if (self.name !== deviceName) {
       self.name = deviceName;
       self.changed();
     }

@@ -1747,7 +1747,7 @@ var entries = {
                                                               , arcs    : presence_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
-              , '/device/presence/fob'                      : { img     : 'actors/presence-fob.svg'
+              , '/device/presence/fob/ble'                  : { img     : 'actors/presence-fob.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               , instrux : single_device_instructions

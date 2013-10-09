@@ -21,6 +21,8 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
+
   self.serial = info.device.unit.serial;
   self.revision = info.revision;
 

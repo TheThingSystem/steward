@@ -22,6 +22,8 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
+
   self.vehicle = info.vehicle;
   self.vehicle.lastSample = { timestamp: 0 };
   self.vehicle.streamingP = false;

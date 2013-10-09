@@ -1,9 +1,11 @@
 // Wemo Motion: http://www.belkin.com/us/wemo-motion
 
-var util        = require('util')
+var stringify   = require('json-stringify-safe')
+  , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , discovery   = require('./../../discovery/discovery-ssdp')
   , sensor      = require('./../device-sensor')
   ;
 
@@ -33,7 +35,7 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
       if (observe === 'motion') self.events[eventID] = { observe: observe, parameter: parameter };
       return;
     }
-    if ((request === 'perform') && (observe === 'set')) return devices.perform(self, eventID, observe, parameter);
+    if ((request === 'perform') && (observe === 'set')) return self.perform(self, eventID, observe, parameter);
   });
 
   utility.broker.subscribe('discovery', function(method, headers, content) {
@@ -46,6 +48,54 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(WeMo_Motion, sensor.Device);
 util.inherits(WeMo_Motion, require('./../devices-switch/switch-wemo-onoff').Device);
 
+
+// TBD: use one perform actual for all WeMo/UPnP
+WeMo_Motion.prototype.perform = function(self, taskID, perform, parameter) {/* jshint multistr: true */
+  var action, body, params;
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  switch (perform) {
+    case 'set':
+      if (!params.name) return false;
+      action = '"urn:Belkin:service:basicevent:1#ChangeFriendlyName"';
+      body =
+'<u:ChangeFriendlyName xmlns:u="urn:Belkin:service:basicevent:1">\
+   <FriendlyName>' + params.name.replace(/[<&]/g, function(str) { return (str === "&") ? "&amp;" : "&lt;";}) + '</FriendlyName>\
+</u:ChangeFriendlyName>';
+      break;
+
+    default:
+      return;
+  }
+
+  discovery.upnp_roundtrip('device/' + self.deviceID, self.url,
+                           { method   : 'POST'
+                           , pathname : '/upnp/control/basicevent1'
+                           , headers  : { SOAPACTION     : action
+                                        , 'Content-Type' : 'text/xml; charset="utf-8"'
+                                        }
+                           },
+'<?xml version="1.0" encoding="utf-8"?>\
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\
+ <s:Body>' + body + '</s:Body>\
+</s:Envelope>', function(err, state, response, result) {
+    var faults, i;
+
+    self.logger.debug('perform: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
+    if (err) return;
+
+    faults = result.faults;
+    for (i = 0; i < faults.length; i++) {
+      self.logger.error('device/' + self.deviceID,
+                        { event: 'controller', perform: perform, parameter: parameter, diagonstic: stringify(faults[i]) });
+    }
+
+    if ((faults.length === 0) && (perform === 'set')) self.setName(params.name);
+  });
+
+  return steward.performed(taskID);
+};
 
 WeMo_Motion.prototype.observe = function(self, results) {
   var eventID, i, motion, now, onoff, previous;

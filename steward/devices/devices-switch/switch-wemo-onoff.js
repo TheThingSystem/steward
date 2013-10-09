@@ -136,11 +136,11 @@ WeMo_Switch.prototype.perform = function(self, taskID, perform, parameter) {/* j
 
     case 'set':
       if (!params.name) return false;
-      action = '"urn:Belkin:service:basicevent:1#SetFriendlyName"';
+      action = '"urn:Belkin:service:basicevent:1#ChangeFriendlyName"';
       body =
-'<u:SetFriendlyName xmlns:u="urn:Belkin:service:basicevent:1">\
+'<u:ChangeFriendlyName xmlns:u="urn:Belkin:service:basicevent:1">\
    <FriendlyName>' + params.name.replace(/[<&]/g, function(str) { return (str === "&") ? "&amp;" : "&lt;";}) + '</FriendlyName>\
-</u:SetFriendlyName>';
+</u:ChangeFriendlyName>';
       break;
 
     default:
@@ -166,7 +166,7 @@ WeMo_Switch.prototype.perform = function(self, taskID, perform, parameter) {/* j
     faults = result.faults;
     for (i = 0; i < faults.length; i++) {
       self.logger.error('device/' + self.deviceID,
-                        { event: 'controller', parameter: 'SetBinaryState', diagonstic: stringify(faults[i]) });
+                        { event: 'controller', perform: perform, parameter: parameter, diagonstic: stringify(faults[i]) });
     }
 
     if ((faults.length === 0) && (perform === 'set')) self.setName(params.name);

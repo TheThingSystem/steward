@@ -81,24 +81,30 @@ Sensor.prototype.scan = function(self) {
       return logger.error('device/' + self.deviceID, { event: 'get_currentValue', diagnostic: 'currentValue invalid' });
     }
 
-    self.update(self, { lastSample: new Date().getTime(), voc: result });
+    self.update(self, { lastSample: new Date().getTime(), airQuality: result, voc: result });
   });
 };
 
 Sensor.prototype.update = function(self, params, status) {
-  var param, updateP;
+  var updateP;
+/*
+  var param;
+ */
 
   updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
+/*
   for (param in params) {
     if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
 
     self.info[param] = params[param];
     updateP = true;
   }
+ */
+  self.addinfo(params, updateP);
   if (updateP) {
     self.changed();
     sensor.update(self.deviceID, params);
@@ -131,6 +137,7 @@ exports.start = function() {
                     , properties : { name       : true
                                    , status     : [ 'present', 'absent' ]
                                    , lastSample : 'timestamp'
+                                   , airQuality : 'sigmas'
                                    , voc        : 'ppm'
                                    }
                     }
