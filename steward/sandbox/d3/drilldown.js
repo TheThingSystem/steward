@@ -831,22 +831,24 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
-      case 'leaf':
-        arcs.splice(3, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'LEAF'
-                          , cooked : v
-                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
-                          , index  : 0.40
-                          });
-        break;
-
       case 'light':
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'LIGHT'
                           , cooked : v + 'lx'
                           , value  : clip2bars(v,  5000, 25000)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'hvac':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MODE'
+                          , cooked : v
+                          , value  : clip2bars(  v === 'fan'  ?  33
+                                               : v === 'heat' ?  66
+                                               : v === 'cool' ? 100 : 0, 0, 100)
                           , index  : 0.40
                           });
         break;
@@ -882,14 +884,12 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
-      case 'hvac':
+      case 'away':
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
-                          , label  : 'MODE'
+                          , label  : 'AWAY'
                           , cooked : v
-                          , value  : clip2bars(  v === 'fan'  ?  33
-                                               : v === 'heat' ?  66
-                                               : v === 'cool' ? 100 : 0, 0, 100)
+                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
                           , index  : 0.30
                           });
         break;
@@ -937,10 +937,10 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
-      case 'away':
+      case 'leaf':
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
-                          , label  : 'AWAY'
+                          , label  : 'LEAF'
                           , cooked : v
                           , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
                           , index  : 0.20
