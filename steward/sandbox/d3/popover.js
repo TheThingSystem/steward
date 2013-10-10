@@ -1113,7 +1113,11 @@ var ColorPickerMgr = {
 	       newPerform.parameter.color.model = "rgb";
            newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
            delete newPerform.parameter.color.temperature;
-	       var cp = ColorPicker(document.getElementById("color-picker"));
+	       var cp = ColorPicker(document.getElementById("color-picker"),
+             function(hex, hsv, rgb) {
+               newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+               delete newPerform.parameter.color.temperature;
+             });
 	       cp.setRgb({r:rgb.r, g:rgb.g, b:rgb.b});
          }
        };
@@ -1135,7 +1139,11 @@ var ColorPickerMgr = {
            removeCIEPicker();
            ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
          } else {
-		   cp = ColorPicker(document.getElementById("color-picker"));
+		   cp = ColorPicker(document.getElementById("color-picker"),
+		     function(hex, hsv, rgb) {
+		       newPerform.parameter.color.hue = hsv.h;
+		       newPerform.parameter.color.saturation = hsv.s;
+		     });
 		   newPerform.parameter.color.hue = hsv.h;
 		   newPerform.parameter.color.saturation = hsv.s;
 		   cp.setHsv({h:h, s:s, v:v});
@@ -1147,8 +1155,12 @@ var ColorPickerMgr = {
            removeCIEPicker();
            ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
          } else {
-	       cp = ColorPicker(document.getElementById("color-picker"));
-           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+	       cp = ColorPicker(document.getElementById("color-picker"), 
+	         function(hex, hsv, rgb) {
+               newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+             });
+//           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
+           newPerform.parameter.color.rgb = {r:r, g:g, b:b};
 	       cp.setRgb({r:r, g:g, b:b});
 	     }
        };
