@@ -1159,7 +1159,6 @@ var ColorPickerMgr = {
 	         function(hex, hsv, rgb) {
                newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
              });
-//           newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
            newPerform.parameter.color.rgb = {r:r, g:g, b:b};
 	       cp.setRgb({r:r, g:g, b:b});
 	     }
