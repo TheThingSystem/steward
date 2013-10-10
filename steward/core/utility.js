@@ -17,7 +17,7 @@ process.addListener("uncaughtException", function (err) {
     logger.alert('exception', { stack: stringify(stacktrace.parse(err)) });
   } catch(ex) {}
 
-  console.log('uncaught exception: ' + err);
+  if (!!console) console.log('uncaught exception: ' + err);
 
   process.exit(1);
 });

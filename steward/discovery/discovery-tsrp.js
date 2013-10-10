@@ -11,7 +11,7 @@ var dgram       = require('dgram')
 var logger = utility.logger('discovery');
 
 
-var handle = function(message, remoteAddress, tag) {
+var handle = exports.handle = function(message, remoteAddress, tag) {
   var didP, i, instance, okP, props, request, requestID, thingPath;
 
   if (!message.requestID) return logger.error(tag, { event: 'report', error: { diagnostic: 'no requestID' } });
