@@ -39,8 +39,10 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
 
   self.appletv = new airplay.Device(deviceID, {
     host : parts.hostname
-  , port: parts.port
-  }, function() {
+  , port : parts.port
+  }, function(err) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'creation', diagnostic: err.message });
+
     self.status = 'idle';
     self.changed();
     self.refresh();
@@ -128,7 +130,7 @@ AppleTV.prototype.refresh = function() {
   this.timer = setTimeout(this.refresh.bind(this), timeout);
 
   this.appletv.status(function(err, stats) {
-    if (err) return logger.error('device/' + self.deviceID, { event: 'status', diagnostic: err.message });
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'status', diagnostic: err.message });
 
     var status = self.status;
 
