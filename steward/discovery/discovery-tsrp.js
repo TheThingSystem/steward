@@ -197,7 +197,7 @@ exports.start = function() {
   }).on('listening', function() {
     var address = this.address();
 
-    logger.info('STRP listening on udp://*:' + address.port);
+    logger.info('TSRP listening on udp://*:' + address.port);
     this.addMembership(ipaddr);
   }).on('error', function(err) {
     logger.error('reporting', { event: 'socket', diagnostic: err.message });
