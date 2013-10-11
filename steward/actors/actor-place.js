@@ -1,4 +1,5 @@
-var parser      = require('cron-parser')
+var fs          = require('fs')
+  , parser      = require('cron-parser')
   , suncalc     = require('suncalc')
   , util        = require('util')
   , database    = require('./../core/database')
@@ -12,6 +13,7 @@ var parser      = require('cron-parser')
 
 
 var place1  = null;
+var version = null;
 
 var events  = {};
 var nextick = null;
@@ -174,6 +176,7 @@ var Place = exports.Place = function(info) {
         self.changed();
       }
     }
+    self.info.version = version;
 
     return { whatami : self.whatami
            , whoami  : 'place/1'
@@ -477,6 +480,7 @@ exports.start = function() {
                     , perform    : [ ]
                     , properties : { name        : true
                                    , status      : colors
+                                   , version     : true
                                    , pairing     : [ 'off', 'on', 'code' ]
                                    , pairingCode : true
                                    , strict      : [ 'off', 'on' ]
@@ -504,6 +508,18 @@ exports.start = function() {
                     , perform    : validate_perform
                     }
       };
+
+  fs.readFile(__dirname + '/../../.git/logs/HEAD', function(err, data) {
+    var line, lines;
+
+    if (!!err) return logger.warning('place/1', { event: 'read .git/logs/HEAD', diagnostic: err.message });
+
+    lines = data.toString('utf-8').split('\n');
+    if (lines.length < 2) return;
+    line = lines[lines.length - 2].split('\t')[0].split(' ');
+    version = 'commit ' + line[1].substr(0, 9);
+    try { version += ' from ' + utility.relativity(line[line.length - 2] * 1000); } catch(ex) {}
+  });
 
   readyP();
 };
