@@ -100,7 +100,6 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     if (info.ssdp.ST !== 'upnp:rootdevice') return;
 
     o = url.parse(info.ssdp.LOCATION || info.ssdp.Location);
-    o.agent = false;
     if (o.hostname !== rinfo.address) {
       logger.warning('discovery', { event: 'bogus SSDP response', responder: rinfo, location: o.hostname });
       return;
@@ -108,70 +107,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
 
     localP = false;
     steward.forEachAddress(function(addr) { if (o.hostname === addr) { localP = true; } });
-    if (localP) return;
-
-    http.get(o, function(response) {
-      var content = '';
-
-      response.setEncoding('utf8');
-      response.on('data', function(chunk) {
-        content += chunk.toString();
-      }).on('end', function() {
-        var parser = new xml2js.Parser();
-
-        try { parser.parseString(content, function(err, data) {
-          if (err) {
-            logger.error('discovery', { event: 'parser.parseString', content: content, diagnostic: err.message });
-            return;
-          } else if (!data) data = { root: {} };
-          if (!data.root.device) {
-            data.root.device = [ { friendlyName     : [ '' ]
-                                 , manufacturer     : [ '' ]
-                                 , modelName        : [ '' ]
-                                 , modelDescription : [ '' ]
-                                 , UDN              : [ '' ]
-                                 }
-                               ];
-          }
-          if (!data.root.device[0].serialNumber) data.root.device[0].serialNumber = data.root.device[0].serialNum || [ '' ];
-          if (!data.root.device[0].modelDescription) data.root.device[0].modelDescription = [''];
-          if (!data.root.device[0].modelNumber) data.root.device[0].modelNumber = [''];
-
-          info.device = {
-              url          : (!!data.root.URLBase) ? data.root.URLBase[0] : o.protocol + '//' + o.host + '/'
-            , name         : data.root.device[0].friendlyName[0]
-            , manufacturer : data.root.device[0].manufacturer[0]
-            , model        : {
-                  name        : data.root.device[0].modelName[0]
-                , description : data.root.device[0].modelDescription[0]
-                , number      : data.root.device[0].modelNumber[0]
-                }
-            , unit         : {
-                  serial      : data.root.device[0].serialNumber[0]
-                , udn         : data.root.device[0].UDN[0]
-                }
-            };
-          info.url = info.device.url;
-          info.deviceType = info.device.model.name;
-          info.deviceType2 = data.root.device[0].deviceType[0];
-          if ((!!data.root.device[0].serviceList)
-                  && (!!data.root.device[0].serviceList[0].service)
-                  && (!!data.root.device[0].serviceList[0].service[0])) {
-            info.deviceType3 = data.root.device[0].serviceList[0].service[0].serviceType[0];
-          }
-// NB: pity we don't have a pattern matcher and could put in a /device/... whatami path here...
-          info.id = info.device.unit.udn;
-          if (devices.devices[info.id]) return;
-
-          logger.info('UPnP ' + info.device.name, { url: info.url });
-          devices.discover(info);
-        }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message }); }
-      }).on('close', function() {
-        logger.error('discovery', { event: 'ssdp', diagnostic: info.ssdp.LOCATION + ' => premature EOF' });
-      });
-    }).on('error', function(err) {
-      logger.error('http', { event: 'http.get', options: o, diagnostic: err.message });
-    });
+    if (!localP) exports.ssdp_discover(info, o);
   }).search('ssdp:all');
 
   setTimeout(function() { client.search('ssdp:all'); }, 30 * 1000);
@@ -204,6 +140,75 @@ var listen = function(addr, portno) {/* jshint multistr: true */
       listening = 'http://' + addr + ':' + portno;
       logger.info('UPnP listening on ' + listening);
     }).listen(portno, addr);
+  });
+};
+
+exports.ssdp_discover = function(info, options, callback) {
+  options.agent = false;
+
+  http.get(options, function(response) {
+    var content = '';
+
+    response.setEncoding('utf8');
+    response.on('data', function(chunk) {
+      content += chunk.toString();
+    }).on('end', function() {
+      var parser = new xml2js.Parser();
+
+      try { parser.parseString(content, function(err, data) {
+        if (err) {
+          logger.error('discovery', { event: 'parser.parseString', content: content, diagnostic: err.message });
+          return;
+        } else if (!data) data = { root: {} };
+        if (!data.root.device) {
+          data.root.device = [ { friendlyName     : [ '' ]
+                               , manufacturer     : [ '' ]
+                               , modelName        : [ '' ]
+                               , modelDescription : [ '' ]
+                               , UDN              : [ '' ]
+                               }
+                             ];
+        }
+        if (!data.root.device[0].serialNumber) data.root.device[0].serialNumber = data.root.device[0].serialNum || [ '' ];
+        if (!data.root.device[0].modelDescription) data.root.device[0].modelDescription = [''];
+        if (!data.root.device[0].modelNumber) data.root.device[0].modelNumber = [''];
+
+        info.device = {
+            url          : (!!data.root.URLBase) ? data.root.URLBase[0] : options.protocol + '//' + options.host + '/'
+          , name         : data.root.device[0].friendlyName[0]
+          , manufacturer : data.root.device[0].manufacturer[0]
+          , model        : {
+                name        : data.root.device[0].modelName[0]
+              , description : data.root.device[0].modelDescription[0]
+              , number      : data.root.device[0].modelNumber[0]
+              }
+          , unit         : {
+                serial      : data.root.device[0].serialNumber[0]
+              , udn         : data.root.device[0].UDN[0]
+              }
+          };
+        info.url = info.device.url;
+        info.deviceType = info.device.model.name;
+        info.deviceType2 = data.root.device[0].deviceType[0];
+        if ((!!data.root.device[0].serviceList)
+                && (!!data.root.device[0].serviceList[0].service)
+                && (!!data.root.device[0].serviceList[0].service[0])) {
+          info.deviceType3 = data.root.device[0].serviceList[0].service[0].serviceType[0];
+        }
+// NB: pity we don't have a pattern matcher and could put in a /device/... whatami path here...
+        info.id = info.device.unit.udn;
+        if (devices.devices[info.id]) return;
+
+        logger.info('UPnP ' + info.device.name, { url: info.url });
+        devices.discover(info);
+      }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message }); }
+      if (!!callback) callback(null);
+    }).on('close', function() {
+      if (!!callback) callback(new Error('premature EOF'));
+      else logger.error('discovery', { event: 'ssdp', diagnostic: info.ssdp.LOCATION + ' => premature EOF' });
+    });
+  }).on('error', function(err) {
+    if (!!callback) callback(err); else logger.error('http', { event: 'http.get', options: options, diagnostic: err.message });
   });
 };
 

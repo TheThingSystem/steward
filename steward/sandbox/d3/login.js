@@ -420,7 +420,19 @@ var place_info   = { name        : 'Home'
                    , strict      : 'on'
                    };
 
-var bootable = { koubachi          :
+var bootable = { ecobee         :
+                 { text         : 'If you have an Ecobee SmartSi thermostat, the steward can manage it for you.'
+                 , instructions : 'Enter your appkey and credentials.'
+                 , site         : 'https://www.ecobee.com'
+                 , icon         : ''
+                 , name         : 'ecobee'
+                 , actor        : '/device/gateway/ecobee/cloud'
+                 , info         :
+                   { name       : 'ecobee'
+                   , appkey     : ''
+                   }
+                 }
+               , koubachi       :
                  { text         : 'If you have a Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
                  , instructions : 'Enter your appkey and credentials.'
                  , site         : 'https://mykoubachi.com'
@@ -428,7 +440,7 @@ var bootable = { koubachi          :
                  , name         : 'koubachi'
                  , actor        : '/device/gateway/koubachi/cloud'
                  , info         :
-                   { appkey     : 'koubachi'
+                   { appkey     : ''
                    , credentials: ''
                    }
                  }

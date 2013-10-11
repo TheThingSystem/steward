@@ -1,11 +1,13 @@
 // YoctoHub-Ethernet: http://www.yoctopuce.com/EN/products/extensions-and-networking/yoctohub-ethernet
 
-var util        = require('util')
+var url         = require('url')
+  , util        = require('util')
   , yapi        = require('yoctolib')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
+  , discovery   = require('./../../discovery/discovery-ssdp')
   ;
 
 
@@ -65,6 +67,7 @@ Hub.prototype.addstation = function(module) {
   if (x !== -1) modelNumber = serialNumber.substring(0, x);
 
   switch (productName) {
+    case 'VirtualHub':
     case 'YoctoHub-Ethernet':
       return;
 
@@ -72,6 +75,8 @@ Hub.prototype.addstation = function(module) {
       if (!!products[productName]) break;
       return logger.warning('device/' + self.deviceID, { event: 'unknown module', result: productName });
   }
+
+  modules[serialNumber] = productName;
 
   info =  { source: self.deviceID, gateway: self, module: module };
   info.device = { url                          : null
@@ -141,4 +146,18 @@ exports.start = function() {
                     }
       };
   devices.makers['YoctoHub-Ethernet'] = Hub;
+  devices.makers.VirtualHub = Hub;
+
+  scan();
+};
+
+// if VirtualHub is running locally, we won't see it via SSDP, so:
+var scan = function() {
+  discovery.ssdp_discover({ http   : { major: '1', minor: '1', code: '200' }
+                          , source : 'ssdp'
+                          , ssdp   : { LOCATION : 'http://127.9.0.1:4444/ssdp.xml', ST: 'upnp:rootdevice' }
+                          , device : { }
+                          }, url.parse('http://127.0.0.1:4444/ssdp.xml'), function(err) { 
+    if (!!err) { setTimeout(scan, 30 * 1000); }
+  });
 };
