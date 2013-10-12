@@ -117,7 +117,6 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
     return false;
   }
 
-console.log('>>> params='+JSON.stringify(params)+' state='+JSON.stringify(state));
   self.status = state.on ? 'on' : 'off';
   if (state.on) self.info.color = state.color;
   self.info.brightness = state.brightness;
