@@ -82,16 +82,12 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
           && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
   if ((!!state.brightness) && (state.brightness === 0)) perform = 'off';
 
-  if (perform === 'off') {
-    state.on = false;
-    state.color = { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } };
-    state.brightness = 0;
-  } else if (perform !== 'on') return false;
+  if (perform === 'off') state.on = false;
+  else if (perform !== 'on') return false;
   else {
     state.on = true;
 
-    state.color = params.color;
-    if (!state.color) return false;
+    state.color = params.color || self.info.color;
     if (state.color.model === 'hue') {
       if (!state.brightness) return false;
 
@@ -106,7 +102,12 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
       state.brightness = Math.round(hsl.s * 100);
     }
 
-    if ((state.color.rgb.r === 0) || (state.color.rgb.g === 0) || (state.color.rgb.b === 0)) state.on = false;
+    if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.color = self.info.color;
+    if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;
+  }
+  if (!state.on) {
+    if (!state.color) state.color = { model: 'rgb', rgb: { r: 0, g: 0, b: 0 }};
+    state.brightness = 0;
   }
   logger.info('device/' + self.deviceID, { perform: state });
 
@@ -116,8 +117,9 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
     return false;
   }
 
+console.log('>>> params='+JSON.stringify(params)+' state='+JSON.stringify(state));
   self.status = state.on ? 'on' : 'off';
-  self.info.color = state.color;
+  if (state.on) self.info.color = state.color;
   self.info.brightness = state.brightness;
   self.changed();
 
