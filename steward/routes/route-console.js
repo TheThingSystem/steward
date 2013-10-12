@@ -45,7 +45,10 @@ var consoleX = function(ws, tag) {
   });
 
   if ((!places) || (places.place1.info.strict === 'off') || (steward.readP(ws.clientInfo))) {
-    try { ws.send(stringify(utility.signals)); } catch(ex) {}
+    try {
+      ws.send(stringify({ notice: { permissions: permissions(ws.clientInfo) } }));
+      ws.send(stringify(utility.signals));
+    } catch(ex) {}
     broker.publish('actors', 'attention');
     return broker.publish('actors', 'ping');
   }
@@ -68,10 +71,27 @@ var consoleX2 = function(logger, ws, data, tag) {/* jshint unused: false */
   try { ws.send(data); } catch(ex) { console.log(ex); }
 
   if ((!places) || (places.place1.info.strict === 'off') || (steward.readP(ws.clientInfo))) {
-    try { ws.send(stringify(utility.signals)); } catch(ex) {}
+    try {
+      ws.send(stringify({ notice: { permissions: permissions(ws.clientInfo) } }));
+      ws.send(stringify(utility.signals));
+    } catch(ex) {}
     broker.publish('actors', 'attention');
     broker.publish('actors', 'ping');
   }
 };
+
+var permissions = function(clientInfo) {
+  var perms, user;
+
+  perms = [];
+  user = users.id2user(clientInfo.userID);
+  if (!!user) perms = { master   : [ 'read', 'perform', 'write', 'manage' ]
+                      , resident : [ 'read', 'perform', 'write'           ]
+                      , guest    : [ 'read', 'perform'                    ]
+                      }[user.userRole] || [];
+
+  return perms;
+};
+
 
 exports.start = function() { server.routes['/console'] = { route : consoleX }; };

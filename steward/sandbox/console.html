@@ -821,6 +821,7 @@ var go = function(steward, i) {
         document.getElementById('login').style.display = 'none';
         document.forms.loginForm.userCode.value = '';
         delete(steward.primer);
+        status2.innerHTML = '';
       }, 2 * 1000);
       return;
     }

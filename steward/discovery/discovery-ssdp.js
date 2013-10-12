@@ -101,9 +101,8 @@ var listen = function(addr, portno) {/* jshint multistr: true */
 
     o = url.parse(info.ssdp.LOCATION || info.ssdp.Location);
     if (o.hostname !== rinfo.address) {
-      logger.warning('discovery', { event: 'bogus SSDP response', responder: rinfo, location: o.hostname });
-      return;
-      }
+      logger.warning('discovery', { event: 'forwarded SSDP response', responder: rinfo, location: o.hostname });
+    }
 
     localP = false;
     steward.forEachAddress(function(addr) { if (o.hostname === addr) { localP = true; } });
@@ -201,7 +200,10 @@ exports.ssdp_discover = function(info, options, callback) {
 
         logger.info('UPnP ' + info.device.name, { url: info.url });
         devices.discover(info);
-      }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message }); }
+      }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message });
+console.log('>>> ' + JSON.stringify(info));
+console.log(console);
+ }
       if (!!callback) callback(null);
     }).on('close', function() {
       if (!!callback) callback(new Error('premature EOF'));

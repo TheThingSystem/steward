@@ -57,7 +57,7 @@
     , "ws"                  : "git://github.com/TheThingSystem/ws.git"
     , "x509-keygen"         : "git://github.com/TheThingSystem/node-x509-keygen.git"
     , "xml2js"              : "0.2.7"
-    , "xmlhttprequest"      : "1.6.0"
-    , "yoctolib"            : "git://github.com/TheThingSystem/yoctolib_js.git"
+    , "xmlhttprequest"      : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
+    , "yoctolib"            : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
   }
 }
