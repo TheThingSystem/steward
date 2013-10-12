@@ -980,7 +980,7 @@ var ColorPickerMgr = {
 		   var newEvt;
 		   var canvas = document.getElementById("cie-gamut");
 		   newEvt = document.createEvent("MouseEvents");
-		   newEvt.initMouseEvent("click", false, false, null, 0, 0, 0, evt.offsetX, evt.offsetY, false, false, false, false, 0, null);
+		   newEvt.initMouseEvent("click", false, false, null, 0, 0, 0, (evt.clientX - evt.target.offsetWidth), (evt.clientY - evt.target.offsetHeight - 10), false, false, false, false, 0, null);
 		   canvas.dispatchEvent(newEvt);
 	     }
 		
@@ -1004,8 +1004,8 @@ var ColorPickerMgr = {
 		   var y = evt.clientY - 18;
 		   var width = evt.target.width * 1.08;
 		   var height = evt.target.height;
-		   var scaleX = Math.abs(x/width);
-		   var scaleY = Math.abs(0.84 - y/height);
+		   var scaleX = Math.abs(x/width) + 0.02;
+		   var scaleY = Math.abs(0.84 - y/height) - 0.02;
 		   var result = {"x": scaleX, "y": scaleY};
 		   newPerform.parameter.color.cie1931 = result;
 		   sendData();
