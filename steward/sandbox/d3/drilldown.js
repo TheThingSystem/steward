@@ -1429,7 +1429,7 @@ var multiple_drilldown = function(name, members) {
   arcs = [];
   devices = [];
   index = 0.7;
-  members.sort(multiSort("name", "deviceType"));
+  members.sort(multiSort("deviceType", "name"));
   for (i = 0; i < members.length; i++) {
     device = members[i];
     entry = entries[device.deviceType] || entries['default'];
