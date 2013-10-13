@@ -600,8 +600,13 @@ var onactors = function(message) {
               v += 'ppm';
               break;
 
-            case 'noise':
-              v += 'dB';
+            case 'airQuality':
+            case 'co':
+            case 'flow':
+            case 'hcho':
+            case 'no2':
+            case 'smoke':
+              v += '&sigma;';
               break;
 
             case 'pressure':

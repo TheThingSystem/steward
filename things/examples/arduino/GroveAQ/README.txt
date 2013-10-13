@@ -49,7 +49,7 @@ Note that when the AQ sensor starts, it takes 20 seconds before
 returning control back to setup().
 
     
-A report via the STRP looks like the following. Note that the properties
+A report via the TSRP looks like the following. Note that the properties
 are mostly defined as 'sigmas', which means that the sensors are
 reporting uncalibrated data, and the steward will report it the current
 value relative to the standard deviation of the data series.
@@ -86,8 +86,8 @@ value relative to the standard deviation of the data series.
           "name": "Air Quality Sensor",
           "status": "present",
           "unit": {
-            "serial": "90a2dadba9",
-            "udn": "195a42b0-ef6b-11e2-99d0-90a2dadba9-air-quality"
+            "serial": "deadbeefff01",
+            "udn": "195a42b0-ef6b-11e2-99d0-deadbeefff01-air-quality"
           },
           "info": {
             "overall": 140,

@@ -853,6 +853,16 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'flow':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'AIR FLOW'
+                          , cooked : v + '&sigma;'
+                          , value  : clip2bars(-v,  -5, 2.5)
+                          , index  : 0.40
+                          });
+        break;
+
       case 'needsMist':
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
@@ -880,6 +890,16 @@ var climate_device_arcs = function(device) {
                           , label  : 'CO'
                           , cooked : v + '&sigma;'
                           , value  : clip2bars(-v, -5, 1.5)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'concentration':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'CONCENTRATION'
+                          , cooked : v + 'pcs/liter'
+                          , value  : clip2bars(v,  0, 14000)
                           , index  : 0.40
                           });
         break;
@@ -1533,6 +1553,11 @@ var entries = {
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
+              , '/device/climate/arduino/ventilation'       : { img     : 'actors/arduino.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              }
               , '/device/climate/grove/air-quality'         : { img     : 'actors/grove.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
@@ -1757,11 +1782,6 @@ var entries = {
                                                               , arcs    : sensor_device_arcs
                                                               , instrux : no_instructions
                                                               }
-              , '/device/sensor/arduino/water'              : { img     : 'actors/arduino.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                             }
               , '/device/sensor/grove/water'                : { img     : 'actors/grove.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs

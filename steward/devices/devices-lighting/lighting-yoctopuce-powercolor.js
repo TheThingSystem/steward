@@ -47,15 +47,13 @@ var PowerColor = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.led.get_rgbColor_async(function(ctx, led, result) {
-    var hsl;
-
     if (result === yapi.Y_RGBCOLOR_INVALID) {
       return logger.error('device/' + self.deviceID,  { event: 'get_rgbColor', diagnostic: 'rgbColor invalid' });
     }
 
     self.info.color = { model: 'rgb', rgb: { r: (result >> 16) & 255, g: (result >> 8) & 255, b: result & 255 } };
-    hsl = tinycolor(self.info.color.rgb).toHsl();
-    self.info.brightness = Math.round(hsl.s * 100);
+    self.info.brightness = ((self.info.color.rgb.r !== 0) || (self.info.color.rgb.g !== 0) && (self.info.color.rgb.b !== 0))
+                             ? 100 : 0;
     self.status = (self.info.brightness > 0) ? 'on' : 'off';
     self.changed();
   });
@@ -64,7 +62,7 @@ util.inherits(PowerColor, lighting.Device);
 
 
 PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
-  var hsl, params, result, state;
+  var params, result, state;
 
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
@@ -80,7 +78,6 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
   if ((perform === 'on')
           && (!!params.brightness)
           && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
-  if ((!!state.brightness) && (state.brightness === 0)) perform = 'off';
 
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
@@ -89,7 +86,7 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
 
     state.color = params.color || self.info.color;
     if (state.color.model === 'hue') {
-      if (!state.brightness) return false;
+      if (!!!state.brightness) return false;
 
       state.color.model = 'rgb';
       state.color.rgb = tinycolor({ h : state.color.hue.hue
@@ -97,15 +94,12 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
                                   , l : state.brightness
                                   }).toRgb();
     } else if (state.color.model !== 'rgb') return false;
-    else {
-      hsl = tinycolor(state.color.rgb).toHsl();
-      state.brightness = Math.round(hsl.s * 100);
-    }
 
     if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.color = self.info.color;
     if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;
   }
-  if (!state.on) {
+  if ((!state.on) || (state.brightness === 0)) {
+    state.on = false;
     if (!state.color) state.color = { model: 'rgb', rgb: { r: 0, g: 0, b: 0 }};
     state.brightness = 0;
   }
@@ -119,7 +113,7 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
 
   self.status = state.on ? 'on' : 'off';
   if (state.on) self.info.color = state.color;
-  self.info.brightness = state.brightness;
+  self.info.brightness = state.on ? 100 : 0;
   self.changed();
 
   return steward.performed(taskID);

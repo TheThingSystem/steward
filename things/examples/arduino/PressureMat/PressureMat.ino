@@ -14,7 +14,7 @@ unsigned long requestID = 1;
 unsigned long lastCallbackTime = 0;// the last time the data was written
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0x90, 0xE2 };  // Arduino Ethernet
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0x03 };  // Arduino Ethernet
 
 char packetBuffer[512];
 

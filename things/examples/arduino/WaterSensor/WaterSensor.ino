@@ -14,7 +14,7 @@ unsigned long next_heartbeat = 0;
 
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0D, 0xBA, 0x09 };  // Arduino Ethernet
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0x04 };  // Arduino Ethernet
 
 
 #define WATER_SENSOR 7
@@ -25,7 +25,7 @@ unsigned long debounce_leak = 0;
 char packetBuffer[512];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/arduino/water\":{\"prototype\":{\"device\":{\"name\":\"Grove Water Sensor\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"water\":[\"detected\",\"absent\"]}},\"instances\":[{\"name\":\"Water Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/sensor/grove/water\":{\"prototype\":{\"device\":{\"name\":\"Grove Water Sensor\",\"maker\":\"Seeed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"water\":[\"detected\",\"absent\"]}},\"instances\":[{\"name\":\"Water Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-water\"},\"info\":{\"water\":\"";
 PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":";
@@ -76,11 +76,12 @@ void loop() {
   now = millis();
 
   leak = digitalRead(WATER_SENSOR) == LOW;
+
+// keep reporting leak for 30 seconds after condition clears, during that time, report once every 5 seconds
   if (leak) debounce_leak = now + 30000; else if (now <= debounce_leak) leak = 1;
 
   if ((leak == previous_leak) && (!leak) && (now < next_heartbeat)) { delay(100); return; }
 
-  previous_leak = leak;
   next_heartbeat = now + 45000;
 
   strcpy(packetBuffer,(char*)pgm_read_word(&loopPacket1) );
@@ -113,5 +114,6 @@ void loop() {
   udp.endPacket();
   requestID = requestID + 1;
 
-  delay(100);
+  delay(previous_leak ? 5000 : 100);
+  previous_leak = leak;
 }

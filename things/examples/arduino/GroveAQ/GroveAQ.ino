@@ -16,7 +16,7 @@ unsigned long next_heartbeat = 0;
 
 
 // The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0x9C, 0x1C };  // Arduino Ethernet
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0x01 };  // Arduino Ethernet
 
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_Flame_Sensor
@@ -109,25 +109,21 @@ void loop() {
 
   now = millis();
 
-  flame = digitalRead(FLAME_SENSOR) ? 0 : 1;
-  Serial.print("flame sensor "); Serial.print(flame, DEC); Serial.println();
+  flame = digitalRead(FLAME_SENSOR) == LOW;
+
+// keep reporting leak for 30 seconds after condition clears, during that time, report once every 5 seconds
   if (flame) debounce_flame = now + 30000; else if (now <= debounce_flame) flame = 1;
 
   aq = AQsensor.slope();
   if (aq > 0) aq = AQsensor.first_vol;
-  Serial.print("AQ sensor "); Serial.print(aq, DEC); Serial.println();
 
   hcho = (((float) analogRead(HCHO_SENSOR)) * Vref) / 1023;
-  Serial.print("HCHO sensor "); Serial.print(hcho); Serial.println();
 
   mq2 = (((float) analogRead(MQ2_SENSOR)) * Vref) / 1023;
-  Serial.print("MQ2 sensor "); Serial.print(mq2); Serial.println();
 
   mq9 = (((float) analogRead(MQ9_SENSOR)) * Vref) / 1023;
-  Serial.print("MQ9 sensor "); Serial.print(mq9); Serial.println();
 
   no2 = (((float) analogRead(NO2_SENSOR)) * Vref) / 1023;
-  Serial.print("NO2 sensor "); Serial.print(no2); Serial.println();
 
   if ((flame == previous_flame)
         && (!flame)
@@ -141,7 +137,6 @@ void loop() {
     return;
   }
 
-  previous_flame = flame;
   if (aq > 0) previous_aq = aq; else aq = previous_aq;
   previous_hcho = hcho;
   previous_mq2 = mq2;
@@ -188,7 +183,9 @@ void loop() {
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket11) );
 
   sendit();
-  delay (100);
+
+  delay(previous_flame ? 5000 : 100);
+  previous_flame = flame;
 }
 
 void sendit() {

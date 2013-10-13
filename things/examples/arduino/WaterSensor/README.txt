@@ -21,7 +21,7 @@ AND this sensor:
     D7 - Grove Water Sensor  - http://www.seeedstudio.com/wiki/Grove_-_Water_Sensor
 
 
-A report via the STRP looks like the following:
+A report via the TSRP looks like the following:
 
 {
   "path": "\/api\/v1\/thing\/reporting",
@@ -51,8 +51,8 @@ A report via the STRP looks like the following:
           "name": "Water Sensor",
           "status": "present",
           "unit": {
-            "serial": "90a2da0dba09",
-            "udn": "195a42b0-ef6b-11e2-99d0-90a2da0dba09-water"
+            "serial": "deadbeefff04",
+            "udn": "195a42b0-ef6b-11e2-99d0-deadbeefff04-water"
           },
           "info": {
             "water": "absent"

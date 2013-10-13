@@ -28,8 +28,8 @@ const char* ip_to_str( const uint8_t* );
 String generate_totp( String key );
 String generate_hotp( String key, int length, char * encoding, int counter);
 
-// ETHERNET
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x1A, 0x08 };   
+// The MAC address of your Ethernet board (or Ethernet Shield) is located on the back of the circuit board.
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0x02 };  // Arduino Ethernet
 EthernetClient client;
 
 // BONJOUR
