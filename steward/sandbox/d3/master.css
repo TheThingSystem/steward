@@ -89,6 +89,7 @@
         font-size: 24px;
         cursor: pointer;
         z-index: 10;
+        display: none;
 }
 
 #right-arrow {
@@ -99,7 +100,6 @@
         font-size: 24px;
         cursor: pointer;
         z-index: 10;
-        display: none;
 }
 
 .bullet-on {

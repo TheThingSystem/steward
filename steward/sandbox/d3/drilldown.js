@@ -4,10 +4,12 @@ var actors = {}
   , tags   = {}
   , multiple_arcs = []
   , lastUpdated
-  , lastIconTrayPage = 1;
+  , lastIconTrayPage = 1
+  , lastStageScroll = 0
+  , firstLoad = true;
 
 var home = function(state) {
-  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, tag;
+  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
   var actorHeight = 80, actorRow = 0, actorWidth = 58;
   
   var self = this;
@@ -52,9 +54,10 @@ var home = function(state) {
                   + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
 
-
   div = document.createElement('div');
-  div.setAttribute('class', 'actors');
+  div.setAttribute('class', 'actors')
+  div.setAttribute('id', 'stage')
+  div.setAttribute('onscroll', 'javascript:lastStageScroll = this.scrollTop;');
 
   for (a = i = 0; i < devices.length; i++) {
     device = devices[i];
@@ -79,7 +82,7 @@ var home = function(state) {
   }
   div.setAttribute('style', 'overflow-y: ' + ((actorRow > 2) ? 'scroll' : 'hidden') + '; overflow-x: hidden;');
   chart.appendChild(div);
-
+  
   div = document.createElement('div');
   div.setAttribute('class', 'tags');
   chart.appendChild(div);
@@ -173,6 +176,31 @@ var home = function(state) {
       lastUpdated.push(updates[i].updated);
     }
     lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
+  }
+  
+  function scrollDown(elem, top) {
+    var endY = ((actorRow - 3) * actorHeight);
+    var step = 5;
+    if ((top+=step) < endY) {
+      elem.scrollTop = top;
+      setTimeout(function() {scrollDown(elem, top)}, 20);
+    } else {
+      firstLoad = false;
+      scrollUp(elem, top);
+    }
+  }
+  function scrollUp(elem, top) {
+    var endY = 0;
+    var step = 5;
+    if ((top-=step) >= endY) {
+      elem.scrollTop = top;
+      setTimeout(function() {scrollUp(elem, top)}, 20);
+    }
+  }
+  if (firstLoad) {
+    setTimeout(function() {scrollDown(document.getElementById('stage'), 50)}, 0);
+  } else {
+    document.getElementById('stage').scrollTop = lastStageScroll;
   }
 };
 
@@ -508,18 +536,19 @@ var drawArcs = function(arcs) {
 //     };
 //  }
 
-	function convertSymbol(txt) {
-		var re = /\&deg;/gi;
-		txt = txt.replace(re, "°");
-		re = /\<sup\>2\<\/sup\>/gi;
-		txt = txt.replace(re, "²");
-		re = /\<sub\>2\<\/sub\>/gi;
-		txt = txt.replace(re, "₂");
-		re = /\&sigma;/gi;
-		txt = txt.replace(re, "σ");
-		return txt;
+  function convertSymbol(txt) {
+    if (txt) {
+      var re = /\&deg;/gi;
+      txt = txt.replace(re, "°");
+      re = /\<sup\>2\<\/sup\>/gi;
+	  txt = txt.replace(re, "²");
+	  re = /\<sub\>2\<\/sub\>/gi;
+	  txt = txt.replace(re, "₂");
+	  re = /\&sigma;/gi;
+	  txt = txt.replace(re, "σ");
 	}
-
+    return txt;
+  }
 };
 
 
@@ -1400,6 +1429,7 @@ var multiple_drilldown = function(name, members) {
   arcs = [];
   devices = [];
   index = 0.7;
+  members.sort(multiSort("name", "deviceType"));
   for (i = 0; i < members.length; i++) {
     device = members[i];
     entry = entries[device.deviceType] || entries['default'];
@@ -1431,6 +1461,27 @@ var multiple_drilldown = function(name, members) {
       device_drilldown(name, devices, arcs, 'touch a thing to manage it');
       break;
   }
+  
+  // Multi-property sort adapted from http://stackoverflow.com/a/11379791
+  function singleSort(prop) {
+    return function(obj1, obj2) {
+      return obj1[prop] > obj2[prop] ? 1 : obj1[prop] < obj2[prop] ? -1 : 0;
+    }
+  }
+  
+  function multiSort() {
+    var props = arguments;
+    return function(obj1, obj2) {
+      var i = 0;
+      result = 0;
+      propCount = props.length;
+      while(result === 0 && i < propCount) {
+        result = singleSort(props[i])(obj1, obj2);
+        i++;
+      }
+      return result;
+    }
+  }
 };
 
 // managing multi-drilldown icon display and control
@@ -1444,14 +1495,14 @@ var handleArrowVisibility = function() {
     lastIconTrayPage = trayPage + 1;
     
 	if (trayLeft >= 0) {
-		document.getElementById("right-arrow").style.display = "none";
-	} else {
-		document.getElementById("right-arrow").style.display = "block";
-	}
-	if (trayWidth + trayLeft <= viewPortWidth) {
 		document.getElementById("left-arrow").style.display = "none";
 	} else {
 		document.getElementById("left-arrow").style.display = "block";
+	}
+	if (trayWidth + trayLeft <= viewPortWidth) {
+		document.getElementById("right-arrow").style.display = "none";
+	} else {
+		document.getElementById("right-arrow").style.display = "block";
 	}
 
 };
@@ -1492,7 +1543,7 @@ var handleArrow = function(evt) {
 	clearPager();
 	tray = d3.select("#image-tray");
 	startLeft = parseInt(tray.style("left"), 10);
-	leftEnd = ((evt.target.id === 'left-arrow') ? (startLeft - viewPortWidth) : (startLeft + viewPortWidth));
+	leftEnd = ((evt.target.id === 'right-arrow') ? (startLeft - viewPortWidth) : (startLeft + viewPortWidth));
 	
 	var transition = d3.transition()
 	  .duration(5000)
