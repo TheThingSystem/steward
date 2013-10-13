@@ -129,9 +129,10 @@ function dragmove(d) {
 }
 
 
-var showPop = function(device, entry) {
+var showPop = function(device) {
   // Popover window positioning/dimensions
   var w, h, t, l;
+  var entry = entries[device.deviceType] || entries['default'];
 
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/lighting/":
@@ -743,7 +744,6 @@ var showPop = function(device, entry) {
            .style("width", "400px")
            .style("height", "150px")
            .style("text-align", "center")
-		   .style("transform", "rotate(-20deg)")
 		   .style("-moz-border-radius", "20px")
 		   .style("-webkit-border-radius", "20px")
 		   .style("border-radius", "20px")
@@ -904,7 +904,7 @@ var ColorPickerMgr = {
         		addCIE(color.cie1931.x ,color.cie1931.y);
         		break;
         	case 'hue':         
-        		addHSV((color.hue, color.saturation / 100, entry.info.brightness / 100).rgb());
+        		addHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100).rgb());
         		break;
         	case 'rgb':         
         		addRGB(color.rgb.r, color.rgb.g, color.rgb.b);
@@ -1094,7 +1094,7 @@ var ColorPickerMgr = {
         		updateCIE(color.cie1931.x ,color.cie1931.y);
         		break;
         	case 'hue':         
-        		updateHSV((color.hue, color.saturation / 100, entry.info.brightness / 100).rgb());
+        		updateHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100).rgb());
         		break;
         	case 'rgb':         
         		updateRGB(color.rgb.r, color.rgb.g, color.rgb.b);
