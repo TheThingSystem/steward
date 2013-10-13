@@ -19,6 +19,7 @@ OR
 AND this sensor:
 
     A0 - MD550 Wind Sensor   - http://moderndevice.com/product/wind-sensor/
+                               GND = Ground, +V = Power, Out = pin A, RV = unused, TMP = unused
     D8 - Grove Dust Sensor   - http://www.seeedstudio.com/wiki/Grove_-_Dust_Sensor
     A2 - Grove DHT Sensor    - http://www.seeedstudio.com/wiki/Grove_-_Temperature_and_Humidity_Sensor_Pro
 
