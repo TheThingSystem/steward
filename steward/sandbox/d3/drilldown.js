@@ -7,6 +7,28 @@ var actors = {}
   , lastIconTrayPage = 1
   , lastStageScroll = 0
   , firstLoad = true;
+  
+var notify = function(name, msg) {
+  var alert;
+  alert = d3.select('body')
+    .append('div')
+    .attr('id', 'notification')
+    .attr('class', 'notification');
+  alert.append('span')
+    .attr('id', 'notification-text')
+    .attr('class', 'notification-text')
+    .text(function () { var txt = 'Alert from ' + name; if (msg) txt += ': ' + msg; return txt;});
+  alert.append('img')
+    .attr('id', 'notification-ok')
+    .attr('class', 'notification-ok')
+    .attr('src', 'popovers/assets/done_on.svg')
+    .on('click', function () { d3.select('#notification').transition()
+      .duration(800)
+      .style('top', function() { return '-' + d3.select('#notification').style('height') }).remove(); });
+  alert.transition()
+    .duration(800)
+  	.style('top', '0px');
+}
 
 var home = function(state) {
   var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
@@ -242,8 +264,10 @@ var onUpdate_drilldown = function(updates) {
       if (update.whoami !== currDevice.actor) continue;
       currDevice.device.status = update.status;
       currDevice.device.info = update.info;
+      currDevice.device.name = update.name;
       document.getElementById("actor-big-icon").style.backgroundColor = statusColor(update);
       document.getElementById("actor-big-name").style.color = statusColor(update);
+      document.getElementById("actor-big-name").innerText = currDevice.device.name;
       document.getElementById("single-device-instructions").innerHTML = entry.instrux(currDevice.device);
       drawArcs(arcs);
       // Update popover controls, if present
@@ -1758,6 +1782,7 @@ var entries = {
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
                                                               , pop     : 'lighting_pop'
+                                                              , norename: true
                                                               }
               , '/device/lighting/hue/lightstrip'           : { img     : 'actors/hue-lightstrip.svg'
                                                               , single  : single_lighting_drilldown

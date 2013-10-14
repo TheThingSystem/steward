@@ -849,13 +849,14 @@ var showPop = function(device) {
 	  sendData();
 	};
 	
-	function makeEditable() {
-	  var elem = d3.event.target;
-	  elem.contentEditable = true;
-	};
-	
 	function setDeviceName() {
 	  var elem = d3.event.target;
+	  if (entries[currDevice.device.deviceType].norename) {
+	    if (!document.getElementById("notification")) notify(currDevice.device.name, "Cannot be renamed from the steward.");
+	    elem.innerText = currDevice.device.name;
+	    elem.blur();
+	    return;
+	  }
 	  if (d3.event.keyCode) {
 	    if (d3.event.keyCode !== 13) {
 	      return true;
@@ -871,10 +872,7 @@ var showPop = function(device) {
 	                requestID: "2",
 	                parameter: { name : elem.innerText} };
 	    cmd.parameter = JSON.stringify(cmd.parameter);
-//console.log("Sending: " + JSON.stringify(cmd));
         wsSend(JSON.stringify(cmd));
-        currDevice.device.name = elem.innerText;
-        document.getElementById("actor-big-name").innerText = elem.innerText;
 	  }
 	};
 

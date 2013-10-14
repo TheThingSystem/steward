@@ -365,3 +365,28 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 #lan-instructions {
 		font-size: 10pt;
 }
+
+/* notification panel */
+
+.notification {
+		position: absolute;
+		left: 70px;
+		height: 22px;
+		width: 630px;
+		top: -20px;
+		z-index: 1000;
+		background-color: #fff;
+}
+
+.notification-text {
+		color: #f00;
+        font-family: "Monsterrat Regular";
+        font-size: 14pt;
+        margin: 2px;
+}
+
+.notification-ok {
+		float: right;
+		height: 18px;
+		margin: 2px;
+}

@@ -179,9 +179,14 @@ var go = function(steward) {
   }
     
   ws.onmessage = function(evt) {
-    var update, state;
-    var message = JSON.parse(evt.data);
-      
+    var i, state, update;
+    try {
+      var message = JSON.parse(evt.data);
+      if (!message) throw new Error("invalid JSON: " + this.responseText);
+    } catch(ex) {
+      console.log(ex.message);
+    }
+    
     if (firstP) {
       firstP = false;
         
@@ -206,10 +211,13 @@ var go = function(steward) {
     }
       
     try {
-      message = JSON.parse(evt.data);
-      if (!message) throw new Error("invalid JSON: " + this.responseText);
-        
       if (message.hasOwnProperty(".updates") && (message[".updates"].length > 0)) {
+        for (i = 0; i < message[".updates"].length; i++) {
+          update = message[".updates"][i];
+          if (update.level === "alert") {
+            notify(update.name, update.message);
+          }
+        }
     	state = stack.pop();
     	stack.push(state);
 		if (state.hasOwnProperty("onUpdate")) {
