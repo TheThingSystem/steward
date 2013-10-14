@@ -852,7 +852,7 @@ var showPop = function(device) {
 	function setDeviceName() {
 	  var elem = d3.event.target;
 	  if (entries[currDevice.device.deviceType].norename) {
-	    if (!document.getElementById("notification")) notify(currDevice.device.name, "Cannot be renamed from the steward.");
+	    if (!document.getElementById("notification-text")) notify(currDevice.device.name, "Cannot be renamed from the steward.");
 	    elem.innerText = currDevice.device.name;
 	    elem.blur();
 	    return;

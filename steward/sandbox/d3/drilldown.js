@@ -10,21 +10,21 @@ var actors = {}
   
 var notify = function(name, msg) {
   var alert;
+  var now = (new Date()).valueOf();
   alert = d3.select('body')
     .append('div')
-    .attr('id', 'notification')
+    .attr('id', 'notification' + now)
     .attr('class', 'notification');
   alert.append('span')
     .attr('id', 'notification-text')
     .attr('class', 'notification-text')
     .text(function () { var txt = 'Alert from ' + name; if (msg) txt += ': ' + msg; return txt;});
   alert.append('img')
-    .attr('id', 'notification-ok')
     .attr('class', 'notification-ok')
     .attr('src', 'popovers/assets/done_on.svg')
-    .on('click', function () { d3.select('#notification').transition()
+    .on('click', function () { d3.select('#notification' + now).transition()
       .duration(800)
-      .style('top', function() { return '-' + d3.select('#notification').style('height') }).remove(); });
+      .style('top', function() { return '-' + d3.select('#notification' + now).style('height') }).remove(); });
   alert.transition()
     .duration(800)
   	.style('top', '0px');
