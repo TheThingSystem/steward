@@ -57,8 +57,9 @@ void setup() {
   
   Serial.print("MAC address: ");
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
+    if (thisByte != 0) Serial.print(":");
+    if (mac[thisByte] < 0x0a) Serial.print("0");
     Serial.print(mac[thisByte], HEX);
-    Serial.print(":"); 
   }
   Serial.println();
    

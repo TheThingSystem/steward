@@ -41,7 +41,7 @@ AND these sensors:
 This is probably overkill, groovy!
 
     
-Next, import this library into Arduino
+Next, import this library into Arduino:
 
     http://www.seeedstudio.com/wiki/File:AirQuality_Sensor.zip
 

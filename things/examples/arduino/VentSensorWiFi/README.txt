@@ -1,3 +1,5 @@
+CODE IS NOT YET READY (WAITING FOR MULTICAST)
+    
 README.txt
 
 Start with:
@@ -6,17 +8,9 @@ Start with:
 
     Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
 
-    Ether Shield      - http://arduino.cc/en/Main/ArduinoEthernetShield
+    Adafruit CC3000   - http://www.adafruit.com/products/1491
 
-OR
-
-    Arduino Ethernet  - http://arduino.cc/en/Main/ArduinoBoardEthernet
-
-    Stacking headers  - http://www.adafruit.com/products/85
-
-    Grove Shield      - http://www.seeedstudio.com/wiki/Grove_-_Base_Shield_V1.3
-
-AND these sensors:
+AND this sensor:
 
     A0 - MD550 Wind Sensor   - http://moderndevice.com/product/wind-sensor/
                                GND = Ground, +V = Power, Out = pin A, RV = unused, TMP = unused
@@ -24,10 +18,12 @@ AND these sensors:
     A2 - Grove DHT Sensor    - http://www.seeedstudio.com/wiki/Grove_-_Temperature_and_Humidity_Sensor_Pro
 
 
-Next, import this library into Arduino:
+Next, import these libraries into Arduino:
 
     http://www.seeedstudio.com/wiki/images/archive/4/49/20130305092204%21Humidity_Temperature_Sensor.zip
-
+    
+    https://github.com/adafruit/Adafruit_CC3000_Library/archive/master.zip
+    
 Note that when the MD550 sensor starts, it takes 50 seconds before
 returning control back to setup().
 
