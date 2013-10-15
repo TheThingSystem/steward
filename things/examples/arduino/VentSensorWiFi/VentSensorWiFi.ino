@@ -46,8 +46,8 @@ PROGMEM prog_char *loopPacket9= "}]}}}\n";
 
 unsigned int port = 22601;
 // All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
-#define WLAN_SSID       "thingsystem"
-#define WLAN_PASS       "ndnqjoebjxtxmgke"
+#define WLAN_SSID       NULL          // cannot be longer than 32 characters!
+#define WLAN_PASS       "..."
 #define WLAN_SECURITY   WLAN_SEC_WPA2
 
 Adafruit_CC3000_Client udp;
@@ -183,21 +183,28 @@ void loop() {
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-// These are the interrupt and control pins
-#define ADAFRUIT_CC3000_IRQ   3  // MUST be an interrupt pin!
-// These can be any two pins
-#define ADAFRUIT_CC3000_VBAT  5
-#define ADAFRUIT_CC3000_CS    10
+                                  // These are the interrupt and control pins
+#define ADAFRUIT_CC3000_IRQ    3  // MUST be an interrupt pin!
+#define ADAFRUIT_CC3000_VBAT   5  // These can be any two pins
+#define ADAFRUIT_CC3000_CS    10  //   ..
 // Use hardware SPI for the remaining pins
 // On an UNO, SCK = 13, MISO = 12, and MOSI = 11
 
+#define NVMEM_USER15_FILEID    (15)
+#define NVMEM_USER15_FILESIZE  (1 + 32 + 1 + 32 + 1)    // version + SSID + NUL + passphrase + NUL
+#define NVMEM_USER15_FILEVRSN  ' '                      // probably will never change, but let's future-proof!
+
+
 Adafruit_CC3000 *CC3000_setup(char *ssid, char *passphrase, unsigned long security)
 {
+  unsigned long len;
+  char buffer[NVMEM_USER15_FILESIZE + 2];
+
+  Serial.println(F("Initializing the CC3000"));
   Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIV2);
 
   displayFreeRAM();
 
-  Serial.println(F("Initializing the CC3000 ..."));
   displayDriverMode();
   if (!cc3000.begin()) { Serial.println(F("Unable to initialize the CC3000! Check your wiring?")); for (;;); }
 
@@ -216,9 +223,50 @@ Adafruit_CC3000 *CC3000_setup(char *ssid, char *passphrase, unsigned long securi
   Serial.println(F("\nDeleting old connection profiles"));
   if (!cc3000.deleteProfiles()) { Serial.println(F("unable to delete old connection profiles")); for (;;); }
 
-  /* NOTE: Secure connections are not available in 'Tiny' mode! */
+  memset(buffer, 0x00, sizeof buffer);
+  if (ssid == NULL) {
+    if (nvmem_read(NVMEM_USER15_FILEID, NVMEM_USER15_FILESIZE, 0, (unsigned char *) buffer) != 0) {
+      Serial.println(F("unable to read SSID/passphrase from NVMEM, caller MUST supply these parameters")); for (;;);
+    }
+    if (buffer[0] != NVMEM_USER15_FILEVRSN) {
+      Serial.println(F("wrong format for SSID/passphrase from NVMEM, caller MUST supply these parameters")); for (;;);
+    }
+
+    ssid = buffer + 1;
+    passphrase = ssid + strlen(ssid) + 1;
+    if ((*ssid == '\0') || (*passphrase == '\0')) {
+      Serial.println(F("invalid format for SSID/passphrase from NVMEM, caller MUST supply these parameters")); for (;;);
+    }
+    Serial.println(F("Retrieving SSID/passphrase from NVRAM"));
+  }
+
+#ifdef CC3000_TINY_DRIVER
+  if (security !== WLAN_SEC_UNSEC) { Serial.print(F("Secure connections are not available in 'tiny' mode")); for (;;); }
+#endif
+
   if (!cc3000.connectToAP(ssid, passphrase, security)) { Serial.print(F("unable to connect to access point ")); for (;;); }   
   Serial.println(F("Connected!"));  
+
+  if ((buffer[0] == '\0') && ((1 + strlen(ssid) + strlen(passphrase) + 2) <= NVMEM_USER15_FILESIZE)) {
+    char *cp = buffer;
+
+    *cp++ = NVMEM_USER15_FILEVRSN;
+    strcpy(cp, ssid);
+    cp += strlen(ssid) + 1;
+    strcpy(cp, passphrase);
+    cp += strlen(passphrase) + 1;
+    len = cp - buffer;
+
+           if (nvmem_create_entry(NVMEM_USER15_FILEID, NVMEM_USER15_FILESIZE) != 0) {
+      Serial.println(F("unable to create entry to save SSID/passphrase in NVRAM, continuing"));
+    } else if (nvmem_write(NVMEM_USER15_FILEID, len, 0, (unsigned char *) buffer) != 0) {
+      Serial.println(F("unable to write entry for SSID/passphrase in NVRAM, continuing"));
+    } else {
+      Serial.print(F("Saved SSID/passphrase to NVRAM, "));
+      Serial.print(len);
+      Serial.println(F(" octets"));
+    }
+  }
 
   Serial.println(F("Waiting for IP address"));
   unsigned long timeout = millis() + 20000;
@@ -228,9 +276,7 @@ Adafruit_CC3000 *CC3000_setup(char *ssid, char *passphrase, unsigned long securi
   }  
 
   /* Display the IP address DNS, Gateway, etc. */  
-  while (!displayConnectionDetails(&cc3000)) {
-    delay(1000);
-  }
+  while (!displayConnectionDetails(&cc3000)) delay(1000);
 
   return &cc3000;
 }
@@ -259,7 +305,7 @@ void displayFreeRAM(void)
 void displayDriverMode(void)
 {
   #ifdef CC3000_TINY_DRIVER
-    Serial.println(F("CC3000 is configured in 'Tiny' mode"));
+    Serial.println(F("CC3000 is configured for 'Tiny' mode"));
   #else
     Serial.print(F("TX/RX buffer size: "));
     Serial.print(CC3000_TX_BUFFER_SIZE);
