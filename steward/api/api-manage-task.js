@@ -314,15 +314,15 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       continue;
     }
 
+    p = devices.expand(task.parameter);
     if ((!!actor.$validate) && (!!actor.$validate.perform)) {
-      v = actor.$validate.perform(task.perform, task.parameter);
+      v = actor.$validate.perform(task.perform, p);
       if ((v.invalid.length > 0) || (v.requires.length > 0)) {
         results.devices[member.actor] = { status: 'failure', diagnostic: 'invalid parameters ' + stringify(v) };
         continue;
       }
     }
 
-    p = devices.expand(task.parameter);
     if (!!entity.perform) logger.notice('device/' + entity.deviceID, { api: 'task', perform: task.perform, parameter: p });
     performed = (!!entity.perform) ? (entity.perform)(entity, null, task.perform, p) : false;
     results.devices[member.actor] = { status: performed ? 'success' : 'failure' };

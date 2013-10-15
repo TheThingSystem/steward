@@ -64,7 +64,7 @@ void setup() {
   Serial.println("Starting...");
   while(!Serial) { }
 
-  Serial.println("Iniitalizing MD550 sensor.");
+  Serial.println("Initializing MD550 sensor.");
   pinMode(MD550_SENSOR, INPUT);
   delay(10000);
   ctime = millis() + calibration_time;

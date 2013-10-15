@@ -191,7 +191,7 @@ exports.start = function() {
     var report;
 
     try { report = JSON.parse(message); } catch(ex) {
-      return;
+      return logger.error('discovery', { event: 'TSRP parse', diagnostic: ex.message });
     }
     handle(report, rinfo.address, 'udp ' + rinfo.address + ' ' + rinfo.port + ' ' + report.path);
   }).on('listening', function() {

@@ -102,6 +102,8 @@ var bootable = { prowl          :
 
 
 var bootstrap = function(steward, ws) {
+perform_task(ws, '3');
+
   list_actors(ws, '', { depth : 'all' }, function(message) {
     var a, actor, actors, d, emptyP, entry, info, name, prop, z;
 
@@ -473,3 +475,4 @@ var main = function() {
 <div id='status' />
 </body>
 </html>
+

@@ -62,7 +62,7 @@ void setup() {
   Serial.println("Starting...");
   while(!Serial) { }
 
-  Serial.println("Iniitalizing MD550 sensor.");
+  Serial.println("Initializing MD550 sensor.");
   pinMode(MD550_SENSOR, INPUT);
   delay(10000);
   ctime = millis() + calibration_time;
@@ -198,6 +198,7 @@ Adafruit_CC3000 *CC3000_setup(char *ssid, char *passphrase, unsigned long securi
   displayFreeRAM();
 
   Serial.println(F("Initializing the CC3000 ..."));
+  displayDriverMode();
   if (!cc3000.begin()) { Serial.println(F("Unable to initialize the CC3000! Check your wiring?")); for (;;); }
 
   if (!cc3000.getMacAddress(mac)) { Serial.println(F("unable to retrieve MAC address")); for (;;); }
@@ -245,6 +246,27 @@ void displayFreeRAM(void)
 {
   Serial.print(F("Free RAM         : "));
   Serial.println(getFreeRam(), DEC);
+}
+
+/**************************************************************************/
+/*!
+    @brief  Displays the driver mode (tiny of normal), and the buffer
+            size if tiny mode is not being used
+
+    @note   The buffer size and driver mode are defined in cc3000_common.h
+*/
+/**************************************************************************/
+void displayDriverMode(void)
+{
+  #ifdef CC3000_TINY_DRIVER
+    Serial.println(F("CC3000 is configured in 'Tiny' mode"));
+  #else
+    Serial.print(F("TX/RX buffer size: "));
+    Serial.print(CC3000_TX_BUFFER_SIZE);
+    Serial.print(F(" / "));
+    Serial.print(CC3000_RX_BUFFER_SIZE);
+    Serial.println(F(" octets"));
+  #endif
 }
 
 /**************************************************************************/

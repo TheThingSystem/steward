@@ -158,6 +158,8 @@ var Place = exports.Place = function(info) {
     self.setInfo();
   }
   self.info.review = [];
+  self.info.ipaddrs = [];
+  steward.forEachAddress(function(addr) { self.info.ipaddrs.push(addr); });
 
   self.proplist = function() {
     var eventID, i, info, name;
@@ -167,6 +169,7 @@ var Place = exports.Place = function(info) {
     self.info.monitoring = (i > 0) ? ('monitoring ' + i + ' intervals, next interval ' + utility.relativity(nextick)) : 'idle';
     info = utility.clone(self.info);
     delete(info.name);
+    delete(info.ipaddrs);
     if (!!server.vous) {
       info.remote = server.vous;
 
