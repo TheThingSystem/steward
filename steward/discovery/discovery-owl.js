@@ -58,7 +58,7 @@ exports.start = function() {
 				      		"/device/sensor/owl/electricity":{
 				         		"prototype":{
 				            		"device":{
-				               			"name":"OWL Micro+",
+				               			"name":"OWL Intuition-e",
 				               			"maker":"2 Save Energy Ltd"
 				            		},
 				            		"name":true,
@@ -66,11 +66,11 @@ exports.start = function() {
 				            		"properties":{ "rssi":"dB", "lqi":"", "battery":"%", "currentUsage":"W", "dailyUsage":"Wh" }
 				         		},
 				         		"instances":[{
-				               		"name":"OWL Micro+",
+				               		"name":"OWL Intuition-e",
 				               		"status":"present",
 				               		"unit":{
 				                  		"serial":buff.electricity.id,
-				                  		"udn":"195a42b0-ef6b-11e2-99d0-UID"+buff.electricity.id+"-owl-micro+"
+				                  		"udn":"195a42b0-ef6b-11e2-99d0-UID"+buff.electricity.id+"-owl-electricity-monitor"
 				               		},
 				               		"info":{
 				                  		"rssi":buff.electricity.signal.rssi,
@@ -177,7 +177,7 @@ exports.start = function() {
 				               		"status":"present",
 				               		"unit":{
 				                  		"serial":buff.solar.id,
-				                  		"udn":"195a42b0-ef6b-11e2-99d0-UID"+buff.solar.id+"-owl-solar"
+				                  		"udn":"195a42b0-ef6b-11e2-99d0-UID"+buff.solar.id+"-owl-solarpanel"
 				               		},
 				               		"info":{
 				                  		"generating":buff.solar.current.generating,
