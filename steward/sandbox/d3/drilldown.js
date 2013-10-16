@@ -1679,14 +1679,12 @@ var entries = {
                                                               , arcs    : thermostat_device_arcs
                                                               , instrux : single_thermostat_instructions
                                                               , pop     : 'thermostat_pop'
-                                                              }
-															
-			, '/device/climate/owl/monitor'              : { img     : 'actors/owl-monitor.svg'
-														   , single  : single_thermostat_drilldown
-														   , arcs    : climate_thermostat_arcs
-														   , instrux : single_device_instructions
-														 }											
-															
+                                                              }		
+			  , '/device/climate/owl/monitor'              : { img     : 'actors/owl-monitor.svg'
+															 , single  : single_thermostat_drilldown
+															 , arcs    : thermostat_device_arcs
+															 , instrux : single_device_instructions
+															  }			
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
