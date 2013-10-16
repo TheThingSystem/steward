@@ -1,7 +1,7 @@
 ChangeLog
 =======
 
-## Release 1.1 - October 15 - TBD
+## Release 1.1 - October 21 - TBD
 
 ### Steward
 - 307 redirect HTTP LAN traffic to HTTPS (may be disabled by setting place.strict to 'off')
@@ -16,11 +16,13 @@ ChangeLog
 - use latest release of noble for increased BLE robustness
 - do not respond to SSDP requests from the steward
 - place1.version reports commit SHA
-
+- place1.ipaddrs setting (useful for referring to files on the steward for playback)
+	
 ### Things
 - support Data Sensing Labs' Air Quality Sensor Mote
 - support Ecobee's Smart SI Thermostat
 - support Yoctopuce's hubs, climate sensors, and power LED
+- support for Owl Energy Intuition-c
 - less aggressive polling of API for Tesla Motors
 - allow nest and ecobee to report absent thermostats
 - add return ventilation sensor (air flow, temperature, humidity, and particle concentration)
@@ -32,6 +34,8 @@ ChangeLog
 - improvements to home page layout
 - various robustness fixes
 - allow user to change device name in popover
+- add alert notifiations from steward
+- add ability to login to gain access rights
 
 
 ### Client examples
