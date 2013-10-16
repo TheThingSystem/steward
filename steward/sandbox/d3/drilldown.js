@@ -600,7 +600,7 @@ var single_device_drilldown = function(state, arcs, instructions) {
 };
 
 var single_device_arcs = function(device) {
-  var a0, a1, arcs, brightness, color, delta, level, now, prop, v;
+  var a0, a1, arcs, brightness, color, delta, level, now, prop, v, v2;
 
   arcs = [];
 
@@ -683,6 +683,30 @@ var single_device_arcs = function(device) {
 
     case 'present':
       break;
+
+      case 'currentUsage':
+      case 'generating':
+       v2 = Array.isArray(v) ? v[0] : v;
+       arcs.splice(2, 0, { name   : prop
+                          , raw    : v2
+                          , label  : ''
+                          , cooked : v2 + 'watts'
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'weeklyUsage':
+      case 'exporting':
+       v2 = Array.isArray(v) ? v[0] : v;
+       arcs.splice(3, 0, { name   : prop
+                          , raw    : v2
+                          , label  : ''
+                          , cooked : v2 + (prop === 'weeklyUsage' ? 'watt-hours' : 'watts')
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.40
+                          });
+        break;
 
     default:
       arcs.push({ name   : 'status'
@@ -781,7 +805,7 @@ var single_climate_instructions = function(device) {
 
 
 var climate_device_arcs = function(device) {
-  var arcs, now, prop, v, v2;
+  var arcs, now, prop, v;
 
   arcs = [];
 
@@ -791,7 +815,6 @@ var climate_device_arcs = function(device) {
 
     v = device.info[prop];
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
-console.log(JSON.stringify(device));
     switch (prop) {
 // outer ring
       case 'lastSample':
@@ -837,18 +860,6 @@ console.log(JSON.stringify(device));
                           });
         break;
 
-      case 'currentUsage':
-      case 'generating':
-       v2 = Array.isArray(v) ? v[0] : v;
-       arcs.splice(1, 0, { name   : prop
-                          , raw    : v2
-                          , label  : ''
-                          , cooked : v2 + 'watts'
-                          , value  : clip2bars(v, 0, 100)
-                          , index  : 0.60
-                          });
-        break;
-
 
 // 2nd ring
       case 'humidity':
@@ -887,18 +898,6 @@ console.log(JSON.stringify(device));
                           , label  : 'WATER'
                           , cooked : v === 'true' ? 'NEEDS WATER!' : 'ok'
                           , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
-                          , index  : 0.50
-                          });
-        break;
-
-      case 'weeklyUsage':
-      case 'exporting':
-       v2 = Array.isArray(v) ? v[0] : v;
-       arcs.splice(2, 0, { name   : prop
-                          , raw    : v2
-                          , label  : ''
-                          , cooked : v2 + (prop === 'weeklyUsage' ? 'watt-hours' : 'watts')
-                          , value  : clip2bars(v, 0, 100)
                           , index  : 0.50
                           });
         break;
@@ -1748,8 +1747,8 @@ var entries = {
                                                               , pop     : 'thermostat_pop'
                                                               }		
               , '/device/climate/owl/monitor'               : { img     : 'actors/owl-monitor.svg'
-                                                              , single  : single_thermostat_drilldown
-                                                              , arcs    : thermostat_device_arcs
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
                                                               , instrux : single_device_instructions
                                                               }			
               , '/device/climate/owl/sensor'                : { img     : 'actors/owl-monitor.svg'
