@@ -1,4 +1,5 @@
 *.db
 *.key
 *_rsa
+*.pub
 2f402f80-da50-11e1-9b23-*.js
