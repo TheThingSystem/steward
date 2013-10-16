@@ -91,7 +91,7 @@ exports.start = function() {
 				report = {"path":"/api/v1/thing/reporting",
  		  		  		  "requestID":requestID.toString(),
 				   		  "things":{
-				      		"/device/climate/owl/control":{
+				      		"/device/climate/owl/monitor":{
 				         		"prototype":{
 				            		"device":{
 				               			"name":"OWL Intuition-c",
