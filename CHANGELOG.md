@@ -1,7 +1,7 @@
 ChangeLog
 =======
 
-## Release 1.1 - October 15 - TBD
+## Release 1.1 - Provisionally scheduled for 21st October
 
 ### Steward
 - 307 redirect HTTP LAN traffic to HTTPS (may be disabled by setting place.strict to 'off')
@@ -24,6 +24,7 @@ ChangeLog
 - less aggressive polling of API for Tesla Motors
 - allow nest and ecobee to report absent thermostats
 - add return ventilation sensor (air flow, temperature, humidity, and particle concentration)
+- support for OWL Intuition thermostat and electricity monitors, http://theowl.com
 
 ### HTML5/D3 client
 - support remote access via node-rendezvous2 package
