@@ -1069,7 +1069,7 @@ var ColorPickerMgr = {
          });
       
          div.append("div")
-           .attr("id", "blocker")
+           .attr("id", "color-blocker")
            .style("position", "absolute")
            .style("width", "298px")
            .style("height", "290px")

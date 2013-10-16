@@ -370,23 +370,70 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 
 .notification {
 		position: absolute;
-		left: 70px;
-		height: 22px;
-		width: 630px;
-		top: -20px;
+		left: 10px;
+		height: 32px;
+		width: 740px;
+		top: -32px;
 		z-index: 1000;
-		background-color: #fff;
+		background-color: transparent;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        text-transform: uppercase;
 }
 
 .notification-text {
 		color: #f00;
-        font-family: "Monsterrat Regular";
-        font-size: 14pt;
-        margin: 2px;
+		float: right;
+		margin: 8px 2px 2px 2px;
 }
 
-.notification-ok {
-		float: right;
+.notification-ok { float: right; margin: 6px 2px;
+		text-align: center; position: relative; padding: 0px 5px; background-color: #f00;
+		white-space: nowrap;
+		cursor: pointer;
+		text-transform: none;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		border-radius: 10px; /* future proofing */
+		-khtml-border-radius: 10px; /* for old Konqueror browsers */
+ }
+
+/* reauthenticator panel */
+
+.reauthenticator {
+		position: absolute;
+		left: 10px;
+		height: 32px;
+		width: 780px;
+		top: 5px;
+		background-color: transparent;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        text-transform: uppercase;
+}
+
+.relogin { float: left; margin: 2px;
+		text-align: center; position: relative !important; padding: 3px 8px; background-color: #333;
+		white-space: nowrap;
+		cursor: pointer;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		border-radius: 10px; /* future proofing */
+		-khtml-border-radius: 10px; /* for old Konqueror browsers */
+ }
+
+.reauthenticator-text {
+		color: #fff;
+		float: left;
+		margin-left: -4px;
 		height: 18px;
 		margin: 2px;
+		text-align: center; position: relative !important; padding: 3px 8px; background-color: #000;
+		white-space: nowrap;
+		cursor: pointer;
 }
+

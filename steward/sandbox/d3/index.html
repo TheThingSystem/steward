@@ -55,14 +55,15 @@ body {
 <script type='text/javascript' src='colorpicker.min.js'></script> <!--https://github.com/DavidDurman/FlexiColorPicker-->
 
 <script type='text/javascript'>
-var stack = [];
+var stack       = [];
 var ws2;          // Steward /manage socket
-var currDevice = {actor: "", device: {}, entry: {}};   // To carry over actor from one request type to another
+var currDevice  = {actor: "", device: {}, entry: {}};   // To carry over actor from one request type to another
+var permissions = [];
 
 var login = function(evt) {
-  var form     = document.forms.loginForm
-    , name     = form.userName.value
-    , code     = form.userCode.value
+  var form         = document.forms.loginForm
+    , name         = form.userName.value
+    , code         = form.userCode.value
     , loginStatus  = document.getElementById('loginStatus')
     ;
 
@@ -186,6 +187,8 @@ var go = function(steward) {
     } catch(ex) {
       console.log(ex.message);
     }
+    
+    if ((!!message.notice) && (!!message.notice.permissions)) permissions = message.notice.permissions;
     
     if (firstP) {
       firstP = false;

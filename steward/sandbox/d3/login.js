@@ -65,8 +65,27 @@ var submitLogin = function(evt) {
     if (evt.keyCode === 13) login();
   }
 
+var showReauth = function() {
+  var chart, div, div2;
+  if (permissions.length > 0) {
+    chart = document.getElementById("chart");
+    div = document.createElement('div');
+    div.setAttribute('class', 'reauthenticator');
+    chart.appendChild(div);
+    div2 = document.createElement('div');
+    div2.setAttribute('class', 'relogin');
+    div2.innerHTML = "CHANGE&nbsp;LOGIN";
+    div2.setAttribute('onclick', 'javascript:showLogin()');
+    div.appendChild(div2);
+    div2 = document.createElement('div');
+    div2.setAttribute('class', 'reauthenticator-text');
+    div2.innerText = "Authorized for " + permissions.join("/") + ".";
+    div.appendChild(div2);
+  }
+}
+
 var showSettings = function() {
-  var btn, chart, chkbox, div, div2, form, img, lbl, option, radio, select, settings, span, txtbox;
+  var btn, chkbox, div, div2, form, img, lbl, option, radio, select, settings, span, txtbox;
 
   div = document.createElement('div');
   div.setAttribute('id', 'settings');

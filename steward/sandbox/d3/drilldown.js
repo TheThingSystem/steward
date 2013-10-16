@@ -1,30 +1,43 @@
 
-var actors = {}
+var actors           = {}
   , place
-  , tags   = {}
-  , multiple_arcs = []
+  , tags             = {}
+  , multiple_arcs    = []
   , lastUpdated
   , lastIconTrayPage = 1
-  , lastStageScroll = 0
-  , firstLoad = true;
+  , lastStageScroll  = 0
+  , firstLoad        = true
+  , alertQueue       = []
+  , permissions;
   
-var notify = function(name, msg) {
-  var alert;
-  var now = (new Date()).valueOf();
+var notify = function(name, msg, next) {
+  var alert, q;
+  if (!next && document.getElementById('notification')) {
+    alertQueue.push({name:name, msg:msg});
+    return;
+  }
+  if (next) d3.select('#notification').remove();
   alert = d3.select('body')
     .append('div')
-    .attr('id', 'notification' + now)
+    .attr('id', 'notification')
     .attr('class', 'notification');
+  alert.append('div')
+    .attr('class', 'notification-ok')
+    .text('x')
+    .on('click', function () {
+      d3.select('#notification').transition()
+      .duration(800)
+      .each('end', function() {
+        if (alertQueue.length > 0) {
+          q = alertQueue.shift();
+          notify(q.name, q.msg, true);
+        }
+      })
+      .style('top', function() { return '-' + d3.select('#notification').style('height') }).remove(); });
   alert.append('span')
     .attr('id', 'notification-text')
     .attr('class', 'notification-text')
     .text(function () { var txt = 'Alert from ' + name; if (msg) txt += ': ' + msg; return txt;});
-  alert.append('img')
-    .attr('class', 'notification-ok')
-    .attr('src', 'popovers/assets/done_on.svg')
-    .on('click', function () { d3.select('#notification' + now).transition()
-      .duration(800)
-      .style('top', function() { return '-' + d3.select('#notification' + now).style('height') }).remove(); });
   alert.transition()
     .duration(800)
   	.style('top', '0px');
@@ -224,6 +237,8 @@ var home = function(state) {
   } else {
     document.getElementById('stage').scrollTop = lastStageScroll;
   }
+  
+  showReauth();
 };
 
 var onUpdate_drilldown = function(updates) {
