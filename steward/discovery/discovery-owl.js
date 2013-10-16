@@ -129,10 +129,10 @@ exports.start = function() {
 				report = {"path":"/api/v1/thing/reporting",
 		   		  		  "requestID":requestID.toString(),
 				   		  "things":{
-				      		"/device/climate/owl/weather":{
+				      		"/device/climate/owl/sensor":{
 				         		"prototype":{
 				            		"device":{
-				               			"name":"OWL Intuition-c",
+				               			"name":"Network OWL",
 				               			"maker":"2 Save Energy Ltd"
 				            		},
 				            		"name":true,
