@@ -63,7 +63,9 @@ exports.start = function() {
 				            		},
 				            		"name":true,
 				            		"status":[ "present", "absent", "recent"],
-				            		"properties":{ "rssi":"dB", "lqi":"", "battery":"%", "currentUsage":"W", "dailyUsage":"Wh" }
+				            		"properties":{ "rssi":"dB", "lqi":"", "battery":"%", "channel0": { "currentUsage":"W", "dailyUsage":"Wh" },
+																						 "channel1": { "currentUsage":"W", "dailyUsage":"Wh" },
+																						 "channel2": { "currentUsage":"W", "dailyUsage":"Wh" }}
 				         		},
 				         		"instances":[{
 				               		"name":"OWL Intuition-e",
@@ -76,8 +78,9 @@ exports.start = function() {
 				                  		"rssi":buff.electricity.signal.rssi,
 										"lqi":buff.electricity.signal.lqi,
 										"battery":battery,
-				                  		"currentUsage":channel0[0].current,
-				                  		"dailyUsage":channel0[1].day
+				                  		"channel0":{"currentUsage":channel0[0].current, "dailyUsage":channel0[1].day},
+				                  		"channel1":{"currentUsage":channel1[0].current, "dailyUsage":channel1[1].day},
+				                  		"channel2":{"currentUsage":channel2[0].current, "dailyUsage":channel2[1].day},
 				               		},
 				               		"uptime":currTime-bootTime
 				            	}]
