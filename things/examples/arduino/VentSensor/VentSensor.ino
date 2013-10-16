@@ -23,8 +23,8 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0x06 };  // Arduino Ethernet
 
 // logic taken from https://github.com/bilsch/arduino_anemometer/blob/master/wind_sensor/wind_sensor.ino
 #define MD550_SENSOR A0
-int flow_max = 0;
-int flow_min = 1023;
+int wind_max = 0;
+int wind_min = 1023;
 unsigned long calibration_time = 40000;
 
 
@@ -71,10 +71,10 @@ void setup() {
   do {
     wind = analogRead(MD550_SENSOR);
     if ((wind < 0) || (1023 < wind)) { ctime += 1000; continue; }
-    if (wind > flow_max) flow_max = wind;
-    if (wind < flow_min) flow_min = wind;    
+    if (wind > wind_max) wind_max = wind;
+    if (wind < wind_min) wind_min = wind;    
   } while(millis() < ctime);
-  Serial.print("MD550 min: ");Serial.print(flow_min);Serial.print(", max: ");Serial.println(flow_max);
+  Serial.print("MD550 min: ");Serial.print(wind_min);Serial.print(", max: ");Serial.println(wind_max);
 
   Serial.println("Initializing DHT sensor.");
   dht.begin();
@@ -108,6 +108,7 @@ void setup() {
 }
 
 void loop() {
+  int wind;
   float humidity, temperature, flow, ratio, concentration;
   char  buffer[24];
   unsigned long now;
@@ -118,7 +119,9 @@ void loop() {
   if (now < next_heartbeat) return;
   next_heartbeat = millis() + sample_time;
 
-  flow = (((float) map(analogRead(MD550_SENSOR), flow_min, flow_max, 0, 255)) * Vref) / 1023;
+  wind = analogRead(MD550_SENSOR);
+  if ((wind < wind_min) || (wind_max < wind)) flow = -1.0;
+  else flow = (((float) map(wind, wind_min, wind_max, 0, 255)) * Vref) / 1023;
 
   humidity = dht.readHumidity();
   temperature = dht.readTemperature();
@@ -133,20 +136,20 @@ void loop() {
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket2) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
-      sprintf(buffer, "%02x", mac[thisByte] );
-      strcat(packetBuffer, buffer);
+    sprintf(buffer, "%02x", mac[thisByte] );
+    strcat(packetBuffer, buffer);
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket3) );
   for (byte thisByte = 0; thisByte < 6; thisByte++) {
-      sprintf(buffer, "%02x", mac[thisByte] );
-      strcat(packetBuffer, buffer);
+    sprintf(buffer, "%02x", mac[thisByte] );
+    strcat(packetBuffer, buffer);
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
   strcat(packetBuffer, dtostrf(concentration, 12, 4, buffer));
 
-  if ((0 <= flow) && (flow <= 255)) {
+  if (flow >= 0.0) {
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
     strcat(packetBuffer, dtostrf(flow, 12, 4, buffer));
   }
