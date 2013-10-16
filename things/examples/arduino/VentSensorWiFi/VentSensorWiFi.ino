@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include <string.h>
 #include "utility/debug.h"
+#include "utility/nvmem.h"
 
 #include "DHT.h"
 
@@ -14,10 +15,10 @@ unsigned long next_heartbeat = 0;
 
 #define Vref    4.95
 
-// logic taken from https://github.com/bilsch/arduino_anemometer/blob/master/wind_sensor/wind_sensor.ino
+// logic taken from https://github.com/bilsch/arduino_anemometer/blob/master/flow_sensor/flow_sensor.ino
 #define MD550_SENSOR A0
-int wind_max = 0;
-int wind_min = 1023;
+int flow_max = 0;
+int flow_min = 1023;
 unsigned long calibration_time = 40000;
 
 
@@ -32,13 +33,11 @@ unsigned long low_pulse_occupancy = 0;
 unsigned long sample_time = 30000;
 
 
-char packetBuffer[768];
-
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
 PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/arduino/ventilation\":{\"prototype\":{\"device\":{\"name\":\"Return Ventilation Sensor Array\",\"maker\":\"Modern Device/Seed Studio\"},\"name\":\"true\",\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"flow\":\"sigmas\",\"concentration\":\"pcs/liter\",\"temperature\":\"celcius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Return Ventilation Sensor\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
-PROGMEM prog_char *loopPacket4 = "-ventilation\"},\"info\":{\"flow\":";
-PROGMEM prog_char *loopPacket5 = ",\"concentration\":";
+PROGMEM prog_char *loopPacket4 = "-ventilation\"},\"info\":{\"concentration\":";
+PROGMEM prog_char *loopPacket5 = ",\"flow\":";
 PROGMEM prog_char *loopPacket6 = ",\"temperature\":";
 PROGMEM prog_char *loopPacket7 = ",\"humidity\":";
 PROGMEM prog_char *loopPacket8= "},\"uptime\":";
@@ -68,10 +67,11 @@ void setup() {
   ctime = millis() + calibration_time;
   do {
     wind = analogRead(MD550_SENSOR);
-    if (wind > wind_max) wind_max = wind;
-    if (wind < wind_min) wind_min = wind;    
+    if ((wind < 0) || (1023 < wind)) { ctime += 1000; continue; }
+    if (wind > flow_max) flow_max = wind;
+    if (wind < flow_min) flow_min = wind;    
   } while(millis() < ctime);
-  Serial.print("MD550 min: ");Serial.print(wind_min);Serial.print(", max: ");Serial.println(wind_max);
+  Serial.print("MD550 min: ");Serial.print(flow_min);Serial.print(", max: ");Serial.println(flow_max);
 
   Serial.println("Initializing DHT sensor.");
   dht.begin();
@@ -98,8 +98,7 @@ void setup() {
 }
 
 void loop() {
-  float humidity, temperature, wind;
-  float ratio, concentration;
+  float humidity, temperature, flow, ratio, concentration;
   char  buffer[24];
   unsigned long now;
 
@@ -109,7 +108,7 @@ void loop() {
   if (now < next_heartbeat) return;
   next_heartbeat = millis() + sample_time;
 
-  wind = (((float) map(analogRead(MD550_SENSOR), wind_min, wind_max, 0, 255)) * Vref) / 1023;
+  flow = (((float) map(analogRead(MD550_SENSOR), flow_min, flow_max, 0, 255)) * Vref) / 1023;
 
   humidity = dht.readHumidity();
   temperature = dht.readTemperature();
@@ -135,10 +134,12 @@ void loop() {
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-  strcat(packetBuffer, dtostrf(wind, 12, 4, buffer));
-
-  strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
   strcat(packetBuffer, dtostrf(concentration, 12, 4, buffer));
+
+  if ((0 <= flow) && (flow <= 255)) {
+    strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
+    strcat(packetBuffer, dtostrf(flow, 12, 4, buffer));
+  }
 
   if (!isnan(temperature)) {
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
