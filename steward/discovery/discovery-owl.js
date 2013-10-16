@@ -51,10 +51,10 @@ exports.start = function() {
                          , "name"                       : true
                          , "status"                     : [ "present", "absent", "recent"]
                          , "properties":
-                           { "rssi"                     : "s8"
-                           , "batteryLevel"             : "percentage"
-                           , "currentUsage"             : "watts"
+                           { "currentUsage"             : "watts"
                            , "dailyUsage"               : "watt-hours"
+                           , "rssi"                     : "s8"
+                           , "batteryLevel"             : "percentage"
                            }
                          }
                        , "instances"                    :
@@ -65,10 +65,10 @@ exports.start = function() {
                              , "udn"                    : "195a42b0-ef6b-11e2-99d0-UID"+buff.electricity.id+"-owl-electricity"
                              }
                            , "info"                     :
-                             { "rssi"                   : buff.electricity.signal.rssi
-                             , "batteryLevel"           : parseFloat(buff.electricity.battery.level)
-                             , "currentUsage"           : [ channels[0].current, channels[1].current, channels[2].current ]
+                             { "currentUsage"           : [ channels[0].current, channels[1].current, channels[2].current ]
                              , "dailyUsage"             : [ channels[0].daily,   channels[1].daily,   channels[2].daily   ]
+                             , "rssi"                   : buff.electricity.signal.rssi
+                             , "batteryLevel"           : parseFloat(buff.electricity.battery.level)
                              }
                            , "uptime"                   : currTime-bootTime
                            }
@@ -93,10 +93,10 @@ exports.start = function() {
                          , "name"                       : true
                          , "status"                     : [ "present", "absent", "recent"]
                          , "properties":
-                           { "rssi"                     : "s8"
-                           , "battery"                  : "volts"
-                           , "temperature"              : "celsius"
+                           { "temperature"              : "celsius"
                            , "goalTemperature"          : "celsius"
+                           , "rssi"                     : "s8"
+                           , "battery"                  : "volts"
                            }
                          }
                        , "instances"                    :
@@ -107,10 +107,10 @@ exports.start = function() {
                              , "udn"                    : "195a42b0-ef6b-11e2-99d0-UID"+buff.heating.id+"-owl-thermostat"
                              }
                            , "info"                     :
-                             { "rssi"                   : buff.heating.signal.rssi
-                             , "battery"                : parseFloat(buff.heating.battery.level.toString()) / 1000.0
-                             , "temperature"            : buff.heating.temperature.current
+                             { "temperature"            : buff.heating.temperature.current
                              , "goalTemperature"        : buff.heating.temperature.required
+                             , "rssi"                   : buff.heating.signal.rssi
+                             , "battery"                : parseFloat(buff.heating.battery.level.toString()) / 1000.0
                              }
                            , "uptime"                   : currTime-bootTime
                            }

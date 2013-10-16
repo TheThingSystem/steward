@@ -684,30 +684,6 @@ var single_device_arcs = function(device) {
     case 'present':
       break;
 
-      case 'currentUsage':
-      case 'generating':
-       v2 = Array.isArray(v) ? v[0] : v;
-       arcs.splice(2, 0, { name   : prop
-                          , raw    : v2
-                          , label  : ''
-                          , cooked : v2 + 'watts'
-                          , value  : clip2bars(v, 0, 100)
-                          , index  : 0.50
-                          });
-        break;
-
-      case 'weeklyUsage':
-      case 'exporting':
-       v2 = Array.isArray(v) ? v[0] : v;
-       arcs.splice(3, 0, { name   : prop
-                          , raw    : v2
-                          , label  : ''
-                          , cooked : v2 + (prop === 'weeklyUsage' ? 'watt-hours' : 'watts')
-                          , value  : clip2bars(v, 0, 100)
-                          , index  : 0.40
-                          });
-        break;
-
     default:
       arcs.push({ name   : 'status'
                 , raw    : device.status
@@ -746,6 +722,30 @@ var single_device_arcs = function(device) {
                           , index  : a1
                           });
         break;
+
+      case 'currentUsage':
+      case 'generating':
+       v2 = Array.isArray(v) ? v[0] : v;
+       arcs.splice(a0,0, { name   : prop
+                          , raw    : v2
+                          , label  : prop === 'currentUsage' ? 'USING' : 'GENERATING'
+                          , cooked : v2 + 'watts'
+                          , value  : clip2bars(v2, 0, 1000)
+                          , index  : a1
+                          });
+        continue;
+
+      case 'dailyUsage':
+      case 'exporting':
+       v2 = Array.isArray(v) ? v[0] : v;
+       arcs.splice(a0+1,0, { name   : prop
+                          , raw    : v2
+                          , label  : prop === 'dailyUsage' ? 'DAILY USAGE' : 'EXPORTING'
+                          , cooked : v2 + (prop === 'dailyUsage' ? 'watt-hours' : 'watts')
+                          , value  : clip2bars(v2, 0, 10000)
+                          , index  : a1 - 0.10
+                          });
+        continue;
 
       default:
         continue;
@@ -862,12 +862,12 @@ var climate_device_arcs = function(device) {
 
 
 // 2nd ring
-      case 'humidity':
+      case 'goalTemperature':
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
-                          , label  : 'HUMIDITY'
-                          , cooked : v + '%'
-                          , value  : clip2bars(v, 21, 70)
+                          , label  : 'GOAL'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , value  : clip2bars(v, 18, 28)
                           , index  : 0.50
                           });
         break;
@@ -914,6 +914,16 @@ var climate_device_arcs = function(device) {
 
 
 // 3rd ring
+      case 'humidity':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'HUMIDITY'
+                          , cooked : v + '%'
+                          , value  : clip2bars(v, 21, 70)
+                          , index  : 0.40
+                          });
+        break;
+
       case 'co2':
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
@@ -940,18 +950,6 @@ var climate_device_arcs = function(device) {
                           , label  : 'LIGHT'
                           , cooked : v + 'lx'
                           , value  : clip2bars(v, 5000, 25000)
-                          , index  : 0.40
-                          });
-        break;
-
-      case 'hvac':
-        arcs.splice(3, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'MODE'
-                          , cooked : v
-                          , value  : clip2bars(  v === 'fan'  ?  33
-                                               : v === 'heat' ?  66
-                                               : v === 'cool' ? 100 : 0, 0, 100)
                           , index  : 0.40
                           });
         break;
@@ -988,6 +986,18 @@ var climate_device_arcs = function(device) {
 
 
 // 4th ring
+      case 'hvac':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MODE'
+                          , cooked : v
+                          , value  : clip2bars(  v === 'fan'  ?  33
+                                               : v === 'heat' ?  66
+                                               : v === 'cool' ? 100 : 0, 0, 100)
+                          , index  : 0.30
+                          });
+        break;
+
       case 'noise':
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
@@ -1018,16 +1028,6 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
-      case 'away':
-        arcs.splice(4, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'AWAY'
-                          , cooked : v
-                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
-                          , index  : 0.30
-                          });
-        break;
-
       case 'nextSample':
         now = new Date().getTime();
         arcs.splice(4, 0, { name   : prop
@@ -1050,7 +1050,7 @@ var climate_device_arcs = function(device) {
         break;
 
       case 'battery':
-        arcs.splice(r, 0, { name   : prop
+        arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'BATTERY'
                           , cooked : v + ' volts'
@@ -1071,6 +1071,16 @@ var climate_device_arcs = function(device) {
 
 
 // 5th ring
+      case 'away':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'AWAY'
+                          , cooked : v
+                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
+                          , index  : 0.20
+                          });
+        break;
+
       case 'pressure':
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
@@ -1087,16 +1097,6 @@ var climate_device_arcs = function(device) {
                           , label  : 'NO<sub>2</sub>'
                           , cooked : v + 'ppm'
                           , value  : clip2bars(v, 0, 1200)
-                          , index  : 0.20
-                          });
-        break;
-
-      case 'goalTemperature':
-        arcs.splice(5, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'GOAL'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
-                          , value  : clip2bars(v, 18, 28)
                           , index  : 0.20
                           });
         break;
