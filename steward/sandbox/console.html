@@ -592,7 +592,32 @@ var onactors = function(message) {
               break;
 
             case 'humidity':
+            case 'batteryLevel':
               if (!isNaN(v)) v = v.toFixed(2) + '%';
+              break;
+
+            case 'battery':
+              v += 'volts';
+              break;
+
+            case 'currentUsage':
+            case 'dailyUsage':
+              if (!Array.isArray(v)) break;
+              v2 = [];
+              v.forEach(function(usage, index, array) {
+                v2.push(usage + 'watt-hours');
+              });
+              v = serialize_array(v2);
+              break;
+
+            case 'generating':
+            case 'exporting':
+              v += 'watts';
+              break;
+
+            case 'noise':
+            case 'rssi':
+              v += 'dB';
               break;
 
             case 'co2':

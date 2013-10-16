@@ -781,7 +781,7 @@ var single_climate_instructions = function(device) {
 
 
 var climate_device_arcs = function(device) {
-  var arcs, now, prop, v;
+  var arcs, now, prop, v, v2;
 
   arcs = [];
 
@@ -791,6 +791,7 @@ var climate_device_arcs = function(device) {
 
     v = device.info[prop];
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+console.log(JSON.stringify(device));
     switch (prop) {
 // outer ring
       case 'lastSample':
@@ -836,13 +837,26 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'currentUsage':
+      case 'generating':
+       v2 = Array.isArray(v) ? v[0] : v;
+       arcs.splice(1, 0, { name   : prop
+                          , raw    : v2
+                          , label  : ''
+                          , cooked : v2 + 'watts'
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.60
+                          });
+        break;
+
+
 // 2nd ring
       case 'humidity':
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'HUMIDITY'
                           , cooked : v + '%'
-                          , value  : clip2bars(v, 21,  70)
+                          , value  : clip2bars(v, 21, 70)
                           , index  : 0.50
                           });
         break;
@@ -862,7 +876,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'MOISTURE'
                           , cooked : v + 'mb'
-                          , value  : clip2bars(v, 50,  250)
+                          , value  : clip2bars(v, 50, 250)
                           , index  : 0.50
                           });
         break;
@@ -877,6 +891,28 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'weeklyUsage':
+      case 'exporting':
+       v2 = Array.isArray(v) ? v[0] : v;
+       arcs.splice(2, 0, { name   : prop
+                          , raw    : v2
+                          , label  : ''
+                          , cooked : v2 + (prop === 'weeklyUsage' ? 'watt-hours' : 'watts')
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'text':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'CONDITIONS'
+                          , cooked : v
+                          , value  : clip2bars(v.length ? 100 : 0, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+
 
 // 3rd ring
       case 'co2':
@@ -884,7 +920,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'CO<sub>2</sub>'
                           , cooked : v + 'ppm'
-                          , value  : clip2bars(v,  0, 1200)
+                          , value  : clip2bars(v, 0, 1200)
                           , index  : 0.40
                           });
         break;
@@ -894,7 +930,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'SMOKE'
                           , cooked : v + '&sigma;'
-                          , value  : clip2bars(-v,  -5, 1.5)
+                          , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });
         break;
@@ -904,7 +940,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'LIGHT'
                           , cooked : v + 'lx'
-                          , value  : clip2bars(v,  5000, 25000)
+                          , value  : clip2bars(v, 5000, 25000)
                           , index  : 0.40
                           });
         break;
@@ -926,7 +962,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'AIR FLOW'
                           , cooked : v + '&sigma;'
-                          , value  : clip2bars(-v,  -5, 2.5)
+                          , value  : clip2bars(-v, -5, 2.5)
                           , index  : 0.40
                           });
         break;
@@ -940,6 +976,17 @@ var climate_device_arcs = function(device) {
                           , index  : 0.40
                           });
         break;
+
+      case 'rssi':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'SIGNAL'
+                          , cooked : v + 'dB'
+                          , value  : clip2bars(v, -127, 128)
+                          , index  : 0.40
+                          });
+        break;
+
 
 // 4th ring
       case 'noise':
@@ -967,7 +1014,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'CONCENTRATION'
                           , cooked : v + 'pcs/liter'
-                          , value  : clip2bars(v,  0, 14000)
+                          , value  : clip2bars(v, 0, 14000)
                           , index  : 0.40
                           });
         break;
@@ -1003,6 +1050,26 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'battery':
+        arcs.splice(r, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'BATTERY'
+                          , cooked : v + ' volts'
+                          , value  : clip2bars(v, 0, 12)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'batteryLevel':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'BATTERY'
+                          , cooked : v + '%'
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.30
+                          });
+        break;
+
 
 // 5th ring
       case 'pressure':
@@ -1010,7 +1077,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'PRESSURE'
                           , cooked : v + 'mb'
-                          , value  : clip2bars(v, 980,  1060)
+                          , value  : clip2bars(v, 980, 1060)
                           , index  : 0.20
                           });
         break;
@@ -1020,17 +1087,17 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'NO<sub>2</sub>'
                           , cooked : v + 'ppm'
-                          , value  : clip2bars(v,  0, 1200)
+                          , value  : clip2bars(v, 0, 1200)
                           , index  : 0.20
                           });
         break;
 
-      case 'leaf':
+      case 'goalTemperature':
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
-                          , label  : 'LEAF'
-                          , cooked : v
-                          , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
+                          , label  : 'GOAL'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , value  : clip2bars(v, 18, 28)
                           , index  : 0.20
                           });
         break;
@@ -1311,7 +1378,7 @@ var motive_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'INTERIOR'
                           , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
-                          , value  : clip2bars(v,  17, 32)
+                          , value  : clip2bars(v, 17, 32)
                           , index  : 0.20
                           });
         break;
@@ -1680,9 +1747,14 @@ var entries = {
                                                               , instrux : single_thermostat_instructions
                                                               , pop     : 'thermostat_pop'
                                                               }		
-             , '/device/climate/owl/monitor'                : { img     : 'actors/owl-monitor.svg'
+              , '/device/climate/owl/monitor'               : { img     : 'actors/owl-monitor.svg'
                                                               , single  : single_thermostat_drilldown
                                                               , arcs    : thermostat_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              }			
+              , '/device/climate/owl/sensor'                : { img     : 'actors/owl-monitor.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : single_climate_instructions
                                                               , instrux : single_device_instructions
                                                               }			
               , '/device/climate/netatmo/sensor'            : { img     : 'actors/netatmo.svg'
@@ -1879,6 +1951,16 @@ var entries = {
                                                               , instrux : no_instructions
                                                               }
               , '/device/sensor/grove/water'                : { img     : 'actors/grove.svg'
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
+                                                              , instrux : no_instructions
+                                                             }
+              , '/device/sensor/owl/electricity'            : { img     : 'actors/owl-monitor.svg'
+                                                              , single  : single_sensor_drilldown
+                                                              , arcs    : sensor_device_arcs
+                                                              , instrux : no_instructions
+                                                             }
+              , '/device/sensor/owl/solarpanels'           : { img     : 'actors/owl-monitor.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
                                                               , instrux : no_instructions
