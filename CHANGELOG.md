@@ -22,7 +22,7 @@ ChangeLog
 - support Data Sensing Labs' Air Quality Sensor Mote
 - support Ecobee's Smart SI Thermostat
 - support Yoctopuce's hubs, climate sensors, and power LED
-- support for Owl Energy Intuition-c 
+- support for Owl Energy Intuition-c
 - less aggressive polling of API for Tesla Motors
 - allow nest and ecobee to report absent thermostats
 - add return ventilation sensor (air flow, temperature, humidity, and particle concentration)
