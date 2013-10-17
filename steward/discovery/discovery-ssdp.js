@@ -202,7 +202,7 @@ exports.ssdp_discover = function(info, options, callback) {
         devices.discover(info);
       }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message });
 console.log('>>> ' + JSON.stringify(info));
-console.log(console);
+console.log(content);
  }
       if (!!callback) callback(null);
     }).on('close', function() {
