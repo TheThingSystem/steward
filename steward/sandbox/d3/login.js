@@ -67,7 +67,7 @@ var submitLogin = function(evt) {
 
 var showReauth = function() {
   var chart, div, div2;
-  if (permissions.length > 0) {
+  if (!document.getElementById('reauthenticator') && (!document.URL.match("127.0.0.1"))) {
     chart = document.getElementById("chart");
     div = document.createElement('div');
     div.setAttribute('class', 'reauthenticator');
@@ -77,10 +77,12 @@ var showReauth = function() {
     div2.innerHTML = "CHANGE&nbsp;LOGIN";
     div2.setAttribute('onclick', 'javascript:showLogin()');
     div.appendChild(div2);
-    div2 = document.createElement('div');
-    div2.setAttribute('class', 'reauthenticator-text');
-    div2.innerText = "Authorized for " + permissions.join("/") + ".";
-    div.appendChild(div2);
+    if (permissions.length > 0) {
+      div2 = document.createElement('div');
+      div2.setAttribute('class', 'reauthenticator-text');
+      div2.innerText = "Authorized for " + permissions.join("/") + ".";
+      div.appendChild(div2);
+    }
   }
 }
 

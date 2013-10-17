@@ -188,7 +188,10 @@ var go = function(steward) {
       console.log(ex.message);
     }
     
-    if ((!!message.notice) && (!!message.notice.permissions)) permissions = message.notice.permissions;
+    if ((!!message.notice) && (!!message.notice.permissions)) {
+      permissions = message.notice.permissions;
+      showReauth();
+    }
     
     if (firstP) {
       firstP = false;
