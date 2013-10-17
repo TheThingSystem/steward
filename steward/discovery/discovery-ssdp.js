@@ -154,11 +154,14 @@ exports.ssdp_discover = function(info, options, callback) {
     }).on('end', function() {
       var parser = new xml2js.Parser();
 
+      if (response.statusCode !== 200) {
+        if (!!callback) return callback(new Error('HTTP status code ' + response.statusCode));
+        return logger.error('discovery', { event: 'http.get', code: response.statusCode, content: content });
+      }
+
       try { parser.parseString(content, function(err, data) {
-        if (err) {
-          logger.error('discovery', { event: 'parser.parseString', content: content, diagnostic: err.message });
-          return;
-        } else if (!data) data = { root: {} };
+        if (err) return logger.error('discovery', { event: 'parser.parseString', content: content, diagnostic: err.message });
+        if (!data) data = { root: {} };
         if (!data.root.device) {
           data.root.device = [ { friendlyName     : [ '' ]
                                , manufacturer     : [ '' ]
@@ -206,11 +209,12 @@ console.log(content);
  }
       if (!!callback) callback(null);
     }).on('close', function() {
-      if (!!callback) callback(new Error('premature EOF'));
-      else logger.error('discovery', { event: 'ssdp', diagnostic: info.ssdp.LOCATION + ' => premature EOF' });
+      if (!!callback) return callback(new Error('premature EOF'));
+      logger.error('discovery', { event: 'ssdp', diagnostic: info.ssdp.LOCATION + ' => premature EOF' });
     });
   }).on('error', function(err) {
-    if (!!callback) callback(err); else logger.error('http', { event: 'http.get', options: options, diagnostic: err.message });
+    if (!!callback) return callback(err);
+    logger.error('http', { event: 'http.get', options: options, diagnostic: err.message });
   });
 };
 
@@ -243,7 +247,7 @@ exports.upnp_subscribe = function(tag, baseurl, sid, path, cb) {
     response.on('data', function(chunk) {
       content += chunk.toString();
     }).on('end', function() {
-      if (response.statusCode !== 200) logger.warning(tag, { event: 'http', code: response.statusCode, body: content });
+      if (response.statusCode !== 200) logger.warning(tag, { event: 'http', code: response.statusCode, content: content });
       cb(null, 'end', response);
     }).on('close', function() {
       logger.warning(tag, { event: 'http', diagnostic: 'premature eof' });
@@ -290,6 +294,10 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
       content += chunk.toString();
     }).on('end', function() {
       var parser = new xml2js.Parser();
+
+      if (response.statusCode !== 200) {
+        return logger.warning(tag, { event: 'http', code: response.statusCode, content: content });
+      }
 
       try { parser.parseString(content, function(err, data) {
         var faults, i, results, s;

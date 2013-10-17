@@ -550,6 +550,8 @@ Hue.prototype.roundtrip = function(self, tag, params) {
     }).on('end', function() {
       var errors, i, results;
 
+      if (response.statusCode !== 200) logger.warning(tag, { event: 'http', code: response.statusCode, content: content });
+
       try { results = JSON.parse(content); } catch(ex) {
         logger.error(tag, { event: 'JSON', data: content, diagnostic: ex.message });
         results = [];
@@ -682,7 +684,7 @@ var scan = function() {
 
       var i, info, results, serialNo;
 
-      if (response.statusCode !== 200) logger2.warning('nUPnP', { event: 'http', code: response.statusCode, body: content });
+      if (response.statusCode !== 200) logger2.warning('nUPnP', { event: 'http', code: response.statusCode, content: content });
 
       try { results = JSON.parse(content); } catch(ex) {
         logger2.error('nUPnP', { event: 'JSON', data: content, diagnostic: ex.message });
