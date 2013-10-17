@@ -156,7 +156,7 @@ exports.ssdp_discover = function(info, options, callback) {
 
       if (response.statusCode !== 200) {
         if (!!callback) return callback(new Error('HTTP status code ' + response.statusCode));
-        return logger.error('discovery', { event: 'http.get', code: response.statusCode, content: content });
+        return logger.error('discovery', { event: 'http.get', options: options, code: response.statusCode, content: content });
       }
 
       try { parser.parseString(content, function(err, data) {
