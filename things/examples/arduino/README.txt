@@ -1,14 +1,31 @@
 README.txt
 
-The TSRP examples
 
-EggShield/
-GroveAQ/
-PressureMat/
-WaterSensor/
-WeatherStation/
+DHT-22
+======
 
-all make use of multicast UDP. This isn't supported by the standard Ethernet library, you'll need to patch the Ethernet library as below. Add the following to EthernetUdp.h directly after line 55,
+The WeatherStation/ example makes use of the DHT-22 temperature and humidity sensor. There are several libraries available to support this sensor, we used for the Adafruit library, 
+
+https://github.com/adafruit/DHT-sensor-library.
+
+which we found to be the most reliable.
+
+Arduino 1.0.1 vs Arduino 1.0.5
+==============================
+
+The
+
+PROGMEM prog_char *loopPacket1 = "..." ;
+
+prototypes used in the examples were written for the 1.0.1 Arduino development environment. In the newer 1.0.5 environment these lines need to be changed to,
+
+prog_char * const loopPacket1 PROGMEM = "..." ;
+
+
+Multicast UDP
+=============
+
+All the TSRP examples make use of Multicast UDP. This isn't supported by the standard Ethernet library, you'll need to patch the Ethernet library as below. Add the following to EthernetUdp.h directly after line 55,
 
 virtual uint8_t beginMulti(IPAddress, uint16_t);	// initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
 
