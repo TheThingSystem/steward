@@ -4,7 +4,7 @@
   , "version"               : "0.0.1"
   , "private"               : true
   , "engines"        : {
-      "node"                : ">=0.10.12"
+      "node"                : ">=0.10.21"
     }
   , "dependencies"   : {
       "MD5"                 : "1.0.3"

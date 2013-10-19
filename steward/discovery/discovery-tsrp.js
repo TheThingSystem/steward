@@ -184,12 +184,13 @@ var examine = function(event, requestID, results, tag) {
 
 
 exports.start = function() {
-  var ipaddr = '224.192.32.19'
+  var ipaddr = '224.192.32.20'
     , portno = 22601;
 
   dgram.createSocket('udp4').on('message', function(message, rinfo) {
     var report;
 
+console.log(message.toString());
     try { report = JSON.parse(message); } catch(ex) {
       return logger.error('discovery', { event: 'TSRP parse', diagnostic: ex.message });
     }

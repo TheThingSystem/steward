@@ -44,7 +44,7 @@ PROGMEM prog_char *loopPacket8= "},\"uptime\":";
 PROGMEM prog_char *loopPacket9= "}]}}}";
 
 unsigned int port = 22601;
-// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
+// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.20'.
 #define WLAN_SSID       NULL          // cannot be longer than 32 characters!
 #define WLAN_PASS       "..."
 #define WLAN_SECURITY   WLAN_SEC_WPA2
@@ -58,7 +58,7 @@ void setup() {
   unsigned long ctime;
 
   Serial.begin(9600);
-  Serial.println("Starting...");
+  Serial.println("\nStarting...");
   while(!Serial) { }
 
   Serial.println("Initializing MD550 sensor.");
@@ -79,7 +79,7 @@ void setup() {
   pinMode(DUST_SENSOR, INPUT);
 
   Adafruit_CC3000 *wifi = CC3000_setup(WLAN_SSID, WLAN_PASS, WLAN_SECURITY);
-  uint32_t ip   = wifi->IP2U32(224,192,32,19);
+  uint32_t ip   = wifi->IP2U32(224,192,32,20);
   uint16_t port = 22601;
   unsigned long timeout = millis() + 15000;
   for (udp = wifi->connectUDP(ip, port); !udp.connected(); ) {
@@ -204,7 +204,7 @@ Adafruit_CC3000 *CC3000_setup(char *ssid, char *passphrase, unsigned long securi
   unsigned long len;
   char buffer[NVMEM_USER15_FILESIZE + 2];
 
-  Serial.println(F("Initializing the CC3000"));
+  Serial.println(F("\nInitializing the CC3000"));
   Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIV2);
 
   displayFreeRAM();
@@ -315,7 +315,11 @@ void displayDriverMode(void)
     Serial.print(CC3000_TX_BUFFER_SIZE);
     Serial.print(F(" / "));
     Serial.print(CC3000_RX_BUFFER_SIZE);
-    Serial.println(F(" octets"));
+    Serial.print(F(" octets (upto "));
+    Serial.print(CC3000_TX_BUFFER_SIZE - 42);
+    Serial.print(F(" / "));
+    Serial.print(CC3000_RX_BUFFER_SIZE - 42);
+    Serial.println(F(" octets of user data)"));
   #endif
 }
 

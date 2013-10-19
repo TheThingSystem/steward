@@ -10,6 +10,7 @@ var dgram       = require('dgram')
 var logger = utility.logger('discovery');
 
 exports.start = function() {
+return;
   var LOCAL_BROADCAST_HOST = '224.192.32.19';
   var LOCAL_BROADCAST_PORT = 22600;
   var bootTime = process.hrtime()[0] * 1000 + process.hrtime()[1] / 1000;

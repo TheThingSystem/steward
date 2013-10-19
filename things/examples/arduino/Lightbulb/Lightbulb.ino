@@ -85,7 +85,7 @@ void setup() {
   Serial.begin(9600);
   while(!Serial) {  }
   Serial.flush();
-  Serial.println(F("Waiting for key press..."));
+  Serial.println(F("\nWaiting for key press..."));
   while(!Serial.available()) { } // Wait for a character
   Serial.flush();
   Serial.print(F("Arduino LED v"));

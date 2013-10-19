@@ -105,7 +105,7 @@
     
         GCDAsyncUdpSocket *udpSocket = [[GCDAsyncUdpSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
         [udpSocket enableBroadcast:YES error:nil];
-        [udpSocket sendData:data toHost:@"224.192.32.19" port:22601 withTimeout:-1 tag:0];
+        [udpSocket sendData:data toHost:@"224.192.32.20" port:22601 withTimeout:-1 tag:0];
 
         requestID = requestID + 1;
     }

@@ -25,9 +25,9 @@ PROGMEM prog_char *loopPacket4 = "-mat\"},\"info\":{\"contact\":\"";
 PROGMEM prog_char *loopPacket5 = "\"},\"uptime\":";
 PROGMEM prog_char *loopPacket6 = "}]}}}";
 
-// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
+// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.20'.
 EthernetUDP udp;
-IPAddress ip(224,192,32,19);
+IPAddress ip(224,192,32,20);
 unsigned int port = 22601;   
 
 const int buttonPin = 7;
@@ -42,7 +42,7 @@ void setup() {
   pinMode(buttonPin, INPUT);
   
   Serial.begin(9600);
-  Serial.println("Starting...");
+  Serial.println("\nStarting...");
   while(!Serial) { }
   
   Serial.println("Waiting for DHCP address.");

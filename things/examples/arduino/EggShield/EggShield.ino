@@ -35,18 +35,18 @@ PROGMEM prog_char *loopPacket7 = ",\"humidity\":";
 PROGMEM prog_char *loopPacket8 = "},\"uptime\":";
 PROGMEM prog_char *loopPacket9 = "\"}]}}}";
 
-// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.19'.
+// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.20'.
 EthernetUDP udp;
-IPAddress ip(224,192,32,19);
+IPAddress ip(224,192,32,20);
 unsigned int port = 22601;   
 
 void setup() {
   Serial.begin(9600);
   while(!Serial) { }
-  Serial.println("Starting...");
+  Serial.println("\nStarting...");
   
-  pinMode(DHTPIN, INPUT);
   Serial.println("Initialising the DHT sensor.");
+  pinMode(DHTPIN, INPUT);
   dht.begin();
    
   Serial.println("Waiting for DHCP address.");
