@@ -190,7 +190,6 @@ exports.start = function() {
   dgram.createSocket('udp4').on('message', function(message, rinfo) {
     var report;
 
-console.log(message.toString());
     try { report = JSON.parse(message); } catch(ex) {
       return logger.error('discovery', { event: 'TSRP parse', diagnostic: ex.message });
     }
