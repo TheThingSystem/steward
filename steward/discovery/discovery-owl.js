@@ -10,19 +10,12 @@ var dgram       = require('dgram')
 var logger = utility.logger('discovery');
 
 exports.start = function() {
-return;
   var LOCAL_BROADCAST_HOST = '224.192.32.19';
   var LOCAL_BROADCAST_PORT = 22600;
   var bootTime = process.hrtime()[0] * 1000 + process.hrtime()[1] / 1000;
   var requestID = 0;
 
-  var socket = dgram.createSocket('udp4');
-
-  socket.bind(LOCAL_BROADCAST_PORT, function() {
-      socket.addMembership(LOCAL_BROADCAST_HOST);
-  });
-
-  socket.on('message', function(message, rinfo) {
+  dgram.createSocket('udp4').on('message', function(message, rinfo) {
       var report;
 
       try {
@@ -201,15 +194,12 @@ return;
         //console.log(util.inspect(report, false, null));
         trsp.handle(report, rinfo.address, 'udp ' + rinfo.address + ' ' + rinfo.port + ' ' + report.path);
       } catch(ex) { return logger.error('reporting', { event: 'parsing', diagnostic: ex.message }); }
-    });
-
-    socket.on('listening', function() {
+    }).on('listening', function() {
       var address = this.address();
-      logger.info('OWL driver listening on udp://*:' + address.port);
-    });
 
-    socket.on('error', function(err) {
+      logger.info('OWL driver listening on multicast udp://' + LOCAL_BROADCAST_HOST + ':' + address.port);
+      this.addMembership(LOCAL_BROADCAST_HOST);
+    }).on('error', function(err) {
       logger.error('reporting', { event: 'socket', diagnostic: err.message });
-    });
-
+    }).bind(LOCAL_BROADCAST_PORT, LOCAL_BROADCAST_HOST);
 };

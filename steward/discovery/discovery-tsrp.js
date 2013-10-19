@@ -197,9 +197,9 @@ exports.start = function() {
   }).on('listening', function() {
     var address = this.address();
 
-    logger.info('TSRP listening on udp://*:' + address.port);
+    logger.info('TSRP listening on multicast udp://' + ipaddr + ':' + address.port);
     this.addMembership(ipaddr);
   }).on('error', function(err) {
     logger.error('reporting', { event: 'socket', diagnostic: err.message });
-  }).bind(portno);
+  }).bind(portno, ipaddr);
 };
