@@ -532,15 +532,6 @@ var showPop = function(device) {
          .style("left", (goalTempLeft(device.info.goalTemperature) - 10) + "px")
          .text((((parseInt(device.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F");
          
-     function goalTempLeft(goalTempC) {
-		var result = 0;
-		var goalTempF = ((parseFloat(goalTempC) * 9) / 5) + 32;
-		var elemEdges = {min: 0, max: 340};
-		var tempFRange = {min: 40, max: 100};
-		result = (goalTempF / (tempFRange.max + tempFRange.min)) * elemEdges.max;
-		return result;
-     }
-     
      var timedFan = (device.info.fan && (device.info.fan !== "auto") && (device.info.fan !== "on"));
      div = pop.append("div")
        .attr("id", "fantime-slider-wrapper");
@@ -604,49 +595,7 @@ var showPop = function(device) {
 			 .text("MIN");
      }
          
-     function fanTimeTop(value) {
-		var max = bigSlider.max;
-		var min = bigSlider.min;
-		value = parseInt((value / 1000/ 60), 10);
-		var top = ((min-max) * ((100-value) / 100) + max);
-		return top + "px";
-     };
-
-	 colorRange = {temp  :  [7.2, 12.8, 18.3, 23.9, 29.4, 35],
-	               color :  ["#529dcc", "#43be93", "#0ea74b", "#b2cb25", "#f47f1f", "#ee3324"]};
-     div = pop.append("div")
-       .attr("id", "thermostat-wrapper");
-     div.append("img")
-         .attr("id", "thermostat-knob")
-         .attr("src", "popovers/assets/thermostat.no.ring.svg")
-         .attr("width", "310px");
-     var canvas = div.append("svg")
-       .attr("width", 310)
-       .attr("height", 310)
-       .style("position", "absolute")
-       .style("top", "0px")
-       .style("left", "0px");
-     var group = canvas.append("g")
-       .attr("transform", "translate(155,155)");
-     var r = 110;
-     var p = ((parseFloat(device.info.temperature) * 6.28) / 33.4) - 1.1; //Math.PI * 1.92;
-     var arc = d3.svg.arc()
-    	.innerRadius(r - 12)
-    	.outerRadius(r)
-    	.startAngle(-0.25)
-    	.endAngle(p);
-     group.append("path")
-    	.style("fill", function() {
-    	   var result = colorRange.color[colorRange.color.length - 1]; 
-    	   for (var i = 0; i < colorRange.temp.length; i++) {
-    	     if (parseFloat(device.info.temperature) > colorRange.temp[i]) {
-    	       result = colorRange.color[i];
-    	     }
-    	   }
-    	   return result;
-    	 })
-    	.attr("d", arc);
-
+     drawTemperatureArc(pop, device.info.temperature);
    }
 
    function finishSwitch() {
@@ -1204,6 +1153,7 @@ var ColorPickerMgr = {
 var updatePopover = function(device, update) {
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/climate/":
+	  if (device.deviceType.match("/control")) updateThermostatPop();
 	  break;
 	case "/device/indicator/":
 	  break;
@@ -1226,6 +1176,46 @@ var updatePopover = function(device, update) {
 	  break;
   }
 
+  function updateThermostatPop() {
+    if (update.info.hasOwnProperty("hvac")) {
+      d3.select("#button-one")
+        .attr("src", function() {return (update.info.hvac === "off")  ? "popovers/assets/off-button.svg"  : "popovers/assets/off-button-off.svg"} );
+      d3.select("#button-two")
+        .attr("src", function() {return (update.info.hvac === "fan")  ? "popovers/assets/fan-button.svg"  : "popovers/assets/fan-button-off.svg"} );
+      d3.select("#button-three")
+        .attr("src", function() {return (update.info.hvac === "cool") ? "popovers/assets/cool-button.svg" : "popovers/assets/cool-button-off.svg"} );
+      d3.select("#button-four")
+        .attr("src", function() {return (update.info.hvac === "heat") ? "popovers/assets/heat-button.svg" : "popovers/assets/heat-button-off.svg"} );
+    }
+    if (update.info.hasOwnProperty("goalTemperature")) {
+      d3.select("#temperature-knob")
+        .transition()
+        .duration(600)
+        .style("left", goalTempLeft(update.info.goalTemperature) + "px");
+      d3.select("#temperature-readout")
+        .transition()
+        .duration(600)
+        .style("left", (goalTempLeft(update.info.goalTemperature) - 10) + "px")
+        .text((((parseInt(update.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F");
+    }
+    if (update.info.hasOwnProperty("fan")) {
+      d3.select("#fantime-knob")
+		.transition()
+		.duration(600)
+		.style("top", fanTimeTop(update.info.fan));
+      d3.select("#fantime-slider-readout")
+		.transition()
+		.duration(600)
+		.style("top", parseInt(fanTimeTop(update.info.fan)) + 7 + "px");
+	  d3.select("#fantime-readout")
+		.text(parseInt((update.info.fan / 60 / 1000), 10));
+    }
+    
+    drawTemperatureArc(d3.select("#pop-substrate"), update.info.temperature);
+    
+    newPerform.parameter = update.info;
+  }
+  
   function updateLightingPop() {
 	if (document.getElementById("device-status")) {
 	  d3.select("#device-status")
@@ -1267,6 +1257,67 @@ function hueBrightTop(value) {
 	return top + "px";
 };
 
+function goalTempLeft(goalTempC) {
+  var result = 0;
+  var goalTempF = ((parseFloat(goalTempC) * 9) / 5) + 32;
+  var elemEdges = {min: 0, max: 340};
+  var tempFRange = {min: 40, max: 100};
+  result = (goalTempF / (tempFRange.max + tempFRange.min)) * elemEdges.max;
+  return result;
+};
+     
+function fanTimeTop(value) {
+  var max = bigSlider.max;
+  var min = bigSlider.min;
+  value = parseInt((value / 1000/ 60), 10);
+  var top = ((min-max) * ((100-value) / 100) + max);
+  return top + "px";
+};
+     
+
+function drawTemperatureArc(pop, temp) {
+  var div;
+  var colorRange = {temp  :  [7.2, 12.8, 18.3, 23.9, 29.4, 35],
+	            color :  ["#529dcc", "#43be93", "#0ea74b", "#b2cb25", "#f47f1f", "#ee3324"]};
+  if (document.getElementById("thermostat-wrapper")) {
+  	document.getElementById("thermostat-wrapper").removeChild(document.getElementById("tempArcCanvas"));
+    div = d3.select("#thermostat-wrapper");
+  } else {
+    div = pop.append("div")
+      .attr("id", "thermostat-wrapper");
+    div.append("img")
+      .attr("id", "thermostat-knob")
+      .attr("src", "popovers/assets/thermostat.no.ring.svg")
+      .attr("width", "310px");
+  }
+  var canvas = div.append("svg")
+    .attr("width", 310)
+    .attr("height", 310)
+    .attr("id", "tempArcCanvas")
+    .style("position", "absolute")
+    .style("top", "0px")
+    .style("left", "0px");
+  var group = canvas.append("g")
+    .attr("transform", "translate(155,155)");
+  var r = 110;
+  var p = ((parseFloat(temp) * 6.28) / 33.4) - 1.1; //Math.PI * 1.92;
+  var arc = d3.svg.arc()
+    .innerRadius(r - 12)
+    .outerRadius(r)
+    .startAngle(-0.25)
+    .endAngle(p);
+  group.append("path")
+    .style("fill", function() {
+    	   var result = colorRange.color[colorRange.color.length - 1]; 
+    	   for (var i = 0; i < colorRange.temp.length; i++) {
+    	     if (parseFloat(temp) > colorRange.temp[i]) {
+    	       result = colorRange.color[i];
+    	     }
+    	   }
+    	   return result;
+     })
+    .attr("d", arc);
+}
 
 function sendData(device) {
   newPerform.parameter = JSON.stringify(newPerform.parameter);

@@ -441,7 +441,7 @@ var drawArcs = function(arcs) {
   
   chart = document.getElementById("chart");
   if (document.getElementById("arcCanvas")) {
-     chart.removeChild(document.getElementById("labels"));
+    chart.removeChild(document.getElementById("labels"));
     chart.removeChild(document.getElementById("arcCanvas"));
   }
 
