@@ -1,7 +1,7 @@
 ChangeLog
 =======
 
-## Release 1.1 - October 21 - TBD
+## Release 1.1 - October 23
 
 ### Steward
 - 307 redirect HTTP LAN traffic to HTTPS (may be disabled by setting place.strict to 'off')
