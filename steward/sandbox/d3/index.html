@@ -225,6 +225,7 @@ var go = function(steward) {
           }
         }
     	state = stack.pop();
+    	if (!state) return;
     	stack.push(state);
 		if (state.hasOwnProperty("onUpdate")) {
 		  state.onUpdate(message[".updates"]);

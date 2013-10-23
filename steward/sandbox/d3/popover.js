@@ -326,19 +326,19 @@ var showPop = function(device) {
        .append("span")
          .attr("id", "display-album")
          .attr("class", "label-padding")
-         .text("album");
+         .text(function() {return device.info.track.album || "album"});
      div.append("div")
        .attr("class", "display-artist" + hasTrackProperty("artist"))
        .append("span")
          .attr("id", "display-artist")
          .attr("class", "label-padding")
-         .text("artists");
+         .text(function() {return device.info.track.artist || "artist"});
      div.append("div")
        .attr("class", "display-track" + hasTrackProperty("title"))
        .append("span")
          .attr("id", "display-track")
          .attr("class", "label-padding")
-         .text("track");
+         .text(function() {return device.info.track.title || "track"});
      
      function hasTrackProperty(property) {
        var result = "";
@@ -376,16 +376,9 @@ var showPop = function(device) {
 		   .append("img")
 			 .attr("id", "volume-control-indicator")
 			 .attr("src", "popovers/assets/volume.control.indicator.png")
-			 .style("transform", "rotate(" + calcVolRotation() + "deg)")
-			 .style("-webkit-transform", "rotate(" + calcVolRotation() + "deg)")
+			 .style("transform", "rotate(" + calcVolRotation(device.info.volume) + "deg)")
+			 .style("-webkit-transform", "rotate(" + calcVolRotation(device.info.volume) + "deg)")
 			 .call(drag);
-     }
-     
-     function calcVolRotation() {
-       var result = -10; // zero point, to be corrected in art
-       var number11 = 280; // Max rotation
-       result += (device.info.volume / 100) * number11;
-       return result;
      }
      
      if (device.info.hasOwnProperty("track") && device.info.track.hasOwnProperty("position")) {
@@ -396,7 +389,7 @@ var showPop = function(device) {
 		   .append("img")
 			 .attr("id", "track-progress-knob")
 			 .attr("class", "track-progress-knob")
-			 .style("left", calcTrackProgress() + "px")
+			 .style("left", calcTrackProgress(device.info.track) + "px")
 			 .attr("src", "popovers/assets/track-progress-knob.svg")
 			 .call(drag);
 		 div.append("div")
@@ -405,15 +398,6 @@ var showPop = function(device) {
 		   .text("TRACK PROGRESS");
      }
      
-     function calcTrackProgress() {
-       var result = 0;
-       var theEnd = 500; // Max track position
-       if (parseFloat(device.info.track.duration) > 0) {
-         result = (parseFloat(device.info.track.position)/parseFloat(device.info.track.duration)) * theEnd;
-       }
-       return result
-     }
-
      div = pop.append("div")
        .attr("id", "media-controls-wrapper");
      div.append("div")
@@ -536,6 +520,7 @@ var showPop = function(device) {
      div = pop.append("div")
        .attr("id", "fantime-slider-wrapper");
      div.append("div")
+         .attr("id", "fantime-slider-label")
          .attr("class", function() {return (timedFan) ? "slider-label label" : "slider-label label-disabled"})
          .text("FAN TIME");
      div.append("div")
@@ -563,10 +548,10 @@ var showPop = function(device) {
 		 elem = div.append("div")
 		   .attr("id", "fantime-slider-readout")
 		   .attr("class", "slider-readout")
-		   .style("top", parseInt(fanTimeTop(device.info.fan)) + 7 + "px");
+		   .style("top", parseInt(fanTimeTop(device.info.fan), 10) + 7 + "px");
 		 elem.append("span")
-			 .attr("class", "label")
 			 .attr("id", "fantime-readout")
+			 .attr("class", "label")
 			 .text(parseInt((device.info.fan / 60 / 1000), 10));
 		 elem.append("br");
 		 elem.append("span")
@@ -582,12 +567,12 @@ var showPop = function(device) {
 		   .style("top", bigSlider.min + "px");
 		 
 		 elem = div.append("div")
-		   .attr("id", "fan-slider-readout")
+		   .attr("id", "fantime-slider-readout")
 		   .attr("class", "slider-readout")
 		   .style("top", bigSlider.min + 7 + "px");
 		 elem.append("span")
-			 .attr("class", "label-disabled")
 			 .attr("id", "fantime-readout")
+			 .attr("class", "label-disabled")
 			 .text("0");
 		 elem.append("br");
 		 elem.append("span")
@@ -1161,6 +1146,7 @@ var updatePopover = function(device, update) {
 	  updateLightingPop();
 	  break;
 	case "/device/media/":
+	  updateMediaPop();
 	  break;
 	case "/device/motive/":
 	  break;
@@ -1198,17 +1184,40 @@ var updatePopover = function(device, update) {
         .style("left", (goalTempLeft(update.info.goalTemperature) - 10) + "px")
         .text((((parseInt(update.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F");
     }
-    if (update.info.hasOwnProperty("fan")) {
+    var timedFan = (update.info.hasOwnProperty("fan") && (update.info.fan !== "auto") && (update.info.fan !== "on"));
+    if (timedFan) {
+      var top = parseInt(fanTimeTop(update.info.fan), 10);
+      d3.select("#fantime-slider-label")
+        .attr("class", "slider-label label");
       d3.select("#fantime-knob")
+		.attr("src", "popovers/assets/knob.large.svg")
+		.call(drag)
 		.transition()
 		.duration(600)
-		.style("top", fanTimeTop(update.info.fan));
+		.style("top", top + "px");
       d3.select("#fantime-slider-readout")
 		.transition()
 		.duration(600)
-		.style("top", parseInt(fanTimeTop(update.info.fan)) + 7 + "px");
+		.style("top", top + 7 + "px");
 	  d3.select("#fantime-readout")
+	    .attr("class", "label")
 		.text(parseInt((update.info.fan / 60 / 1000), 10));
+    } else {
+      d3.select("#fantime-slider-label")
+        .attr("class", "slider-label label-disabled");
+      d3.select("#fantime-knob")
+		.attr("src", "popovers/assets/knob.large.off.svg")
+		.transition()
+		.duration(600)
+		.style("top", bigSlider.min + "px");
+      d3.select("#fantime-slider-readout")
+		.transition()
+		.duration(600)
+		.style("top", bigSlider.min + 7 + "px");
+	  d3.select("#fantime-readout")
+	    .attr("class", "label-disabled")
+		.text("0");
+		
     }
     
     drawTemperatureArc(d3.select("#pop-substrate"), update.info.temperature);
@@ -1246,15 +1255,54 @@ var updatePopover = function(device, update) {
 	newPerform.perform = update.status;
 	newPerform.parameter = update.info;
   }
+  
+  function updateMediaPop() {
+	if (document.getElementById("device-status")) {
+	  d3.select("#device-status")
+		.style("background-color", statusColor(update));
+	  d3.select("#device-status-detail")
+		.text(update.status);
+	}
+    if (update.info.volume) {
+	  d3.select("#volume-control-indicator")
+		.style("transform", "rotate(" + calcVolRotation(update.info.volume) + "deg)")
+		.style("-webkit-transform", "rotate(" + calcVolRotation(update.info.volume) + "deg)");
+    }
+    if (update.info.track) {
+      d3.select("#display-album")
+        .text(function() {return update.info.track.album || "album"});
+      d3.select("#display-artist")
+        .text(function() {return update.info.track.artist || "artist"});
+      d3.select("#display-track")
+        .text(function() {return update.info.track.title || "title"});
+    }
+	if (update.info.hasOwnProperty("track") && update.info.track.hasOwnProperty("position")) {
+      d3.select("#track-progress-knob")
+        .transition()
+        .duration(300)
+        .style("left", calcTrackProgress(update.info.track) + "px");
+	}
+	d3.select("#media-button-two")
+	  .attr("src", function() {return (update.status === "playing") ? "popovers/assets/media-button-two.svg" : "popovers/assets/media-button-two-off.svg";});
+	d3.select("#media-button-three")
+      .attr("src", function() {return (update.status === "paused") ? "popovers/assets/media-button-three.svg" : "popovers/assets/media-button-three-off.svg";});
+    if (update.info.muted) {
+      d3.select("#media-button-four")
+        .attr("src", function() {return (update.info.muted === "off") ? "popovers/assets/media-button-five-on.svg" : "popovers/assets/media-button-five-off.svg";});
+    }
+
+	newPerform.perform = update.status;
+	newPerform.parameter = update.info;
+  }
 
 }
 
 
 function hueBrightTop(value) {
-	var max = bigSlider.max;
-	var min = bigSlider.min;
-	var top = ((min-max) * ((100-value) / 100) + max);
-	return top + "px";
+  var max = bigSlider.max;
+  var min = bigSlider.min;
+  var top = ((min-max) * ((100-value) / 100) + max);
+  return top + "px";
 };
 
 function goalTempLeft(goalTempC) {
@@ -1317,6 +1365,23 @@ function drawTemperatureArc(pop, temp) {
     	   return result;
      })
     .attr("d", arc);
+}
+
+function calcVolRotation(volume) {
+  var result = -10; // zero point, to be corrected in art
+  var number11 = 280; // Max rotation
+  result += (volume / 100) * number11;
+  return result;
+}
+     
+
+function calcTrackProgress(trackInfo) {
+  var result = 0;
+  var theEnd = 500; // Max track position
+  if (parseFloat(trackInfo.duration) > 0) {
+   result = (parseFloat(trackInfo.position)/parseFloat(trackInfo.duration)) * theEnd;
+  }
+  return result;
 }
 
 function sendData(device) {
