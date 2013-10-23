@@ -1,7 +1,8 @@
 ChangeLog
 =======
 
-## Release 1.1 - October 23
+## Release 1.1 - October 23, 2013
+## Commit - 852a955128c192ac87b78763a5ef9537b0ec1d02
 
 ### Steward
 - 307 redirect HTTP LAN traffic to HTTPS (may be disabled by setting place.strict to 'off')
@@ -43,6 +44,7 @@ ChangeLog
 - small robustness fixes to all Arduino clients
 
 
-## Release 1.0 - September 23, 2013 - 881e6ed337365bf5e8a97d9af55a8cf89de23a4a
+## Release 1.0 - September 23, 2013
+## Commit - 881e6ed337365bf5e8a97d9af55a8cf89de23a4a
 
 Released to open source.
