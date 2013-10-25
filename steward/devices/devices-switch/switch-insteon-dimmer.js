@@ -11,7 +11,7 @@ var util        = require('util')
 var logger = plug.logger;
 
 
-var Insteon = exports.Device = function(deviceID, deviceUID, info) {
+var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
   self.whatami = '/device/switch/insteon/dimmer';
@@ -37,14 +37,14 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.refresh(self);
   setInterval(function() { self.refresh(self); }, 30 * 1000);
 };
-util.inherits(Insteon, plug.Device);
+util.inherits(Insteon_Dimmer, plug.Device);
 
 
-Insteon.prototype.refresh = function(self) {
+Insteon_Dimmer.prototype.refresh = function(self) {
   self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
 };
 
-Insteon.prototype.callback = function(self, messageType, message) {
+Insteon_Dimmer.prototype.callback = function(self, messageType, message) {
   switch (message.substr(0, 4)) {
     case '0250':
       switch (message.substr(message.length - 6, 2)) {
@@ -77,7 +77,7 @@ Insteon.prototype.callback = function(self, messageType, message) {
   return logger.warning('device/' + self.deviceID, { event: 'unexpected message', message: message });
 };
 
-Insteon.prototype.level = function(self, lvl) {
+Insteon_Dimmer.prototype.level = function(self, lvl) {
   var level = devices.percentageValue(parseInt(lvl, 16), 255);
 
   if (level === 0) {
@@ -100,13 +100,13 @@ var insteonLevel = function(pct) {
   return ('0' + devices.scaledPercentage(pct, 1,  255).toString(16)).substr(-2);
 };
 
-Insteon.prototype.perform = function(self, taskID, perform, parameter) {
+Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
   var params, state;
 
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') return self.setName(params.name);
+  if (perform === 'set') return self.setName(params.name, taskID);
 
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return;
@@ -165,9 +165,9 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
 // other Insteon devices corresponding to a dimmable switch may also be listed here...
-  devices.makers['Insteon.010e'] = Insteon;
-  devices.makers['Insteon.010f'] = Insteon;
-  devices.makers['Insteon.0111'] = Insteon;
-  devices.makers['Insteon.0112'] = Insteon;
-  devices.makers['Insteon.01ef'] = Insteon;
+  devices.makers['Insteon.010e'] = Insteon_Dimmer;
+  devices.makers['Insteon.010f'] = Insteon_Dimmer;
+  devices.makers['Insteon.0111'] = Insteon_Dimmer;
+  devices.makers['Insteon.0112'] = Insteon_Dimmer;
+  devices.makers['Insteon.01ef'] = Insteon_Dimmer;
 };

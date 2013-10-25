@@ -41,6 +41,7 @@
     , "robosmart"           : "0.1.1"
     , "roku"                : "0.2.0"
     , "sensortag"           : "0.1.1"
+    , "serialport"          : "~1.1.0"
     , "soap"                : "0.2.7"
     , "sonos"               : "git://github.com/TheThingSystem/node-sonos.git"
     , "speakeasy"           : "git://github.com/TheThingSystem/speakeasy.git"

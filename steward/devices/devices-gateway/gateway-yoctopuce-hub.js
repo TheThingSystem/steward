@@ -1,4 +1,6 @@
 // YoctoHub-Ethernet: http://www.yoctopuce.com/EN/products/extensions-and-networking/yoctohub-ethernet
+// YoctoHub-Wireless: http://www.yoctopuce.com/EN/products/extensions-and-networking/yoctohub-wireless
+// VirtualHub:        http://www.yoctopuce.com/EN/virtualhub.php
 
 var url         = require('url')
   , util        = require('util')
@@ -22,7 +24,10 @@ var Hub = exports.Device = function(deviceID, deviceUID, info) {
 
   var self = this;
 
-  self.whatami = '/device/gateway/yoctopuce/ethernet';
+  self.whatami = { 'VirtualHub'        : '/device/gateway/yoctopuce/virtual'
+                 , 'YoctoHub-Ethernet' : '/device/gateway/yoctopuce/ethernet'
+                 , 'YoctoHub-Wireless' : '/device/gateway/yoctopuce/wireless'
+                 }[info.deviceType] || info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -69,6 +74,7 @@ Hub.prototype.addstation = function(module) {
   switch (productName) {
     case 'VirtualHub':
     case 'YoctoHub-Ethernet':
+    case 'YoctoHub-Wireless':
       return;
 
     default:
@@ -146,6 +152,13 @@ exports.start = function() {
                     }
       };
   devices.makers['YoctoHub-Ethernet'] = Hub;
+
+  steward.actors.device.gateway.yoctopuce.wireless = utility.clone(steward.actors.device.gateway.yoctopuce.ethernet);
+  steward.actors.device.gateway.yoctopuce.wireless.$info.type = '/device/gateway/yoctopuce/wireless';
+  devices.makers['YoctoHub-Wireless'] = Hub;
+
+  steward.actors.device.gateway.yoctopuce.virtual = utility.clone(steward.actors.device.gateway.yoctopuce.ethernet);
+  steward.actors.device.gateway.yoctopuce.virtual.$info.type = '/device/gateway/yoctopuce/virtual';
   devices.makers.VirtualHub = Hub;
 
   scan();
@@ -155,7 +168,7 @@ exports.start = function() {
 var scan = function() {
   discovery.ssdp_discover({ http   : { major: '1', minor: '1', code: '200' }
                           , source : 'ssdp'
-                          , ssdp   : { LOCATION : 'http://127.9.0.1:4444/ssdp.xml', ST: 'upnp:rootdevice' }
+                          , ssdp   : { LOCATION : 'http://127.0.0.1:4444/ssdp.xml', ST: 'upnp:rootdevice' }
                           , device : { }
                           }, url.parse('http://127.0.0.1:4444/ssdp.xml'), function(err) {
     if (!!err) { setTimeout(scan, 30 * 1000); }

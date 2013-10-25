@@ -134,10 +134,11 @@ var scan = function() {
       info.id = info.device.unit.udn;
       if (devices.devices[info.id]) return;
 
-      utility.logger('discovery').info(device.serialNumber, { manufacturer : device.manufacturer
-                                                            , vendorID     : device.vendorID
-                                                            , productId    : device.productId
-                                                            });
+      utility.logger('discovery').info(device.comName, { manufacturer : device.manufacturer
+                                                       , vendorID     : device.vendorId
+                                                       , productID    : device.productId
+                                                       , serialNo     : device.serialNumber
+                                                       });
       devices.discover(info);
     }
   });

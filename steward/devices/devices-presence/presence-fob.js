@@ -71,10 +71,7 @@ Fob.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') {
-    if (!!params.name) return self.setName(params.name);
-    return false;
-  }
+  if (perform === 'set') return self.setName(params.name, taskID);
   if (perform !== 'alert') return false;
 
   level = levels[params.level] || 0x00;
@@ -112,9 +109,7 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var register;
-
-  register = require('./../../discovery/discovery-ble').register;
+  var register = require('./../../discovery/discovery-ble').register;
 
   steward.actors.device.presence.fob = steward.actors.device.presence.fob ||
       { $info     : { type: '/device/presence/fob' } };

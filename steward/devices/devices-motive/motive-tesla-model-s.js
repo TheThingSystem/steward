@@ -340,9 +340,7 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   f = null;
   switch (perform) {
     case 'set':
-      if (!params.name) return false;
-      self.setName(params.name);
-      return steward.performed(taskID);
+      return self.setName(params.name, taskID);
 
     case 'doors':
       f = function() { tesla.door_lock({ id    : self.vehicle.id

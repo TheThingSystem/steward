@@ -11,7 +11,7 @@ var stringify   = require('json-stringify-safe')
   ;
 
 
-var WeMo_Switch = exports.Device = function(deviceID, deviceUID, info) {
+var WeMo_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
   self.whatami = '/device/switch/wemo/onoff';
@@ -40,10 +40,10 @@ var WeMo_Switch = exports.Device = function(deviceID, deviceUID, info) {
   self.jumpstart(self);
   self.primer(self);
 };
-util.inherits(WeMo_Switch, plug.Device);
+util.inherits(WeMo_OnOff, plug.Device);
 
 
-WeMo_Switch.prototype.primer = function(self) {/* jshint multistr: true */
+WeMo_OnOff.prototype.primer = function(self) {/* jshint multistr: true */
   var action, body;
 
   action = '"urn:Belkin:service:basicevent:1#GetBinaryState"';
@@ -79,7 +79,7 @@ WeMo_Switch.prototype.primer = function(self) {/* jshint multistr: true */
   });
 };
 
-WeMo_Switch.prototype.jumpstart = function(self) {
+WeMo_OnOff.prototype.jumpstart = function(self) {
   discovery.upnp_subscribe('device/' + self.deviceID, self.url, self.sid, '/upnp/event/basicevent1',
                            function(err, state, response) {
     var i, secs;
@@ -112,7 +112,7 @@ WeMo_Switch.prototype.jumpstart = function(self) {
   });
 };
 
-WeMo_Switch.prototype.perform = function(self, taskID, perform, parameter) {/* jshint multistr: true */
+WeMo_OnOff.prototype.perform = function(self, taskID, perform, parameter) {/* jshint multistr: true */
   var action, body, params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
@@ -175,7 +175,7 @@ WeMo_Switch.prototype.perform = function(self, taskID, perform, parameter) {/* j
   return steward.performed(taskID);
 };
 
-WeMo_Switch.prototype.notify = function(self, headers, content) {
+WeMo_OnOff.prototype.notify = function(self, headers, content) {
   var parser = new xml2js.Parser();
 
   if ((headers.sid !== self.sid) || (headers.seq < self.seq)) return;
@@ -191,7 +191,7 @@ WeMo_Switch.prototype.notify = function(self, headers, content) {
   }); } catch(ex) { self.logger.error('device/' + self.deviceID, { event: 'notify', diagnostic: ex.message }); }
 };
 
-WeMo_Switch.prototype.observe = function(self, results) {
+WeMo_OnOff.prototype.observe = function(self, results) {
   var i, now, onoff, previous;
 
   now = new Date();
@@ -246,5 +246,5 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['urn:Belkin:device:controllee:1'] = WeMo_Switch;
+  devices.makers['urn:Belkin:device:controllee:1'] = WeMo_OnOff;
 };

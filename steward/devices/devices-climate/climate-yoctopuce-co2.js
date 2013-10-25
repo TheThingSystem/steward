@@ -112,7 +112,7 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   result = self.co2.set_logicalName(params.name);
-  if (result === yapi.YAPI_SUCCESS) return self.setName(params.name);
+  if (result === yapi.YAPI_SUCCESS) return self.setName(params.name, taskID);
 
   logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
   return false;

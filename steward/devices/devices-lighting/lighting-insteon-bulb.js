@@ -105,7 +105,7 @@ Insteon.prototype.perform = function(self, taskID, perform, parameter) {
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') return self.setName(params.name);
+  if (perform === 'set') return self.setName(params.name, taskID);
 
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return;

@@ -1,5 +1,5 @@
 var events      = require('events')
-  , stringify  = require('json-stringify-safe')
+  , stringify   = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
   , steward     = require('./steward')
@@ -275,7 +275,7 @@ Device.prototype.getName = function() {
   });
 };
 
-Device.prototype.setName = function(deviceName) {
+Device.prototype.setName = function(deviceName, taskID) {
   var self = this;
 
   if (!deviceName) return false;
@@ -290,6 +290,7 @@ Device.prototype.setName = function(deviceName) {
     }
   });
 
+  if (!!taskID) return steward.performed(taskID);
   return true;
 };
 

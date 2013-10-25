@@ -2,7 +2,7 @@
 // Exegin Q52 - Zigbee GMO: http://exegin.com/hardware/q53app.php
 
 var soap        = require('soap')
-  , stringify  = require('json-stringify-safe')
+  , stringify   = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
   , devices     = require('./../../core/device')

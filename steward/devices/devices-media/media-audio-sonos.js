@@ -1,7 +1,7 @@
 // Sonos speakers: http://www.sonos.com/system
 
-var stringify   = require('json-stringify-safe')
-  , sonos       = require('sonos')
+var sonos       = require('sonos')
+  , stringify   = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
   , validator   = require('validator')

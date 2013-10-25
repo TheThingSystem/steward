@@ -11,7 +11,7 @@ var util        = require('util')
 var logger = plug.logger;
 
 
-var Insteon = exports.Device = function(deviceID, deviceUID, info) {
+var Insteon_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
   self.whatami = '/device/switch/insteon/onoff';
@@ -36,14 +36,14 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.refresh(self);
   setInterval(function() { self.refresh(self); }, 30 * 1000);
 };
-util.inherits(Insteon, plug.Device);
+util.inherits(Insteon_OnOff, plug.Device);
 
 
-Insteon.prototype.refresh = function(self) {
+Insteon_OnOff.prototype.refresh = function(self) {
   self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
 };
 
-Insteon.prototype.callback = function(self, messageType, message) {
+Insteon_OnOff.prototype.callback = function(self, messageType, message) {
   switch (message.substr(0, 4)) {
     case '0250':
       switch (message.substr(message.length - 6, 2)) {
@@ -76,7 +76,7 @@ Insteon.prototype.callback = function(self, messageType, message) {
   return logger.warning('device/' + self.deviceID, { event: 'unexpected message', message: message });
 };
 
-Insteon.prototype.onoff = function(self, octets) {
+Insteon_OnOff.prototype.onoff = function(self, octets) {
   var onoff = (octets !== '00') ? 'on' : 'off';
 
   if (self.status === onoff) return;
@@ -86,13 +86,13 @@ Insteon.prototype.onoff = function(self, octets) {
 };
 
 
-Insteon.prototype.perform = function(self, taskID, perform, parameter) {
+Insteon_OnOff.prototype.perform = function(self, taskID, perform, parameter) {
   var params, state;
 
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') return self.setName(params.name);
+  if (perform === 'set') return self.setName(params.name, taskID);
 
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return;
@@ -138,9 +138,9 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
 // other Insteon devices corresponding to an on/off switch may also be listed here...
-  devices.makers['Insteon.0209'] = Insteon;
-  devices.makers['Insteon.022d'] = Insteon;
-  devices.makers['Insteon.0230'] = Insteon;
-  devices.makers['Insteon.0235'] = Insteon;
-  devices.makers['Insteon.0236'] = Insteon;
+  devices.makers['Insteon.0209'] = Insteon_OnOff;
+  devices.makers['Insteon.022d'] = Insteon_OnOff;
+  devices.makers['Insteon.0230'] = Insteon_OnOff;
+  devices.makers['Insteon.0235'] = Insteon_OnOff;
+  devices.makers['Insteon.0236'] = Insteon_OnOff;
 };

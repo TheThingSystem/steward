@@ -29,3 +29,6 @@ npm-debug.log
 build/
 Debug
 Release
+
+zwscene.xml
+zwcfg_*.xml
