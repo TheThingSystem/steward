@@ -216,6 +216,8 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 	-khtml-border-radius: 10px; /* for old Konqueror browsers */
 }
 
+#chart div.apprentices { position: absolute; top: 570px; left: 180px; width: 500px; height: 20px; text-align: center; }
+
 form {
   position: absolute;
   right: 44px;
@@ -437,3 +439,103 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 		cursor: pointer;
 }
 
+/* apprentices panels */
+
+#apprentice-backdrop {
+  position: absolute;
+  background: #000;
+  width: 802px;
+  height: 802px;
+  top: 0px;
+  text-align: center;
+  color: white;
+  font-size: 13pt;
+  font-family: "Trebuchet MS";    
+}
+
+#apprentice-backdrop .form-heading {
+		position: absolute;
+		top: -40px;
+		left: 5px;
+		width: 800px;
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+        line-height: 30px;
+        margin-bottom: 5px;
+		margin-top: 0px;        
+		text-align: center;
+		clear: both;
+}
+
+#apprentice-backdrop .big-instructions { position: relative; font-size: 16pt; margin-top: 42px; }
+
+#apprentice-backdrop .apprentice-instructions {
+	position: relative;
+	font-size: 11pt;
+	width: 800px; text-align: center; 
+    font-family: "Monsterrat Regular";
+}
+
+#apprentice-backdrop .panes { 
+        position: absolute;
+        top: 30px;
+        left: 50px;
+		width: 700px; 
+		margin: 0px auto; 
+		padding-top: 10px;
+		}
+#apprentice-backdrop .panes-left  { position: relative; float: left; }
+#apprentice-backdrop .panes-right { position: relative; float: right; }
+
+#apprentice-backdrop .display-pane { position: relative;
+		height: 34px; width: 332px; background:url('popovers/assets/display.svg') no-repeat; margin: 20px 0px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 18px;
+        line-height: 36px;
+        font-weight: normal;
+        text-transform: uppercase;
+        text-align: left;
+		cursor: pointer;
+ }
+
+#apprentice-backdrop .label { padding: 0px 20px; color: #69cef6; line-height: 36px; text-transform: uppercase; }
+#apprentice-backdrop .label-disabled { padding: 0px 20px; color: #666; }
+
+#apprentice-backdrop .state { padding: 0px 20px; color: #fcb040; float: right; text-transform: uppercase; }
+#apprentice-backdrop .state-disabled { padding: 0px 20px; color: #666; float: right; }
+
+#sub-pane-one {
+        position: absolute;
+        top: 180px;
+        left: 0px;
+        width: 780px;
+        height: 700px;
+        background-color: #000;
+        text-align: left;
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+}
+
+#sub-pane-two {
+        position: absolute;
+        top: 170px;
+        left: 0px;
+        width: 780px;
+        height: 700px;
+        background-color: #000;
+        text-align: left;
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+}
+
+#sub-pane-two .action-button-group {
+        position: absolute;
+        top: 170px;
+        left: 0px;
+        width: 780px;
+        text-align: center;
+}
+
+#sub-pane-two .action-button {height: 30px; margin: 5px; cursor: pointer}
+
+}

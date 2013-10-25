@@ -131,15 +131,41 @@ var home = function(state) {
   for (prop in tags) if (tags.hasOwnProperty(prop)) {
     tag = document.createElement('span');
     tag.setAttribute('class', 'tag');
-    tag.setAttribute('id', 'tag' + (a + 1));
-    tag.setAttribute('onclick', 'javascript:goforw(tag_drilldown, "' + prop + '");');
-    tag.innerHTML = prop.replace(/\s/g, '&nbsp;');
+    if (a === 0) {
+      tag.setAttribute('style', 'background-color: #000; color: #00ba00;');
+      tag.innerHTML = 'tags';
+    } else {
+      tag.setAttribute('id', 'tag' + (a + 1));
+      tag.setAttribute('onclick', 'javascript:goforw(tag_drilldown, "' + prop + '");');
+      tag.innerHTML = prop.replace(/\s/g, '&nbsp;');
+    }
     div.appendChild(tag);
     span = document.createElement('span');
-    span.innerHTML = ' '; // there's a space between quotes
+    span.innerHTML = ' ';
     div.appendChild(span);
     if (++a >= 12) break;
   }
+  
+  div = document.createElement('div');
+  div.setAttribute('class', 'apprentices');
+  chart.appendChild(div);
+  
+  tag = document.createElement('span');
+  tag.setAttribute('class', 'tag');
+  tag.setAttribute('style', 'background-color: #000; color: #00ba00;');
+  tag.innerHTML = 'apprentices';
+  div.appendChild(tag);
+  span = document.createElement('span');
+  span.innerHTML = ' ';
+  div.appendChild(span);
+  tag = document.createElement('span');
+  tag.setAttribute('class', 'tag');
+  tag.setAttribute('onclick', 'javascript:goApprentices()');
+  tag.innerHTML = 'home&nbsp;automation';
+  div.appendChild(tag);
+  span = document.createElement('span');
+  span.innerHTML = ' ';
+  div.appendChild(span);
 
   div = document.createElement('div');
   div.setAttribute('class', 'wrapper');
