@@ -1818,6 +1818,14 @@ var entries = {
                                                                , instrux : single_climate_instructions
                                                                , pop     : 'history_pop'
                                                               }
+              , '/device/gateway/aeotec/repeater'           : { img     : 'actors/aeotec-repeater.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/aeotec/zstick-s2'           : { img     : 'actors/aeotec-zstick.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
               , '/device/gateway/ecobee/cloud'              : { img     : 'actors/ecobee.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
@@ -1855,6 +1863,14 @@ var entries = {
                                                               , arcs    : gateway_device_arcs
                                                               }
               , '/device/gateway/yoctopuce/ethernet'        : { img     : 'actors/yoctopuce.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/yoctopuce/virtual'         : { img     : 'actors/yoctopuce.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/yoctopuce/wireless'        : { img     : 'actors/yoctopuce.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
@@ -2000,7 +2016,31 @@ var entries = {
                                                               , arcs    : sensor_device_arcs
                                                               , instrux : no_instructions
                                                               }
+              , '/device/switch/cooper/dimmer'              : { img     : 'actors/cooper-dimmer.svg'
+                                                              , single  : single_switch_drilldown
+                                                              , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
+                                                              }
+              , '/device/switch/ge/dimmer'                  : { img     : 'actors/ge-dimmer.svg'
+                                                              , single  : single_switch_drilldown
+                                                              , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
+                                                              }
               , '/device/switch/insteon/dimmer'             : { img     : 'actors/insteon-dimmer.svg'
+                                                              , single  : single_switch_drilldown
+                                                              , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
+                                                              }
+              , '/device/switch/aeotec/onoff'               : { img     : 'actors/aeotec-plug.svg'
+                                                              , single  : single_switch_drilldown
+                                                              , arcs    : switch_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              , pop     : 'switch_pop'
+                                                              }
+              , '/device/switch/ge/onoff'                   : { img     : 'actors/ge-plug.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
                                                               , instrux : single_device_instructions

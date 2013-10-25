@@ -1,6 +1,14 @@
 ChangeLog
 =======
 
+## Release 1.2 - not yet scheduled
+## Commit - not yet finalized
+    
+### Steward
+- recognize YoctoHub-Wireless
+- minor clean-up of some internals
+- initial z-wave support
+    
 ## Release 1.1 - October 23, 2013
 ## Commit - 852a955128c192ac87b78763a5ef9537b0ec1d02
 
