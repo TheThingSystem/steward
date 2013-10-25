@@ -20,7 +20,7 @@ for (i = 0; i < files.length; i++) {
   }
   s1 += '<td><img src="d3/actors/' + file + '" title="d3/actors/' + file + '"/></td>';
   s2 += '<td><img src="d3/popovers/assets/actors/' + file + '"title="d3/popovers/assets/actors/' + file + '" /></td>';
-  if (col === 8) {
+  if (col === 9) {
     s1 += '</tr>';
     s2 += '</tr>';
     col = 0;

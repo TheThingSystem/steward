@@ -1740,12 +1740,12 @@ var entries = {
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
-              , '/device/climate/grove/air-quality'         : { img     : 'actors/grove.svg'
+              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/data-sensing-lab.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
                                                               }
-              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/data-sensing-lab.svg'
+              , '/device/climate/grove/air-quality'         : { img     : 'actors/grove.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
@@ -1878,12 +1878,12 @@ var entries = {
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
-              , '/device/indicator/text/xively'             : { img     : 'actors/xively.svg'
+              , '/device/indicator/text/prowl'              : { img     : 'actors/prowl.svg'
                                                               , single  : single_indicator_drilldown
                                                               , arcs    : indicator_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
-              , '/device/indicator/text/prowl'              : { img     : 'actors/prowl.svg'
+              , '/device/indicator/text/xively'             : { img     : 'actors/xively.svg'
                                                               , single  : single_indicator_drilldown
                                                               , arcs    : indicator_device_arcs
                                                               , instrux : single_device_instructions
@@ -1953,13 +1953,13 @@ var entries = {
                                                               , instrux : single_media_instructions
                                                               , pop     : 'media_pop'
                                                               }
-              , '/device/media/sonos/audio'                 : { img     : 'actors/sonos-playbar.svg'
+              , '/device/media/roku/video'                  : { img     : 'actors/roku3.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               , instrux : single_media_instructions
                                                               , pop     : 'media_pop'
                                                               }
-              , '/device/media/roku/video'                  : { img     : 'actors/roku3.svg'
+              , '/device/media/sonos/audio'                 : { img     : 'actors/sonos-playbar.svg'
                                                               , single  : single_media_drilldown
                                                               , arcs    : media_device_arcs
                                                               , instrux : single_media_instructions
@@ -1971,17 +1971,17 @@ var entries = {
                                                               , instrux : single_motive_instructions
                                                               , pop     : 'motive_pop'
                                                               }
+              , '/device/presence/fob/ble'                  : { img     : 'actors/presence-fob.svg'
+                                                              , single  : single_presence_drilldown
+                                                              , arcs    : presence_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              }
               , 'device/presence/fob/hone'                  : { img     : 'actors/hone.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
               , '/device/presence/fob/inrange'              : { img     : 'actors/philips-inrange.svg'
-                                                              , single  : single_presence_drilldown
-                                                              , arcs    : presence_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              }
-              , '/device/presence/fob/ble'                  : { img     : 'actors/presence-fob.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               , instrux : single_device_instructions
