@@ -2,10 +2,10 @@
 <!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1"
-	 id="Layer_1" sodipodi:docname="insteon_LED.svg" inkscape:version="0.48.1 r9760" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg"
+	 id="Layer_1" inkscape:version="0.48.1 r9760" sodipodi:docname="insteon_LED.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
 	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
-<sodipodi:namedview  id="namedview11726" borderopacity="1" guidetolerance="10" inkscape:window-width="1910" inkscape:window-height="1156" inkscape:window-y="0" inkscape:pageshadow="2" inkscape:pageopacity="0" inkscape:window-x="0" inkscape:current-layer="Layer_1" inkscape:window-maximized="0" inkscape:zoom="21.013957" objecttolerance="10" inkscape:cx="22.318501" inkscape:cy="22.318501" bordercolor="#666666" showgrid="false" gridtolerance="10" pagecolor="#ffffff">
+<sodipodi:namedview  borderopacity="1" inkscape:cy="22.318501" inkscape:cx="22.318501" inkscape:pageopacity="0" guidetolerance="10" id="namedview11726" inkscape:window-maximized="0" inkscape:window-width="1910" inkscape:current-layer="Layer_1" pagecolor="#ffffff" inkscape:pageshadow="2" bordercolor="#666666" inkscape:window-y="0" gridtolerance="10" inkscape:window-height="1156" showgrid="false" objecttolerance="10" inkscape:zoom="21.013957" inkscape:window-x="0">
 	</sodipodi:namedview>
 <g id="g11706">
 	<g id="g11708">
@@ -20,11 +20,14 @@
 <g id="Livello_1_2_">
 </g>
 <g>
-	<path d="M0-0.094v44.734h44.637V-0.094H0z M22.32,43.067c-11.498,0-20.812-9.312-20.812-20.812S10.82,1.434,22.32,1.434
+	<path d="M0-0.094V44.64h44.637V-0.094H0z M22.32,43.067c-11.498,0-20.812-9.312-20.812-20.812S10.82,1.434,22.32,1.434
 		c11.496,0,20.816,9.321,20.816,20.821C43.136,33.749,33.816,43.07,22.32,43.067z"/>
 	<path d="M22.465,3.108c-10.573,0-19.146,8.572-19.146,19.146c0,10.562,8.573,19.143,19.146,19.143
-		c10.577,0,19.144-8.571,19.145-19.143C41.61,11.679,33.039,3.108,22.465,3.108z M10.094,32.534l12.99-25.367l2.042,4.133
-		L14.603,32.534H10.094z M30.741,32.534l-2.646-5.562H18.031l1.927-3.886h6.287l-3.094-6.446l2.312-4.661l10.154,20.557
-		L30.741,32.534L30.741,32.534z"/>
+		c10.577,0,19.144-8.569,19.145-19.143C41.61,11.679,33.039,3.108,22.465,3.108z M36.033,28.776c0,3.93-3.187,7.113-7.113,7.113
+		H16.048c-3.928,0-7.113-3.185-7.113-7.113V15.904c0-3.928,3.186-7.111,7.113-7.111H28.92c3.928,0,7.113,3.184,7.113,7.111V28.776z"
+		/>
+	<polygon points="23.074,12.761 14.002,30.479 17.151,30.479 24.5,15.648 	"/>
+	<polygon points="23.12,19.377 25.281,23.879 20.89,23.879 19.544,26.592 26.573,26.592 28.422,30.479 31.828,30.481 24.736,16.122 
+			"/>
 </g>
 </svg>
