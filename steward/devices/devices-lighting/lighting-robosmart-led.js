@@ -1,17 +1,20 @@
 // RoboSmart Lightbulb: http://www.smarthome-labs.com
 
-var robosmart;
+var robosmart
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
-    robosmart   = require('robosmart');
+  robosmart   = require('robosmart');
 } catch(ex) {
   exports.start = function() {};
-  return;
+
+  return utility.logger('devices').info('failing robosmart-led lighting (continuing)', { diagnostic: ex.message });
 }
 
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , lighting    = require('./../device-lighting')
   ;
 

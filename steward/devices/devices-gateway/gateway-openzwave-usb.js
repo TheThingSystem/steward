@@ -1,20 +1,21 @@
 // OpenZ-Wave - using a USB stick
 
-var openzwave;
+var openzwave
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
   openzwave = require('openzwave');
 } catch(ex) {
   exports.start    = function() {};
-  exports.pair     = function() {};
-  exports.register = function() {};
-  return;
+
+  return utility.logger('devices').info('failing openzwave-usb gateway (continuing)', { diagnostic: ex.message });
 }
 
 var serialport  = require('serialport')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , broker      = utility.broker
   ;
 

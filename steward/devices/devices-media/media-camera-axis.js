@@ -1,12 +1,16 @@
 // +++ under development
 // Axis network cameras - http://www.axis.com/products/video/camera/
 
-var mdns;
+var mdns
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
   mdns          = require('mdns');
 } catch(ex) {
   exports.start = function() {};
-  return;
+
+  return utility.logger('devices').info('failing camera-axis media (continuing)', { diagnostic: ex.message });
 }
 
 var
@@ -17,7 +21,6 @@ var
     util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , media       = require('./../device-media')
   ;
 

@@ -1,11 +1,15 @@
 // Chromecast (Eureka Dongle) media player: www.google.com/chromecast
 
-var mdns;
+var mdns
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
   mdns          = require('mdns');
 } catch(ex) {
   exports.start = function() {};
-  return;
+
+  return utility.logger('devices').info('failing video-chromecast media (continuing)', { diagnostic: ex.message });
 }
 
 var Dongle      = require('eureka-dongle')
@@ -13,7 +17,6 @@ var Dongle      = require('eureka-dongle')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , media       = require('./../device-media')
-  , utility     = require('./../../core/utility')
   ;
 
 

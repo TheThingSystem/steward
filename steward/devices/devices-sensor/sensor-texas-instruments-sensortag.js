@@ -1,17 +1,20 @@
 // http://www.ti.com/ww/en/wireless_connectivity/sensortag/index.shtml?INTC=SensorTag&HQS=sensortag-bt1
 
-var sensortag;
+var sensortag
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
-    sensortag   = require('sensortag');
+  sensortag   = require('sensortag');
 } catch(ex) {
   exports.start = function() {};
-  return;
+
+  return utility.logger('devices').info('failing texas-instruments-sensortag sensor (continuing)', { diagnostic: ex.message });
 }
 
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , sensor      = require('./../device-sensor')
   ;
 

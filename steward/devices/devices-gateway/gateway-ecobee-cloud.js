@@ -80,19 +80,22 @@
       and to enter a 4-character PIN. Please do so, this authorizes the steward.
  */
 
-var ecobee;
+var ecobee
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
   ecobee      = require('ecobee-api');
 } catch(ex) {
   exports.start = function() {};
-  return;
+
+  return utility.logger('devices').info('failing ecobee-cloud gateway (continuing)', { diagnostic: ex.message });
 }
 
 var events      = require('events')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , broker      = utility.broker
   ;
 

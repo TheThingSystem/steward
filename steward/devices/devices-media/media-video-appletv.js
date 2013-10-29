@@ -1,11 +1,15 @@
 // AppleTV media player: http://www.appletv.com/developer
 
-var mdns;
+var mdns
+  , utility     = require('./../../core/utility')
+  ;
+
 try {
   mdns          = require('mdns');
 } catch(ex) {
   exports.start = function() {};
-  return;
+
+  return utility.logger('devices').info('failing video-appletv media (continuing)', { diagnostic: ex.message });
 }
 
 var airplay     = require('airplay')
@@ -13,7 +17,6 @@ var airplay     = require('airplay')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , media       = require('./../device-media')
-  , utility     = require('./../../core/utility')
   , url         = require('url')
   ;
 

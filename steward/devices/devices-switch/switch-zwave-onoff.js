@@ -1,9 +1,21 @@
 // Z-wave on/off switches
 
+var registrar
+  , utility     = require('./../../core/utility')
+  ;
+
+try {
+  registrar = require('./../devices-gateway/gateway-openzwave-usb');
+  if (!registrar.pair) throw new Error('openzwave-usb gateway unable to start');
+} catch(ex) {
+  exports.start = function() {};
+
+  return utility.logger('devices').info('failing zwave-onoff switch (continuing)', { diagnostic: ex.message });
+}
+
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , plug        = require('./../device-switch')
   ;
 
@@ -139,8 +151,6 @@ var manufacturers =
 };
 
 exports.start = function() {
-  var registrar =   require('./../devices-gateway/gateway-openzwave-usb');
-
   steward.actors.device['switch'].zwave = steward.actors.device['switch'].zwave ||
       { $info     : { type: '/device/switch/zwave' } };
 
