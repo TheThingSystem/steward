@@ -236,7 +236,7 @@ exports.start = function() {
   devices.makers['/device/gateway/netatmo/cloud'] = Cloud;
 
   require('./../../discovery/discovery-mac').pairing([ '70:ee:50' ], function(ipaddr, macaddr, tag) {
-    if (!!macaddrs[macaddr]) return;
+    if ((!!macaddrs[macaddr]) || (ipaddr === '0.0.0.0')) return;
 
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;

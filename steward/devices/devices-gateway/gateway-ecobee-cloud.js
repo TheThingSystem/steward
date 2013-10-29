@@ -578,7 +578,7 @@ exports.start = function() {
   devices.makers['/device/gateway/ecobee/cloud'] = Cloud;
 
   require('./../../discovery/discovery-mac').pairing([ '44:61:32' ], function(ipaddr, macaddr, tag) {
-    if (!!macaddrs[macaddr]) return;
+    if ((!!macaddrs[macaddr]) || (ipaddr === '0.0.0.0')) return;
 
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;

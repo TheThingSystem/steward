@@ -232,7 +232,7 @@ exports.start = function() {
   devices.makers['/device/gateway/nest/cloud'] = Cloud;
 
   require('./../../discovery/discovery-mac').pairing([ '18:b4:30' ], function(ipaddr, macaddr, tag) {
-    if (!!macaddrs[macaddr]) return;
+    if ((!!macaddrs[macaddr]) || (ipaddr === '0.0.0.0')) return;
 
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;

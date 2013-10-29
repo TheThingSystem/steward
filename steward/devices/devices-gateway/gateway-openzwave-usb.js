@@ -76,6 +76,7 @@ var fingerprints =
     , manufacturer   : 'Silicon Labs'
     , vendorId       : 0x10c4
     , productId      : 0xea60
+    , pnpId          : 'usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001'
     , products       :
       [ { mID        : '0086'
         , pID        : '0001'
@@ -99,9 +100,10 @@ var scan = function() {
 
     for (i = 0; i < info.length; i++) {
       for (j = fingerprints.length - 1; j !== -1; j--) {
-        if (     (fingerprints[j].manufacturer === info[i].manufacturer)
-              && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
-              && (fingerprints[j].productId    === parseInt(info[i].productId, 16))) {
+        if ((info[i].pnpId.indexOf(fingerprints[i].pnpId) === 0)
+              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
+                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
+                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
           info[i].vendor = fingerprints[j].vendor;
           info[i].modelName = fingerprints[j].modelName;
           info[i].description = fingerprints[j].description;

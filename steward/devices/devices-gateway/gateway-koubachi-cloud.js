@@ -283,7 +283,7 @@ exports.start = function() {
   devices.makers['/device/gateway/koubachi/cloud'] = Cloud;
 
   require('./../../discovery/discovery-mac').pairing([ '00:06:66' ], function(ipaddr, macaddr, tag) {
-    if (!!macaddrs[macaddr]) return;
+    if ((!!macaddrs[macaddr]) || (ipaddr === '0.0.0.0')) return;
 
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;
