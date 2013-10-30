@@ -1,21 +1,9 @@
 // Z-wave on/off switches
 
-var registrar
-  , utility     = require('./../../core/utility')
-  ;
-
-try {
-  registrar = require('./../devices-gateway/gateway-openzwave-usb');
-  if (!registrar.pair) throw new Error('openzwave-usb gateway unable to start');
-} catch(ex) {
-  exports.start = function() {};
-
-  return utility.logger('devices').info('failing zwave-onoff switch (continuing)', { diagnostic: ex.message });
-}
-
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
+  , utility     = require('./../../core/utility')
   , plug        = require('./../device-switch')
   ;
 
@@ -84,41 +72,22 @@ ZWave_OnOff.prototype.update = function(self, event, comclass, value) {
 
 
 ZWave_OnOff.prototype.perform = function(self, taskID, perform, parameter) {
-  var onoff, params, state;
+  var params;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
     if (!!params.name) self.driver.setName(self.peripheral.nodeid, params.name);
     if (!!params.physical) self.driver.setLocation(self.peripheral.nodeid, params.physical);
-
     return ((!params.name) || self.setName(params.name, taskID));
   }
 
-  if (perform === 'off') state.on = false;
-  else if (perform !== 'on') return;
-  else state.on = true;
+  if ((perform !== 'on' && perform !== 'off') || perform === self.status) return;
 
-  logger.info('device/' + self.deviceID, { perform: state });
-
-  onoff = self.peripheral.classes[0x25][0];
-  if (state.on) {
-    if (self.status === 'on') return;
-    self.status = 'on';
-
-    onoff.value = true;
-// TBD: turn it on
-  } else {
-    if (self.status === 'off') return;
-    self.status = 'off';
-
-    onoff.value = false;
-// TBD: turn it off
-  }
-  self.peripheral.classes[0x25][0] = onoff;
-
+  logger.info('device/' + self.deviceID, { perform: { on: (perform === 'on' ? true : false) } });
+  self.driver['switch' + (perform === 'on' ? 'On' : 'Off')](self.peripheral.nodeid);
   self.changed();
+
   return steward.performed(taskID);
 };
 
@@ -151,6 +120,8 @@ var manufacturers =
 };
 
 exports.start = function() {
+  var registrar =   require('./../devices-gateway/gateway-openzwave-usb');
+
   steward.actors.device['switch'].zwave = steward.actors.device['switch'].zwave ||
       { $info     : { type: '/device/switch/zwave' } };
 

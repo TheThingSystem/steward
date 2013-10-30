@@ -1,21 +1,9 @@
 // Z-wave dimmer switches
 
-var registrar
-  , utility     = require('./../../core/utility')
-  ;
-
-try {
-  registrar = require('./../devices-gateway/gateway-openzwave-usb');
-  if (!registrar.pair) throw new Error('openzwave-usb gateway unable to start');
-} catch(ex) {
-  exports.start = function() {};
-
-  return utility.logger('devices').info('failing zwave-dimmer switch (continuing)', { diagnostic: ex.message });
-}
-
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
+  , utility     = require('./../../core/utility')
   , plug        = require('./../device-switch')
   ;
 
@@ -25,8 +13,7 @@ var logger = plug.logger;
 
 var ZWave_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
-
-  var bri, level;
+  var bri;
 
   self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
@@ -35,13 +22,12 @@ var ZWave_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   bri = info.peripheral.classes[0x26][0];
-  level = devices.percentageValue(bri.value, bri.max);
 
-  self.status = level > 0 ? 'on' : 'off';
+  self.status = bri.value > 0 ? 'on' : 'off';
   self.changed();
   self.driver = info.driver;
   self.peripheral = info.peripheral;
-  self.info = { level: level };
+  self.info = { level: bri.value };
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -59,16 +45,12 @@ ZWave_Dimmer.prototype.update = function(self, event, comclass, value) {
 
   var f = { 'value changed' :
               function() {
-                var bri, level;
-
                 if (!self.peripheral.classes[comclass]) self.peripheral.classes[comclass] = {};
                 self.peripheral.classes[comclass][value.index] = value;
                 if ((comclass !== 0x26) || (value.index !== 0)) return;
-                bri = value;
 
-                level = devices.percentageValue(bri.value, bri.max);
-
-                self.status = level > 0 ? 'on' : 'off';
+                self.status = value.value > 0 ? 'on' : 'off';
+                self.info = { level: value.value };
                 self.changed();
               }
 
@@ -94,50 +76,28 @@ ZWave_Dimmer.prototype.update = function(self, event, comclass, value) {
 
 
 ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
-  var bri, params, state;
+  var params;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
     if (!!params.name) self.driver.setName(self.peripheral.nodeid, params.name);
     if (!!params.physical) self.driver.setLocation(self.peripheral.nodeid, params.physical);
-
     return ((!params.name) || self.setName(params.name, taskID));
   }
 
-  if (perform === 'off') state.on = false;
-  else if (perform !== 'on') return;
-  else {
-    state.on = true;
-
-    if (!params.level) params.level = self.info.level;
-    if (params.level <= 0) params.level = 100;
-    state.level = params.level;
-  }
-
-  logger.info('device/' + self.deviceID, { perform: state });
-
-  bri = self.peripheral.classes[0x26][0];
-  if (state.on) {
-    if ((self.status === 'on') && (self.info.level === state.level)) return;
-    self.status = 'on';
-
-    bri.value = devices.scaledPercentage(state.level, bri.min, bri.max);
-// TBD: turn it on and set it to bri.value
-  } else {
-    if ((self.status === 'off') && (self.info.level === state.level)) return;
-    self.status = 'off';
-
-    bri.value = bri.min;
-// TBD: turn it off
-  }
-  self.peripheral.classes[0x26][0] = bri;
-  self.info.level = state.level;
+  if (params.level > -1 && params.level < 100) {
+    logger.info('device/' + self.deviceID, { perform: {
+      on: (params.level > 0 ? true : false),
+      level: params.level
+    }});
+    self.driver.setLevel(self.peripheral.nodeid, params.level);
+  } else return;
 
   self.changed();
   return steward.performed(taskID);
 };
+
 
 var validate_perform = function(perform, parameter) {
   var params = {}
@@ -170,6 +130,8 @@ var manufacturers =
 };
 
 exports.start = function() {
+  var registrar =   require('./../devices-gateway/gateway-openzwave-usb');
+
   steward.actors.device['switch'].zwave = steward.actors.device['switch'].zwave ||
       { $info     : { type: '/device/switch/zwave' } };
 
