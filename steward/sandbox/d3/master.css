@@ -498,11 +498,21 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 		cursor: pointer;
  }
 
-#apprentice-backdrop .label { padding: 0px 20px; color: #69cef6; line-height: 36px; text-transform: uppercase; }
-#apprentice-backdrop .label-disabled { padding: 0px 20px; color: #666; }
+#apprentice-backdrop .label { padding: 0px 0px 0px 20px ; color: #69cef6; line-height: 36px; text-transform: uppercase; }
+#apprentice-backdrop .label-disabled { padding: 0px 0px 0px 20px ; color: #666; }
 
-#apprentice-backdrop .state { padding: 0px 20px; color: #fcb040; float: right; text-transform: uppercase; }
-#apprentice-backdrop .state-disabled { padding: 0px 20px; color: #666; float: right; }
+#apprentice-backdrop .state { padding: 0px 20px 0px 0px ; color: #fcb040; float: right; text-transform: uppercase; }
+#apprentice-backdrop .state-disabled { padding: 0px 20px 0px 0px ; color: #666; float: right; }
+
+.apprentice-actors { position: absolute; top: 40px; left: 60px; height: 160px; width: 720px; overflow-x: hidden; }
+
+#apprentice-backdrop .actor-home  {
+		position: absolute; 
+		top: 0px; 
+		text-align: center; 
+		width: 50px; 
+		height: 68px; }
+#apprentice-backdrop .actor-name  { font-family: "Roadgeek 2005 Series D"; font-size: 11px; }
 
 #sub-pane-one {
         position: absolute;
@@ -530,11 +540,12 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 
 #sub-pane-two .action-button-group {
         position: absolute;
-        top: 170px;
+        top: 250px;
         left: 0px;
-        width: 780px;
+        width: 802px;
         text-align: center;
 }
+
 
 #sub-pane-two .action-button {height: 30px; margin: 5px; cursor: pointer}
 

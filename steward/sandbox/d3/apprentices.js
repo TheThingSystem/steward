@@ -1,5 +1,5 @@
 var goApprentices = function() {
-  var backdrop, div, div2, i, panesList;
+  var backdrop;
   
   if (document.getElementById("sub-pane-one")) d3.select('#sub-pane-one').remove();
   if (!document.getElementById('apprentice-backdrop')) {
@@ -14,6 +14,17 @@ var goApprentices = function() {
   } else {
     backdrop = d3.select('#apprentice-backdrop');
   }
+  
+  function exitApprentices() {
+    d3.select('#apprentice-backdrop').remove();
+  }
+  
+  refreshActors(4);
+}
+
+var finishApprentices = function() {
+  var backdrop, div, div2, i, panesList;
+  backdrop = d3.select('#apprentice-backdrop');
   
   div = backdrop.append('div')
     .attr('id', 'settings');
@@ -89,10 +100,6 @@ var goApprentices = function() {
     .attr('id', 'state5');
     
   updatePanesList();
-  
-  function exitApprentices() {
-    d3.select('#apprentice-backdrop').remove();
-  }
 };
 
 var updatePanesList = function() {
@@ -118,7 +125,9 @@ var updatePanesList = function() {
 }
 
 var goPaneDetail = function(i) {
-  var div, div2, div3;
+  var div, div2, div3, div4, events, tasks;
+  var actorWidth = 58, actorHeight = 80, paneWidth = 802, maxIcons = 12;
+  
   if (document.getElementById("settings")) d3.select('#settings').remove();
   
   div = d3.select('#apprentice-backdrop')
@@ -126,6 +135,7 @@ var goPaneDetail = function(i) {
     .attr('id', 'sub-pane-one');
   
   if (apprentices.home.panes[i].observations.hasOwnProperty('events')) {
+    events = apprentices.home.panes[i].observations.events[0];
     div.append('div')
       .attr('class', 'form-heading')
       .style('margin-top', '0px')
@@ -136,29 +146,72 @@ var goPaneDetail = function(i) {
       .attr('class', 'form-heading')
       .style('margin-top', '0px')
       .style('text-transform', 'capitalize')
-      .html(apprentices.home.panes[i].observations.events[0].title);
+      .html(events.title);
     div.append('div')
       .attr('class', 'apprentice-instructions')
-      .html(apprentices.home.panes[i].observations.events[0].text);
+      .html(events.text);
 
-    div.append('div')
-      .attr('class', 'apprentice-actors');
+  div3 = div.append('div')
+    .attr('class', 'apprentice-actors')
+    .style('left', function() { var eventsCount = (events.actors.length > maxIcons) ? maxIcons : events.actors.length; 
+    	return ((paneWidth / 2) - ((actorWidth * eventsCount) / 2)) + "px";})
+    .style('width', function() { return (events.actors.length > maxIcons) ? 
+        (maxIcons * actorWidth) + "px" : (events.actors.length * actorWidth) + "px"});
+  
+  div4 = div3.selectAll('div')
+    .data(events.actors)
+    .enter().append('div')
+      .attr('class', 'actor-home')
+      .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px';})
+      .on('click', function(d, i) { toggleEvent(i) });
+  div4.append('p')
+     .attr('class', 'actor-name')
+     .attr('id', function(d, i) { return 'name_' + actor2ID(events.actors[i].device); })
+     .style('color', function(d, i) { return (events.actors[i].selected) ? '#00ba00' : '#666';})
+     .html(function(d, i) { return actors[events.actors[i].device].name });
+  div4.append('img')
+     .attr('id', function(d, i) { return 'img_' + actor2ID(events.actors[i].device); })
+     .attr('src', function(d, i) { var entry = entries[actors[events.actors[i].device].deviceType] || entries['default']; 
+            return entry.img;})
+     .style('background-color', function(d, i) { return (events.actors[i].selected) ? '#00ba00' : '#666';});
   }
   
+  tasks = apprentices.home.panes[i].performances.tasks[0];
   div2 = div.append('div')
     .attr('id', 'sub-pane-two');
   div2.append('div')
     .attr('class', 'form-heading')
     .style('margin-top', '0px')
     .style('text-transform', 'capitalize')
-    .html(apprentices.home.panes[i].performances.tasks[0].title);
+    .html(tasks.title);
   div2.append('div')
     .attr('class', 'apprentice-instructions')
-    .html(apprentices.home.panes[i].performances.tasks[0].text);
+    .html(tasks.text);
   
-  div2.append('div')
-    .attr('class', 'apprentice-actors');
+  div3 = div2.append('div')
+    .attr('class', 'apprentice-actors')
+    .style('left', function() { var tasksCount = (tasks.actors.length > maxIcons) ? maxIcons : tasks.actors.length; 
+    	return ((paneWidth / 2) - ((actorWidth * tasksCount) / 2)) + "px";})
+    .style('width', function() { return (tasks.actors.length > maxIcons) ? 
+        (maxIcons * actorWidth) + "px" : (tasks.actors.length * actorWidth) + "px"});
   
+  div4 = div3.selectAll('div')
+    .data(tasks.actors)
+    .enter().append('div')
+      .attr('class', 'actor-home')
+      .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px';})
+      .on('click', function(d, i) { toggleTask(i) });
+  div4.append('p')
+     .attr('class', 'actor-name')
+     .attr('id', function(d, i) { return 'name_' + actor2ID(tasks.actors[i].device); })
+     .style('color', function(d, i) { return (tasks.actors[i].selected) ? '#00ba00' : '#666';})
+     .html(function(d, i) { return actors[tasks.actors[i].device].name });
+  div4.append('img')
+     .attr('id', function(d, i) { return 'img_' + actor2ID(tasks.actors[i].device); })
+     .attr('src', function(d, i) { var entry = entries[actors[tasks.actors[i].device].deviceType] || entries['default']; 
+            return entry.img;})
+     .style('background-color', function(d, i) { return (tasks.actors[i].selected) ? '#00ba00' : '#666';});
+    
   div3 = div2.append('div')
     .attr('class', 'action-button-group');
   div3.append('img')
@@ -169,6 +222,26 @@ var goPaneDetail = function(i) {
     .attr('class', 'action-button')
     .attr('src', 'popovers/assets/done.svg')
     .on('click', goApprentices);
+    
+  function toggleEvent(i) {
+    var newColor = (events.actors[i].selected) ? '#666' : '#00ba00';
+    var device = events.actors[i].device;
+    events.actors[i].selected = !events.actors[i].selected;
+    d3.select('#name_' + actor2ID(device))
+      .style('color', newColor);
+    d3.select('#img_' + actor2ID(device))
+      .style('background-color', newColor);
+  }
+
+  function toggleTask(i) {
+    var newColor = (tasks.actors[i].selected) ? '#666' : '#00ba00';
+    var device = tasks.actors[i].device;
+    tasks.actors[i].selected = !tasks.actors[i].selected;
+    d3.select('#name_' + actor2ID(device))
+      .style('color', newColor);
+    d3.select('#img_' + actor2ID(device))
+      .style('background-color', newColor);
+  }
 }
 
 
