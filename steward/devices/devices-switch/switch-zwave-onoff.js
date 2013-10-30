@@ -36,7 +36,6 @@ var ZWave_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.driver = info.driver;
   self.peripheral = info.peripheral;
-
   self.info = {};
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
