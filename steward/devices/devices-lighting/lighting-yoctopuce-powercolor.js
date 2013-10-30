@@ -76,8 +76,8 @@ PowerColor.prototype.perform = function(self, taskID, perform, parameter) {
   }
 
   if ((perform === 'on')
-          && (!!params.brightness)
-          && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
+        && (!!params.brightness)
+        && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
 
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;

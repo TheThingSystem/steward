@@ -223,19 +223,19 @@ Ecobee.prototype.refresh = function(self) {
 
   if (new Date().getTime() > self.retry.expiresAt) {
     delete(gateway.info.ecobeePin);
-    return self.emit('error', new Error('ecobeePin not entered'));
   }
 
   self.api.registerPin(null, self.authToken, function(err, data) {
-    if (err) {
-      gateway.status = 'waiting';
-      gateway.changed();
-      logger.error('device/' + gateway.deviceID, { diagnostic: err.message });
+    delete(gateway.info.ecobeePin);
 
-      return self.prompt(self);
+    if (err) {
+      logger.error('device/' + gateway.deviceID, { event: 'registerPin', diagnostic: err.message });
+      delete(self.gateway.info.authToken);
+      delete(self.gateway.info.accessToken);
+      delete(self.gateway.info.refreshToken);
+      return self.emit('error', new Error(err.message));
     }
 
-    delete(gateway.info.ecobeePin);
     gateway.info.authToken = self.authToken;
     gateway.expiresAt = new Date().getTime() + ((data.expires_in * 60) * 1000);
     gateway.info.accessToken = data.access_token;
