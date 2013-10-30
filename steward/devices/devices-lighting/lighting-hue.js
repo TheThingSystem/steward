@@ -158,7 +158,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     state.name = params.name;
   } else {
     if (perform === 'off') state.on = false;
-    else if (perform !== 'on') return false;
+    else if (perform !== 'on') return;
     else {
       state.on = true;
 
