@@ -100,7 +100,7 @@ var scan = function() {
 
     for (i = 0; i < info.length; i++) {
       for (j = fingerprints.length - 1; j !== -1; j--) {
-        if ((info[i].pnpId.indexOf(fingerprints[i].pnpId) === 0)
+        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
               || ((     fingerprints[j].manufacturer === info[i].manufacturer)
                     && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
                     && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
