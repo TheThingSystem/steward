@@ -88,7 +88,7 @@ ZWave_Dimmer.prototype.update = function(self, event, comclass, value) {
 
 
 ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
+  var params, state = {};
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -98,16 +98,18 @@ ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
     return ((!params.name) || self.setName(params.name, taskID));
   }
 
-  if (params.level > -1 && params.level < 100) {
-    logger.info('device/' + self.deviceID, { perform: {
-      on: (params.level > 0 ? true : false),
-      level: params.level
-    }});
-    self.driver.setLevel(self.peripheral.nodeid, params.level);
-  } else return;
+  if (perform === 'off') state.level = 0;
+  else if (perform === 'on') state.level = (params.level > 0 && params.level < 100) ? params.level : 50;
+  else return;
 
-  self.changed();
-  return steward.performed(taskID);
+  state.status = state.level > 0 ? 'on' : 'off';
+
+  if (self.status !== state.status || self.info.level !== state.level) {
+    logger.info('device/' + self.deviceID, state);
+    self.driver.setLevel(self.peripheral.nodeid, state.level);
+    self.changed();
+    return steward.performed(taskID);
+  }
 };
 
 
