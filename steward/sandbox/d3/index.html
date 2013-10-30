@@ -93,7 +93,7 @@ var main = function(name, code) {
 };
 
 var go = function(steward) {
-  var firstP, readyP, waitP, ws;
+  var apprenticeActors, firstP, readyP, waitP, ws;
   
   readyP = firstP = false;
   waitP = true;
@@ -122,7 +122,7 @@ var go = function(steward) {
     }
   
     ws2.onmessage = function(evt) {
-      var apprenticeActors, device, devices, entry, i, message, msgHash, requestID, state;
+      var device, devices, entry, i, message, msgHash, requestID, state;
 	
       try {
 	    message = JSON.parse(evt.data);
@@ -157,12 +157,8 @@ var go = function(steward) {
 			  break;
 		  case "4":  // Apprentice actors
 		      apprenticeActors = message;
-		      // temporary until activities api is implemented
-		      prepare(apprentices.home, message);
-		      finishApprentices();
-		      // awaiting activities api
-		      //setTimeout(function() {
-              //  wsSend(JSON.stringify({ path: '/api/v1/activities/list/', requestID: 5, options: { depth: 'all' }}));}, 0); 
+		      setTimeout(function() {
+                wsSend(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 5, options: { depth: 'all' }}));}, 0); 
               break;
           case "5":  // Apprentice activities (to come)
               prepare(apprentices.home, apprenticeActors, message);
