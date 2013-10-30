@@ -36,7 +36,6 @@ var ZWave_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.driver = info.driver;
   self.peripheral = info.peripheral;
-var stringify  = require('json-stringify-safe');console.log('>>> ' + stringify(self.peripheral));
 
   self.info = {};
 
