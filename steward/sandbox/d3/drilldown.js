@@ -1935,6 +1935,12 @@ var entries = {
                                                               , instrux : single_lighting_instructions
                                                               , pop     : 'lighting_pop'
                                                               }
+              , '/device/lighting/yoctopuce/color'          : { img     : 'actors/yoctopuce.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
+                                                              }
               , '/device/lighting/yoctopuce/powercolor'     : { img     : 'actors/yoctopuce.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
