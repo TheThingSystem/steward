@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('wearable');
 exports.start = function() {
   steward.actors.device.wearable = { $info: { type: '/device/wearable' }};
 
-  utility.acquire(logger, __dirname + '/devices-wearable', /^wearable-.*\.js/, 9, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-wearable', /^wearable-.*\.js$/, 9, -3, ' driver');
 };
 
 

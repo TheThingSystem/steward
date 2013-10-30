@@ -68,7 +68,7 @@ exports.start = function() {
       , $lookup : id2device
       , $list   : idlist
       };
-  utility.acquire(logger, __dirname + '/../devices', /^device-.*\.js/, 7, -3, ' driver');
+  utility.acquire(logger, __dirname + '/../devices', /^device-.*\.js$/, 7, -3, ' driver');
 // cf., utility.start()
   utility.acquiring--;
 

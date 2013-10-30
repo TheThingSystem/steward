@@ -173,7 +173,7 @@ exports.start = function() {
       if (err) return logger.error('database', { event: 'database initialization', diagnostic: err.message });
 
       exports.db = db;
-      utility.acquire(logger, __dirname + '/devices-sensor', /^sensor-.*\.js/, 7, -3, ' driver');
+      utility.acquire(logger, __dirname + '/devices-sensor', /^sensor-.*\.js$/, 7, -3, ' driver');
     });
   });
 };

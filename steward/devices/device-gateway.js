@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('devices');
 exports.start = function() {
   steward.actors.device.gateway = { $info: { type: '/device/gateway' }};
 
-  utility.acquire(logger, __dirname + '/devices-gateway', /^gateway-.*\.js/, 8, -3, ' gateway');
+  utility.acquire(logger, __dirname + '/devices-gateway', /^gateway-.*\.js$/, 8, -3, ' gateway');
 };
 
 

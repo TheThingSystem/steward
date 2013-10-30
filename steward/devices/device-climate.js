@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('climate');
 exports.start = function() {
   steward.actors.device.climate = { $info: { type: '/device/climate' }};
 
-  utility.acquire(logger, __dirname + '/devices-climate', /^climate-.*\.js/, 8, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-climate', /^climate-.*\.js$/, 8, -3, ' driver');
 };
 
 

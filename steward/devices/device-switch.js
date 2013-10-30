@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('switch');
 exports.start = function() {
   steward.actors.device['switch'] = { $info: { type: '/device/switch' }};
 
-  utility.acquire(logger, __dirname + '/devices-switch', /^switch-.*\.js/, 7, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-switch', /^switch-.*\.js$/, 7, -3, ' driver');
 };
 
 

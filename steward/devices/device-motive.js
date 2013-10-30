@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('motive');
 exports.start = function() {
   steward.actors.device.motive = { $info: { type: '/device/motive' }};
 
-  utility.acquire(logger, __dirname + '/devices-motive', /^motive-.*\.js/, 7, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-motive', /^motive-.*\.js$/, 7, -3, ' driver');
 };
 
 

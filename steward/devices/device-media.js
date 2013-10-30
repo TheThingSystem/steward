@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('media');
 exports.start = function() {
   steward.actors.device.media = { $info: { type: '/device/media' }};
 
-  utility.acquire(logger, __dirname + '/devices-media', /^media-.*\.js/, 6, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-media', /^media-.*\.js$/, 6, -3, ' driver');
 };
 
 

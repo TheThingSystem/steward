@@ -11,7 +11,7 @@ var logger = exports.logger = utility.logger('presence');
 exports.start = function() {
   steward.actors.device.presence = { $info: { type: '/device/presence' }};
 
-  utility.acquire(logger, __dirname + '/devices-presence', /^presence-.*\.js/, 9, -3, ' driver');
+  utility.acquire(logger, __dirname + '/devices-presence', /^presence-.*\.js$/, 9, -3, ' driver');
 };
 
 

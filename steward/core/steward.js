@@ -450,7 +450,7 @@ exports.start = function() {
   if (loadedP) return setTimeout(exports.start, 10);
   loadedP = true;
 
-  utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js/, 6, -3, ' actor');
+  utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js$/, 6, -3, ' actor');
 
   errorP = false;
   noneP = true;

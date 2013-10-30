@@ -137,16 +137,22 @@ var scan1 = function(driver) {
     zwave.on('node added', function(nodeid) {
       nodes[nodeid] = { classes: {} };
     }).on('value added', function(nodeid, comclass, value) {
-      if (!!nodes[nodeid].device) return nodes[nodeid].device.update(nodes[nodeid].device, 'value added', comclass, value);
+      if (!!nodes[nodeid].device) {
+        return nodes[nodeid].device.device.update(nodes[nodeid].device.device, 'value added', comclass, value);
+      }
 
       if (!nodes[nodeid].classes[comclass]) nodes[nodeid].classes[comclass] = {};
       nodes[nodeid].classes[comclass][value.index] = value;
     }).on('value changed', function(nodeid, comclass, value) {
-      if (!!nodes[nodeid].device) return nodes[nodeid].device.update(nodes[nodeid].device, 'value changed', comclass, value);
+      if (!!nodes[nodeid].device) {
+        return nodes[nodeid].device.device.update(nodes[nodeid].device.device, 'value changed', comclass, value);
+      }
 
       nodes[nodeid].classes[comclass][value.index] = value;
     }).on('value removed', function(nodeid, comclass, index) {
-      if (!!nodes[nodeid].device) return nodes[nodeid].device.update(nodes[nodeid].device, 'value removed', comclass, index);
+      if (!!nodes[nodeid].device) {
+        return nodes[nodeid].device.device.update(nodes[nodeid].device.device, 'value removed', comclass, index);
+      }
 
       try { delete(nodes[nodeid].classes[comclass][index]); } catch(ex) {}
     }).on('node ready', function(nodeid, nodeinfo) {
@@ -210,7 +216,9 @@ var scan1 = function(driver) {
                    , 6 : 'alive'
                    };
 
-      if (!!nodes[nodeid].device) return nodes[nodeid].device.update(nodes[nodeid].device, 'notification', '', value);
+      if (!!nodes[nodeid].device) {
+        return nodes[nodeid].device.device.update(nodes[nodeid].device.device, 'notification', '', value);
+      }
 
       logger2.debug(comName, { event: 'notification', network: homeid, node: nodeid, status: values[value] || value });
     });
@@ -322,7 +330,9 @@ exports.register = function(maker, deviceType, entries) {
       manufacturers[manufacturerID][productID] = product;
 
       whom = product.deviceType.split('/')[3];
-      steward.actors.device[prefix][whom] = { $info : { type: '/device/' + prefix + '/' + whom } };
+      if (!steward.actors.device[prefix][whom]) {
+        steward.actors.device[prefix][whom] = { $info : { type: '/device/' + prefix + '/' + whom } };
+      }
 
       steward.actors.device[prefix][whom][suffix] = utility.clone(steward.actors.device[prefix].zwave[suffix]);
       steward.actors.device[prefix][whom][suffix].$info.type = product.deviceType;

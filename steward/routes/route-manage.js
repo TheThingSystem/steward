@@ -137,5 +137,5 @@ var loser = exports.loser = function(ws, tag, meta) {
 exports.start = function() {
   server.routes['/manage'] = { route: route, apis: apis, levels: access.level };
 
-  utility.acquire(logger, __dirname + '/../api', /^api-manage-.*\.js/, 11, -3, ' api');
+  utility.acquire(logger, __dirname + '/../api', /^api-manage-.*\.js$/, 11, -3, ' api');
 };

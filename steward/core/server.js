@@ -70,7 +70,7 @@ exports.start = function() {
   });
  */
 
-  utility.acquire(logger, __dirname + '/../routes', /^route-.*\.js/, 6, -3, ' route');
+  utility.acquire(logger, __dirname + '/../routes', /^route-.*\.js$/, 6, -3, ' route');
 };
 
 var securePort = 0;
@@ -259,7 +259,7 @@ var start = function(port, secureP) {
       logger.info('unable to listen on http://*:80', { diagnostic: err.message });
     }).listen(80);
 
-    utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js/, 10, -3, ' discovery', portno);
+    utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js$/, 10, -3, ' discovery', portno);
   });
 };
 
