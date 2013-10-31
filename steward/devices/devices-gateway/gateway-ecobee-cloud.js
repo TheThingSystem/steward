@@ -96,7 +96,6 @@ var events      = require('events')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , broker      = utility.broker
   ;
 
 
@@ -127,7 +126,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
 
   ecobee.logger = utility.logfnx(logger, 'device/' + self.deviceID);
 
-  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var macaddr;
 
     if (request === 'attention') {

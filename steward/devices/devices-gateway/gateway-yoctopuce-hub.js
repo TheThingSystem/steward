@@ -8,7 +8,6 @@ var url         = require('url')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , broker      = utility.broker
   , discovery   = require('./../../discovery/discovery-ssdp')
   ;
 
@@ -38,7 +37,7 @@ var Hub = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.info = {};
 
-  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return devices.perform(self, taskID, perform, parameter);

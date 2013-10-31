@@ -7,7 +7,6 @@ var net         = require('net')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , broker      = utility.broker
   ;
 
 
@@ -43,7 +42,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
 
   self.refresh(self);
 
-  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please re-pair peripherals with gateway');
       return;

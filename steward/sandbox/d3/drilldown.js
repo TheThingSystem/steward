@@ -1850,6 +1850,14 @@ var entries = {
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
+              , '/device/gateway/reelyactive/hublet'        : { img     : 'actors/reelyActive-hublet.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
+              , '/device/gateway/reelyactive/reelceiver'    : { img     : 'actors/reelyActive-reelceiver.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
               , '/device/gateway/rfxrec433/usb'             : { img     : 'actors/rfxcom.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
@@ -1988,6 +1996,11 @@ var entries = {
                                                               , instrux : single_device_instructions
                                                               }
               , '/device/presence/fob/inrange'              : { img     : 'actors/philips-inrange.svg'
+                                                              , single  : single_presence_drilldown
+                                                              , arcs    : presence_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              }
+              , '/device/presence/reelyactive/tag'          : { img     : 'actors/reelyActive-tag.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
                                                               , instrux : single_device_instructions

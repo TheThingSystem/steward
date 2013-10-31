@@ -5,7 +5,6 @@ var rfxcom      = require('rfxcom')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , broker      = utility.broker
   ;
 
 
@@ -26,7 +25,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.rfx = info.rfx;
   self.info = {};
 
-  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return devices.perform(self, taskID, perform, parameter);

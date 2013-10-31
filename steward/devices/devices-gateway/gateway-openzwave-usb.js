@@ -16,7 +16,6 @@ var serialport  = require('serialport')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , broker      = utility.broker
   ;
 
 
@@ -39,7 +38,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral = info.peripheral;
   self.info = {};
 
-  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     var params;
 
     if (actor !== ('device/' + self.deviceID)) return;

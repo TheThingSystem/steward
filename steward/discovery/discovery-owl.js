@@ -193,13 +193,13 @@ exports.start = function() {
 
         //console.log(util.inspect(report, false, null));
         trsp.handle(report, rinfo.address, 'udp ' + rinfo.address + ' ' + rinfo.port + ' ' + report.path);
-      } catch(ex) { return logger.error('reporting', { event: 'parsing', diagnostic: ex.message }); }
+      } catch(ex) { return logger.error('discovery-owl', { event: 'parsing', diagnostic: ex.message }); }
     }).on('listening', function() {
       var address = this.address();
 
       logger.info('OWL driver listening on multicast udp://' + LOCAL_BROADCAST_HOST + ':' + address.port);
       this.addMembership(LOCAL_BROADCAST_HOST);
     }).on('error', function(err) {
-      logger.error('reporting', { event: 'socket', diagnostic: err.message });
+      logger.error('discovery-owl', { event: 'socket', diagnostic: err.message });
     }).bind(LOCAL_BROADCAST_PORT, LOCAL_BROADCAST_HOST);
 };

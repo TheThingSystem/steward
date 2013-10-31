@@ -5,7 +5,6 @@ var tesla       = require('teslams')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , broker      = utility.broker
   , motive      = require('./../device-motive')
   ;
 
@@ -36,7 +35,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.newstate(self);
   self.gateway = info.gateway;
 
-  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please enable remote access from vehicle console');
       return;

@@ -6,7 +6,6 @@ var Netatmo     = require('node-netatmo')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , broker      = utility.broker
   ;
 
 
@@ -38,7 +37,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.timer = null;
 
-  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var macaddr;
 
     if (request === 'attention') {
