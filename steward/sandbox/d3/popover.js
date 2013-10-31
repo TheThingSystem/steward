@@ -1,6 +1,6 @@
 var bigSliderKnob = { "diam": 22 };
 var bigSlider = { "min": 310, "max": 39 };
-var bigHorSlider = { "min": 220, "max": 400 };
+var bigHorSlider = { "min": 108, "max": 404 };
 var onOffKnob = { "diam": 18 };
 var onOffSlider = { "min": 25, "max": 71 - onOffKnob.diam };
 var newPerform = { "path":"", "requestID":"2", "perform":"", "parameter":{} };
@@ -613,7 +613,7 @@ var showPop = function(device) {
 			.style("left", bigHorSlider.min + "px")
 			.transition()
 			.duration(600)
-			.style("left", levelLeft(device.info.level));
+			.style("left", levelLeft(device.info.level) + "px");
 		   elem.call(drag);
      } else {
 		   elem
@@ -634,12 +634,6 @@ var showPop = function(device) {
 // 			 .style("top", bigHorSlider.max + 7 + "px")
 // 			 .text("100%");
 //      }
-       
-     function levelLeft(level) {
-       var max = bigHorSlider.max - bigHorSlider.min;
-       var level = max * (level / 100);
-       return bigHorSlider.min + level;
-     }
        
      div = pop.append("div")
     	 .attr("id", "on-off-slider-wrapper");
@@ -1155,6 +1149,7 @@ var updatePopover = function(device, update) {
 	case "/device/sensor/":
 	  break;
 	case "/device/switch/":
+	  updateSwitchPop();
 	  break;
 	case "/device/wearable/":
 	  break;
@@ -1294,10 +1289,33 @@ var updatePopover = function(device, update) {
 	newPerform.perform = update.status;
 	newPerform.parameter = update.info;
   }
+  
+  function updateSwitchPop() {
+	if (document.getElementById("on-off-knob")) {
+	  d3.select("#on-off-knob")
+		 .transition()
+		 .duration(600)
+         .style("left", function() { return ((update.status === "on") ? onOffSlider.max : onOffSlider.min) + "px" });
+	}
+	if (update.info.hasOwnProperty("level")) {
+	  d3.select("#level-knob")
+		 .transition()
+		 .duration(600)
+		 .style("left", levelLeft(update.info.level) + "px");
+// If we decide to add readout box to level slider
+// 	  d3.select("#slider-readout")
+// 		 .transition()
+// 		 .duration(600)
+// 		 .style("left", parseInt(levelLeft(update.info.level)) + 7 + "px")
+// 		 .text(update.info.level + "%");
+ 	}
+    newPerform.perform = update.status;
+	newPerform.parameter = update.info;
+  }
 
 }
 
-
+// Popover control setters (initial and update)
 function hueBrightTop(value) {
   var max = bigSlider.max;
   var min = bigSlider.min;
@@ -1321,7 +1339,6 @@ function fanTimeTop(value) {
   var top = ((min-max) * ((100-value) / 100) + max);
   return top + "px";
 };
-     
 
 function drawTemperatureArc(pop, temp) {
   var div;
@@ -1383,6 +1400,14 @@ function calcTrackProgress(trackInfo) {
   }
   return result;
 }
+
+function levelLeft(level) {
+  var max = bigHorSlider.max - bigHorSlider.min;
+  level = max * (level / 100);
+  return bigHorSlider.min + level;
+}
+       
+
 
 function sendData(device) {
   newPerform.parameter = JSON.stringify(newPerform.parameter);
