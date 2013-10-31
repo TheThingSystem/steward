@@ -161,7 +161,7 @@ var scan = function(portno) {
   }).on('listening', function() {
     var address = this.address();
 
-    logger.info('reelyActive driver listening on  udp://*:' + address.port);
+    logger.info('reelyactive-reel driver listening on  udp://*:' + address.port);
   }).on('error', function(err) {
     logger.error('gateway-reelyactive-hublet', { event: 'socket', diagnostic: err.message });
   }).bind(portno);
