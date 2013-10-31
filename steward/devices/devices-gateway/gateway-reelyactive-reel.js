@@ -44,21 +44,20 @@ Hublet.prototype.update = function(self, data, timestamp) {
     value = parseInt(data.substr(i + 2, 2), 16);
     v.push({ reelID: parseInt(data.substr(i, 2), 16), reading: (value < 128) ? (value + 128) : (value - 128) });
   }
+  if (v.length === 0) return;
   v.sort(function(a, b) { return (b.reading - a.reading); });
+
   dropP = false;
   for (i = 0; i < v.length; i++) {
     udn = self.deviceUID + ':reelceiver:' + v[i].reelID;
     if (!!devices.devices[udn]) {
-      if (!!devices.devices[udn].device) {
-        v[i].deviceID = 'device/' + devices.devices[udn].device.deviceID;
-        delete(v[i].reelID);
-      } else dropP = true;
+      if (!!devices.devices[udn].device) v[i].deviceID = 'device/' + devices.devices[udn].device.deviceID; else dropP = true;
       continue;
     }
 
     info = { source: self.deviceID, params: { tagID: tagID } };
     info.device = { url          : null
-                  , name         : 'deviceID/' + self.deviceID + ' reelceiver ' + v[i]
+                  , name         : 'deviceID/' + self.deviceID + ' reelceiver ' + v[i].reelID
                   , manufacturer : 'reelyActive'
                   , model        : { name        : 'reelyActive reelceiver'
                                    , description : 'active RFID reelceiver'
@@ -116,12 +115,9 @@ var Reelceiver = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.status = 'present';
+  self.status = 'ready';
   self.changed();
-
-  self.rankings = [];
-  self.rolling = 30;
-  self.rolling2 = self.rolling * 2;
+  self.info = {};
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -204,7 +200,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name     : true
-                                   , status   : [ 'present', 'absent', 'recent' ]
+                                   , status   : [ 'ready' ]
                                    }
                     }
       , $validate : { perform    : devices.validate_perform

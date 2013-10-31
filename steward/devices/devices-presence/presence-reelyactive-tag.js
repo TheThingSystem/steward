@@ -63,7 +63,10 @@ Tag.prototype.update = function(self, v, timestamp) {
   if (self.rankings.length !== 0) {
     latest = self.rankings[self.rankings.length - 1].reels;
     for (i = 0; i < latest.length; i++) rankings.push(latest[i].deviceID);
+// temporary to track down an issue...
+try {
     self.info.rssi = latest[0].reading;
+}catch(ex){console.log('>>> ' + JSON.stringify(self.rankings));}
     status = 'present';
   } else {
     self.info.rssi = -128;
