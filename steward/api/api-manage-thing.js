@@ -546,6 +546,9 @@ Thing.prototype.observe = function(self, eventID, observe, parameter) {
 Thing.prototype.perform = function(self, taskID, perform, parameter) {
   var id, message;
 
+// the 'set' task is reserved to the steward
+  if (perform === 'set') return devices.perform(self, taskID, perform, parameter);
+
   for (id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8);
        !!taskIDs[id];
        id = ('00000000' + Math.round(Math.random() * 99999999)).substr(-8)) continue;
