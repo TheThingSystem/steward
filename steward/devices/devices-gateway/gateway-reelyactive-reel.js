@@ -47,11 +47,12 @@ Hublet.prototype.update = function(self, data, timestamp) {
   v.sort(function(a, b) { return (b.reading - a.reading); });
   dropP = false;
   for (i = 0; i < v.length; i++) {
-    v[i] = v[i].reelID;
-
-    udn = self.deviceUID + ':reelceiver:' + v[i];
+    udn = self.deviceUID + ':reelceiver:' + v[i].reelID;
     if (!!devices.devices[udn]) {
-      if (!!devices.devices[udn].device) v[i] = 'device/' + devices.devices[udn].device.deviceID; else dropP = true;
+      if (!!devices.devices[udn].device) {
+        v[i].deviceID = 'device/' + devices.devices[udn].device.deviceID;
+        delete(v[i].reelID);
+      } else dropP = true;
       continue;
     }
 

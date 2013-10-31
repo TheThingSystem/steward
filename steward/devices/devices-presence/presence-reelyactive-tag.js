@@ -24,7 +24,7 @@ var Tag = exports.Device = function(deviceID, deviceUID, info) {
 
   self.status = 'present';
   self.changed();
-  self.info = { rankings: [] };
+  self.info = { rssi: -128, rankings: [] };
 
   self.events = {};
   self.rankings = [];
@@ -50,7 +50,7 @@ util.inherits(Tag, presence.Device);
 // TBD: multiple reels reporting the same tag...
 
 Tag.prototype.update = function(self, v, timestamp) {
-  var i, rankings, status;
+  var i, latest, rankings, status;
 
   if (!!v) self.rankings.push({ reels: v, timestamp: timestamp });
   if (self.rankings.length > self.rolling2) self.rankings.splice(0, 1);
@@ -59,11 +59,14 @@ Tag.prototype.update = function(self, v, timestamp) {
   for (i = self.rankings.length - 1; i >= 0; i--) if (self.rankings[i].timestamp < timestamp) break;
   if (i >= 0) self.rankings.splice(0, i + 1);
 
+  rankings = [];
   if (self.rankings.length !== 0) {
-    rankings = self.rankings[self.rankings.length - 1].reels;
+    latest = self.rankings[self.rankings.length - 1].reels;
+    for (i = 0; i < latest.length; i++) rankings.push(latest[i].deviceID);
+    self.info.rssi = latest[0].reading;
     status = 'present';
   } else {
-    rankings = [];
+    self.info.rssi = -128;
     status = 'absent';
   }
 
@@ -103,8 +106,9 @@ exports.start = function() {
       { $info     : { type       : '/device/presence/reelyactive/tag'
                     , observe    : [ 'sequence' ]
                     , perform    : [ ]
-                    , properties : { name   : true
-                                   , status : [ 'present', 'absent', 'recent' ]
+                    , properties : { name     : true
+                                   , status   : [ 'present', 'absent' ]
+                                   , rssi     : 's8'
                                    , rankings : 'array'
                                    }
                     }
