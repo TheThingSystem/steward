@@ -171,7 +171,7 @@ util.inherits(Reelceiver, gateway.Device);
 
 
 Reelceiver.prototype.update = function(self, packet, timestamp) {
-  self.lastSample = timestamp;
+  self.info.lastSample = timestamp;
   self.info.temperature = packet.temperature;
   self.changed();
 };
