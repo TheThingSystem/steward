@@ -24,13 +24,15 @@ var Tag = exports.Device = function(deviceID, deviceUID, info) {
 
   self.status = 'present';
   self.changed();
-  self.info = { rssi: -128, rankings: [] };
+  self.info = { rankings: [] };
 
   self.events = {};
   self.rankings = [];
   self.rolling = 30;
   self.rolling2 = self.rolling * 2;
-  self.tagID = info.params.tagID;
+  self.waitingP = true;
+
+  self.update(self, info.params.v, info.params.timestamp);
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -42,7 +44,7 @@ var Tag = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return devices.perform(self, eventID, observe, parameter);
   });
 
-  setInterval(function() { self.update(self, null, new Date().getTime()); }, 10 * 1000);
+  setInterval(function() { if (!self.waitingP) self.update(self, null, new Date().getTime()); }, 10 * 1000);
 };
 util.inherits(Tag, presence.Device);
 
@@ -52,7 +54,11 @@ util.inherits(Tag, presence.Device);
 Tag.prototype.update = function(self, v, timestamp) {
   var i, latest, rankings, status;
 
-  if (!!v) self.rankings.push({ reels: v, timestamp: timestamp });
+  if (!!v) {
+    if (v.length === 0) return;
+    self.waitingP = false;
+    self.rankings.push({ reels: v, timestamp: timestamp });
+  }
   if (self.rankings.length > self.rolling2) self.rankings.splice(0, 1);
 
   timestamp -= self.rolling * 1000;
@@ -65,11 +71,11 @@ Tag.prototype.update = function(self, v, timestamp) {
     for (i = 0; i < latest.length; i++) rankings.push(latest[i].deviceID);
 // temporary to track down an issue...
 try {
-    self.info.rssi = latest[0].reading;
+    self.info.lqi = latest[0].reading;
 }catch(ex){console.log('>>> ' + JSON.stringify(self.rankings));}
     status = 'present';
   } else {
-    self.info.rssi = -128;
+    delete(self.info.lqi);
     status = 'absent';
   }
 
@@ -111,7 +117,7 @@ exports.start = function() {
                     , perform    : [ ]
                     , properties : { name     : true
                                    , status   : [ 'present', 'absent' ]
-                                   , rssi     : 's8'
+                                   , lqi      : 's8'
                                    , rankings : 'array'
                                    }
                     }

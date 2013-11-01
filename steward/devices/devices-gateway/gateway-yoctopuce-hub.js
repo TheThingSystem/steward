@@ -78,6 +78,7 @@ Hub.prototype.addstation = function(module) {
 
     default:
       if (!!products[productName]) break;
+      modules[serialNumber] = productName;
       return logger.warning('device/' + self.deviceID, { event: 'unknown module', result: productName });
   }
 
