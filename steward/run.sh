@@ -42,6 +42,7 @@ fi
 ulimit -n 1024
 while true; do
   node index.js
+  date
 
-  sleep 15
+  sleep 10
 done

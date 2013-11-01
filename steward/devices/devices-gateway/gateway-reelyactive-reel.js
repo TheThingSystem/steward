@@ -106,7 +106,7 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
  if (data.length < 23) return;
 
   packet = { reelOffset       : toUInt( 1, 1)
-           , deviceIdentifier : self.eui64 + data.substr(4, 7)
+           , deviceIdentifier : self.eui64 + data.substr(5, 7)
            , uptime           : toUInt( 6, 2)
            , sendCount        : toUInt( 8, 2)
            , crcPass          : toUInt(10, 2)
