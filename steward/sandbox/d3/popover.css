@@ -30,12 +30,19 @@
 }
 
 .popover-name { 
+        position: absolute;
+        top: 23px;
+        left: 65px;
         font-family: "Roadgeek 2005 Series D";
         font-size: 26px;
-        line-height: 15px;
+        line-height: 26px;
         font-weight: normal;
         color: #fff;
-        height: 22px;
+        height: 26px;
+        width: 400px;
+        white-space: nowrap;
+        text-overflow: clip;
+        overflow: hidden;
 }
 
 .done-narrow { position: absolute; top: 24px; left: 400px; }
@@ -45,7 +52,6 @@
 	{ position: absolute; top: 0px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
 	
 	#actor { position: absolute; top: 14px; left: 15px; }
-	#popover-name { position: absolute; top: 30px; left: 65px; }
 	#button-one { position: absolute; top: 24px; left: 317px; }
 	#button-two { position: absolute; top: 24px; left: 383px; }
 	#button-three { position: absolute; top: 24px; left: 449px; }
@@ -146,13 +152,17 @@
 
 /* Switch */
 
-#level-status-wrapper
-	{ position: absolute; top: 60px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
-	.level-status-grid { position: absolute; top: 14px; left: 115px; }
-	.level-status { position: absolute; top: 22px; left: 86px; }
-	.level-status-label { position: absolute; top: 28px; left: 30px; }
-	.level-knob { position: absolute; top: 20px; left: 220px; }
+#level-status-wrapper-switch
+	{ position: absolute; top: 61px; left: 0px; width: 597px; height: 60px; }
+	.level-status-grid { position: absolute; top: 17px; left: 70px; }
+	.level-status { position: absolute; top: 24px; left: 52px; }
+	.level-status-label { position: absolute; top: 28px; left: 30px; color: #fff; }
+	.level-status-label-disabled { position: absolute; top: 28px; left: 30px; color: #444; }
+	.level-knob { position: absolute; top: 18px; left: 220px; }
 
+#on-off-slider-wrapper-switch { position: absolute; top: 85px; left: 300px; }
+
+.done-switch { position: absolute; top: 84px; left: 400px; z-index: 1; }
 
 /* Flexi Color Picker */
 /* Common stuff */

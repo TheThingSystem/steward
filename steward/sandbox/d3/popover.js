@@ -1,6 +1,6 @@
 var bigSliderKnob = { "diam": 22 };
 var bigSlider = { "min": 310, "max": 39 };
-var bigHorSlider = { "min": 108, "max": 404 };
+var bigHorSlider = { "min": 64, "max": 264 };
 var onOffKnob = { "diam": 18 };
 var onOffSlider = { "min": 25, "max": 71 - onOffKnob.diam };
 var newPerform = { "path":"", "requestID":"2", "perform":"", "parameter":{} };
@@ -104,8 +104,8 @@ function dragmove(d) {
 			});
 			break;
 		case "level-knob":
-			max = 420;
-			min = 105;
+			max = 264;
+			min = 64;
 			d3.select(this).style("left", function() { 
 				bx1 = parseInt(d3.select(this).style("left"));
 				bx2 = bx1 + d3.event.dx;
@@ -227,6 +227,7 @@ var showPop = function(device) {
    function finishLighting() {
        var div, elem;
        finishCommon("done-narrow");
+       d3.select("#popover-name").style("width", "210px");
        finishStatus();
        
        div = pop.append("div")
@@ -439,7 +440,10 @@ var showPop = function(device) {
      div.append("div")
        .attr("class", "popover-name")
        .attr("id", "popover-name")
-       .text("Climate Control");
+	   .attr("contenteditable", "true")
+	   .on("blur", setDeviceName)
+	   .on("keydown", setDeviceName)
+       .text(device.name);
        
      if (device.info.hvac) {
 		 div.append("div")
@@ -455,21 +459,22 @@ var showPop = function(device) {
 		     .attr("id", "button-two")
 			 .attr("src", function() {return (device.info.hvac === "fan") ? "popovers/assets/fan-button.svg" : "popovers/assets/fan-button-off.svg"} )
 			 .attr("height", "22px")
-			 .on("click", function() {climateTogglehvac(event, "fan")});;
+			 .on("click", function() {climateTogglehvac(event, "fan")});
 		 div.append("div")
 		   .attr("class", "label")
 		   .append("img")
 		     .attr("id", "button-three")
 			 .attr("src", function() {return (device.info.hvac === "cool") ? "popovers/assets/cool-button.svg" : "popovers/assets/cool-button-off.svg"} )
 			 .attr("height", "22px")
-			 .on("click", function() {climateTogglehvac(event, "cool")});;
+			 .on("click", function() {climateTogglehvac(event, "cool")});
 		 div.append("div")
 		   .attr("class", "label")
 		   .append("img")
 		     .attr("id", "button-four")
 			 .attr("src", function() {return (device.info.hvac === "heat") ? "popovers/assets/heat-button.svg" : "popovers/assets/heat-button-off.svg"} )
 			 .attr("height", "22px")
-			 .on("click", function() {climateTogglehvac(event, "heat")});;
+			 .on("click", function() {climateTogglehvac(event, "heat")});
+		 d3.select("#popover-name").style("width", "230px");
      }
      div.append("div")
        .attr("id", "done-climate")
@@ -586,23 +591,24 @@ var showPop = function(device) {
    function finishSwitch() {
      var div, elem;
      newPerform.perform = device.status;
-     finishCommon("done-narrow");
+     finishCommon("done-switch");
      
      var hasLevel = device.info.hasOwnProperty("level");
      div = pop.append("div")
-       .attr("id", "level-status-wrapper");
+       .attr("id", "level-status-wrapper-switch");
      div.append("div")
-       .attr("class", function() {return (hasLevel) ? "level-status-label label" : "level-status-label label-disabled"})
+       .attr("class", function() {return (hasLevel) ? "small-label level-status-label" : "small-label level-status-label-disabled"})
        .text("LEVEL");
      div.append("div")
          .attr("class", "level-status-grid")
          .append("img")
            .attr("src", "popovers/assets/grid.horizontal.svg")
-           .style("height", "45px");
+           .style("height", "32px");
      div.append("div")
          .attr("class", "level-status")
          .append("img")
-           .attr("src", "popovers/assets/slider.long.horizontal.svg");
+           .attr("src", "popovers/assets/slider.long.horizontal.svg")
+           .style("height", "19px");
      
      elem = div.append("img")
      	.attr("class", "level-knob")
@@ -636,7 +642,7 @@ var showPop = function(device) {
 //      }
        
      div = pop.append("div")
-    	 .attr("id", "on-off-slider-wrapper");
+    	 .attr("id", "on-off-slider-wrapper-switch");
      div.append("div")
          .attr("class", "on-off-slider")
          .append("img")
@@ -800,6 +806,7 @@ var showPop = function(device) {
 	                requestID: "2",
 	                parameter: { name : elem.innerText} };
 	    cmd.parameter = JSON.stringify(cmd.parameter);
+	    elem.scrollLeft = 0;
         wsSend(JSON.stringify(cmd));
 	  }
 	};
