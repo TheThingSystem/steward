@@ -287,6 +287,51 @@ var apprentices =
         }
       }
 
+    , { title                   : 'Status lights'
+      , text                    : 'Select lights to report change of conditions.'
+      , status                  : 'active'
+      , observations            :
+        { title                 : ''
+        , text                  : ''
+        , event                 : [ { actor     : 'place/1'
+                                    , observe   : '.condition'
+                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'red' }
+                                    }
+                                  , { actor     : 'place/1'
+                                    , observe   : '.condition'
+                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'orange' }
+                                    }
+                                  , { actor     : 'place/1'
+                                    , observe   : '.condition'
+                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'blue' }
+                                    }
+                                  , { actor     : 'place/1'
+                                    , observe   : '.condition'
+                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'green' }
+                                    }
+                                  ]
+        }
+      , performances            :
+        { title                 : 'Status lights'
+        , text                  : ''
+        , tasks                 :
+          [ { title             : 'Lights'
+            , text              : ''
+            , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
+            , mustHave          : [ ]
+            , operand           : 'and'
+            , '.on'             : [ { color: { model: 'rgb', rgb: { r: 255, g:   0, b:   0 }}, brightness: 50 }
+                                  , { color: { model: 'rgb', rgb: { r: 255, g: 131, b:   0 }}, brightness: 25 }
+                                  , { color: { model: 'rgb', rgb: { r:   0, g:   0, b: 255 }}, brightness:  5 }
+                                  , { color: { model: 'rgb', rgb: { r:   0, g: 255, b:   0 }}, brightness:  5 }
+                                  ]
+            , actors            : {}
+            , howMany           : '1+'
+            }
+          ]
+        }
+      }
+
     , { title                   : 'Here Comes the Sun'
       , text                    : 'At dawn, tasks to perform.'
       , status                  : 'active'
@@ -356,51 +401,6 @@ var apprentices =
             , mustHave          : [ ]
             , operand           : 'and'
             , '.off'            : ''
-            , actors            : {}
-            , howMany           : '1+'
-            }
-          ]
-        }
-      }
-
-    , { title                   : 'Status lights'
-      , text                    : 'Select lights to report change of conditions.'
-      , status                  : 'active'
-      , observations            :
-        { title                 : ''
-        , text                  : ''
-        , event                 : [ { actor     : 'place/1'
-                                    , observe   : '.condition'
-                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'red' }
-                                    }
-                                  , { actor     : 'place/1'
-                                    , observe   : '.condition'
-                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'orange' }
-                                    }
-                                  , { actor     : 'place/1'
-                                    , observe   : '.condition'
-                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'blue' }
-                                    }
-                                  , { actor     : 'place/1'
-                                    , observe   : '.condition'
-                                    , parameter : { operator: 'equals', operand1: '.[.status].', operand2: 'green' }
-                                    }
-                                  ]
-        }
-      , performances            :
-        { title                 : 'Status lights'
-        , text                  : ''
-        , tasks                 :
-          [ { title             : 'Lights'
-            , text              : ''
-            , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
-            , mustHave          : [ ]
-            , operand           : 'and'
-            , '.on'             : [ { color: { model: 'rgb', rgb: { r: 255, g:   0, b:   0 }}, brightness: 50 }
-                                  , { color: { model: 'rgb', rgb: { r: 255, g: 131, b:   0 }}, brightness: 25 }
-                                  , { color: { model: 'rgb', rgb: { r:   0, g:   0, b: 255 }}, brightness:  5 }
-                                  , { color: { model: 'rgb', rgb: { r:   0, g: 255, b:   0 }}, brightness:  5 }
-                                  ]
             , actors            : {}
             , howMany           : '1+'
             }
