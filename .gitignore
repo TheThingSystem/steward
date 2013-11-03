@@ -32,3 +32,5 @@ Release
 
 zwscene.xml
 zwcfg_*.xml
+
+.node-xmlhttprequest-content-*

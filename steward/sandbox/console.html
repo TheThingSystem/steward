@@ -679,16 +679,18 @@ var onactors = function(message) {
               else v = serialize_array(v);
               break;
 
+            case 'rankings':
             case 'review':
             case 'sensors':
               if (v.length > 0) {
                 v2 = [];
                 v.forEach(function(element, index, array) {
-                  v2.push((!!devices[element]) ? (devices[element].name + ' (' + element +')') : element);
+                  v2.push((!!devices[element]) ? (devices[element].name + ' [' + element +']') : element);
                 });
                 v = serialize_array(v2);
               }
               else v = serialize_array(v);
+              break;
 
             default:
               v = serialize_array(v);

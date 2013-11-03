@@ -117,7 +117,7 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
            , maxLQI           : toUInt(17, 1)
            , avgLQI           : toUInt(18, 1)
            , minLQI           : toUInt(19, 1)
-           , temperature      :(toUInt(20, 1) - 80) / 2
+           , intTemperature   :(toUInt(20, 1) - 80) / 2
            , radioVoltage     :(toUInt(21, 1) / 34) + 1.8
            };
   udn = 'uuid:2f402f80-da50-11e1-9b23-' + packet.deviceIdentifier;
@@ -172,7 +172,7 @@ util.inherits(Reelceiver, gateway.Device);
 
 Reelceiver.prototype.update = function(self, packet, timestamp) {
   self.info.lastSample = timestamp;
-  self.info.temperature = packet.temperature;
+  self.info.intTemperature = packet.intTemperature;
   self.changed();
 };
 
@@ -249,10 +249,10 @@ exports.start = function() {
       { $info     : { type       : '/device/gateway/reelyactive/reelceiver'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name        : true
-                                   , status      : [ 'ready' ]
-                                   , lastSample  : 'timestamp'
-                                   , temperature : 'celcius'
+                    , properties : { name           : true
+                                   , status         : [ 'ready' ]
+                                   , lastSample     : 'timestamp'
+                                   , intTemperature : 'celcius'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform
