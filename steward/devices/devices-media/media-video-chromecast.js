@@ -86,6 +86,7 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
 
     applyIf('title');
     applyIf('image_url', 'albumArtURI');
+    if (status.hasOwnProperty('time_progress') && !status.time_progress) delete(status.current_time);
     applyIf('current_time', 'position', function(v) {
       return (v * 1000).toFixed(0);
     });
@@ -118,7 +119,7 @@ Chromecast.operations = {
     self.chromecast.stop('YouTube');
   }
 , 'play' : function(self, params) {/* jshint unused: false */
-    if (self.status === 'paused') {
+    if ((self.status === 'paused') || (self.status === 'idle')) {
       self.chromecast.resume();
       self.status = 'playing';
       self.changed();
@@ -171,10 +172,6 @@ var validate_perform = function(perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
   result = { invalid: [], requires: [] };
-
-  if ((perform === 'play') && (!params.url)) {
-    result.requires.push('url');
-  }
 
   if (!!Chromecast.operations[perform]) return result;
 

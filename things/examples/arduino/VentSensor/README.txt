@@ -35,14 +35,14 @@ returning control back to setup().
 A report via the STRP looks like the following:
 
 {
-  "path": "\/api\/v1\/thing\/reporting",
+  "path": "/api/v1/thing/reporting",
   "requestID": "1",
   "things": {
-    "\/device\/climate\/arduino\/ventilation": {
+    "/device/climate/arduino/ventilation": {
       "prototype": {
         "device": {
           "name": "Return Ventilation Sensor Array",
-          "maker": "Modern Device\/Seed Studio"
+          "maker": "Modern Device/Seed Studio"
         },
         "name": "true",
         "status": [

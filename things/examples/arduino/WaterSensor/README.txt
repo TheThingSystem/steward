@@ -24,10 +24,10 @@ AND this sensor:
 A report via the TSRP looks like the following:
 
 {
-  "path": "\/api\/v1\/thing\/reporting",
+  "path": "/api/v1/thing/reporting",
   "requestID": "1",
   "things": {
-    "\/device\/sensor\/grove\/water": {
+    "/device/sensor/grove/water": {
       "prototype": {
         "device": {
           "name": "Grove Water Sensor",

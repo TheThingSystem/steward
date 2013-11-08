@@ -573,6 +573,8 @@ var onactors = function(message) {
           if (!entity.info.hasOwnProperty(prop)) continue;
 
           v = entity.info[prop];
+          if (v === undefined) v = null;
+          if (v === null) v = '';
           if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
           switch (prop) {
             case 'lastSample':
@@ -635,12 +637,12 @@ var onactors = function(message) {
               break;
 
             case 'concentration':
-              v += 'pcs/liter';
+              if (!isNaN(v)) v = v.toFixed(0) + 'pcs/liter';
               break;
 
             case 'pressure':
             case 'moisture':
-              v += 'mbars';
+              if (!isNaN(v)) v = v.toFixed(3) + 'mbars';
               break;
 
             case 'light':

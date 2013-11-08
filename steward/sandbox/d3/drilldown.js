@@ -912,7 +912,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'MOISTURE'
-                          , cooked : v + 'mb'
+                          , cooked : v.toFixed(3) + 'mb'
                           , value  : clip2bars(v, 50, 250)
                           , index  : 0.50
                           });
@@ -1048,7 +1048,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CONCENTRATION'
-                          , cooked : v + 'pcs/liter'
+                          , cooked : v.toFixed(0) + 'pcs/liter'
                           , value  : clip2bars(v, 0, 14000)
                           , index  : 0.40
                           });
@@ -1111,7 +1111,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'PRESSURE'
-                          , cooked : v + 'mb'
+                          , cooked : v.toFixed(3) + 'mb'
                           , value  : clip2bars(v, 980, 1060)
                           , index  : 0.20
                           });
@@ -1121,7 +1121,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'NO<sub>2</sub>'
-                          , cooked : v + 'ppm'
+                          , cooked : v.toFixed(0) + 'ppm'
                           , value  : clip2bars(v, 0, 1200)
                           , index  : 0.20
                           });
@@ -1228,10 +1228,18 @@ var media_device_arcs = function(device) {
                           });
 
         text = getTimeString(v.position);
-        if ((text !== '') && (!!v.duration)) text += ' / ' + getTimeString(v.duration);
+        if (text !== '') {
+          v2 = getTimeString(v.duration);
+          if (v2 != '') text += ' / ' + getTimeString(v.duration);
+          v2 = 'POSITION';
+        } else if ((!!v.duration)) {
+          v2 = 'DURATION';
+          text = getTimeString(v.duration);
+        } else break;
+        
         arcs.splice(2, 0, { name   : 'position'
                           , raw    : v.pos || ''
-                          , label  : 'POSITION'
+                          , label  : v2
                           , cooked : text
                           , value  : clip2bars(v.position || 0, 0, v.duration || 1)
                           , index  : 0.50
@@ -1281,7 +1289,7 @@ var media_device_arcs = function(device) {
 var getTimeString = function(v) {
   var text = '';
 
-  if (!v) return text;
+  if ((!v) || isNaN(v)) return text;
 
   v = Math.round(v / 1000);
 

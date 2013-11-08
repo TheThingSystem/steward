@@ -55,10 +55,10 @@ reporting uncalibrated data, and the steward will report it the current
 value relative to the standard deviation of the data series.
 
 {
-  "path": "\/api\/v1\/thing\/reporting",
+  "path": "/api/v1/thing/reporting",
   "requestID": "1",
   "things": {
-    "\/device\/climate\/grove\/air-quality": {
+    "/device/climate/grove/air-quality": {
       "prototype": {
         "device": {
           "name": "Grove Air Quality Sensor Array",

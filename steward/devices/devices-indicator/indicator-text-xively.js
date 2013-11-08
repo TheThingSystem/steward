@@ -91,7 +91,6 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
 
     self.getfeed(self);
   });
-
 };
 util.inherits(Cosm, indicator.Device);
 
