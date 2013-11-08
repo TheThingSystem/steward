@@ -45,8 +45,8 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
   for (option in opts) if (opts.hasOwnProperty(option)) options[option] = opts[option];
 
   self.path = parts.pathname;
-  if (!self.path) self.path = '/';
-  if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
+  if (!self.path) self.path = '';
+  else if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
 
   method = (parts.protocol === 'mqtts') ? mqtt.createSecureClient : mqtt.createClient;
   self.mqtt = method(parts.port, parts.hostname, options).on('connection', function() {
@@ -63,12 +63,13 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
 , timestamp : 1383839241764
 }
  */
-  broker.subscribe('readings', function(deviceID, point) {return;
+  broker.subscribe('readings', function(deviceID, point) {
     if (self.status !== 'ready') return;
     if ((!!self.sensors) && (!self.sensors[deviceID])) return;
     if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
-    self.mqtt.publish(self.path + 'device/' + deviceID, point);
+    self.mqtt.publish(self.path + 'device/' + deviceID + '/' + point.measure.name, 
+                      { value: point.value, measure: point.measure, timestamp: point.timestamp });
   });
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
