@@ -145,7 +145,7 @@ var home = function(state) {
     div.appendChild(span);
     if (++a >= 12) break;
   }
-  
+  /* Disabled until backend completed
   div = document.createElement('div');
   div.setAttribute('class', 'apprentices');
   chart.appendChild(div);
@@ -166,7 +166,7 @@ var home = function(state) {
   span = document.createElement('span');
   span.innerHTML = ' ';
   div.appendChild(span);
-
+  */
   div = document.createElement('div');
   div.setAttribute('class', 'wrapper');
   chart.appendChild(div);
