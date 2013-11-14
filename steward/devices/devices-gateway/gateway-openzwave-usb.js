@@ -130,7 +130,13 @@ var scan1 = function(driver) {
                                , serialNo     : driver.serialNumber
                                });
 
-  zwave = new openzwave(comName, { saveconfig: true });
+  zwave = new openzwave(comName, {
+    saveconfig: true,
+    suppressrefresh: true,
+    driverattempts: 3,
+    pollinterval: 500
+  });
+
   scanning[comName] = zwave;
   zwave.on('driver ready', function(homeid) {
     zwave.on('node added', function(nodeid) {
