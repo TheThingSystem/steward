@@ -458,5 +458,5 @@ var subscribe = function(params) {
     logger.error('mqtt', { event: 'error', diagnostic: err.message });
     this.end();
     setTimeout(function() { subscribe(params); }, 600 * 1000);
-  }).subscribe('+/' + place + '/#');
+  }).subscribe('+/' + place + '/#', { qos: 1 });
 };
