@@ -1,4 +1,4 @@
-var serialport = require('serialport');
+var serialport = require('../steward/node_modules/serialport');
 
 serialport.list(function(err, info) {
   var i;
