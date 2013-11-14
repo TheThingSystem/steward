@@ -2038,6 +2038,11 @@ var entries = {
                                                               , arcs    : presence_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
+              , '/device/presence/mobile/mqttitude'         : { img     : 'actors/.svg'
+                                                              , single  : single_presence_drilldown
+                                                              , arcs    : presence_device_arcs
+                                                              , instrux : single_device_instructions
+                                                              }
               , '/device/presence/reelyactive/tag'          : { img     : 'actors/reelyActive-tag.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
