@@ -2,6 +2,7 @@ var fs          = require('fs')
   , http        = require('http')
   , https       = require('https')
   , mime        = require('mime')
+  , mqtt        = require('mqtt')
   , net         = require('net')
   , portfinder  = require('portfinder')
   , speakeasy   = require('speakeasy')
@@ -239,7 +240,12 @@ var start = function(port, secureP) {
 
     if (secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
-        if (existsP) register(require(__dirname + '/../db/' + steward.uuid).params, portno);
+        var params;
+        if (!existsP) return;
+
+        params = require(__dirname + '/../db/' + steward.uuid).params;
+        register(params, portno);
+        subscribe(params);
       });
 
       return;
@@ -385,4 +391,72 @@ var rendezvous = function(params, portno, u) {
 
     retry(5);
   }).connect(u.port, u.hostname);
+};
+
+
+var devices;
+
+var subscribe = function(params) {
+  var place, settings;
+
+  place = params.labels[0] || params.name.split('.')[0];
+  settings = { protocolId      : 'MQIsdp'
+             , protocolVersion : 3
+             , clientId        : place + '/steward'
+             , username        : params.uuid[0]
+             , password        : speakeasy.totp({ key      : params.base32
+                                                , length   : 6
+                                                , encoding : 'base32'
+                                                , step     : params.step })
+             , clean           : false
+             };
+
+  mqtt.createSecureClient(8883, params.server.hostname, settings).on('message',
+    function(topic, message, packet) {/* jshint unused: false */
+    var device, entry, info, params, parts, status, udn;
+
+    parts = topic.split('/');
+
+    try { entry = JSON.parse(message); } catch(ex) { return console.log(ex); }
+
+    status = entry._type === 'location' ? 'present' : 'recent';
+    params = { lastSample: entry.tst * 1000 };
+    if (entry._type === 'location') {
+      params.location = [ entry.lat, entry.lon ];
+      if (!!entry.acc) params.accuracy = parseFloat(entry.acc);
+    }
+
+    if (!devices) devices = require('./device');
+    udn = 'mqtt:' + parts.slice(0, 3).join('/');
+    if (devices.devices[udn]) {
+      device = devices.devices[udn].device;
+      if (parts.length !== 3) return device.detail(device, entry);
+      return device.update(device, params, status);
+    }
+    if (parts.length !== 3) return;
+
+    info =  { source: 'mqtt', params: params };
+    info.device = { url                          : null
+                  , name                         : parts[2]
+                  , manufacturer                 : ''
+                  , model        : { name        : ''
+                                   , description : ''
+                                   , number      : ''
+                                   }
+                  , unit         : { serial      : topic
+                                   , udn         : udn
+                                   }
+                  };
+
+    info.url = info.device.url;
+    info.deviceType = '/device/presence/mobile/' + parts[0];
+    info.id = info.device.unit.udn;
+
+    logger.info('mqtt', { name: info.device.name, id: info.device.unit.serial,  params: info.params });
+    devices.discover(info);
+  }).on('error', function(err) {
+    logger.error('mqtt', { event: 'error', diagnostic: err.message });
+    this.end();
+    setTimeout(function() { subscribe(params); }, 600 * 1000);
+  }).subscribe('+/' + place + '/#');
 };

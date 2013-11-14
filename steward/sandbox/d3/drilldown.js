@@ -606,12 +606,14 @@ var drawArcs = function(arcs) {
       var re = /\&deg;/gi;
       txt = txt.replace(re, "°");
       re = /\<sup\>2\<\/sup\>/gi;
-	  txt = txt.replace(re, "²");
-	  re = /\<sub\>2\<\/sub\>/gi;
-	  txt = txt.replace(re, "₂");
-	  re = /\&sigma;/gi;
-	  txt = txt.replace(re, "σ");
-	}
+      txt = txt.replace(re, "²");
+      re = /\<sub\>2\<\/sub\>/gi;
+      txt = txt.replace(re, "₂");
+      re = /\&sigma;/gi;
+      txt = txt.replace(re, "σ");
+      re = /\&plusmn;/gi;
+      txt = txt.replace(re, "±");
+    }
     return txt;
   }
 };
@@ -751,26 +753,60 @@ var single_device_arcs = function(device) {
 
       case 'currentUsage':
       case 'generating':
-       v2 = Array.isArray(v) ? v[0] : v;
-       arcs.splice(a0,0, { name   : prop
-                          , raw    : v2
-                          , label  : prop === 'currentUsage' ? 'USING' : 'GENERATING'
-                          , cooked : v2 + 'watts'
-                          , value  : clip2bars(v2, 0, 1000)
-                          , index  : a1
-                          });
+        v2 = Array.isArray(v) ? v[0] : v;
+        arcs.splice(a0,0, { name   : prop
+                           , raw    : v2
+                           , label  : prop === 'currentUsage' ? 'USING' : 'GENERATING'
+                           , cooked : v2 + ' watts'
+                           , value  : clip2bars(v2, 0, 1000)
+                           , index  : a1
+                           });
         continue;
 
       case 'dailyUsage':
       case 'exporting':
-       v2 = Array.isArray(v) ? v[0] : v;
-       arcs.splice(a0+1,0, { name   : prop
-                          , raw    : v2
-                          , label  : prop === 'dailyUsage' ? 'DAILY USAGE' : 'EXPORTING'
-                          , cooked : v2 + (prop === 'dailyUsage' ? 'watt-hours' : 'watts')
-                          , value  : clip2bars(v2, 0, 10000)
-                          , index  : a1 - 0.10
+        v2 = Array.isArray(v) ? v[0] : v;
+        arcs.splice(a0+1,0, { name   : prop
+                           , raw    : v2
+                           , label  : prop === 'dailyUsage' ? 'DAILY USAGE' : 'EXPORTING'
+                           , cooked : v2 + (prop === 'dailyUsage' ? ' watt-hours' : ' watts')
+                           , value  : clip2bars(v2, 0, 10000)
+                           , index  : a1 - 0.10
+                           });
+        continue;
+
+      case 'location':
+        if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
+          dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
+          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' mi')
+                               : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
+                               : place.name;
+          if ((dist >= 1) && (!!device.info.physical)) {
+            cooked = device.info.physical + ' (' + cooked + ')';
+            dist = 0;
+          }
+        } else {
+          cooked = v.toString();
+          dist = -1;
+        }
+        arcs.splice(a0,0, { name   : prop
+                          , raw    : v
+                          , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
+                          , cooked : cooked
+                          , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
+                          , index  : 0.70
                           });
+        continue;
+
+      case 'accuracy':
+        v2 = isNaN(v) ? v.toFixed(2) : v;
+        arcs.splice(a0+1,0, { name   : prop
+                           , raw    : v2
+                           , label  : 'ACCURACY'
+                           , cooked : '&plusmn;' + v2 + ' meters'
+                           , value  : clip2bars(v2, 0, 100)
+                           , index  : a1 - 0.10
+                           });
         continue;
 
       default:
@@ -880,7 +916,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'VOC'
-                          , cooked : v + 'ppm'
+                          , cooked : v + ' ppm'
                           , value  : clip2bars(v, 450, 900)
                           , index  : 0.60
                           });
@@ -912,7 +948,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'MOISTURE'
-                          , cooked : v.toFixed(3) + 'mb'
+                          , cooked : v.toFixed(3) + ' mb'
                           , value  : clip2bars(v, 50, 250)
                           , index  : 0.50
                           });
@@ -954,7 +990,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CO<sub>2</sub>'
-                          , cooked : v + 'ppm'
+                          , cooked : v + ' ppm'
                           , value  : clip2bars(v, 0, 1200)
                           , index  : 0.40
                           });
@@ -974,7 +1010,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'LIGHT'
-                          , cooked : v + 'lx'
+                          , cooked : v + ' lx'
                           , value  : clip2bars(v, 5000, 25000)
                           , index  : 0.40
                           });
@@ -1004,7 +1040,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'SIGNAL'
-                          , cooked : v + 'dB'
+                          , cooked : v + ' dB'
                           , value  : clip2bars(v, -127, 128)
                           , index  : 0.40
                           });
@@ -1028,7 +1064,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'NOISE'
-                          , cooked : v + 'dB'
+                          , cooked : v + ' dB'
                           , value  : clip2bars(v, 0, 70)
                           , index  : 0.30
                           });
@@ -1048,7 +1084,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CONCENTRATION'
-                          , cooked : v.toFixed(0) + 'pcs/liter'
+                          , cooked : v.toFixed(0) + ' pcs/liter'
                           , value  : clip2bars(v, 0, 14000)
                           , index  : 0.40
                           });
@@ -1111,7 +1147,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'PRESSURE'
-                          , cooked : v.toFixed(3) + 'mb'
+                          , cooked : v.toFixed(3) + ' mbars'
                           , value  : clip2bars(v, 980, 1060)
                           , index  : 0.20
                           });
@@ -1121,7 +1157,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'NO<sub>2</sub>'
-                          , cooked : v.toFixed(0) + 'ppm'
+                          , cooked : v.toFixed(0) + ' ppm'
                           , value  : clip2bars(v, 0, 1200)
                           , index  : 0.20
                           });
@@ -1170,8 +1206,6 @@ var lighting_device_arcs = single_device_arcs;
 
 
 var single_media_drilldown = function(state) {
-// there should be a pop-up box available for this drilldown...
-
   var device, instructions;
 
   device = actors[state.actor];
@@ -1307,8 +1341,6 @@ var getTimeString = function(v) {
 
 
 var single_motive_drilldown = function(state) {
-// there should be a pop-up box available for this drilldown...
-
   var device, instructions;
 
   device = actors[state.actor];
@@ -1338,9 +1370,13 @@ var motive_device_arcs = function(device) {
       case 'location':
         if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
           dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
-          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' miles')
+          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' mi')
                                : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
                                : place.name;
+          if ((dist >= 1) && (!!device.info.physical)) {
+            cooked = device.info.physical + ' (' + cooked + ')';
+            dist = 0;
+          }
         } else {
           cooked = v.toString();
           dist = -1;
@@ -1358,7 +1394,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'SPEED'
-                          , cooked : (v > 0) ? ((v / 1000).toFixed(0) + ' kph' + ' / ' + (v * 2.23694).toFixed(0) + ' mph')
+                          , cooked : (v > 0) ? ((v / 1000).toFixed(0) + ' km/h' + ' / ' + (v * 2.23694).toFixed(0) + ' mph')
                                              : 'stationary'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.60
@@ -1387,7 +1423,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'ODOMETER'
-                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' miles'
+                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' mi'
                           , value  : clip2bars(v % 20000, 0, 20000)
                           , index  : 0.40
                           });
@@ -1446,16 +1482,12 @@ var deg2rad = function(deg) {
 
 
 var single_presence_drilldown  = function(state) {
-// there should be a pop-up box available for this drilldown...
-
   return single_device_drilldown(state);
 };
 var presence_device_arcs       = single_device_arcs;
 
 
 var single_switch_drilldown    = function(state) {
-// there should be a pop-up box available for this drilldown...
-
   return single_device_drilldown(state);
 };
 
@@ -1463,8 +1495,6 @@ var switch_device_arcs         = single_device_arcs;
 
 
 var single_wearable_drilldown  = function(state) {
-// there should be a pop-up box available for this drilldown...
-
   return single_device_drilldown(state);
 };
 

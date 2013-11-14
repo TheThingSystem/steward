@@ -465,6 +465,19 @@ var bootable = { ecobee         :
                    , credentials: ''
                    }
                  }
+               , mqtt           :
+                 { text         : 'If you have an account on an MQTT broker, the steward can automatically upload measurements.'
+                 , instructions : 'Enter a URL, e.g., "mqtts://broker/topic" and your username/password for the broker'
+                 , site         : ''
+                 , icon         : ''
+                 , name         : 'mqtt'
+                 , actor        : '/device/indicator/text/mqtt'
+                 , info         :
+                   { url        : ''
+                   , username   : ''
+                   , password   : ''
+                   }
+                 }
                , nest           :
                  { text         : 'If you have a Nest thermostat, the steward can manage it for you.'
                  , instructions : 'Enter your email address and password.'
@@ -515,7 +528,7 @@ var bootable = { ecobee         :
                  }
                , xively         :
                  { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
-                 , instructions : 'Create a "device" and xively will automatically generate a device key (apikey) and feed'
+                 , instructions : 'Xively will automatically generate a device key (apikey) and feed'
                  , site         : 'https://xively.com/login'
                  , icon         : ''
                  , name         : 'xively'

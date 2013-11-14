@@ -599,7 +599,7 @@ var onactors = function(message) {
               break;
 
             case 'battery':
-              v += 'volts';
+              v += ' volts';
               break;
 
             case 'currentUsage':
@@ -607,24 +607,24 @@ var onactors = function(message) {
               if (!Array.isArray(v)) break;
               v2 = [];
               v.forEach(function(usage, index, array) {
-                v2.push(usage + 'watt-hours');
+                v2.push(usage +  'watt-hours');
               });
               v = serialize_array(v2);
               break;
 
             case 'generating':
             case 'exporting':
-              v += 'watts';
+              v += ' watts';
               break;
 
             case 'noise':
             case 'rssi':
-              v += 'dB';
+              v += ' dB';
               break;
 
             case 'co2':
             case 'voc':
-              v += 'ppm';
+              v += ' ppm';
               break;
 
             case 'airQuality':
@@ -637,20 +637,20 @@ var onactors = function(message) {
               break;
 
             case 'concentration':
-              if (!isNaN(v)) v = v.toFixed(0) + 'pcs/liter';
+              if (!isNaN(v)) v = v.toFixed(0) + ' pcs/liter';
               break;
 
             case 'pressure':
             case 'moisture':
-              if (!isNaN(v)) v = v.toFixed(3) + 'mbars';
+              if (!isNaN(v)) v = v.toFixed(3) + ' mbars';
               break;
 
             case 'light':
-              v += 'lx';
+              v += ' lx';
               break;
 
             case 'altitude':
-              if (!isNaN(v)) v = Math.round(v) + 'm';
+              if (!isNaN(v)) v = Math.round(v) + ' meters';
               break;
 
             case 'heading':
@@ -662,15 +662,12 @@ var onactors = function(message) {
               break;
 
             case 'velocity':
-              if ((v !== '0') && (!isNaN(v))) v = (v * 3.6).toFixed(0) + 'kmh / ' + (v * 2.23694).toFixed(0) + 'mph';
+              if ((v !== '0') && (!isNaN(v))) v = (v * 3.6).toFixed(0) + ' km/h / ' + (v * 2.23694).toFixed(0) + ' mph';
               break;
 
             case 'odometer':
-              if (!isNaN(v)) v = v.toFixed(1) + 'km / ' + (v * 0.621371).toFixed(1) + 'mi';
-              break;
-
             case 'range':
-              if (!isNaN(v)) v = v.toFixed(0) + 'km / ' + (v * 0.621371).toFixed(0) + 'mi';
+              if (!isNaN(v)) v = v.toFixed(0) + ' km / ' + (v * 0.621371).toFixed(0) + ' mi';
               break;
 
             case 'location':
@@ -679,6 +676,10 @@ var onactors = function(message) {
                     + ((v.length > 2) ? (' / ' + Math.round(v[2]) + ' m') : '');
               }
               else v = serialize_array(v);
+              break;
+
+            case 'accuracy':
+              if (!isNaN(v)) v = '&plusmn;' + v.toFixed(2) + ' meters';
               break;
 
             case 'rankings':
