@@ -54,6 +54,26 @@ var mostDevices = function(message) {
   return devices;
 };
 
+var allNames = function(message) {
+  var actor, names, entry, id, result;
+
+  result = message.result;
+  if (!result) return null;
+
+  names = {};
+  for (id in result) {
+    if ((!result.hasOwnProperty(id)) || (id === 'actor')) continue;
+
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) {
+      if ((actor.indexOf('device/') !== 0) && (actor.indexOf('place/') !== 0)) continue;
+      entry = result[id][actor];
+      if (!!entry.name) names[actor] = entry.name;
+    }
+  }
+
+  return names;
+};
+
 
 // returns an object with members named by tag (e.g., "living room'), each member is an array
 

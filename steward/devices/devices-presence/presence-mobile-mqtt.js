@@ -1,6 +1,7 @@
 // http://mqttitude.org
 
 var geocoder    = require('geocoder')
+  , googlemaps  = require('googlemaps')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -33,6 +34,7 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
+  self.points = [];
   self.update(self, info.params);
 
   self.events = {};
@@ -50,7 +52,7 @@ util.inherits(Mobile, presence.Device);
 
 
 Mobile.prototype.update = function(self, params, status) {
-  var key, location, param, updateP;
+  var i, key, location, markers, param, updateP;
 
   updateP = false;
   if ((!!status) && (status !== self.status)) {
@@ -83,6 +85,24 @@ Mobile.prototype.update = function(self, params, status) {
         self.changed();
       });
     }
+
+// NB: should just report the points and let the client do the needful; but for now, we'll just cook up a static map
+    if (self.points.length > 1) {
+      location = self.points[self.points.length - 1].split(',');
+      i = getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1], location[0], location[1]);
+console.log('>>> ' + i);
+      if (i >= 0.4) {
+        self.points.push(self.info.location.slice(0,2).join(','));
+        if (self.points.length > 25) self.points.splice(0, 25);
+        markers = [];
+        for (i = 0; i < self.points.length; i++) markers.push({ location: self.points[i], color: 'red', shadow: 'false' });
+
+        self.info.staticmap = googlemaps.staticMap(self.points[0], 15, '250x250', false, false, 'roadmap', markers,
+           [ { feature: 'road',   element: 'all', rules: { hue: '0x16161d' } } ]
+           [ { color: '0x0000ff', weight: '5',    points: self.points        } ]);
+        if (self.info.staticmap.indexOf('http://') === 0) self.info.staticmap = 'https' + self.info.staticmap.slice(4);
+      }
+    }
   }
 
   if (updateP) self.changed();
@@ -99,6 +119,26 @@ var array_cmp = function(a, b) {
   return true;
 };
 
+// from http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
+
+var getDistanceFromLatLonInKm = function (lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  return d;
+};
+
+var deg2rad = function(deg) {
+  return deg * (Math.PI/180);
+};
+
 
 exports.start = function() {
   steward.actors.device.presence.mobile = steward.actors.device.presence.mobile ||
@@ -108,11 +148,12 @@ exports.start = function() {
       { $info     : { type       : '/device/presence/mobile/mqtt'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name     : true
-                                   , status   : [ 'present', 'recent', 'absent' ]
-                                   , location : 'coordinates'
-                                   , accuracy : 'meters'
-                                   , physical : true
+                    , properties : { name      : true
+                                   , status    : [ 'present', 'recent', 'absent' ]
+                                   , location  : 'coordinates'
+                                   , accuracy  : 'meters'
+                                   , physical  : true
+                                   , staticmap : 'url'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

@@ -1,6 +1,7 @@
 
 var actors           = {}
   , place
+  , names            = {}
   , tags             = {}
   , multiple_arcs    = []
   , lastUpdated
@@ -58,6 +59,7 @@ var home = function(state) {
   message = state.message;
   place = thePlace(message);
   devices = mostDevices(message);
+  names = allNames(message);
   tags = allTags(message);
   categories = allCategories(message);
 
@@ -808,6 +810,23 @@ var single_device_arcs = function(device) {
                            , index  : a1 - 0.10
                            });
         continue;
+
+      case 'rankings':
+        if (!Array.isArray(v)) continue;
+        for (i = 0; i < v.length; ) {
+          v2 = v[i++];
+          v2 = names[v2] || v2;
+          arcs.splice(a0 + i , 0,
+                             { name   : prop
+                             , raw    : v2
+                             , label  : v2
+                             , cooked : (i == 1) ? (device.info.lqi + ' LQI') : ''
+                             , value  : clip2bars(i == 1 ? device.info.lqi : -127, -127, 128)
+                             , index  : a1 - (i * 0.10)
+                             });
+          if (i >= 4) break;
+        }
+        break;
 
       default:
         continue;

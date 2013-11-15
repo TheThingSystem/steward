@@ -423,6 +423,7 @@ var subscribe = function(params) {
     params = { lastSample: entry.tst * 1000 };
     if (entry._type === 'location') {
       params.location = [ entry.lat, entry.lon ];
+      if (!!entry.alt) params.location.push(entry.alt);
       if (!!entry.acc) params.accuracy = parseFloat(entry.acc);
     }
 
