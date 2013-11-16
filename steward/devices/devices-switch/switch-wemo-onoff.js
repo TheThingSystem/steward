@@ -144,7 +144,7 @@ WeMo_OnOff.prototype.perform = function(self, taskID, perform, parameter) {/* js
       break;
 
     default:
-      return;
+      return false;
   }
 
   discovery.upnp_roundtrip('device/' + self.deviceID, self.url,

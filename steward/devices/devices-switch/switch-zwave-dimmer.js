@@ -100,7 +100,7 @@ ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (perform === 'off') state.level = 0;
   else if (perform === 'on') state.level = (params.level > 0 && params.level < 100) ? params.level : 50;
-  else return;
+  else return false;
 
   state.status = state.level > 0 ? 'on' : 'off';
 

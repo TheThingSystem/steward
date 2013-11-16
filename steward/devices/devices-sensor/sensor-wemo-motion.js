@@ -66,7 +66,7 @@ WeMo_Motion.prototype.perform = function(self, taskID, perform, parameter) {/* j
       break;
 
     default:
-      return;
+      return false;
   }
 
   discovery.upnp_roundtrip('device/' + self.deviceID, self.url,

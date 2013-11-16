@@ -109,10 +109,10 @@ Prowl.prototype.perform = function(self, taskID, perform, parameter) {
   }
   if (perform !== 'growl') return false;
 
-  if ((!params.priority) || (!params.message) || (params.message.length === 0)) return;
+  if ((!params.priority) || (!params.message) || (params.message.length === 0)) return false;
 
   if ((!winston.config.syslog.levels[params.priority])
-        || (winston.config.syslog.levels[params.priority] < self.priority)) return;
+        || (winston.config.syslog.levels[params.priority] < self.priority)) return false;
 
   self.prowl.push(self.prefix + params.message, self.appname, self.growl);
   return steward.performed(taskID);

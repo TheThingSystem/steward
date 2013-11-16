@@ -24,6 +24,18 @@ exports.validRGB         = function(rgb) {
           && (0 <= rgb.g) && (rgb.g <= 255)
           && (0 <= rgb.b) && (rgb.b <= 255));
 };
+exports.validRGBOW       = function(rgbow) {
+  return (   (0 <= rgbow.r) && (rgbow.r <= 255)
+          && (0 <= rgbow.g) && (rgbow.g <= 255)
+          && (0 <= rgbow.b) && (rgbow.b <= 255)
+          && (0 <= rgbow.o) && (rgbow.o <= 255)
+          && (0 <= rgbow.w) && (rgbow.w <= 255));
+};
+exports.validRGB16       = function(rgb16) {
+  return (   (0 <= rgb16.r) && (rgb16.r <= 65535)
+          && (0 <= rgb16.g) && (rgb16.g <= 65535)
+          && (0 <= rgb16.b) && (rgb16.b <= 65535));
+};
 
 
 var Lighting = exports.Device = function() {

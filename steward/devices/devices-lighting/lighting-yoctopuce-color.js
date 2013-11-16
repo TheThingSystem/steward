@@ -75,7 +75,7 @@ util.inherits(Color, lighting.Device);
 Color.prototype.perform = function(self, taskID, perform, parameter) {
   var params, result, state;
 
-  state = { color: [ 0, 0, 0 ] };
+  state = { };
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
@@ -95,14 +95,14 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
 
     state.color = params.color || self.info.color;
     if (state.color.model === 'hue') {
-      if (!!!state.brightness) return;
+      if (!!!state.brightness) return false;
 
       state.color.model = 'rgb';
       state.color.rgb = tinycolor({ h : state.color.hue.hue
                                   , s : state.color.hue.saturation
                                   , l : state.brightness
                                   }).toRgb();
-    } else if ((state.color.model !== 'rgb') || !lighting.validRGB(state.color.rgb)) return;
+    } else if ((state.color.model !== 'rgb') || !lighting.validRGB(state.color.rgb)) return false;
   }
   if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;
 
