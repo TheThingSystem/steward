@@ -443,7 +443,7 @@ var place_info   = { name        : 'Home'
 
 var bootable = { ecobee         :
                  { text         : 'If you have an Ecobee SmartSi thermostat, the steward can manage it for you.'
-                 , instructions : 'Enter your appkey and credentials.'
+                 , instructions : 'Go to https://plus.google.com/communities/113042377519941328693 and ask for help, sorry!'
                  , site         : 'https://www.ecobee.com'
                  , icon         : ''
                  , name         : 'ecobee'
@@ -455,7 +455,7 @@ var bootable = { ecobee         :
                  }
                , koubachi       :
                  { text         : 'If you have a Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Enter your appkey and credentials.'
+                 , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back and appkey and credentials to fill-in below.'
                  , site         : 'https://mykoubachi.com'
                  , icon         : ''
                  , name         : 'koubachi'
@@ -504,7 +504,7 @@ var bootable = { ecobee         :
                  }
                , prowl          :
                  { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Generate an API key.'
+                 , instructions : 'Go to http://www.prowlapp.com, create an account, and generate an API key.'
                  , site         : 'https://prowlapp.com/login.php'
                  , icon         : ''
                  , name         : 'prowler'
@@ -528,8 +528,8 @@ var bootable = { ecobee         :
                  }
                , xively         :
                  { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
-                 , instructions : 'Xively will automatically generate a device key (apikey) and feed'
-                 , site         : 'https://xively.com/login'
+                 , instructions : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed'
+                 , site         : 'https://xlively.com/login'
                  , icon         : ''
                  , name         : 'xively'
                  , actor        : '/device/indicator/text/xively'

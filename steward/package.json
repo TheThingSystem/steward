@@ -3,10 +3,10 @@
   , "readmeFilename"        : "README.md"
   , "version"               : "0.0.1"
   , "private"               : true
-  , "engines"        : {
-      "node"                : ">=0.10.21"
+  , "engines"               : {
+      "node"                : ">=0.10.22"
     }
-  , "dependencies"   : {
+  , "dependencies"          : {
       "MD5"                 : "1.0.3"
     , "airplay"             : "git://github.com/TheThingSystem/node-airplay.git"
     , "async"               : "0.2.9"
@@ -38,6 +38,7 @@
     , "observer"            : "1.1.0"
     , "pcap"                : "git://github.com/TheThingSystem/node_pcap.git"
     , "pkginfo"             : "0.3.0"
+    , "pixelpusher"         : "git://github.com/TheThingSystem/node-pixelpusher.git"
     , "portfinder"          : "0.2.1"
     , "rfxcom"              : "git://github.com/TheThingSystem/node-rfxcom.git"
     , "robosmart"           : "0.1.1"
