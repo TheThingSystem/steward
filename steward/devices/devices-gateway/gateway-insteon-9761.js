@@ -153,7 +153,7 @@ Gateway.prototype.announce = function(self, id) {
   info.deviceType = deviceType;
   info.deviceType2 = info.device.model.name;
   info.id = info.device.unit.udn;
-  if (devices.devices[info.id]) return;
+  if (!!devices.devices[info.id]) return;
 
   logger.info('device/' + self.deviceID, { name: info.device.name, id: sixtoid(id),  description: deviceType });
   devices.discover(info);
@@ -835,7 +835,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
       default:     info.deviceType += 'smartlinc'; break;
     }
     info.id = info.device.unit.udn;
-    if (devices.devices[info.id]) return socket.destroy();
+    if (!!devices.devices[info.id]) return socket.destroy();
 
     utility.logger('discovery').info(tag, { id: address, description: description, firmware: firmware });
     devices.discover(info);

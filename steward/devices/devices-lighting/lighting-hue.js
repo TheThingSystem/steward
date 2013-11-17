@@ -588,7 +588,10 @@ var validate_perform_hue = function(perform, parameter) {
   var params = {}
     , result = { invalid: [], requires: [] };
 
-  if (perform !== 'set') result.invalid.push('perform');
+  if (perform !== 'set') {
+    result.invalid.push('perform');
+    return result;
+  }
 
   if (!parameter) {
     result.requires.push('parameter');
@@ -620,7 +623,10 @@ var validate_perform_bulb = function(perform, parameter) {
     return result;
   }
 
-  if (perform !== 'on') result.invalid.push('perform');
+  if (perform !== 'on') {
+    result.invalid.push('perform');
+    return result;
+  }
 
   color = params.color;
   if (!!color) {
@@ -721,7 +727,7 @@ var scan = function() {
         info.deviceType = info.device.model.name;
         info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
         info.id = info.device.unit.udn;
-        if (devices.devices[info.id]) return;
+        if (!!devices.devices[info.id]) return;
 
         logger2.info('nUPnP ' + info.device.name, { url: info.url });
         devices.discover(info);

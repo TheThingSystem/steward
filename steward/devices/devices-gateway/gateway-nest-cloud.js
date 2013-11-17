@@ -133,7 +133,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
            };
 
   udn = 'nest:' + id;
-  if (devices.devices[udn]) {
+  if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
     return sensor.update(sensor, params, online ? 'present' : 'absent');
   }

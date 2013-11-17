@@ -107,7 +107,7 @@ if (true) return;
     info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
     info.deviceType3 = 'urn:axis-com:service:BasicService:1';
     info.id = info.device.unit.udn;
-    if (devices.devices[info.id]) return;
+    if (!!devices.devices[info.id]) return;
 
     logger.info('mDNS ' + info.device.name, { url: info.url });
     devices.discover(info);

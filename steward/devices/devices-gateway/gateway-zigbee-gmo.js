@@ -246,7 +246,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
       info.deviceType = '/device/gateway/zigbee/gmo';
       info.id = info.device.unit.udn;
 
-      if (devices.devices[info.id]) return;
+      if (!!devices.devices[info.id]) return;
 
       utility.logger('discovery').info(tag, { url: info.url });
       devices.discover(info);

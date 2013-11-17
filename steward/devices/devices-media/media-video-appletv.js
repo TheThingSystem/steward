@@ -195,7 +195,7 @@ exports.start = function() {
 
       info.deviceType = '/device/media/appletv/video';
       info.id = info.device.unit.udn;
-      if (devices.devices[info.id]) return;
+      if (!!devices.devices[info.id]) return;
 
       discovery.info('mDNS ' + info.device.name, { url: info.url });
       devices.discover(info);

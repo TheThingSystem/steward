@@ -75,7 +75,7 @@ util.inherits(Color, lighting.Device);
 Color.prototype.perform = function(self, taskID, perform, parameter) {
   var params, result, state;
 
-  state = { };
+  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
@@ -137,7 +137,10 @@ var validate_perform = function(perform, parameter) {
 
   if (perform === 'set') return hub.validate_perform(perform, parameter);
 
-  if (perform !== 'on') result.invalid.push('perform');
+  if (perform !== 'on') {
+    result.invalid.push('perform');
+    return result;
+  }
 
   color = params.color;
   if (!!color) {

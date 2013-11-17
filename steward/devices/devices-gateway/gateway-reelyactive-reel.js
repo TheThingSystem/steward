@@ -90,7 +90,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
   info.url = info.device.url;
   info.deviceType = '/device/presence/reelyactive/tag';
   info.id = info.device.unit.udn;
-  if (devices.devices[info.id]) return;
+  if (!!devices.devices[info.id]) return;
 
   utility.logger('discovery').info(info.device.name);
   devices.discover(info);
@@ -139,7 +139,7 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
   info.url = info.device.url;
   info.deviceType = '/device/gateway/reelyactive/reelceiver';
   info.id = info.device.unit.udn;
-  if (devices.devices[info.id]) return;
+  if (!!devices.devices[info.id]) return;
 
   utility.logger('discovery').info(info.device.name);
   devices.discover(info);
@@ -202,7 +202,7 @@ var scan = function(portno) {
     info.url = info.device.url;
     info.deviceType = '/device/gateway/reelyactive/hublet';
     info.id = info.device.unit.udn;
-    if (devices.devices[info.id]) return;
+    if (!!devices.devices[info.id]) return;
 
     utility.logger('discovery').info(info.device.name, rinfo);
     devices.discover(info);

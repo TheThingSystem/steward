@@ -1,9 +1,4 @@
-// +++ under development
 // Heroic Robotics' PixelPusher -- http://www.heroicrobotics.com
-
-exports.start = function() {};
-return;
-
 
 var pixelpusher = require('pixelpusher')
   , util        = require('util')
@@ -22,86 +17,104 @@ var logger = lighting.logger;
 var PixelPusher = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  var id;
-
-  self.whatami = info.deviceType;
+  self.whatami = '/device/gateway/heroic-robotics/pixelpusher';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.controller = info.controller;
-  self.pixelpusher = self.controller.params.pixelpusher;
-  self.status = 'ready';
-  self.info = { controller: self.pixelpusher.controllerNo, group: self.pixelpusher.groupNo };
-  self.changed();
-  self.lights = {};
-
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
-    var light;
+    var led;
 
     if (request !== 'perform') return;
 
     deviceID = actor.split('/')[1];
     if (self.deviceID === deviceID) return devices.perform(self, taskID, perform, parameter);
-    for (light in self.lights) {
-      if (!self.lights.hasOwnProperty(light)) continue;
+    for (led in self.strips) {
+      if (!self.strips.hasOwnProperty(led)) continue;
 
-      if (self.lights[light].deviceID === deviceID) return self.perform(self, taskID, perform, parameter, light);
+      if (self.strips[led].deviceID === deviceID) return self.perform(self, taskID, perform, parameter, led);
     }
   });
 
-  for (id = 0; id < self.pixelpusher.numberStrips; id++) self.addchild(self, id);
+  self.update(self, info.controller);
 };
 util.inherits(PixelPusher, lighting.Device);
 
 
-PixelPusher.prototype.addchild = function(self, id) {
+PixelPusher.prototype.update = function(self, controller) {
+  var led;
+
+  if (self.status === 'absent') logger.warning('device/' + self.deviceID, { event: 're-acquired' });
+
+  self.controller = controller;
+  self.pixelpusher = self.controller.params.pixelpusher;
+  self.status = 'ready';
+  self.info = { nodeID: [ self.pixelpusher.groupNo, self.pixelpusher.controllerNo ] };
+  self.changed();
+  self.strips = {};
+
+  self.controller.on('update', function() {
+    self.status = 'ready';
+    self.changed();
+  }).on('timeout', function() {
+    logger.error('device/' + self.deviceID, { event: 'timeout' });
+
+    self.status = 'absent';
+    self.changed();
+  });
+
+  for (led = 0; led < self.pixelpusher.numberStrips; led++) { self.addchild(self, led); break; }
+};
+
+PixelPusher.prototype.addchild = function(self, led) {
   var deviceUID, state, whatami;
 
-  deviceUID = self.deviceUID + '/strips/' + id;
+  deviceUID = self.deviceUID + '/strips/' + led;
   whatami = '/device/lighting/heroic-robotics/rgb';
-  state = { color: { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } }, brightness: 0 };
+  state = { color: { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } } };
   if (!!self.pixelpusher.stripFlags) {
-    if (self.pixelpusher.stripFlags & 0x01) {
-      whatami = '/device/lighting/heroic-robotics/rgbow';
-      state = { color: { model: 'rgbow', rgbow: { r: 0, g: 0, b: 0, o: 0, w: 0 } }, brightness: 0 };
-    } else if (self.pixelpusher.stripFlags & 0x02) {
+    if (self.pixelpusher.stripFlags & 0x02) {
       whatami = '/device/lighting/heroic-robotics/rgb16';
-      state = { color: { model: 'rgb16', rgb16: { r: 0, g: 0, b: 0 } }, brightness: 0 };
+      state = { color: { model: 'rgb16', rgb16: { r: 0, g: 0, b: 0 } } };
+    } else if (self.pixelpusher.stripFlags & 0x01) {
+      whatami = '/device/lighting/heroic-robotics/rgbow';
+      state = { color: { model: 'rgbow', rgbow: { r: 0, g: 0, b: 0, o: 0, w: 0 } } };
     }
   }
   state.on = false;
-  self.lights[id] = { whatami : whatami
-                    , name    : id.toString()
-                    , status  : 'off'
-                    , state   : state
-                    };
+  self.strips[led] = { whatami : whatami
+                     , type    : whatami
+                     , name    : 'LED strip #' + led.toString()
+                     , status  : 'off'
+                     , state   : state
+                     , number  : self.pixelpusher.pixelsPerStrip
+                     , updated : self.updated
+                     };
 
   db.get('SELECT deviceID, deviceType, deviceName FROM devices WHERE deviceUID=$deviceUID',
          { $deviceUID: deviceUID }, function(err, row) {
     if (err) {
-      logger.error('device/' + self.deviceID, { event: 'SELECT device.deviceUID for light ' + id, diagnostic: err.message });
+      logger.error('device/' + self.deviceID, { event: 'SELECT device.deviceUID for LED ' + led, diagnostic: err.message });
       return;
     }
 
     if (row !== undefined) {
-      self.lights[id].deviceID = row.deviceID.toString();
-      self.lights[id].type = row.deviceType;
-      self.lights[id].name = row.deviceName;
+      self.strips[led].deviceID = row.deviceID.toString();
+      self.strips[led].name = row.deviceName;
       return;
     }
 
-    db.run('INSERT INTO devices(deviceUID, parentID, childID, deviceType, created) '
-           + 'VALUES($deviceUID, $parentID, $childID, $deviceType, datetime("now"))',
-           { $deviceUID: deviceUID, $parentID: self.deviceID, $deviceType: whatami, $childID: id }, function(err) {
+    db.run('INSERT INTO devices(deviceUID, parentID, childID, deviceType, deviceName, created) '
+           + 'VALUES($deviceUID, $parentID, $childID, $deviceType, $deviceName, datetime("now"))',
+           { $deviceUID: deviceUID, $parentID: self.deviceID, $deviceType: whatami, $deviceName: self.strips[led].name,
+             $childID: led }, function(err) {
       if (err) {
         logger.error('device/' + self.deviceID,
-                     { event: 'INSERT device.deviceUID for light ' + id, diagnostic: err.message });
+                     { event: 'INSERT device.deviceUID for LED ' + led, diagnostic: err.message });
         return;
       }
 
-      self.lights[id].deviceID = this.lastID.toString();
-      self.lights[id].type = whatami;
+      self.strips[led].deviceID = this.lastID.toString();
     });
   });
 };
@@ -110,59 +123,66 @@ PixelPusher.prototype.addchild = function(self, id) {
 PixelPusher.prototype.children = function() {
   var self = this;
 
-  var children, light;
+  var children, led;
 
   children = [];
-  for (light in self.lights) if (self.lights.hasOwnProperty(light)) children.push(childprops(self, light));
+  for (led in self.strips) if (self.strips.hasOwnProperty(led)) children.push(childprops(self, led));
 
   return children;
 };
 
-var childprops = function(self, light) {
-  var child, prop, props;
+var childprops = function(self, led) {
+  var child, props;
 
-  child = {};
-  props = self.lights[light];
-  for (prop in props) if (props.hasOwnProperty(prop)) child[prop] = props[prop];
-
-  child.id = light;
-  child.discovery = { id: child.id, source: 'device/' + self.deviceID, deviceType: child.type };
-  child.whoami = 'device/' + child.deviceID;
-
-  if (!!child.state) {
-    child.status = child.state.on ? 'on' : 'off';
-    child.info = { color: child.state.color, brightness: child.state.on ? 100 : 0 };
-    child.updated = props.updated;
-  }
+  props = self.strips[led];
+  child = { id        : led
+          , discovery : { id: led, source: 'device/' + self.deviceID  }
+          , whatami   : props.type
+          , whoami    : 'device/' + props.deviceID
+          , name      : props.name
+          , status    : props.state.on ? 'on' : 'off'
+          , info      : { color: props.state.color, pps: self.pixelpusher.pixelsPerStrip }
+          , deviceID  : props.deviceID
+          , updated   : props.updated
+          };
 
   child.proplist = devices.Device.prototype.proplist;
+  child.setName = devices.Device.prototype.setName;
 
-  child.perform = function(led, taskID, perform, parameter) { return self.perform(self, taskID, perform, parameter, light); };
+  child.perform = function(strip, taskID, perform, parameter) { return self.perform(self, taskID, perform, parameter, led); };
 
   return child;
 };
 
-PixelPusher.prototype.perform = function(self, taskID, perform, parameter, light) {
-  var i, offset, params, pixel, pixels, rgb, rgbow, rgb16, state, width;
+PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) {
+  var i, offset, params, pixel, pixels, props, rgb, rgb16, rgbow, state, width;
 
-  state = { };
+  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') return devices.perform(self.lights[light], taskID, perform, parameter);
+  props = self.strips[led];
+  if (perform === 'set') {
+    if (!!params.name) return childprops(self, led).setName(params.name, taskID);
+
+    return false;
+  }
 
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
     state.on = true;
 
-    if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) return false;
-
-    state.color = params.color || self.info.color;
-    switch (state.color) {
+    state.color = params.color || props.state.color;
+    switch (state.color.model) {
       case 'rgb':
         if (!lighting.validRGB(state.color.rgb)) return false;
         rgb = state.color.rgb;
         if ((rgb.r === 0) && (rgb.g === 0) && (rgb.b === 0)) state.on = false;
+        break;
+
+      case 'rgb16':
+        if (!lighting.validRGB16(state.color.rgb16)) return false;
+        if ((state.color.rgb16.r === 0) && (state.color.rgb16.g === 0) && (state.color.rgb16.b === 0)) state.on = false;
         break;
 
       case 'rgbow':
@@ -171,76 +191,58 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, light
                 && (state.color.rgbow.o === 0) && (state.color.rgbow.w === 0)) state.on = false;
         break;
 
-      case 'rgb16':
-        if (!lighting.validRGB16(state.color.rgb16)) return false;
-        if ((state.color.rgb16.r === 0) && (state.color.rgb16.g === 0) && (state.color.rgb16.b === 0)) state.on = false;
-        break;
-
       default:
         return false;
     }
   }
   if (!state.on) state.color = { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } };
 
-  logger.info('device/' + self.lights[light].deviceID, { perform: state });
+  logger.info('device/' + props.deviceID, { perform: state });
 
-  if (self.lights[light].state.color.model != state.color.model) {
-    if (state.color.model === 'rgbow') {
-      state.color = { model: 'rgb', rgb: { r: state.color.rgbow.r, g: state.color.rgbow.g, b: state.color.rgbow.b } };
-    } else if (state.color.model === 'rgb16') {
-      state.color = { model: 'rgb', rgb: { r : state.color.rgb16.r >> 8
-                                         , g : state.color.rgb16.g >> 8
-                                         , b : state.color.rgb16.b >> 8
-                                         } };
+  if (props.state.color.model != state.color.model) {
+    if (state.color.model === 'rgb16') {
+      state.color = { model: 'rgb'
+                    , rgb: { r : state.color.rgb16.r >> 8, g : state.color.rgb16.g >> 8, b : state.color.rgb16.b >> 8 }
+                    };
+    } else if (state.color.model === 'rgbow') {
+      state.color = { model: 'rgb'
+                    , rgb: { r: state.color.rgbow.r,       g: state.color.rgbow.g,       b: state.color.rgbow.b       }
+                    };
     }
   }
 
-  switch (self.lights[light].state.color.model) {
+  switch (props.state.color.model) {
     case 'rgb':
       rgb = state.color.rgb;
 
-      pixel = new Buffer(width = 3);
-      pixel.data[0] = rgb.r;
-      pixel.data[1] = rgb.r;
-      pixel.data[2] = rgb.r;
-      break;
-
-    case 'rgbow':
-      if (state.color.model === 'rgb') {
-        state.color = { model: 'rgbow', rgbow: { r: state.color.rgb.r, g: state.color.rgb.g, b: state.color.rgb.b,
-                                                 o: 0,                 w: 0
-                                               } };
-      }
-      rgbow = state.color.rgbow;
-
-      pixel = new Buffer(width = 9);
-      pixel.data[0] = rgbow.r;
-      pixel.data[1] = rgbow.g;
-      pixel.data[2] = rgbow.b;
-      pixel.data[3] = rgbow.o;
-      pixel.data[4] = rgbow.o;
-      pixel.data[5] = rgbow.o;
-      pixel.data[6] = rgbow.w;
-      pixel.data[7] = rgbow.w;
-      pixel.data[8] = rgbow.w;
+      width = 3;
+      pixel = new Buffer(width);
+      pixel[0] = rgb.r; pixel[1] = rgb.g; pixel[2] = rgb.b;
       break;
 
     case 'rgb16':
       if (state.color.model === 'rgb') {
-        state.color = { model: 'rgb16', rgb16: { r: state.color.rgb.r << 8
-                                               , g: state.color.rgb.g << 8
-                                               , b: state.color.rgb.b << 8
-                                               } };
+        state.color = { model: 'rgb16', rgb16: { r: state.color.rgb.r<<8, g: state.color.rgb.g<<8, b: state.color.rgb.b<<8 } };
       }
       rgb16 = state.color.rgb16;
 
-      pixel = new Buffer(width = 6);
-      pixel.data[0] = rgb16.r >> 8;
-      pixel.data[1] = rgb16.g >> 8;
-      pixel.data[2] = rgb16.b >> 8;
-      pixel.data[3] = rgb16.r & 0xff;
-      pixel.data[4] = rgb16.g & 0xff;
-      pixel.data[5] = rgb16.b & 0xff;
+      width = 6;
+      pixel = new Buffer(width);
+      pixel[0] = rgb16.r >> 8;   pixel[1] = rgb16.g >> 8;   pixel[2] = rgb16.b >> 8;
+      pixel[3] = rgb16.r & 0xff; pixel[4] = rgb16.g & 0xff; pixel[5] = rgb16.b & 0xff;
+      break;
+
+    case 'rgbow':
+      if (state.color.model === 'rgb') {
+        state.color = { model: 'rgbow', rgbow: { r: state.color.rgb.r, g: state.color.rgb.g, b: state.color.rgb.b,o: 0,w: 0 } };
+      }
+      rgbow = state.color.rgbow;
+
+      width = 9;
+      pixel = new Buffer(width);
+      pixel[0] = rgbow.r; pixel[1] = rgbow.g; pixel[2] = rgbow.b;
+      pixel[3] = rgbow.o; pixel[4] = rgbow.o; pixel[5] = rgbow.o;
+      pixel[6] = rgbow.w; pixel[7] = rgbow.w; pixel[8] = rgbow.w;
       break;
 
     default:
@@ -249,12 +251,12 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, light
 
   pixels = new Buffer(self.pixelpusher.pixelsPerStrip * width);
   for (i = offset = 0; i < self.pixelpusher.pixelsPerStrip; i++, offset += width) pixel.copy(pixels, offset);
-  self.controller.refresh([ { number: 0, data: pixels } ]);
+  self.controller.refresh([ { number: +led, data: pixels } ]);
 
   self.status = state.on ? 'on' : 'off';
-  if (state.on) self.info.color = state.color;
-  self.info.brightness = state.on ? 100 : 0;
+  if (state.on) self.strips[led].state.color = state.color;
   self.changed();
+  self.strips[led].updated = self.updated;
 
   return steward.performed(taskID);
 };
@@ -278,7 +280,10 @@ var validate_perform_led = function(perform, parameter) {
     return result;
   }
 
-  if (perform !== 'on') result.invalid.push('perform');
+  if (perform !== 'on') {
+    result.invalid.push('perform');
+    return result;
+  }
 
   color = params.color;
   if (!!color) {
@@ -287,12 +292,12 @@ var validate_perform_led = function(perform, parameter) {
           if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
           break;
 
-        case 'rgbow':
-          if (!lighting.validRGBOW(color.rgbow)) result.invalid.push('color.rgbow');
-          break;
-
         case 'rgb16':
           if (!lighting.validRGB16(color.rgb)) result.invalid.push('color.rgb16');
+          break;
+
+        case 'rgbow':
+          if (!lighting.validRGBOW(color.rgbow)) result.invalid.push('color.rgbow');
           break;
 
         default:
@@ -300,8 +305,6 @@ var validate_perform_led = function(perform, parameter) {
           break;
     }
   }
-
-  if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 
   return result;
 };
@@ -311,7 +314,7 @@ var scan = function() {
   var logger2 = utility.logger('discovery');
 
   new pixelpusher().on('discover', function(controller) {
-    var info, serialNo;
+    var device, info, serialNo;
 
     serialNo = controller.params.macAddress.split(':').join('');
     info = { source     : 'UDP'
@@ -333,13 +336,17 @@ var scan = function() {
     info.deviceType = info.device.model.name;
     info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
     info.id = info.device.unit.udn;
-    if (devices.devices[info.id]) return;
+    if (!!devices.devices[info.id]) {
+      device = devices.devices[info.id].device;
+      if (!!device) device.update(device, controller);
+      return;
+    }
 
     logger2.info('UDP ' + info.device.name, { url: info.url });
     devices.discover(info);
   }).on('error', function(err) {
     logger2.error('PixelPusher', { diagnostic: err.message });
-  });
+  }).logger = logger2;
 };
 
 
@@ -349,14 +356,13 @@ exports.start = function() {
   steward.actors.device.gateway['heroic-robotics'] = steward.actors.device.gateway['heroic-robotics'] ||
       { $info     : { type: '/device/gateway/heroic-robotics' } };
 
-  steward.actors.device.gateway['heroic-robotics'].bridge =
+  steward.actors.device.gateway['heroic-robotics'].pixelpusher =
       { $info     : { type       : '/device/gateway/heroic-robotics/pixelpusher'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name       : true
-                                   , status     : [ 'ready' ]
-                                   , controller : 's32'
-                                   , group      : 's32'
+                    , properties : { name   : true
+                                   , status : [ 'ready', 'absent' ]
+                                   , nodeID : 'array'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform
@@ -373,29 +379,10 @@ exports.start = function() {
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
                                    , status     : [ 'on', 'off' ]
-                                   , pixels     : 'u16'
+                                   , pps        : 'u16'
                                    , color      : { model: [ { rgb         : { r: 'u8',  g: 'u8',  b: 'u8' } }
                                                            ]
                                                   }
-                                   , brightness : 'percentage'
-                                   }
-                    }
-      , $validate : { perform    : validate_perform_led }
-      };
-
-  steward.actors.device.lighting['heroic-robotics'].rgbow =
-      { $info     : { type       : '/device/lighting/heroic-robotics/rgbow'
-                    , observe    : [ ]
-                    , perform    : [ 'off', 'on' ]
-                    , properties : { name       : true
-                                   , status     : [ 'on', 'off' ]
-                                   , pixels     : 'u16'
-                                   , color      : { model: [ { rgb         : { r: 'u8',  g: 'u8',  b: 'u8' } }
-                                                           , { rgbow       : { r: 'u8',  g: 'u8',  b: 'u8'
-                                                                             ,  o: 'u8',  w: 'u8' } }
-                                                           ]
-                                                  }
-                                   , brightness : 'percentage'
                                    }
                     }
       , $validate : { perform    : validate_perform_led }
@@ -407,12 +394,28 @@ exports.start = function() {
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
                                    , status     : [ 'on', 'off' ]
-                                   , pixels     : 'u16'
+                                   , pps        : 'u16'
                                    , color      : { model: [ { rgb         : { r: 'u8',   g: 'u8',   b: 'u8'  } }
                                                            , { rgb16       : { r: 'u16',  g: 'u16',  b: 'u16' } }
                                                            ]
                                                   }
-                                   , brightness : 'percentage'
+                                   }
+                    }
+      , $validate : { perform    : validate_perform_led }
+      };
+
+  steward.actors.device.lighting['heroic-robotics'].rgbow =
+      { $info     : { type       : '/device/lighting/heroic-robotics/rgbow'
+                    , observe    : [ ]
+                    , perform    : [ 'off', 'on' ]
+                    , properties : { name       : true
+                                   , status     : [ 'on', 'off' ]
+                                   , pps        : 'u16'
+                                   , color      : { model: [ { rgb         : { r: 'u8',  g: 'u8',  b: 'u8' } }
+                                                           , { rgbow       : { r: 'u8',  g: 'u8',  b: 'u8'
+                                                                             , o: 'u8',  w: 'u8' } }
+                                                           ]
+                                                  }
                                    }
                     }
       , $validate : { perform    : validate_perform_led }

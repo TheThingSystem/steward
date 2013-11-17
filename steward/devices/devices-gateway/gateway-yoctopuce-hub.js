@@ -114,6 +114,7 @@ exports.validate_perform = function(perform, parameter) {
     result.invalid.push('perform');
     return result;
   }
+
   if (!parameter) {
     result.requires.push('parameter');
     return result;

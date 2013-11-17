@@ -140,7 +140,10 @@ var validate_perform = function(perform, parameter) {
     return result;
   }
 
-  if (perform !== 'on') result.invalid.push('perform');
+  if (perform !== 'on') {
+    result.invalid.push('perform');
+    return result;
+  }
 
   if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 

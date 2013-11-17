@@ -429,7 +429,7 @@ var subscribe = function(params) {
 
     if (!devices) devices = require('./device');
     udn = 'mqtt:' + parts.slice(0, 3).join('/');
-    if (devices.devices[udn]) {
+    if (!!devices.devices[udn]) {
       device = devices.devices[udn].device;
       if (!device) return;    // not ready yet, drop it
       if (parts.length !== 3) return device.detail(device, entry);

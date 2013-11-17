@@ -62,7 +62,7 @@ exports.start = function() {
     info.url = info.device.url;
     info.deviceType = deviceType || '/device/presence/fob/ble';
     info.id = 'uuid:' + info.device.unit.udn;
-    if (devices.devices[info.id]) return;
+    if (!!devices.devices[info.id]) return;
 
     logger.info('BLE ' + info.device.name, { uuid: peripheral.uuid });
     devices.discover(info);

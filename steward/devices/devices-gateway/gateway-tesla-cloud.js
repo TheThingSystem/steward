@@ -80,7 +80,7 @@ Cloud.prototype.addvehicle = function(self, vehicle) {
   var color, colors, description, i, info, name, number, option, options, udn;
 
   udn = 'tesla:' + vehicle.id;
-  if (devices.devices[udn]) return;
+  if (!!devices.devices[udn]) return;
 
   colors = { PBSB : 'Black'
            , PBCW : 'Solid White'

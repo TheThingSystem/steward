@@ -137,7 +137,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
            };
 
   udn = 'netatmo:' + station._id;
-  if (devices.devices[udn]) {
+  if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
     return sensor.update(sensor, params);
   }

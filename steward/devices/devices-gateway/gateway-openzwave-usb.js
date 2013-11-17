@@ -165,7 +165,7 @@ var scan1 = function(driver) {
       nodes[nodeid] = props;
 
       udn = 'openzwave:' + homeid.toString(16) + ':' + nodeid;
-      if (devices.devices[udn]) return;
+      if (!!devices.devices[udn]) return;
 
       info = { source: comName, driver: zwave, peripheral: nodes[nodeid] };
       info.device = { url          : null
@@ -197,7 +197,7 @@ var scan1 = function(driver) {
         oops.diagnostic = 'no deviceType';
         return logger2.warning(info.id, oops);
       }
-      if (devices.devices[info.id]) return;
+      if (!!devices.devices[info.id]) return;
 
       logger2.info(info.id, { manufacturer : props.manufacturer
                             , product      : props.product

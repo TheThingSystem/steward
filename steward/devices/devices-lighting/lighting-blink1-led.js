@@ -90,7 +90,10 @@ var validate_perform = function(perform, parameter) {
     return result;
   }
 
-  if (perform !== 'on') result.invalid.push('perform');
+  if (perform !== 'on') {
+    result.invalid.push('perform');
+    return result;
+  }
 
   color = params.color;
   if (!color) result.requires.push('color');
@@ -110,7 +113,7 @@ var scan = function() {
   for (i = 0; i < serials.length; i++) {
     serial = serials[i];
     udn = 'blink1:' + serial;
-    if (devices.devices[udn]) continue;
+    if (!!devices.devices[udn]) continue;
 
     led = new blink1.Blink1(serial);
 
@@ -129,7 +132,7 @@ var scan = function() {
       info.url = info.device.url;
       info.deviceType = '/device/lighting/blink1/led';
       info.id = info.device.unit.udn;
-      if (devices.devices[info.id]) return;
+      if (!!devices.devices[info.id]) return;
 
       devices.discover(info);
   }

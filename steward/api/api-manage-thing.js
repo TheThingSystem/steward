@@ -259,7 +259,7 @@ var register = exports.register = function(logger, ws, api, message, tag) {
     info.id = info.device.unit.udn;
 
 // TBD: see if we still have a connection to the thing...
-    if (devices.devices[info.id]) {
+    if (!!devices.devices[info.id]) {
       results.things[thingID] = { error: { permanent: false, diagnostic: 'UDN is already registered' } };
       continue;
     }

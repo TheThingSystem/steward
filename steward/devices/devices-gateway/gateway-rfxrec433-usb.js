@@ -74,7 +74,7 @@ Gateway.prototype.thX = function(self, evt) {
            };
 
   udn = 'rfxcom:th:' + evt.id;
-  if (devices.devices[udn]) {
+  if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
     return sensor.update(sensor, params);
   }
@@ -112,7 +112,7 @@ var scan = function() {
     for (i = 0; i < results.length; i++) {
       device = results[i];
       udn = 'rfxcom:' + device.serialNumber;
-      if (devices.devices[udn]) continue;
+      if (!!devices.devices[udn]) continue;
 
       rfx = new rfxcom.RfxCom(device.comName, { debug: true, logger: utility.logger('discovery') });
 
@@ -131,7 +131,7 @@ var scan = function() {
       info.url = info.device.url;
       info.deviceType = '/device/gateway/rfxrec433/usb';
       info.id = info.device.unit.udn;
-      if (devices.devices[info.id]) return;
+      if (!!devices.devices[info.id]) return;
 
       utility.logger('discovery').info(device.comName, { manufacturer : device.manufacturer
                                                        , vendorID     : device.vendorId

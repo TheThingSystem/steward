@@ -160,7 +160,11 @@ exports.ssdp_discover = function(info, options, callback) {
       }
 
       try { parser.parseString(content, function(err, data) {
-        if (err) return logger.error('discovery', { event: 'parser.parseString', content: content, diagnostic: err.message });
+        if (err) return logger.error('discovery', { event      : 'parser.parseString'
+                                                  , options    : options
+                                                  , content    : content
+                                                  , diagnostic : err.message
+                                                  });
         if (!data) data = { root: {} };
         if (!data.root.device) {
           data.root.device = [ { friendlyName     : [ '' ]
@@ -199,14 +203,11 @@ exports.ssdp_discover = function(info, options, callback) {
         }
 // NB: pity we don't have a pattern matcher and could put in a /device/... whatami path here...
         info.id = info.device.unit.udn;
-        if (devices.devices[info.id]) return;
+        if (!!devices.devices[info.id]) return;
 
         logger.info('UPnP ' + info.device.name, { url: info.url });
         devices.discover(info);
-      }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message });
-console.log('>>> ' + JSON.stringify(info));
-console.log(content);
- }
+      }); } catch(ex) { logger.error('discovery', { event: 'SSDP parse', diagnostic: ex.message }); }
       if (!!callback) callback(null);
     }).on('close', function() {
       if (!!callback) return callback(new Error('premature EOF'));
@@ -303,7 +304,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
         var faults, i, results, s;
 
         if (err) {
-          logger.error(tag, { event: 'parser.parseString', content: content, diagnostic: err.message });
+          logger.error(tag, { event: 'parser.parseString', options: options, content: content, diagnostic: err.message });
           data = {};
         } else if (!data) data = {};
 

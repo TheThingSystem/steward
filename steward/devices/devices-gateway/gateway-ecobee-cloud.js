@@ -375,7 +375,7 @@ Cloud.prototype.scan = function(self) {
       revision = entry[5];
 
       udn = 'ecobee:' + id;
-      if (devices.devices[udn]) {
+      if (!!devices.devices[udn]) {
         sensor = devices.devices[udn].device;
         if ((!!sensor.revision) && (sensor.revision === revision)) {
           sensor.updated = new Date().getTime();
@@ -477,7 +477,7 @@ Cloud.prototype.addstation = function(self, id, station, name, actual, lastModif
            };
 
   udn = 'ecobee:' + id;
-  if (devices.devices[udn]) {
+  if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
     sensor.revision = revision;
     return sensor.update(sensor, params, actual.connected ? 'present' : 'absent');

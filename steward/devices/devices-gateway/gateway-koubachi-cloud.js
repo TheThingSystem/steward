@@ -132,7 +132,7 @@ Cloud.prototype.addstation = function(self, station) {
            };
 
   udn = 'koubachi:' + station.mac_address;
-  if (devices.devices[udn]) {
+  if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
     return sensor.update(sensor, params);
   }
@@ -186,7 +186,7 @@ Cloud.prototype.addplant = function(self, plant) {
            };
 
   udn = 'koubachi:' + plant.id;
-  if (devices.devices[udn]) {
+  if (!!devices.devices[udn]) {
     device = devices.devices[udn].device;
     return device.update(device, params);
   }
