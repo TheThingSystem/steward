@@ -743,7 +743,7 @@ var showPop = function(device) {
 	   } else {
 	      newPerform.perform = "on";
 	      endLeft = onOffSlider.max
-	      if (type === "lighting") {
+	      if (type && type === "lighting") {
 	        if (newPerform.parameter.hasOwnProperty("color") &&
 	            newPerform.parameter.color.hasOwnProperty("rgb") &&
 	            objEquals(newPerform.parameter.color.rgb, {r:0, g:0, b:0})) {

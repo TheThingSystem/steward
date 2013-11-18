@@ -219,7 +219,7 @@ var home = function(state) {
     lastUpdated = [];
     
     for (var i = 0; i < updates.length; i++) {
-      update = message[".updates"][i];
+      update = updates[i];
 
       if ((update.info.whatami && update.info.whatami.match(/\/device\/gateway\//)) ||
        (update.whatami && update.whatami.match(/\/device\/gateway\//))) {
