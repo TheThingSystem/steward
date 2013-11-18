@@ -86,7 +86,7 @@ Mobile.prototype.update = function(self, params, status) {
       });
     }
 
-// NB: should just report the points and let the client do the needful; but for now, we'll just cook up a static map
+// TBD: should just report the points and let the client do the needful; but for now, we'll just cook up a static map
     if (self.points.length > 0) {
       location = self.points[self.points.length - 1].split(',');
       i = getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1], location[0], location[1]);
@@ -96,7 +96,7 @@ Mobile.prototype.update = function(self, params, status) {
         markers = [];
         for (i = 0; i < self.points.length; i++) markers.push({ location: self.points[i], color: 'red', shadow: 'false' });
 
-        self.info.staticmap = googlemaps.staticMap(self.points[0], 15, '250x250', false, false, 'roadmap', markers,
+        self.info.staticmap = googlemaps.staticMap(self.points[0], '', '250x250', false, false, 'roadmap', markers,
            [ { feature: 'road',   element: 'all', rules: { hue: '0x16161d' } } ]
            [ { color: '0x0000ff', weight: '5',    points: self.points        } ]);
         if (self.info.staticmap.indexOf('http://') === 0) self.info.staticmap = 'https' + self.info.staticmap.slice(4);
