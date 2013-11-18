@@ -72,7 +72,6 @@ var login = function(evt) {
 
   if (!!code) code = code.replace(/^\s+|\s+$/g, '');
   if ((!code) || (code.length === 0)) {
-    alert('invalid login code');
     return false;
   }
 
@@ -177,12 +176,10 @@ var go = function(steward) {
 	  }
     }
   
-    ws2.onclose = function(evt) {
-	  console.log("/manage socket closed");
-    }
+    ws2.onclose = function(evt) { }
   
     ws2.onerror = function(evt) {
-	  console.log("/manage socket error: " + evt.reason);
+	  notify("", evt.reason); ;
 	  ws2.close()
 	  location.reload();
     }
@@ -249,8 +246,8 @@ var go = function(steward) {
     }
   }
     
-  ws.onclose = function(event) { console.log("/console socket closed"); };
-  ws.onerror = function(event) { console.log("/console socket error"); };
+  ws.onclose = function(evt) { notify("", "Connection lost. Restart steward and refresh browser."); };
+  ws.onerror = function(evt) { notify("", evt.reason); };
 
   
   var onlogin = function(message) {

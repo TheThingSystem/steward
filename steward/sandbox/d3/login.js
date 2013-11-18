@@ -339,16 +339,16 @@ function geolocate() {
 	function(err) {
 	  switch (err.code) {
 		case 1:
-		  alert("Permission denied by user.");
+		  notify("Geolocator", "Permission denied by user.");
 		  break;
 		case 2:
-		  alert("Position unavailable.");
+		  notify("Geolocator", "Position unavailable.");
 		  break;
 		case 3:
-		  alert("Service timed out.");
+		  notify("Geolocator", "Service timed out.");
 		  break;
 		default:
-		  alert("Position error:" + err.message);
+		  notify("Geolocator", "Position error:" + err.message);
 	  }
 	},
 	{'enableHighAccuracy': false, 'timeout': 10000, 'maximumAge': 0});
@@ -377,7 +377,7 @@ function geocode() {
 			  savePlace();
 			  
 			} else {
-			  alert('Sorry, the address cannot be converted to coordinates.');
+			  notify("Geolocator", "Sorry, the address cannot be converted to coordinates.");
 			}
 		  }
 		} catch(ex) { console.log(ex); }
@@ -387,7 +387,7 @@ function geocode() {
 	  req.open('GET', url , true);
 	  req.send(null);
   } else {
-    alert("Please enter a street address.");
+    notify("Geolocator", "Please enter a street address.");
   }
   return false;
 }
@@ -428,7 +428,7 @@ var addCloud = function(evt) {
                          , info      : info || {}
                          });
     wsSend(val);
-    alert(name + " cloud service added to the steward.")
+    notify(name, "Cloud service added to the steward.")
     document.getElementById("bootChoice0").value = "";
     document.getElementById("bootChoice1").value = "";
   }

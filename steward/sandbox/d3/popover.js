@@ -236,12 +236,12 @@ var showPop = function(device) {
          .attr("class", "on-off-slider")
          .append("img")
            .attr("src", "popovers/assets/slider.on-off.svg")
-           .on("click", toggleOnOff);
+           .on("click", function() { toggleOnOff("lighting"); });
        div.append("div")
          .attr("class", "on-off-knob")
          .attr("id", "on-off-knob")
          .style("left", function() { return ((device.status === "on") ? onOffSlider.max : onOffSlider.min) + "px" })
-         .on("click", toggleOnOff)
+         .on("click", function() { toggleOnOff("lighting"); })
          .append("img")
            .attr("src", "popovers/assets/knob.small.svg");
        div.append("div")
@@ -735,7 +735,7 @@ var showPop = function(device) {
 
     };
     
-	function toggleOnOff() {
+	function toggleOnOff(type) {
 	   var endLeft
 	   if (newPerform.perform === "on") {
 	      newPerform.perform = "off";
@@ -743,12 +743,27 @@ var showPop = function(device) {
 	   } else {
 	      newPerform.perform = "on";
 	      endLeft = onOffSlider.max
+	      if (type === "lighting") {
+	        if (newPerform.parameter.hasOwnProperty("color") &&
+	            newPerform.parameter.color.hasOwnProperty("rgb") &&
+	            objEquals(newPerform.parameter.color.rgb, {r:0, g:0, b:0})) {
+	              newPerform.parameter.color.rgb = {r:255, g:255, b:255};
+	        }
+	      }
 	   }
 	   d3.select("#on-off-knob")
 	      .transition().each("end", sendData())
 	      .duration(600)
 	      .style("left", endLeft + "px");
 	   
+	   function objEquals(sample, model) {
+	     for (var prop in model) {
+	       if (sample.hasOwnProperty(prop)) {
+	         if (sample[prop] != model[prop]) return false;
+	       }
+	     }
+	     return true;
+	   }
 	};
 
 	function mediaPlay(event) {

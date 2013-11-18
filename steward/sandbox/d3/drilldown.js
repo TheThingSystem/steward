@@ -10,7 +10,8 @@ var actors           = {}
   , firstLoad        = true
   , alertQueue       = []
   , permissions;
-  
+
+// alert user
 var notify = function(name, msg, next) {
   var alert, q;
   if (!next && document.getElementById('notification')) {
@@ -38,7 +39,7 @@ var notify = function(name, msg, next) {
   alert.append('span')
     .attr('id', 'notification-text')
     .attr('class', 'notification-text')
-    .text(function () { var txt = 'Alert from ' + name; if (msg) txt += ': ' + msg; return txt;});
+    .text(function () { var txt = ''; if (name) txt += 'Alert from ' + name + ': '; if (msg) txt += msg; return txt;});
   alert.transition()
     .duration(800)
   	.style('top', '0px');
@@ -214,29 +215,31 @@ var home = function(state) {
   setTimeout(updateAgo, 1000);
   
   self.onUpdate = function(updates) {
-    var actorID;
+    var actorID, update;
     lastUpdated = [];
     
     for (var i = 0; i < updates.length; i++) {
-      if ((updates[i].info.whatami && updates[i].info.whatami.match(/\/device\/gateway\//)) ||
-       (updates[i].whatami && updates[i].whatami.match(/\/device\/gateway\//))) {
-        if (updates[i].level && updates[i].level === "alert") {
-          alert(updates[i].message);
+      update = message[".updates"][i];
+
+      if ((update.info.whatami && update.info.whatami.match(/\/device\/gateway\//)) ||
+       (update.whatami && update.whatami.match(/\/device\/gateway\//))) {
+        if (update.level && update.level === "alert") {
+          notify(update.name, update.message);
         }
       
         continue;
       
       }
-      if (updates[i].whatami.match(/\/place/)) {
-        lastUpdated.push(updates[i].updated);
+      if (update.whatami.match(/\/place/)) {
+        lastUpdated.push(update.updated);
         continue;
       }
-      actorID = actor2ID(updates[i].whoami);
+      actorID = actor2ID(update.whoami);
       if (document.getElementById(actorID)) {
-        document.getElementById(actorID).style.backgroundColor = statusColor(updates[i]);
-        document.getElementById(actorID + '-label').style.color = statusColor(updates[i]);
+        document.getElementById(actorID).style.backgroundColor = statusColor(update);
+        document.getElementById(actorID + '-label').style.color = statusColor(update);
       }
-      lastUpdated.push(updates[i].updated);
+      lastUpdated.push(update.updated);
     }
     lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
   }
