@@ -1,13 +1,35 @@
 ChangeLog
 =======
 
-## Release 1.2 - not yet scheduled
+## Release 1.2 - November 20, 2013 (estimate)
 ## Commit - not yet finalized
     
 ### Steward
-- recognize YoctoHub-Wireless
-- minor clean-up of some internals
-- initial z-wave support
+- numerous "minor clean-up" of some internals, especially:
+    - better reporting when underlying modules not present
+    - load only modules with filenames that end in '.js'
+- initial z-wave support: onoff switches, dimmers, and smart plugs support contributed by Zoran Nakev (@zonak)
+    - controller code tested against: Aeotec Zstick-s2 and repeater
+    - onoff code tested against: Aeotec Smart Energy Switch, GE Outdoor Module
+    - dimmer code tested against: Cooper Aspire RF Dimmer cooper, GE Lamp Dimmer/Plugin Appliance Module
+- support MQTT as an upstream reporting protocol
+    
+    
+### Things
+- support YoctoHub-Wireless hub
+- support Yoctopuce-Color (dual) LED
+- support reelyActive's micro-presence system (hub, reels, tags)
+- support MQTTitude's macro-presense system (iOS, Android)
+- initial support for Heroic Robotics' Pixel Pusher (need to add per-LED addressing)
+    
+### HTML5/D3 client
+- updated for new things
+- numerous bug fixes (keep those reports coming!)
+    
+### client examples
+- 
+    
+    
     
 ## Release 1.1 - October 23, 2013
 ## Commit - 852a955128c192ac87b78763a5ef9537b0ec1d02
@@ -45,7 +67,6 @@ ChangeLog
 - allow user to change device name in popover
 - add alert notifiations from steward
 - add ability to login to gain access rights
-
 
 ### Client examples
 - HCHO sensor added to Grove AQ sensor array

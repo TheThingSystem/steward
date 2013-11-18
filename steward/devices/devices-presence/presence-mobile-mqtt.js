@@ -87,13 +87,12 @@ Mobile.prototype.update = function(self, params, status) {
     }
 
 // NB: should just report the points and let the client do the needful; but for now, we'll just cook up a static map
-    if (self.points.length > 1) {
+    if (self.points.length > 0) {
       location = self.points[self.points.length - 1].split(',');
       i = getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1], location[0], location[1]);
-console.log('>>> ' + i);
       if (i >= 0.4) {
-        self.points.push(self.info.location.slice(0,2).join(','));
-        if (self.points.length > 25) self.points.splice(0, 25);
+        self.points.push(self.info.location.slice(0, 2).join(','));
+        if (self.points.length > 50) self.points.splice(0, 50);
         markers = [];
         for (i = 0; i < self.points.length; i++) markers.push({ location: self.points[i], color: 'red', shadow: 'false' });
 
@@ -103,6 +102,7 @@ console.log('>>> ' + i);
         if (self.info.staticmap.indexOf('http://') === 0) self.info.staticmap = 'https' + self.info.staticmap.slice(4);
       }
     }
+    else self.points.push(self.info.location.slice(0, 2).join(','));
   }
 
   if (updateP) self.changed();
@@ -121,7 +121,7 @@ var array_cmp = function(a, b) {
 
 // from http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
 
-var getDistanceFromLatLonInKm = function (lat1,lon1,lat2,lon2) {
+var getDistanceFromLatLonInKm = function (lat1, lon1, lat2, lon2) {
   var R = 6371; // Radius of the earth in km
   var dLat = deg2rad(lat2-lat1);  // deg2rad below
   var dLon = deg2rad(lon2-lon1);
