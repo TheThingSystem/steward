@@ -36,6 +36,7 @@
     , "node-ssh-fingerprint": "git://github.com/TheThingSystem/node-ssh-fingerprint.git"
     , "node-uuid"           : "1.4.0"
     , "observer"            : "1.1.0"
+    , "openzwave"           : "0.0.32"
     , "pcap"                : "git://github.com/TheThingSystem/node_pcap.git"
     , "pkginfo"             : "0.3.0"
     , "pixelpusher"         : "git://github.com/TheThingSystem/node-pixelpusher.git"

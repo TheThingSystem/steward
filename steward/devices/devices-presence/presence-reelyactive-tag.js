@@ -37,7 +37,9 @@ var Tag = exports.Device = function(deviceID, deviceUID, info) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'observe') {
-      if (observe === 'sequence') self.events[eventID] = { observe: observe, parameter: parameter, active: false };
+      if ((observe !== 'closest') && (observe !== 'sequence')) return;
+
+      self.events[eventID] = { observe: observe, parameter: parameter, active: false };
       return;
     }
     if (request === 'perform') return devices.perform(self, eventID, observe, parameter);
@@ -97,6 +99,23 @@ Tag.prototype.examine = function(self, eventID) {
 
   event = self.events[eventID];
 
+  if (event.observe === 'closest') {
+    k = self.rankings.length - 4;
+    if (k < 0) return f();
+    for (j = 0; j < 4; j++) if (self.rankings[k + j].reels[0].deviceID !== event.parameter) return f();
+
+    if (self.rankings[k].observed[eventID]) {
+      for (j = 1; j < 4; j++) self.rankings[k + j].observed[eventID] = true;
+      return;
+    }
+
+    for (j = 0; j < 4; j++) self.rankings[k + j].observed[eventID] = true;
+    if (self.events[eventID].active) return;
+
+    self.events[eventID].active = true;
+    return steward.observed(eventID);
+  }
+
   try { params = JSON.parse(event.parameter); } catch(ex) {
     return logger.error ('device/' + self.deviceID,
                          { event: 'invalid parameter', eventID: eventID, diagnostic: ex.message });
@@ -114,7 +133,6 @@ Tag.prototype.examine = function(self, eventID) {
   for (j = 0; j <= k; j++) self.rankings[j].observed[eventID] = true;
   if (self.events[eventID].active) return;
 
-// console.log('>>> ' + eventID + ': ' + JSON.stringify(self.rankings));
   self.events[eventID].active = true;
   steward.observed(eventID);
 };
@@ -164,7 +182,7 @@ var validate_observe = function(observe, parameter) {/* jshint unused: false */
 
   if (observe.charAt(0) === '.') return result;
 
-  if (observe !== 'sequence') {
+  if ((observe !== 'closest') && (observe !== 'sequence')) {
     result.invalid.push('observe');
     return result;
   }
@@ -172,6 +190,8 @@ var validate_observe = function(observe, parameter) {/* jshint unused: false */
     result.requires.push('parameter');
     return result;
   }
+  if (observe === 'closest') return result;
+
   try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
   if ((!util.isArray(params)) || (params.length < 1)) {
     result.invalid.push('parameter');
@@ -199,7 +219,7 @@ exports.start = function() {
 
   steward.actors.device.presence.reelyactive.tag =
       { $info     : { type       : '/device/presence/reelyactive/tag'
-                    , observe    : [ 'sequence' ]
+                    , observe    : [ 'closest', 'sequence' ]
                     , perform    : [ ]
                     , properties : { name     : true
                                    , status   : [ 'present', 'absent' ]

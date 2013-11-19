@@ -4,6 +4,7 @@ var geocoder    = require('geocoder')
   , googlemaps  = require('googlemaps')
   , util        = require('util')
   , devices     = require('./../../core/device')
+  , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , presence    = require('./../device-presence')
@@ -69,6 +70,11 @@ Mobile.prototype.update = function(self, params, status) {
 
   if ((!location) || array_cmp (self.info.location, location)) {
     key = parseFloat(self.info.location[0]).toFixed(3) + ',' + parseFloat(self.info.location[1]).toFixed(3);
+    if ((!!places.place1.info.location)
+            && (self.info.location[0] === places.place1.info.location[0])
+            && (self.info.location[1] === places.place1.info.location[1])) {
+      geocache[key] = places.place1.info.physical;
+    }
     self.info.physical = geocache[key] || '';
     if (!self.info.physical) {
       location = self.info.location;

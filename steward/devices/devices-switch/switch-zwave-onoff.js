@@ -57,8 +57,8 @@ ZWave_OnOff.prototype.update = function(self, event, comclass, value) {
               function() {
                 var meterData = self.peripheral.classes[0x32];
                 if (!!meterData) {
-                  if (!!meterData[0]) self.info.dailyUsage = +meterData[0]['value'] / 1000;
-                  if (!!meterData[8]) self.info.currentUsage = +meterData[8]['value'];
+                  if (!!meterData[0]) self.info.dailyUsage = +meterData[0].value / 1000;
+                  if (!!meterData[8]) self.info.currentUsage = +meterData[8].value;
                 }
 
                 if (!self.peripheral.classes[comclass]) self.peripheral.classes[comclass] = {};
