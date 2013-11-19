@@ -882,7 +882,8 @@ var single_climate_drilldown = function(state) {
 };
 
 var single_climate_instructions = function(device) {
-  instructions = 'show data for last week';
+//  instructions = 'show data for last week';
+  instructions = '';
   return instructions;
 };
 
