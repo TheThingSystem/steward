@@ -1374,7 +1374,7 @@ var single_motive_drilldown = function(state) {
 
 var single_motive_instructions = function(device) {
   instructions = (device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors';
-  instructions += '<br/>' + 'flash headlights<br/>' + 'honk horn<br/>' + 'set desired temperature';
+  instructions += '<br/>' + 'flash headlights<br/>' + 'honk horn<br/>' + 'adjust air conditioning';
   if (device.info.sunroof !== 'none') instructions += '<br/>' + 'adjust sunroof';
   return instructions
 }
