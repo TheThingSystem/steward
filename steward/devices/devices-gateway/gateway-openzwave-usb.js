@@ -19,8 +19,8 @@ var serialport  = require('serialport')
   ;
 
 
-var logger   = exports.logger = utility.logger('gateway');
-var logger2                   = utility.logger('discovery');
+var logger  = exports.logger = utility.logger('gateway');
+var logger2                  = utility.logger('discovery');
 
 
 var Gateway = exports.Device = function(deviceID, deviceUID, info) {
@@ -75,7 +75,7 @@ var fingerprints =
     , manufacturer   : 'Silicon Labs'
     , vendorId       : 0x10c4
     , productId      : 0xea60
-    , pnpId          : 'usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001'
+    , pnpId          : 'usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_'
     , products       :
       [ { mID        : '0086'
         , pID        : '0001'
