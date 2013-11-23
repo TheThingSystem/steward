@@ -1,8 +1,8 @@
 ChangeLog
 =======
 
-## Release 1.2 - November 20, 2013 (estimate)
-## Commit - not yet finalized
+## Release 1.2 - November 23, 2013
+## Commit - 795da048511bde27d998e6bf3432e4b2f7a1f722
     
 ### Steward
 - numerous "minor clean-up" of some internals, especially:
@@ -13,6 +13,7 @@ ChangeLog
     - onoff code tested against: Aeotec Smart Energy Switch, GE Outdoor Module
     - dimmer code tested against: Cooper Aspire RF Dimmer cooper, GE Lamp Dimmer/Plugin Appliance Module
 - support MQTT as an upstream reporting protocol
+- support for Beaglebone Black running Debian Wheezy
     
     
 ### Things
