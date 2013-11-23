@@ -11,6 +11,11 @@ if [ "$SUDO_USER" = "pi" ]; then
    HOME=/home/pi; 
    export HOME; 
 fi
+if [ "$SUDO_USER" = "debian" ]; then
+   HOME=/home/debian;
+   export HOME;
+fi
+
 . $HOME/.nvm/nvm.sh
 
 if [ ! -f db/server.key ]; then
