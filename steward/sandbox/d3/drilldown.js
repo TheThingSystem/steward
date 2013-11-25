@@ -1781,17 +1781,6 @@ function textColor(bgColor, arcVal) {
    }
 }
 
-/*
-  drone.svg
-  ecobee.svg
-  electric-vehicle.svg
-  home.svg
-  insteon-water.svg
-  motrr.svg
-  romo.svg
-  swivl.svg
- */
-
 var entries = {
 // actors
                 '/device/climate/arduino/sensor'            : { img     : 'actors/arduino.svg'

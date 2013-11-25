@@ -15,6 +15,9 @@ if [ "$SUDO_USER" = "debian" ]; then
    HOME=/home/debian;
    export HOME;
 fi
+if [ ! -f $HOME/.nvm/nvm.sh ]; then
+   echo "$$HOME/.nvm/nvm.sh doesn't exist! is $$HOME set correctly?"
+fi
 
 . $HOME/.nvm/nvm.sh
 

@@ -459,8 +459,7 @@ var bootable = { ecobee         :
                  , name         : 'ecobee'
                  , actor        : '/device/gateway/ecobee/cloud'
                  , info         :
-                   { name       : 'ecobee'
-                   , appkey     : ''
+                   { appkey     : ''
                    }
                  }
                , koubachi       :
@@ -520,8 +519,7 @@ var bootable = { ecobee         :
                  , name         : 'prowler'
                  , actor        : '/device/indicator/text/prowl'
                  , info         :
-                   { name       : 'prowler'
-                   , apikey     : ''
+                   { apikey     : ''
                    }
                  }
                , tesla          :
