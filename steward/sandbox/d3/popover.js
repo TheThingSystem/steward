@@ -801,7 +801,7 @@ var showPop = function(device) {
 	function setDeviceName() {
 	  var elem = d3.event.target;
 	  if (entries[currDevice.device.deviceType].norename) {
-	    if (!document.getElementById("notification-text")) notify(currDevice.device.name, "Cannot be renamed from the steward.");
+	    notify("\"" + currDevice.device.name + "\" cannot be renamed from the steward.");
 	    elem.innerText = currDevice.device.name;
 	    elem.blur();
 	    return;
@@ -852,7 +852,7 @@ var ColorPickerMgr = {
         		addCIE(color.cie1931.x ,color.cie1931.y);
         		break;
         	case 'hue':         
-        		addHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100).rgb());
+        		addHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100));
         		break;
         	case 'rgb':         
         		addRGB(color.rgb.r, color.rgb.g, color.rgb.b);
@@ -962,7 +962,9 @@ var ColorPickerMgr = {
        
        function addHSV(h, s, v) {
 	     var cp, div, div2;
-		  
+		 if (!h) h = 0;
+		 if (!s) s = 0;
+		 if (!v) v = 1;
 		 div = pop.append("div")
 				.attr("id", "colorpicker-container");
 		 div.append("div")
@@ -1042,7 +1044,7 @@ var ColorPickerMgr = {
         		updateCIE(color.cie1931.x ,color.cie1931.y);
         		break;
         	case 'hue':         
-        		updateHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100).rgb());
+        		updateHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100));
         		break;
         	case 'rgb':         
         		updateRGB(color.rgb.r, color.rgb.g, color.rgb.b);
@@ -1092,8 +1094,6 @@ var ColorPickerMgr = {
 		       newPerform.parameter.color.hue = hsv.h;
 		       newPerform.parameter.color.saturation = hsv.s;
 		     });
-		   newPerform.parameter.color.hue = hsv.h;
-		   newPerform.parameter.color.saturation = hsv.s;
 		   cp.setHsv({h:h, s:s, v:v});
 		 }
        };
@@ -1107,7 +1107,6 @@ var ColorPickerMgr = {
 	         function(hex, hsv, rgb) {
                newPerform.parameter.color.rgb = {r:rgb.r, g:rgb.g, b:rgb.b};
              });
-           newPerform.parameter.color.rgb = {r:r, g:g, b:b};
 	       cp.setRgb({r:r, g:g, b:b});
 	     }
        };

@@ -179,7 +179,7 @@ var go = function(steward) {
     ws2.onclose = function(evt) { }
   
     ws2.onerror = function(evt) {
-	  notify("", evt.reason); ;
+	  notify(evt.reason); ;
 	  ws2.close()
 	  location.reload();
     }
@@ -228,7 +228,7 @@ var go = function(steward) {
         for (i = 0; i < message[".updates"].length; i++) {
           update = message[".updates"][i];
           if (update.level === "alert") {
-            notify(update.name, update.message);
+            notify("From " + update.name + ":" + update.message);
           }
         }
     	state = stack.pop();
@@ -246,8 +246,8 @@ var go = function(steward) {
     }
   }
     
-  ws.onclose = function(evt) { notify("", "Connection lost. Restart steward and refresh browser."); };
-  ws.onerror = function(evt) { notify("", evt.reason); };
+  ws.onclose = function(evt) { notify("Connection lost. Restart steward and refresh browser."); };
+  ws.onerror = function(evt) { notify(evt.reason); };
 
   
   var onlogin = function(message) {

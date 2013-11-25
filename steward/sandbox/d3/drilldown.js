@@ -11,19 +11,22 @@ var actors           = {}
   , alertQueue       = []
   , permissions;
 
-// alert user
-var notify = function(name, msg, next) {
-  var alert, q;
+// alert user to something important
+var notify = function(msg, next) {
+  var alertElem, alertTxt = '', q;
+  
   if (!next && document.getElementById('notification')) {
-    alertQueue.push({name:name, msg:msg});
+    if (msg === d3.select('#notification').text().substring(1) || alertQueue.indexOf(msg) >= 0) return;
+    alertQueue.push(msg);
     return;
   }
+
   if (next) d3.select('#notification').remove();
-  alert = d3.select('body')
+  alertElem = d3.select('body')
     .append('div')
     .attr('id', 'notification')
     .attr('class', 'notification');
-  alert.append('div')
+  alertElem.append('div')
     .attr('class', 'notification-ok')
     .text('x')
     .on('click', function () {
@@ -31,16 +34,16 @@ var notify = function(name, msg, next) {
       .duration(800)
       .each('end', function() {
         if (alertQueue.length > 0) {
-          q = alertQueue.shift();
-          notify(q.name, q.msg, true);
+          alertTxt = alertQueue.shift();
+          notify(alertTxt, true);
         }
       })
       .style('top', function() { return '-' + d3.select('#notification').style('height') }).remove(); });
-  alert.append('span')
+  alertElem.append('span')
     .attr('id', 'notification-text')
     .attr('class', 'notification-text')
-    .text(function () { var txt = ''; if (name) txt += 'Alert from ' + name + ': '; if (msg) txt += msg; return txt;});
-  alert.transition()
+    .text(msg);
+  alertElem.transition()
     .duration(800)
   	.style('top', '0px');
 }
@@ -224,7 +227,7 @@ var home = function(state) {
       if ((update.info.whatami && update.info.whatami.match(/\/device\/gateway\//)) ||
        (update.whatami && update.whatami.match(/\/device\/gateway\//))) {
         if (update.level && update.level === "alert") {
-          notify(update.name, update.message);
+          notify("From " + update.name + ":" + update.message);
         }
       
         continue;

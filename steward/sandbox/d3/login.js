@@ -87,7 +87,7 @@ var showReauth = function() {
 }
 
 var showSettings = function() {
-  var btn, chkbox, div, div2, form, img, lbl, option, radio, select, settings, span, txtbox;
+  var btn, chkbox, div, div2, form, i, img, lbl, option, radio, select, settings, span, txtbox;
 
   div = document.createElement('div');
   div.setAttribute('id', 'settings');
@@ -101,8 +101,8 @@ var showSettings = function() {
   div2.innerHTML = "Steward Place Settings";
   form.appendChild(div2);
     
-  form.appendChild(labeledBox('STEWARD NAME', 'stewardName', 50, ''));
-  form.appendChild(labeledBox('STREET ADDRESS', 'physical', 70, ''));
+  form.appendChild(labeledBox('STEWARD NAME', 'stewardName', '', 50, ''));
+  form.appendChild(labeledBox('STREET ADDRESS', 'physical', '', 70, ''));
   div2 = document.createElement('div');
   div2.setAttribute('class', 'big-instructions');
   div2.innerHTML = "Coordinates";
@@ -125,13 +125,13 @@ var showSettings = function() {
   div2 = document.createElement('div');
   div2.setAttribute('class', 'formtext-container-left');
   div2.setAttribute('style', 'margin-bottom: 20px');
-  div2.appendChild(labeledBox('LATITUDE', 'latitude', 20, ''));
+  div2.appendChild(labeledBox('LATITUDE', 'latitude', '', 20, ''));
   form.appendChild(div2);
   
   div2 = document.createElement('div');
   div2.setAttribute('class', 'formtext-container-right');
   div2.setAttribute('style', 'margin-bottom: 20px');
-  div2.appendChild(labeledBox('LONGITUDE', 'longitude', 20, ''));
+  div2.appendChild(labeledBox('LONGITUDE', 'longitude', '', 20, ''));
   form.appendChild(div2);
   form.appendChild(document.createElement('hr'));
   
@@ -177,12 +177,13 @@ var showSettings = function() {
   
   span = document.createElement('span')
   span.setAttribute('id', 'cloud-instructions');
-  span.innerHTML = "&larr; " + bootable[select.value].text;
+  span.innerHTML = "&larr; " + bootable[select.value].text + " " + bootable[select.value].instructions;
   form.appendChild(span);
   
   var labelArray = labeledBoxes(select);
-  form.appendChild(labelArray[0]);
-  form.appendChild(labelArray[1]);
+  for (i = 0; i < labelArray.length; i++) {
+    form.appendChild(labelArray[i]);
+  }
   
   btn = document.createElement('input');
   btn.setAttribute('type', 'image');
@@ -208,40 +209,9 @@ var showSettings = function() {
   document.getElementById("longitude").addEventListener('change', function(evt) {place_info.location[1] = evt.target.value; savePlace(event); });
   document.getElementById("strictLAN").addEventListener('change', pickStrict);
   document.getElementById("bootableChoice").addEventListener('change', pickBootable);
-  document.getElementById("bootChoice0").addEventListener('change', stowInfo);
-  document.getElementById("bootChoice1").addEventListener('change', stowInfo);
 
   fillPlaceFields();
-  
-  // Create label & text input elements
-  function labeledBox(lblTxt, boxID, size, val, pwd) {
-	  lbl = document.createElement('label');
-	  lbl.setAttribute('for', boxID);
-	  span = document.createElement('span');
-	  span.innerHTML = lblTxt + ':&nbsp;&nbsp;';
-	  lbl.appendChild(span);
-	
-	  txtbox = document.createElement('input');
-	  txtbox.setAttribute('type', (pwd) ? 'password' : 'text');
-	  txtbox.setAttribute('id', boxID);
-	  txtbox.setAttribute('class', 'formtext');
-	  txtbox.setAttribute('size', size);
-	  txtbox.setAttribute('value', val);
-	  lbl.appendChild(txtbox);
-	  
-	  return lbl;
-  }
-  
-  // Create pair of label & text input elements for networked products
-  function labeledBoxes(select) {
-    var choice = select.value;
-    var keys = getKeys(bootable[choice].info);
-    var labels = [];
-    labels[0] = labeledBox(keys[0].toUpperCase(), 'bootChoice0', 20, bootable[choice].info[keys[0]]);
-    labels[1] = labeledBox(keys[1].toUpperCase(), 'bootChoice1', 20, bootable[choice].info[keys[1]], true);
-    return labels;
-  }
-  
+    
   // Populate select element with strict mode choices
   function addStrict(select) {
     var optgroup, option;
@@ -279,13 +249,6 @@ var showSettings = function() {
     return select;
   }
   
-  // Retrieve object keys for use as labels & select values
-  function getKeys(obj) {
-    var keys = [];
-    for(var k in obj) keys.push(k);
-    return keys;
-  }
-  
 }
 
 var closeSettings = function(evt) {
@@ -303,19 +266,60 @@ var pickStrict = function(evt) {
   savePlace();
 }
 
+// Create pair of label & text input elements for networked products
+var labeledBoxes = function(select) {
+  var i, pwd = false;
+  var choice = select.value;
+  var keys = getKeys(bootable[choice].info);
+  var labels = [];
+  for (i = 0; i < keys.length; i++) {
+    pwd = ['credentials', 'password', 'passphrase'].indexOf(keys[i]) >= 0;
+    labels[i] = labeledBox(keys[i].toUpperCase(), 'bootChoice' + i, 'bootChoiceLabel' + i, 
+      						 20, bootable[choice].info[keys[i]], pwd);
+  }
+  return labels;
+}    
+  // Create label & text input elements
+var labeledBox = function(lblTxt, boxID, labelID, size, val, pwd) {
+  var lbl, span, txtbox;
+  
+  lbl = document.createElement('label');
+  lbl.setAttribute('for', boxID);
+  lbl.setAttribute('id', labelID);
+  span = document.createElement('span');
+  span.innerHTML = lblTxt + ':&nbsp;&nbsp;';
+  lbl.appendChild(span);
+	
+  txtbox = document.createElement('input');
+  txtbox.setAttribute('type', (pwd) ? 'password' : 'text');
+  txtbox.setAttribute('id', boxID);
+  txtbox.setAttribute('class', 'formtext');
+  txtbox.setAttribute('size', size);
+  txtbox.setAttribute('value', val);
+  txtbox.setAttribute('onchange', 'stowInfo()');
+  lbl.appendChild(txtbox);
+	  
+  return lbl;
+}
+
+// Retrieve object keys for use as labels & select values
+var getKeys = function(obj) {
+  var keys = [];
+  for(var k in obj) keys.push(k);
+  return keys;
+}
+
 var pickBootable = function(evt) {
-  var choice = evt.target.value;
-  var info = bootable[choice].info;
-  var keys = Object.keys(info);
-  document.getElementById("cloud-instructions").innerHTML = "&larr; " + bootable[choice].text;
-  document.getElementById("bootChoice0").labels[0].firstChild.innerHTML = keys[0].toUpperCase() + ":&nbsp;&nbsp;";
-  document.getElementById("bootChoice0").value = info[keys[0]];
-  if (keys[1]) {
-    document.getElementById("bootChoice1").labels[0].firstChild.innerHTML = keys[1].toUpperCase() + ":&nbsp;&nbsp;";
-    document.getElementById("bootChoice1").value = info[keys[1]];
-    document.getElementById("bootChoice1").labels[0].style.visibility = "visible";
-  } else {
-    document.getElementById("bootChoice1").labels[0].style.visibility = "hidden";
+  var form, i, labelArray, oldLabels;
+  form = document.getElementById("cloud-form");
+  oldLabels = form.getElementsByTagName("label");
+  for (i = oldLabels.length - 1; i >= 0; i--) {
+    form.removeChild(oldLabels[i]);
+  }
+  
+  var labelArray = labeledBoxes(evt.target).reverse();
+  for (i = 0; i < labelArray.length; i++) {
+    form.insertBefore(labelArray[i], document.getElementById("cloud-instructions").nextSibling);
   }
 }
 
@@ -339,16 +343,16 @@ function geolocate() {
 	function(err) {
 	  switch (err.code) {
 		case 1:
-		  notify("Geolocator", "Permission denied by user.");
+		  notify("Geolocation permission denied by user.");
 		  break;
 		case 2:
-		  notify("Geolocator", "Position unavailable.");
+		  notify("Geolocation position unavailable.");
 		  break;
 		case 3:
-		  notify("Geolocator", "Service timed out.");
+		  notify("Geolocation service timed out.");
 		  break;
 		default:
-		  notify("Geolocator", "Position error:" + err.message);
+		  notify("Geolocation position error:" + err.message);
 	  }
 	},
 	{'enableHighAccuracy': false, 'timeout': 10000, 'maximumAge': 0});
@@ -377,7 +381,7 @@ function geocode() {
 			  savePlace();
 			  
 			} else {
-			  notify("Geolocator", "Sorry, the address cannot be converted to coordinates.");
+			  notify("Sorry, the address cannot be converted to coordinates.");
 			}
 		  }
 		} catch(ex) { console.log(ex); }
@@ -387,7 +391,7 @@ function geocode() {
 	  req.open('GET', url , true);
 	  req.send(null);
   } else {
-    notify("Geolocator", "Please enter a street address.");
+    notify("Please enter a street address.");
   }
   return false;
 }
@@ -414,7 +418,9 @@ var savePlace = function(evt) {
 }
 
 var addCloud = function(evt) {
-  var val, emptyP = false, entry;
+  var emptyP = false, entry, i, val;
+  var form = document.getElementById("cloud-form");
+  var labels = form.getElementsByTagName("label");
   var name = document.getElementById("bootableChoice").value;
   var info = bootable[name].info;
 
@@ -428,11 +434,13 @@ var addCloud = function(evt) {
                          , info      : info || {}
                          });
     wsSend(val);
-    notify(name, "Cloud service added to the steward.")
-    document.getElementById("bootChoice0").value = "";
-    document.getElementById("bootChoice1").value = "";
+    notify(name + " cloud service added to the steward.")
+    for (i = 0; i < labels.length; i++) {
+      document.getElementById("bootChoice" + i).value = "";
+      info[getKeys(info)[i]] = "";
+    }
   }
-
+  return false;
 }
 
 var place_info   = { name        : 'Home'
@@ -455,7 +463,7 @@ var bootable = { ecobee         :
                  }
                , koubachi       :
                  { text         : 'If you have a Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back and appkey and credentials to fill-in below.'
+                 , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'
                  , site         : 'https://mykoubachi.com'
                  , icon         : ''
                  , name         : 'koubachi'
@@ -528,7 +536,7 @@ var bootable = { ecobee         :
                  }
                , xively         :
                  { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
-                 , instructions : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed'
+                 , instructions : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed.'
                  , site         : 'https://xlively.com/login'
                  , icon         : ''
                  , name         : 'xively'
