@@ -311,6 +311,8 @@ var getKeys = function(obj) {
 
 var pickBootable = function(evt) {
   var form, i, labelArray, oldLabels;
+  document.getElementById("cloud-instructions").innerHTML = 
+    "&larr; " + bootable[evt.target.value].text + " " + bootable[evt.target.value].instructions;
   form = document.getElementById("cloud-form");
   oldLabels = form.getElementsByTagName("label");
   for (i = oldLabels.length - 1; i >= 0; i--) {
