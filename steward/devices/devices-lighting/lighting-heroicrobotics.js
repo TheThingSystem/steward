@@ -21,6 +21,7 @@ var PixelPusher = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var led;

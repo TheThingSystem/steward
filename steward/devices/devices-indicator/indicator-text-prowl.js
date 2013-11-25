@@ -39,6 +39,7 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
 
   self.info = utility.clone(info);
   delete(self.info.id);

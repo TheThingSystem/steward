@@ -93,33 +93,36 @@ Tag.prototype.update = function(self, v, timestamp) {
 };
 
 Tag.prototype.examine = function(self, eventID) {
-  var event, i, j, k, params;
+  var event, i, j, k, n, params;
 
   var f = function() { self.events[eventID].active = false; };
 
   event = self.events[eventID];
 
+  try { params = JSON.parse(event.parameter); } catch(ex) {
+    return logger.error ('device/' + self.deviceID,
+                         { event: 'invalid parameter', eventID: eventID, diagnostic: ex.message });
+  }
+
   if (event.observe === 'closest') {
-    k = self.rankings.length - 4;
+    n = parseInt(params.consecutive, 10);
+    if ((isNaN(n)) || (n < 1)) n = 2;
+    k = self.rankings.length - n;
     if (k < 0) return f();
-    for (j = 0; j < 4; j++) if (self.rankings[k + j].reels[0].deviceID !== event.parameter) return f();
+    for (j = 0; j < n; j++) if (self.rankings[k + j].reels[0].deviceID !== params.device) return f();
 
     if (self.rankings[k].observed[eventID]) {
-      for (j = 1; j < 4; j++) self.rankings[k + j].observed[eventID] = true;
+      for (j = 1; j < n; j++) self.rankings[k + j].observed[eventID] = true;
       return;
     }
 
-    for (j = 0; j < 4; j++) self.rankings[k + j].observed[eventID] = true;
+    for (j = 0; j < n; j++) self.rankings[k + j].observed[eventID] = true;
     if (self.events[eventID].active) return;
 
     self.events[eventID].active = true;
     return steward.observed(eventID);
   }
 
-  try { params = JSON.parse(event.parameter); } catch(ex) {
-    return logger.error ('device/' + self.deviceID,
-                         { event: 'invalid parameter', eventID: eventID, diagnostic: ex.message });
-  }
   if ((!util.isArray(params)) || (params.length < 1)) return f();
 
   for (k = 0; k < self.rankings.length; k++) if (!self.rankings[k].observed[eventID]) break;
@@ -190,14 +193,19 @@ var validate_observe = function(observe, parameter) {/* jshint unused: false */
     result.requires.push('parameter');
     return result;
   }
-  if (observe === 'closest') return result;
 
   try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (observe === 'closest') {
+    if ((!params.device)
+          || ((!!params.consecutive) && isNaN(parseInt(params.consecutive, 10)))) result.invalid.push('parameter');
+    return result;
+  }
+
   if ((!util.isArray(params)) || (params.length < 1)) {
     result.invalid.push('parameter');
     return result;
   }
-
   for (i = 0; i < params.length; i++) {
     if ((!!params[i].time) && isNaN(parseInt(params[i].time, 10))) break;
     rankings = params[i].rankings;

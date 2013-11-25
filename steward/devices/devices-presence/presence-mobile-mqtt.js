@@ -3,6 +3,8 @@
 var geocoder    = require('geocoder')
   , googlemaps  = require('googlemaps')
   , util        = require('util')
+  , winston     = require('winston')
+  , db          = require('./../../core/database').db
   , devices     = require('./../../core/device')
   , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
@@ -36,93 +38,182 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
   self.points = [];
+  self.timer = null;
   self.update(self, info.params);
 
   self.events = {};
 
+  db.get('SELECT value FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
+               { $deviceID: self.deviceID, $key: 'info' }, function(err, row) {
+    var params;
+
+    if (err) {
+      logger.error('device/' + self.deviceID, { event: 'SELECT info for ' + self.deviceID, diagnostic: err.message });
+      return;
+    }
+
+    params = {};
+    if (!!row) try { params = JSON.parse(row.value); } catch(ex) {}
+    self.priority = winston.config.syslog.levels[params.priority || 'notice'] || winston.config.syslog.levels.notice;
+    self.info.priority = utility.value2key(winston.config.syslog.levels, self.priority);
+    self.changed();
+  });
+
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'observe') {
-      return;
-    }
-    if (request === 'perform') return devices.perform(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, eventID, observe, parameter);
   });
+
+  setInterval(function() { self.reverseGeocode(self); }, 60 * 1000);
 };
 util.inherits(Mobile, presence.Device);
 
 
+Mobile.prototype.perform = function(self, taskID, perform, parameter) {
+  var param, params, updateP;
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  if (perform !== 'set') return;
+
+  if (!!params.name) {
+    self.setName(params.name);
+    delete(params.name);
+  }
+
+  updateP = false;
+  for (param in params) {
+   if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
+
+    self.info[param] = params[param];
+    updateP = true;
+  }
+  if (updateP) self.setInfo();
+
+  return steward.performed(taskID);
+};
+
+var validate_perform = function(perform, parameter) {
+  var params = {}
+    , result = { invalid: [], requires: [] };
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  if (perform !== 'set') result.invalid.push('perform');
+
+  if ((!!params.priority) && (!winston.config.syslog.levels[params.priority])) result.invalid.push('priority');
+
+  return result;
+};
+
+
 Mobile.prototype.update = function(self, params, status) {
-  var i, key, location, markers, param, updateP;
+  var entry, i, markers, param, updateP;
 
   updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
-  location = self.info.location;
   for (param in params) {
     if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
 
     self.info[param] = params[param];
     updateP = true;
   }
+  if (updateP) self.changed();
 
-  if ((!location) || array_cmp (self.info.location, location)) {
-    key = parseFloat(self.info.location[0]).toFixed(3) + ',' + parseFloat(self.info.location[1]).toFixed(3);
-    if ((!!places.place1.info.location)
-            && (self.info.location[0] === places.place1.info.location[0])
-            && (self.info.location[1] === places.place1.info.location[1])) {
-      geocache[key] = places.place1.info.physical;
-    }
-    self.info.physical = geocache[key] || '';
-    if (!self.info.physical) {
-      location = self.info.location;
-      geocoder.reverseGeocode(location[0], location[1], function(err, result) {
-        if (!!err) return logger.error('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                                  , location   : location
-                                                                  , diagnostic : err.message });
-        if (result.status !== 'OK') return logger.warning('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                                                     , location   : location
-                                                                                     , diagnostic : result.status });
-        if (result.results.length < 1) return;
-        geocache[key] = result.results[0].formatted_address;
-        self.info.physical = result.results[0].formatted_address;
-        self.changed();
-      });
-    }
+  entry = self.info.location.slice(0, 2).join(',');
+  if (self.points.length === 0) {
+    self.points.push(entry);
+    return;
+  }
+  if (entry === self.points[self.points.length - 1]) return;
 
-// TBD: should just report the points and let the client do the needful; but for now, we'll just cook up a static map
-    if (self.points.length > 0) {
-      location = self.points[self.points.length - 1].split(',');
-      i = getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1], location[0], location[1]);
-      if (i >= 0.4) {
-        self.points.push(self.info.location.slice(0, 2).join(','));
-        if (self.points.length > 50) self.points.splice(0, 50);
-        markers = [];
-        for (i = 0; i < self.points.length; i++) markers.push({ location: self.points[i], color: 'red', shadow: 'false' });
-
-        self.info.staticmap = googlemaps.staticMap(self.points[0], '', '250x250', false, false, 'roadmap', markers,
-           [ { feature: 'road',   element: 'all', rules: { hue: '0x16161d' } } ]
-           [ { color: '0x0000ff', weight: '5',    points: self.points        } ]);
-        if (self.info.staticmap.indexOf('http://') === 0) self.info.staticmap = 'https' + self.info.staticmap.slice(4);
-      }
-    }
-    else self.points.push(self.info.location.slice(0, 2).join(','));
+  self.points.push(entry);
+// derived experientially: 28 appears to be the limit
+  if (self.points.length > 24) {
+    if (!self.timer) self.timer = setTimeout (function() { self.balance(self, 24); }, 0);
+    return;
   }
 
-  if (updateP) self.changed();
+  markers = [];
+  for (i = 0; i < self.points.length; i++) markers.push({ location: self.points[i], color: 'red', shadow: 'false' });
+
+  try {
+    self.info.staticmap = googlemaps.staticMap(self.points[0], '', '250x250', false, false, 'roadmap', markers,
+                                               [ { feature: 'road',   element: 'all', rules: { hue: '0x16161d' } } ]
+                                               [ { color: '0x0000ff', weight: '5',    points: self.points        } ]);
+    if (self.info.staticmap.indexOf('http://') === 0) self.info.staticmap = 'https' + self.info.staticmap.slice(4);
+  } catch(ex) {
+    return logger.error('device/' + self.deviceID, { event: 'staticMap', dignostic: ex.message, size: self.points.length });
+  }
+};
+
+Mobile.prototype.balance = function(self, max) {
+  var d, i, location, points, previous, q;
+
+  self.timer = null;
+  if (self.points.length <= max) return;
+
+  if (self.points.length > max) self.points.splice (0, self.points.length - max);
+  q = Math.round(max / 4);
+  self.points.splice(0, q);
+
+  d = [];
+  for (i = 1, previous = self.points[0].split(','); i < self.points.length - 1; i++, previous = location) {
+    location = self.points[i].split(',');
+    d.push([ i, self.points[i], getDistanceFromLatLonInKm(location[0], location[1], previous[0], previous[1]) ]);
+  }
+  d.sort(function(a,b) { return (b[2] - a[2]); });
+  d.splice(0, q);
+
+  points = [];
+  d.sort(function(a,b) { return (b[0] - a[0]); });
+  for (i = 0; i < d.length; i++) points.push(d[i][1]);
+  points.push(self.points[self.points.length - 1]);
+
+  self.points = points;
 };
 
 Mobile.prototype.detail = function(self, params) {/* jshint unused: false */};
 
-var array_cmp = function(a, b) {
-  var i;
+Mobile.prototype.reverseGeocode = function(self) {
+  var key, location;
 
-  if (!a) return (!(!!b));
-  if (!util.isArray(a) || !util.isArray(b) || (a.length != b.length)) return false;
-  for (i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-  return true;
+  if (self.points.length < 1) return;
+
+  location = self.points[self.points.length - 1].split(',');
+  key = parseFloat(location[0]).toFixed(3) + ',' + parseFloat(location[1]).toFixed(3);
+
+  if ((!!places.place1.info.location)
+          && (location[0] === places.place1.info.location[0])
+          && (location[1] === places.place1.info.location[1])) {
+    geocache[key] = places.place1.info.physical;
+  }
+  if (!!geocache[key]) {
+    if (self.info.physical !== geocache[key]) {
+      self.info.physical = geocache[key];
+      self.changed();
+    }
+
+    return;
+  }
+
+  geocoder.reverseGeocode(location[0], location[1], function(err, result) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event      : 'reverseGeocode'
+                                                              , location   : location
+                                                              , diagnostic : err.message });
+    if (result.status !== 'OK') return logger.warning('device/' + self.deviceID, { event      : 'reverseGeocode'
+                                                                                 , location   : location
+                                                                                 , diagnostic : result.status });
+    if (result.results.length < 1) return;
+
+    geocache[key] = result.results[0].formatted_address;
+    self.info.physical = geocache[key];
+    self.changed();
+  });
 };
 
 // from http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
@@ -160,9 +251,10 @@ exports.start = function() {
                                    , accuracy  : 'meters'
                                    , physical  : true
                                    , staticmap : 'url'
+                                   , priority : utility.keys(winston.config.syslog.levels)
                                    }
                     }
-      , $validate : { perform    : devices.validate_perform }
+      , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/presence/mobile/mqtt'] = Mobile;
 

@@ -21,6 +21,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
 
   self.info = utility.clone(info);
   delete(self.info.id);
@@ -123,12 +124,13 @@ Cloud.prototype.addstation = function(self, station) {
   try { last = new Date(station.last_transmission);           } catch(ex) { last = new Date(); }
   try { next = new Date(station.next_transmission).getTime(); } catch(ex) {}
 
-  params = { placement   : station.hardware_product_type
-           , lastSample  : last.getTime()
-           , nextSample  : next
-           , moisture    : (station.recent_soilmoisture_reading_si_value / 100).toFixed(2)    // pascals to mbars
-           , temperature : station.recent_temperature_reading_si_value.toFixed(2) - 273.15    // kevlin to celsius
-           , light       : station.recent_light_reading_si_value.toFixed(1)
+  params = { placement    : station.hardware_product_type
+           , lastSample   : last.getTime()
+           , nextSample   : next
+           , moisture     : (station.recent_soilmoisture_reading_si_value / 100).toFixed(2)    // pascals to mbars
+           , temperature  : station.recent_temperature_reading_si_value.toFixed(2) - 273.15    // kevlin to celsius
+           , light        : station.recent_light_reading_si_value.toFixed(1)
+           , batteryLevel : (station.virtual_battery_level * 100).toFixed(2)
            };
 
   udn = 'koubachi:' + station.mac_address;
@@ -146,6 +148,14 @@ Cloud.prototype.addstation = function(self, station) {
 
     name = plant.location;
     break;
+  }
+  for (i = 0; i < station.plants.length; i++) {
+    plantID = station.plants[i].id;
+    if (!plantID) continue;
+    plant = self.plants[plantID];
+    if (!plant) continue;
+
+    self.plants[plantID].last = last;
   }
 
   info =  { source: self.deviceID, gateway: self, params: params };
@@ -174,7 +184,7 @@ Cloud.prototype.addstation = function(self, station) {
 Cloud.prototype.addplant = function(self, plant) {
   var device, info, last, params, udn;
 
-  try { last = new Date(plant.updated_at); } catch(ex) { last = new Date(); }
+  last = plant.last || new Date();
 
   params = { placement       : plant.location
            , lastSample      : last.getTime()

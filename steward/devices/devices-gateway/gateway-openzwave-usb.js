@@ -67,7 +67,7 @@ var pairings      = {};
 var scanning      = {};
 
 
-var fingerprints =
+var fingerprints  =
   [
     { vendor         : 'AEOTEC'
     , modelName      : 'Z-Stick S2'

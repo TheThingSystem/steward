@@ -485,7 +485,6 @@ exports.start = function() {
                                                       , 'disconected'
                                                       , 'drawing'
                                                       , 'regenerating' ]
-
                                    , hvac           : [ 'on', 'off', 'celsius' ]
                                    , intTemperature : 'celsius'
                                    , extTemperature : 'celsius'

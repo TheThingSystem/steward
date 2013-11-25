@@ -121,7 +121,6 @@ exports.start = function() {
                     , properties : { name   : true
                                    , status : [ 'present', 'absent', 'recent' ]
                                    , rssi   : 's8'
-                                   , level  : [ 'none', 'mild', 'high' ]
                                    }
                     }
       , $validate : { perform    : validate_perform }

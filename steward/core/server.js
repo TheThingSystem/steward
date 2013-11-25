@@ -9,9 +9,12 @@ var fs          = require('fs')
 //, ssh_keygen  = require('ssh-keygen')
 //, tls         = require('tls')
   , url         = require('url')
+  , util         = require('util')
+  , winston     = require('winston')
   , wsServer    = require('ws').Server
   , steward     = require('./steward')
   , utility     = require('./utility')
+  , broker      = utility.broker
   ;
 if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
   var mdns      = require('mdns');
@@ -397,7 +400,7 @@ var rendezvous = function(params, portno, u) {
 var devices;
 
 var subscribe = function(params) {
-  var place, settings;
+  var client, place, previous, priority, settings;
 
   place = params.labels[0] || params.name.split('.')[0];
   settings = { protocolId      : 'MQIsdp'
@@ -409,13 +412,15 @@ var subscribe = function(params) {
                                                 , encoding : 'base32'
                                                 , step     : params.step })
              , clean           : false
+             , reconnectPeriod : 0
              };
 
-  mqtt.createSecureClient(8883, params.server.hostname, settings).on('message',
+  client = mqtt.createSecureClient(8883, params.server.hostname, settings).on('message',
     function(topic, message, packet) {/* jshint unused: false */
     var device, entry, info, params, parts, status, udn;
 
     parts = topic.split('/');
+    if (parts[0] !== 'mqttitude') return;
 
     try { entry = JSON.parse(message); } catch(ex) { return console.log(ex); }
 
@@ -460,5 +465,37 @@ var subscribe = function(params) {
     logger.error('mqtt', { event: 'error', diagnostic: err.message });
     this.end();
     setTimeout(function() { subscribe(params); }, 600 * 1000);
-  }).subscribe('+/' + place + '/#', { qos: 1 });
+  });
+  client.subscribe('+/' + place + '/#', { qos: 1 });
+
+  previous = {};
+  priority = winston.config.syslog.levels.notice;
+  broker.subscribe('beacon-egress', function(category, data) {
+    var datum, device, deviceUID, i, now;
+
+    if (!util.isArray(data)) data = [ data ];
+    for (i = 0; i < data.length; i++) {
+      datum = data[i];
+
+      if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < priority)) continue;
+
+      if (!previous[datum.level]) previous[datum.level] = {};
+      now = new Date(datum.date).getTime();
+      if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
+      previous[datum.level][datum.message] = now + (60 * 1000);
+
+      datum.category = category;
+
+      client.publish('logs/' + place + '/steward', JSON.stringify(datum), { retain: true });
+
+      if (!devices) devices = require('./device');
+      for (deviceUID in devices.devices) {
+        if ((!devices.devices.hasOwnProperty(deviceUID)) || (deviceUID.indexOf('mqtt:') !== 0)) continue;
+        device = devices.devices[deviceUID].device;
+        if ((!device) || (!device.priority) || (winston.config.syslog.levels[datum.level] < device.priority)) continue;
+
+        client.publish(deviceUID.substring(5) + '/message', JSON.stringify(datum), { retain: true });
+      }
+    }
+  });
 };

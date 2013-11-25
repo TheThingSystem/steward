@@ -120,14 +120,15 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/koubachi/sensor'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name        : true
-                                   , status      : [ 'present' ]
-                                   , placement   : true
-                                   , lastSample  : 'timestamp'
-                                   , nextSample  : 'timestamp'
-                                   , moisture    : 'millibars'
-                                   , temperature : 'celsius'
-                                   , light       : 'lux'
+                    , properties : { name         : true
+                                   , status       : [ 'present' ]
+                                   , placement    : true
+                                   , lastSample   : 'timestamp'
+                                   , nextSample   : 'timestamp'
+                                   , moisture     : 'millibars'
+                                   , temperature  : 'celsius'
+                                   , light        : 'lux'
+                                   , batteryLevel : 'percentage'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

@@ -3,6 +3,7 @@
 // Insteon SmartLinc: http://www.insteon.com/2412N-smartlinc-central-controller.html
 
 var net         = require('net')
+  , serialport  = require('serialport')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -10,7 +11,8 @@ var net         = require('net')
   ;
 
 
-var logger = exports.logger = utility.logger('gateway');
+var logger  = exports.logger = utility.logger('gateway');
+var logger2                  = utility.logger('discovery');
 
 
 var Gateway = exports.Device = function(deviceID, deviceUID, info) {
@@ -29,9 +31,12 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
 
   self.status = 'ready';
   self.changed();
-  self.socket = info.socket;
-  self.ipaddr = info.portscan.ipaddr;
-  self.portno = info.portscan.portno;
+  self.stream = info.stream;
+  if (!!info.portscan) {
+    self.ipaddr = info.portscan.ipaddr;
+    self.portno = info.portscan.portno;
+  }
+  else self.comName = info.serialport.comName;
   self.buffer = null;
   self.queue = [];
   self.serial = 0;
@@ -59,7 +64,7 @@ util.inherits(Gateway, require('./../device-gateway').Device);
 Gateway.prototype.setup = function(self) {
   var callback, i;
 
-  if (!self.socket) {
+  if (!self.stream) {
     self.status = 'waiting';
     self.changed();
     self.buffer = null;
@@ -71,9 +76,19 @@ Gateway.prototype.setup = function(self) {
     self.queue = [];
     self.callbacks = {};
 
-    self.socket = new net.Socket({ type: 'tcp4' });
-    self.socket.on('connect', function() {
-      self.socket.setTimeout(0);
+    if (!!self.comName) {
+      self.stream = new serialport.SerialPort(self.comName);
+      return self.stream.on('open', function() {
+        self.status = 'ready';
+        self.changed();
+
+        self.refresh(self);
+      });
+    }
+
+    self.stream = new net.Socket({ type: 'tcp4' });
+    self.stream.on('connect', function() {
+      self.stream.setTimeout(0);
 
       self.status = 'ready';
       self.changed();
@@ -82,19 +97,21 @@ Gateway.prototype.setup = function(self) {
     }).connect(self.portno, self.ipaddr);
   }
 
-  self.socket.removeAllListeners();
-  self.socket.on('data', function(data) {
+  self.stream.removeAllListeners();
+  self.stream.on('data', function(data) {
     self.buffer = !!self.buffer ? Buffer.concat([ self.buffer, data ]) : data;
     self.process(self);
   }).on('error', function(error) {
     logger.warning('device/' + self.deviceID, { event: 'error', error: error });
-  }).on('timeout', function() {
-    logger.info('device/' + self.deviceID, { event: 'timeout' });
   }).on('end', function() {
     logger.info('device/' + self.deviceID, { event: 'closing' });
+  }).on('timeout', function() {
+// not emitted by serialport
+    logger.info('device/' + self.deviceID, { event: 'timeout' });
   }).on('close', function(errorP) {
     logger.info('device/' + self.deviceID, { event: errorP ? 'reset' : 'close' });
-    self.socket = null;
+
+    self.stream = null;
     setTimeout(function() { self.setup(self); }, 2 * 1000);
   });
 };
@@ -112,7 +129,7 @@ Gateway.prototype.roundtrip = function(self, request, prefixes, callback) {
 Gateway.prototype.request = function(self) {
   if (self.queue.length === 0) return;
   logger.debug('device/' + self.deviceID, { event: 'send message', message: self.queue[0].packet.toString('hex') });
-  self.socket.write(self.queue[0].packet);
+  self.stream.write(self.queue[0].packet);
 };
 
 Gateway.prototype.retry = function(self) { return function() { self.request(self); }; };
@@ -288,7 +305,7 @@ var messageTypes = {
                                self.status = 'reset';
                                self.changed();
 
-                               self.socket.destroy();
+                               if (!!self.ipaddr) self.stream.destroy(); else self.stream.close();
                              }
                   }
 
@@ -768,7 +785,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
 
   socket.setNoDelay();
   socket.on('data', function(data) {
-    var address, description, deviceType, firmware, i, id, info, manufacturer, modelName, modelNo, message, productCode, x;
+    var address, deviceType, firmware, i, id, info, manufacturer, modelName, modelNo, message, productCode, x;
 
     buffer = !!buffer ? Buffer.concat([ buffer, data ]) : data;
 
@@ -781,8 +798,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
 
     if ((buffer[1] != 0x60) || (buffer[8] != 0x06)) {
       logger.error('PORT ' + ipaddr + ':' + portno, { event: 'response', content: buffer.toString('hex').toLowerCase() });
-      socket.destroy();
-      return;
+      return socket.destroy();
     }
 
     message = buffer.toString('hex').toLowerCase();
@@ -812,7 +828,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
       modelName = modelName.substr(0, x - 1).trimRight();
     }
 
-    info = { source: 'portscan', portscan: { ipaddr: ipaddr, portno: portno }, socket: socket };
+    info = { source: 'portscan', portscan: { ipaddr: ipaddr, portno: portno }, stream: socket };
     info.device = { url          : 'tcp://' + ipaddr + ':' + portno
                   , name         : modelName + ' ' + address
                   , manufacturer : manufacturer
@@ -827,7 +843,6 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
                                    }
                   };
     info.url = null;
-    info.ipaddress = ipaddr;
     info.deviceType = '/device/gateway/insteon/';
     switch (productCode) {
       case '0330': info.deviceType += 'hub';       break;
@@ -837,16 +852,16 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
     info.id = info.device.unit.udn;
     if (!!devices.devices[info.id]) return socket.destroy();
 
-    utility.logger('discovery').info(tag, { id: address, description: description, firmware: firmware });
+    logger2.info(tag, { id: address, description: deviceType, firmware: firmware });
     devices.discover(info);
   }).on('error', function(error) {
-    if (!silentP) utility.logger('discovery').warning(tag, { event: 'error', error: error });
+    if (!silentP) logger2.warning(tag, { event: 'error', error: error });
   }).on('timeout', function() {
-    if (!silentP) utility.logger('discovery').info(tag, { event: 'timeout' });
+    if (!silentP) logger2.info(tag, { event: 'timeout' });
   }).on('end', function() {
-    if (!silentP) utility.logger('discovery').info(tag, { event: 'closing' });
+    if (!silentP) logger2.info(tag, { event: 'closing' });
   }).on('close', function(errorP) {
-    if (!silentP) utility.logger('discovery').info(tag, { event: errorP ? 'reset' : 'close' });
+    if (!silentP) logger2.info(tag, { event: errorP ? 'reset' : 'close' });
   }).write(new Buffer('0260', 'hex'));
   socket.setTimeout(3 * 1000);
 };
@@ -855,7 +870,133 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
 var sixtoid = function(six) { return six.substr(0, 2) + ':' + six.substr(2, 2) + ':' + six.substr(4, 2); };
 
 
-// TBD: discover
+var scanning      = {};
+
+var fingerprints  =
+  [
+    { vendor         : 'INSTEON'
+    , modelName      : 'PowerLinc #2413U'
+    , description    : 'Insteon PowerLinc USB (Dual-Band) #2413U'
+    , manufacturer   : 'FTDI'
+    , vendorId       : 0x0403
+    , productId      : 0x6001
+    , pnpId          : 'usb-FTDI_FT232R_USB_UART_'
+    }
+  ];
+
+var scan = function() {
+  serialport.list(function(err, info) {
+    var i, j;
+
+    if (!!err) return logger2.error('openzwave-usb', { diagnostic: err.message });
+
+    for (i = 0; i < info.length; i++) {
+      for (j = fingerprints.length - 1; j !== -1; j--) {
+        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
+              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
+                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
+                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
+          info[i].vendor = fingerprints[j].vendor;
+          info[i].modelName = fingerprints[j].modelName;
+          info[i].description = fingerprints[j].description;
+          scan1(info[i]);
+        }
+      }
+    }
+  });
+
+  setTimeout(scan, 30 * 1000);
+};
+
+var scan1 = function(driver) {
+  var buffer, comName, silentP, stream;
+
+  comName = driver.comName;
+  if (!!scanning[comName]) return;
+  scanning[comName] = true;
+
+  logger2.info(driver.comName, { manufacturer : driver.manufacturer
+                               , vendorID     : driver.vendorId
+                               , productID    : driver.productId
+                               , serialNo     : driver.serialNumber
+                               });
+  buffer = null;
+  silentP = false;
+
+  stream = new serialport.SerialPort(comName, { baudrate: 19200, databits: 8, parity: 'none', stopbits: 1 });
+  stream.on('open', function() {
+    stream.write(new Buffer('0260', 'hex'));
+  }).on('data', function(data) {
+    var address, deviceType, firmware, i, id, info, manufacturer, modelName, modelNo, message, productCode, x;
+
+    buffer = !!buffer ? Buffer.concat([ buffer, data ]) : data;
+
+    for (i = 0; i < buffer.length; i++) if (buffer[i] == 0x02) break;
+    if (i !== 0) buffer = ((i + 1) < buffer.length) ? buffer.slice(i + 1) : null;
+    if ((!buffer) || (buffer.length < 9)) return;
+
+    silentP = true;
+
+    if ((buffer[1] != 0x60) || (buffer[8] != 0x06)) {
+      logger.error(driver.comName, { event: 'response', content: buffer.toString('hex').toLowerCase() });
+      return stream.close();
+    }
+
+    message = buffer.toString('hex').toLowerCase();
+    id = message.substr(4, 6);
+    address = sixtoid(id);
+    productCode = message.substr(10, 4);
+    deviceType = deviceTypes[productCode] || ('Insteon device ' + productCode);
+    firmware = message.substr(14, 2) || null;
+
+    manufacturer = 'Insteon';
+    modelName = deviceType;
+    modelNo = '';
+    x = modelName.indexOf('/');
+    if (x > 0) {
+      manufacturer = modelName.substr(0, x - 1);
+      modelName = modelName.substr(x + 1);
+    }
+    x = modelName.indexOf('[');
+    if (x > 0) {
+      modelNo = modelName.substring(x + 1, modelName.length - 1);
+      modelName = modelName.substr(0, x - 1).trimRight();
+    }
+
+    info = { source: 'serialport', serialport: driver, stream: stream };
+    info.device = { url          : null
+                  , name         : modelName + ' ' + address
+                  , manufacturer : manufacturer
+                  , model        : { name        : 'Insteon.' + productCode
+                                   , description : deviceType
+                                   , number      : modelNo
+                                   }
+                  , unit         : { serial      : id
+                                   , udn         : 'insteon:' + address
+                                   , address     : address
+                                   , firmware    : firmware
+                                   }
+                  };
+    info.url = null;
+    info.deviceType = '/device/gateway/insteon/';
+    switch (productCode) {
+      case '0315': info.deviceType += 'usb';       break;
+      default:     info.deviceType += 'powerlinc'; break;
+    }
+    info.id = info.device.unit.udn;
+    if (!!devices.devices[info.id]) return stream.destroy();
+
+    logger2.info(driver.comName, { id: address, description: deviceType, firmware: firmware });
+    devices.discover(info);
+  }).on('error', function(error) {
+    if (!silentP) logger2.warning(driver.comName, { event: 'error', error: error });
+  }).on('end', function() {
+    if (!silentP) logger2.info(driver.comName, { event: 'closing' });
+  }).on('close', function(errorP) {
+    if (!silentP) logger2.info(driver.comName, { event: errorP ? 'reset' : 'close' });
+  });
+};
+
 
 exports.start = function() {
   steward.actors.device.gateway.insteon = steward.actors.device.gateway.insteon ||
@@ -874,18 +1015,19 @@ exports.start = function() {
       };
   devices.makers['/device/gateway/insteon/hub'] = Gateway;
 
-  steward.actors.device.gateway.insteon.smartlinc =
-      { $info     : { type       : '/device/gateway/insteon/smartlinc'
-                    , observe    : [ ]
-                    , perform    : [ ]
-                    , properties : { name   : true
-                                   , status : [ 'waiting', 'ready', 'reset' ]
-                                   }
-                    }
-      , $validate : { perform    : devices.validate_perform
-                    }
-      };
+  steward.actors.device.gateway.insteon.smartlinc = utility.clone(steward.actors.device.gateway.insteon.hub);
+  steward.actors.device.gateway.insteon.smartlinc.$info.type = '/device/gateway/insteon/smartlinc';
   devices.makers['/device/gateway/insteon/smartlinc'] = Gateway;
 
+  steward.actors.device.gateway.insteon.usb = utility.clone(steward.actors.device.gateway.insteon.hub);
+  steward.actors.device.gateway.insteon.usb.$info.type = '/device/gateway/insteon/usb';
+  devices.makers['/device/gateway/insteon/usb'] = Gateway;
+
+  steward.actors.device.gateway.insteon.powerlinc = utility.clone(steward.actors.device.gateway.insteon.hub);
+  steward.actors.device.gateway.insteon.powerlinc.$info.type = '/device/gateway/insteon/powerlinc';
+  devices.makers['/device/gateway/insteon/powerlinc'] = Gateway;
+
   require('./../../discovery/discovery-portscan').pairing([ 9761 ], pair);
+
+//  scan();
 };

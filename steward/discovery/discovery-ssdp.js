@@ -160,11 +160,14 @@ exports.ssdp_discover = function(info, options, callback) {
       }
 
       try { parser.parseString(content, function(err, data) {
-        if (err) return logger.error('discovery', { event      : 'parser.parseString'
-                                                  , options    : options
-                                                  , content    : content
-                                                  , diagnostic : err.message
-                                                  });
+        if (!!err) {
+          if (content === 'status=ok') return;    // Chromecast (when playing)
+          return logger.error('discovery', { event      : 'parser.parseString'
+                                           , options    : options
+                                           , content    : content
+                                           , diagnostic : err.message
+                                           });
+        }
         if (!data) data = { root: {} };
         if (!data.root.device) {
           data.root.device = [ { friendlyName     : [ '' ]

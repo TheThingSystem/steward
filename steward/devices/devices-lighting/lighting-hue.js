@@ -24,6 +24,7 @@ var Hue = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  self.getName();
 
   self.url = info.url;
   self.status = 'busy';
