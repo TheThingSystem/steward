@@ -151,7 +151,7 @@ var home = function(state) {
     div.appendChild(span);
     if (++a >= 12) break;
   }
-if (true) {
+if (false) {
   div = document.createElement('div');
   div.setAttribute('class', 'apprentices');
   chart.appendChild(div);
