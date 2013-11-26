@@ -14,6 +14,7 @@ var fs          = require('fs')
 
 var place1  = null;
 var version = null;
+var bootime = null;
 
 var events  = {};
 var nextick = null;
@@ -133,7 +134,10 @@ var Place = exports.Place = function(info) {
 
   if (!(self instanceof Place)) return new Place(info);
 
-  if (!place1) place1 = exports.place1 = self;
+  if (!place1) {
+    place1 = exports.place1 = self;
+    bootime = new Date().getTime() + (90 * 1000);
+  }
 
   self.whatami = info.deviceType;
 // NB: begin hack to allow us to use Device.proto.setInfo();
@@ -208,14 +212,26 @@ util.inherits(Place, devices.Device);
 
 
 Place.prototype.observe = function(self, eventID, observe, parameter) {
-  var diff, next, now, pair, params;
+  var diff, next, now, options, pair, params, rebootime;
 
   switch (observe) {
     case 'cron':
-      parser.parseExpression(parameter, function(err, interval) {
-        if (err) return steward.report(eventID, { event: 'parser.parserExpression', diagnostic: err.message });
+      options = {};
+      if (parameter === 'reboot') {
+        now = new Date().getTime();
+        if (bootime < now) return steward.report(eventID, { event: 'cron reboot', diagnostic: 'already fired' });
 
-        next = interval.next().getTime();
+        rebootime = new Date(bootime);
+        parameter = rebootime.getSeconds() + ' ' + rebootime.getMinutes() + ' ' + rebootime.getHours() + ' '
+                  + rebootime.getDate() + ' ' + rebootime.getMonth() + ' ' + rebootime.getDay();
+        options.endDate = new Date(bootime + (60 * 1000));
+      }
+      parser.parseExpression(parameter, options, function(err, interval) {
+        if (!!err) return steward.report(eventID, { event: 'parser.parserExpression', diagnostic: err.message });
+
+        try { next = interval.next().getTime(); } catch(ex) { 
+          return steward.report(eventID, { event: 'interval.next().getTime', diagnostic: ex.message });
+        }
         events[eventID] = { interval: interval, next: next, observe: observe, parameter: parameter };
 
         steward.report(eventID, {});
@@ -394,8 +410,9 @@ var validate_observe = function(observe, parameter) {
 
   switch (observe) {
     case 'cron':
+      if (parameter === 'reboot') break;
       parser.parseExpression(parameter, function(err, interval) {/* jshint unused: false */
-        if (err) result.invalid.push('parameter');
+        if (!!err) result.invalid.push('parameter');
       });
       break;
 
@@ -543,7 +560,7 @@ var readyP = function() {
 
   db = database.db;
   db.get('SELECT value from deviceProps where deviceID=0', function(err, row) {
-    if (err) logger.error('place/1', { event: 'SELECT deviceProps.value for deviceID=0', diagnostic: err.message });
+    if (!!err) logger.error('place/1', { event: 'SELECT deviceProps.value for deviceID=0', diagnostic: err.message });
     else if (row !== undefined) {
       params = null;
       try { params = JSON.parse(row.value); } catch(ex) {
@@ -560,7 +577,7 @@ var readyP = function() {
 
     db.run('INSERT INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
            { $deviceID: 0, $key: 'info', $value: '' }, function(err) {
-      if (err) logger.error('place/1', { event: 'INSERT deviceProps for deviceID=0', diagnostic: err.message });
+      if (!!err) logger.error('place/1', { event: 'INSERT deviceProps for deviceID=0', diagnostic: err.message });
     });
 
     new Place({ deviceType: '/place', name: 'Home' });
