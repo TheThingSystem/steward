@@ -183,6 +183,8 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 .actor-home  {position: absolute; text-align: center; width: 50px; height: 68px; overflow: hidden;}
 
 .actor-name         { width: 100px; text-align: center; font-weight: normal; color: #fff; }
+#toPopover  { cursor: pointer; }
+
 .grouping {        
         font-family: "Roadgeek 2005 Series D";
         font-size: 12px;

@@ -132,7 +132,7 @@ function dragmove(d) {
 var showPop = function(device) {
   // Popover window positioning/dimensions
   var w, h, t, l;
-  var entry = entries[device.deviceType] || entries['default'];
+  var entry = entries[device.deviceType] || entries.default(device.deviceType);
 
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/lighting/":
@@ -141,6 +141,11 @@ var showPop = function(device) {
 	case "/device/switch/":
 		w = 485, h = 497, t = 290, l = 133;
 		break;
+	case "/device/climate/":
+	    if (!device.deviceType.match("/control")) {
+		  w = 485, h = 497, t = 290, l = 133;
+		  break;
+		}
 	default:
 		w = 598, h = 497, t = 100, l = 83;
 		break
@@ -193,13 +198,17 @@ var showPop = function(device) {
 				return "popovers/assets/window.two-panel.bkg.svg";
 				break;
 			case "/device/climate/":
-				return "popovers/assets/window.three-panel.bkg.svg";
+	            if (device.deviceType.match("/control")) {
+				  return "popovers/assets/window.three-panel.bkg.svg";
+				} else {
+				  return "popovers/assets/window.short.popover.svg";
+				}
 				break;
 			case "/device/switch/":
 				return "popovers/assets/window.short.popover.svg";
 				break;
 			default:
-				return "popovers/assets/window.two-panel.bkg.svg";
+				return "popovers/assets/window.short.popover.svg";
 				break;
 		}	
 	}
@@ -429,13 +438,13 @@ var showPop = function(device) {
    function finishClimate() {
      var div, div2, elem;
      newPerform.perform = "set";
-     
+
      div = pop.append("div")
        .attr("id", "primary-controls");
      div.append("div")
        .attr("id", "actor")
        .append("img")
-         .attr("src", function(d, i) {return "popovers/assets/" + entries[device.deviceType].img; })
+         .attr("src", function(d, i) {return "popovers/assets/" + entry.img; })
          .attr("width", "43px");
      div.append("div")
        .attr("class", "popover-name")
@@ -667,32 +676,32 @@ var showPop = function(device) {
 
    function finishEmpty() {
        var elem;
-       finishCommon("done-wide");
+       finishCommon("done-narrow");
        
-       div = pop.append("span")
-           .attr("id", "hard-hat-area")
-           .style("background-color", "#367ad2")
-           .style("position", "absolute")
-           .style("left", "100px")
-           .style("top", "175px")
-           .style("width", "400px")
-           .style("height", "150px")
-           .style("text-align", "center")
-		   .style("-moz-border-radius", "20px")
-		   .style("-webkit-border-radius", "20px")
-		   .style("border-radius", "20px")
-		   .style("border", "6px solid #000");
-       div.append("p")
-       	   .style("color", "#fff")
-       	   .style("font-size", "32pt")
-       	   .style("margin", "28px 0px 28px 0px")
-       	   .style("padding", "0px")
-       	   .html("Coming soon!");
-       div.append("p")
-       	   .style("color", "#000")
-       	   .style("margin", "0px")
-       	   .style("padding", "0px")
-           .html("(This is a developer preview, and all of our<br />features are not yet functional. Check back soon.)");
+//        div = pop.append("span")
+//            .attr("id", "hard-hat-area")
+//            .style("background-color", "#367ad2")
+//            .style("position", "absolute")
+//            .style("left", "100px")
+//            .style("top", "175px")
+//            .style("width", "400px")
+//            .style("height", "150px")
+//            .style("text-align", "center")
+// 		   .style("-moz-border-radius", "20px")
+// 		   .style("-webkit-border-radius", "20px")
+// 		   .style("border-radius", "20px")
+// 		   .style("border", "6px solid #000");
+//        div.append("p")
+//        	   .style("color", "#fff")
+//        	   .style("font-size", "32pt")
+//        	   .style("margin", "28px 0px 28px 0px")
+//        	   .style("padding", "0px")
+//        	   .html("Coming soon!");
+//        div.append("p")
+//        	   .style("color", "#000")
+//        	   .style("margin", "0px")
+//        	   .style("padding", "0px")
+//            .html("(This is a developer preview, and all of our<br />features are not yet functional. Check back soon.)");
    };
    
 	function finishCommon(doneClass) {
@@ -702,7 +711,7 @@ var showPop = function(device) {
 	  div.append("div")
 	    .attr("id", "actor")
 	    .append("img")
-	      .attr("src", function(d, i) {return "popovers/assets/" + entries[device.deviceType].img; })
+	      .attr("src", function(d, i) {return "popovers/assets/" + entry.img; })
 	      .style("width", "43px");
 	  div.append("div")
 	    .attr("id", "popover-name")
@@ -800,7 +809,7 @@ var showPop = function(device) {
 	
 	function setDeviceName() {
 	  var elem = d3.event.target;
-	  if (entries[currDevice.device.deviceType].norename) {
+	  if (entry.norename) {
 	    notify("\"" + currDevice.device.name + "\" cannot be renamed from the steward.");
 	    elem.innerText = currDevice.device.name;
 	    elem.blur();

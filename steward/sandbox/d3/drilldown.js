@@ -102,7 +102,7 @@ var home = function(state) {
 
   for (a = i = 0; i < devices.length; i++) {
     device = devices[i];
-    entry = entries[device.deviceType] || entries['default'];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
     if ((!entry) || (!entry.img)) continue;
 
     actor = document.createElement('div');
@@ -190,7 +190,7 @@ var home = function(state) {
   a = (a >= 11) ? 0 : Math.floor((12 - a) / 2);
   for (prop in categories) if (categories.hasOwnProperty(prop)) {
     if (prop === "gateway" || prop === "indicator") continue;
-    entry = entries[prop] || entries['default'];
+    entry = entries[prop] || entries.default(prop);
     if ((!entry) || (!entry.img)) continue;
 
     category = document.createElement('div');
@@ -290,7 +290,7 @@ var onUpdate_drilldown = function(updates) {
     actors[update.whoami].status = update.status;
     actors[update.whoami].updated = update.updated;
     
-    entry = entries[update.whatami] || entries['default'];
+    entry = entries[update.whatami] || entries.default(update.whatami);
     currDevice.entry = entry;
     arcs = entry.arcs(update);
     
@@ -317,7 +317,9 @@ var onUpdate_drilldown = function(updates) {
       document.getElementById("actor-big-icon").style.backgroundColor = statusColor(update);
       document.getElementById("actor-big-name").style.color = statusColor(update);
       document.getElementById("actor-big-name").innerText = currDevice.device.name;
-      document.getElementById("single-device-instructions").innerHTML = entry.instrux(currDevice.device);
+      if (document.getElementById("single-device-instructions")) {
+        document.getElementById("single-device-instructions").innerHTML = entry.instrux(currDevice.device);
+      }
       drawArcs(arcs);
       // Update popover controls, if present
       if (document.getElementById("pop-substrate")) {
@@ -432,7 +434,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .style('overflow', 'hidden');
        
     actor.append('img')
-       .attr('src', function(d, i) {entry = entries[devices[i].deviceType] || entries['default']; return entry.img; })
+       .attr('src', function(d, i) {entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType); return entry.img; })
        .style('background-color', function(d, i) {return statusColor(devices[i]); })
        .attr('class', 'actor-grouping')
        .attr('id', function(d, i) {return actor2ID(devices[i].actor) + "-tray-icon";})
@@ -452,7 +454,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   } else {
     device = devices[0];
     currDevice.device = device;
-    entry = entries[device.deviceType] || entries['default'];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
     currDevice.entry = entry;
     div.innerHTML = '<div style="width: 155px; height: 155px; position: relative; left: 62px; overflow: hidden;"><img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /></div>'
                     + '<div id="toPopover" class="big-instructions">'
@@ -1545,7 +1547,7 @@ var category_drilldown = function(state, prefix) {
 
     device = actors[actor];
     if (device.deviceType.indexOf(prefix) !== 0) continue;
-    entry = entries[device.deviceType] || entries['default'];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
     if ((!entry) || (!entry.arcs)) continue;
 
     members.push(device);
@@ -1604,7 +1606,7 @@ var tag_drilldown = function(state) {
   members = [];
   for (i = 0; i < group.length; i++) {
     device = group[i];
-    entry = entries[device.deviceType] || entries['default'];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
     if ((!entry) || (!entry.arcs)) continue;
 
     members.push(device);
@@ -1627,7 +1629,7 @@ var multiple_drilldown = function(name, members) {
   members.sort(multiSort("deviceType", "name"));
   for (i = 0; i < members.length; i++) {
     device = members[i];
-    entry = entries[device.deviceType] || entries['default'];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
     if ((!entry) || (!entry.arcs)) continue;
 
     arcz = entry.arcs(device);
@@ -1648,7 +1650,7 @@ var multiple_drilldown = function(name, members) {
 
     case 1:
       device = devices[0];
-      entry = entries[device.deviceType] || entries['default'];
+      entry = entries[device.deviceType] || entries.default(device.deviceType);
       if (!!entry.single) entry.single({ page: entry.single, actor: device.actor });
       break;
 
@@ -2163,12 +2165,78 @@ var entries = {
                                                               , arcs    : wearable_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
-              , 'default'                                   : { img     : 'actors/t.svg'
-                                                              , single  : single_device_drilldown
-                                                              , arcs    : single_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              }
-
+// defaults for unknown device types
+			  , default     								: function(deviceType) {
+			  													var result = { img     : 'actors/t.svg'
+			  													             , single  : single_device_drilldown
+			  													             , arcs    : single_device_arcs
+			  													             , instrux : single_device_instructions 
+			  													             , pop     : ''
+			  													             };
+			  													
+			  													var typeGroup = deviceType.split('/')[2];
+			  													
+			  													switch (typeGroup) {
+			  													  case 'climate':
+			  													    if (deviceType.match("/control")) {
+			  													      result.single = single_thermostat_drilldown;
+			  													      result.arcs = thermostat_device_arcs;
+			  													      result.instrux = single_thermostat_instructions;
+			  													      result.pop = 'thermostat_pop';
+			  													    } else {
+			  													      result.single = single_climate_drilldown;
+			  													      result.arcs = climate_device_arcs;
+			  													      result.instrux = single_device_instructions;
+			  													    }
+			  													    break;
+			  													  case 'indicator':
+			  													    result.single = single_indicator_drilldown;
+			  													    result.arcs = indicator_device_arcs;
+			  													    result.instrux = single_device_instructions;
+			  													    break;
+			  													  case 'lighting':
+			  													    result.single = single_lighting_drilldown;
+			  													    result.arcs = lighting_device_arcs;
+			  													    result.instrux = single_lighting_instructions;
+			  													    result.pop = 'lighting_pop';
+			  													    break;
+			  													  case 'media':
+			  													    result.single = single_media_drilldown;
+			  													    result.arcs = media_device_arcs;
+			  													    result.instrux = single_media_instructions;
+			  													    result.pop = 'media_pop';
+			  													    break;
+			  													  case 'motive':
+			  													    result.single = single_motive_drilldown;
+			  													    result.arcs = motive_device_arcs;
+			  													    result.instrux = single_motive_instructions;
+			  													    result.pop = 'motive_pop';
+			  													    break;
+			  													  case 'presence':
+			  													    result.single = single_presence_drilldown;
+			  													    result.arcs = presence_device_arcs;
+			  													    result.instrux = single_device_instructions;
+			  													    break;
+			  													  case 'sensor':
+			  													    result.single = single_sensor_drilldown;
+			  													    result.arcs = sensor_device_arcs;
+			  													    result.instrux = no_instructions;
+			  													    break;
+			  													  case 'switch':
+			  													    result.single = single_switch_drilldown;
+			  													    result.arcs = switch_device_arcs;
+			  													    result.instrux = single_lighting_instructions;
+			  													    result.pop = 'switch_pop';
+			  													    break;
+			  													  case 'wearable':
+			  													    result.single = single_wearable_drilldown;
+			  													    result.arcs = wearable_device_arcs;
+			  													    result.instrux = single_lighting_instructions;
+			  													    break;
+			  													}
+			  													
+			  													return result;
+			                                                  }
 // categories
               , climate                                     : { img     : 'categories/climate.svg'
                                                               , single  : category_climate_drilldown
