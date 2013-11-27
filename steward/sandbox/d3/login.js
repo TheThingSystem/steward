@@ -436,7 +436,6 @@ var addCloud = function(evt) {
                          , info      : info || {}
                          });
     wsSend(val);
-    notify(name + " cloud service added to the steward.")
     for (i = 0; i < labels.length; i++) {
       document.getElementById("bootChoice" + i).value = "";
       info[getKeys(info)[i]] = "";

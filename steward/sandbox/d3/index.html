@@ -121,7 +121,7 @@ var go = function(steward) {
     }
   
     ws2.onmessage = function(evt) {
-      var device, devices, entry, i, message, msgHash, requestID, state;
+      var device, devices, entry, i, message, failure = false, requestID, state;
 	
       try {
 	    message = JSON.parse(evt.data);
@@ -129,7 +129,17 @@ var go = function(steward) {
 	  
         requestID = message.requestID.toString();
 	  
-        if ((!!message.error) && (!message.error.permanent) && (requestID !== "7")) return;
+        if (message.hasOwnProperty("error")) {
+          if (message.error.permanent) {
+            priorityNotify(message.error.diagnostic);
+          } else {
+            notify(message.error.diagnostic);
+          }
+        }
+        
+        if (message.hasOwnProperty("result") && message.result.hasOwnProperty("status")) {
+          failure = message.result.status !== "success";
+        }
         
 	    switch (requestID) {
 	      case "0": // Draw entire page & start listening for updates		  
@@ -145,14 +155,10 @@ var go = function(steward) {
 			  (state.page)(state);
 			  break;
 	      case "2":  // Perform from popover
-			  if (message.result.status !== "success") {
-				console.log("Steward perform status: " + message.result.status);
-			  }
+			  if (failure) notify("Setting the device property failed.");
 			  break;
 	      case "3":  // Perform from settings
-			  if (message.actors["place/1"] && message.actors["place/1"].status !== "success") {
-				console.log("Steward perform status: " + message.result.status);
-			  }
+			  if (failure) notify("Sending new settings to the steward failed.");
 			  break;
 		  case "4":  // Apprentice actors
 		      apprenticeActors = message;
@@ -222,7 +228,15 @@ var go = function(steward) {
       }
       waitP = false;
     }
-      
+    
+    if (message.hasOwnProperty("error")) {
+      if (message.error.permanent) {
+        priorityNotify(message.error.diagnostic);
+      } else {
+        notify(message.error.diagnostic);
+      }
+    }
+
     try {
       if (message.hasOwnProperty(".updates") && (message[".updates"].length > 0)) {
         for (i = 0; i < message[".updates"].length; i++) {

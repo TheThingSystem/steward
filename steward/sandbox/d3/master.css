@@ -201,7 +201,7 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
 }
 
 
-#chart div.categories { position: absolute; top: 461px; left: 180px; text-align: center; width: 680px; height: 100px; }
+#chart div.categories { position: absolute; top: 461px; left: 60px; text-align: center; width: 720px; height: 100px; }
 #chart div.category { text-align: center; width: 50px; position: relative; float: left; padding: 5px 4px; cursor: pointer; }
 
 #chart .wrapper {        

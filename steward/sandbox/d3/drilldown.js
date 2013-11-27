@@ -48,6 +48,16 @@ var notify = function(msg, next) {
   	.style('top', '0px');
 }
 
+var priorityNotify = function(msg) {
+  var currMsg, hasNext = false;
+  if (document.getElementById('notification')) {
+    currMsg === d3.select('#notification').text().substring(1)
+    alertQueue.unshift(currMsg);
+    hasNext = true;
+  }
+  notify(msg, hasNext);
+}
+
 var home = function(state) {
   var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
   var actorHeight = 80, actorRow = 0, actorWidth = 58;
@@ -187,6 +197,7 @@ if (false) {
 
   a = 0;
   for (prop in categories) if (categories.hasOwnProperty(prop)) a++;
+  div.setAttribute('style', 'left:' + (435 - ((60 * a)/2)) + 'px');
   a = (a >= 11) ? 0 : Math.floor((12 - a) / 2);
   for (prop in categories) if (categories.hasOwnProperty(prop)) {
     if (prop === "gateway" || prop === "indicator") continue;
