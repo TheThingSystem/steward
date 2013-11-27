@@ -8,7 +8,7 @@ The easiest way to configure your XBee radio is to use X-CTU. This is a firmware
 
 Download X-CTU and install it on your laptop or desktop machine. When you run it you should get something that looks a lot like this,
 
-![X-CTU](Images/xctu-1.png)
+![X-CTU](images/xctu-1.png)
 
 now go ahead and plug your XBee Wi-Fi radio into your laptop using an appropriate [adaptor board](http://www.adafruit.com/products/247)
 
