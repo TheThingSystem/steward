@@ -1,6 +1,7 @@
 // RFXrec433 - USB 433.92MHz receiver: http://www.rfxcom.com/store/Receivers/12113
 
 var rfxcom      = require('rfxcom')
+  , serialport  = require('serialport')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -8,7 +9,8 @@ var rfxcom      = require('rfxcom')
   ;
 
 
-var logger   = exports.logger = utility.logger('gateway');
+var logger  = exports.logger = utility.logger('gateway');
+var logger2                  = utility.logger('discovery');
 
 
 var Gateway = exports.Device = function(deviceID, deviceUID, info) {
@@ -58,6 +60,8 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
     logger.info('device/' + self.deviceID,  { event: 'lighting5', params: evt });
   }).on('data',  function(data) {
     logger.debug('device/' + self.deviceID, { event: 'data',      params: data.toString('hex') });
+  }).on('receive',  function(data) {
+    logger.debug('device/' + self.deviceID, { event: 'receive',   params: data.toString('hex') });
   }).initialise(function() {
     logger.info('device/' + self.deviceID,  { event: 'initialize' });
   });
@@ -103,46 +107,90 @@ Gateway.prototype.thX = function(self, evt) {
 };
 Gateway.prototype.tempX = Gateway.prototype.thX;
 
+
+var scanning      = {};
+
+var fingerprints  =
+  [
+    { vendor         : 'RFXCOM'
+    , modelName      : 'RFXtrx433'
+    , description    : 'USB 433.92MHz transceiver'
+    , manufacturer   : 'RFXCOM'
+    , vendorId       : 0x0403
+    , productId      : 0x6001
+    , deviceType     : '/device/gateway/rfxtrx433/usb'
+    }
+  , { vendor         : 'RFXCOM'
+    , modelName      : 'RFXrec433'
+    , description    : 'USB 433.92MHz receiver'
+    , manufacturer   : 'RFXCOM'
+    , vendorId       : 0x0403
+    , productId      : 0x6001
+    , pnpId          : 'usb-RFXCOM_RFXrec433_'
+    , deviceType     : '/device/gateway/rfxrec433/usb'
+    }
+  ];
+
 var scan = function() {
-  rfxcom.devices(function(err, results) {
-    var device, i, info, rfx, udn;
+  serialport.list(function(err, info) {
+    var i, j;
 
-    if (err) return utility.logger('discovery').error('RFXrec433-usb', { diagnostic: err.message });
+    if (!!err) return logger2.error('RFXrec433-usb', { diagnostic: err.message });
 
-    for (i = 0; i < results.length; i++) {
-      device = results[i];
-      udn = 'rfxcom:' + device.serialNumber;
-      if (!!devices.devices[udn]) continue;
-
-      rfx = new rfxcom.RfxCom(device.comName, { debug: true, logger: utility.logger('discovery') });
-
-      info = { source: device, rfx: rfx };
-      info.device = { url          : null
-                    , name         : 'RFXrec433 #' + device.serialNumber
-                    , manufacturer : device.manufacturer
-                    , model        : { name        : 'RFXrec 433'
-                                     , description : 'USB 433.92MHz receiver'
-                                     , number      : device.productId
-                                     }
-                    , unit         : { serial      : device.serialNumber
-                                     , udn         : udn
-                                     }
-                    };
-      info.url = info.device.url;
-      info.deviceType = '/device/gateway/rfxrec433/usb';
-      info.id = info.device.unit.udn;
-      if (!!devices.devices[info.id]) return;
-
-      utility.logger('discovery').info(device.comName, { manufacturer : device.manufacturer
-                                                       , vendorID     : device.vendorId
-                                                       , productID    : device.productId
-                                                       , serialNo     : device.serialNumber
-                                                       });
-      devices.discover(info);
+    for (i = 0; i < info.length; i++) {
+      for (j = fingerprints.length - 1; j !== -1; j--) {
+        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
+              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
+                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
+                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
+          info[i].vendor = fingerprints[j].vendor;
+          info[i].modelName = fingerprints[j].modelName;
+          info[i].description = fingerprints[j].description;
+          info[i].deviceType = fingerprints[j].deviceType;
+          scan1(info[i]);
+        }
+      }
     }
   });
 
   setTimeout(scan, 30 * 1000);
+};
+
+var scan1 = function(driver) {
+  var comName, info, rfx, udn;
+
+  comName = driver.comName;
+  if (!!scanning[comName]) return;
+  scanning[comName] = true;
+
+  udn = 'rfxcom:' + driver.serialNumber;
+  if (!!devices.devices[udn]) return;
+
+  rfx = new rfxcom.RfxCom(comName, { debug: true, logger: logger2 });
+
+  info = { source: driver, rfx: rfx };
+  info.device = { url          : null
+                , name         : driver.modelName + ' #' + driver.serialNumber
+                , manufacturer : driver.manufacturer
+                , model        : { name        : driver.modelName
+                                 , description : driver.description
+                                 , number      : driver.productId
+                                 }
+                , unit         : { serial      : driver.serialNumber
+                                 , udn         : udn
+                                 }
+                };
+  info.url = info.device.url;
+  info.deviceType = driver.deviceType;
+  info.id = info.device.unit.udn;
+  if (!!devices.devices[info.id]) return;
+
+  logger2.info(comName, { manufacturer : driver.manufacturer
+                        , vendorID     : driver.vendorId
+                        , productID    : driver.productId
+                        , serialNo     : driver.serialNumber
+                        });
+  devices.discover(info);
 };
 
 
@@ -162,6 +210,11 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/rfxrec433/usb'] = Gateway;
+
+  steward.actors.device.gateway.rfxtrx433 = utility.clone(steward.actors.device.gateway.rfxrec433);
+  steward.actors.device.gateway.rfxtrx433.$info.type = '/device/gateway/rfxtrx433';
+  steward.actors.device.gateway.rfxtrx433.usb.$info.type = '/device/gateway/rfxtrx433/usb';
+  devices.makers['/device/gateway/rfxtrx433/usb'] = Gateway;
 
   scan();
 };
