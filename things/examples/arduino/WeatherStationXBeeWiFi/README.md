@@ -56,9 +56,9 @@ Plug the XBee Wi-Fi into the socket on the Wireless SD Shield and the shield int
 
 Open up the Arduino development environment and set the Board type and Serial port to the correct values and then upload the following [sketch](WeatherStationXBeeWiFi.ino) to the Arduino
 
-#include <DHT.h>
-#define DHTTYPE DHT22
-
+    #include <DHT.h>
+    #define DHTTYPE DHT22
+    
     const int dhtPin = 2;
     DHT dht(dhtPin, DHTTYPE);
     
