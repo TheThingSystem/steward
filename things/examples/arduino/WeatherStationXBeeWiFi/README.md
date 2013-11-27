@@ -36,7 +36,7 @@ Scroll down to the _Addressing_ section of the configuration and set the DL, the
 
 You should also set the DE, the destination port, to the correct TRSP port. However you should note that the XBee wants you to enter the port numbe in hexidecimal. Since we want port 22601 we need to enter 5849 here for the destination port number. These lines should turn green, as before.
 
-[X-CTU](images/xctu-5.png)
+![X-CTU](images/xctu-5.png)
 
 Click on the "Pencil" button again to write them to your radio, the lines should turn blue, showing that they've been modified to the radio, and written to the radio.
 
