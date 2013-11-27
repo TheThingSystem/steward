@@ -10,5 +10,11 @@ Download X-CTU and install it on your laptop or desktop machine. When you run it
 
 ![X-CTU](images/xctu-1.png)
 
-now go ahead and plug your XBee Wi-Fi radio into your laptop using an appropriate [adaptor board](http://www.adafruit.com/products/247)
+Now go ahead and plug your XBee Wi-Fi radio into your laptop using an appropriate [adaptor board](http://www.adafruit.com/products/247).
+
+![XBee in adaptor](images/xbee-1.jpg)
+
+Hit the "plus" button at the upper left of the X-CTU interface to bring up a list of Serial/USB ports. Select the correct port and hit "Finish." A popup window will appear as X-CTU looks for any radios connected to that port. Afterward you should get something that looks a lot like this,
+
+![X-CTU](images/xctu-2.png)
 
