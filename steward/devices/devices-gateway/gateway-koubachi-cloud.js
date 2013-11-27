@@ -182,12 +182,12 @@ Cloud.prototype.addstation = function(self, station) {
 };
 
 Cloud.prototype.addplant = function(self, plant) {
-  var device, info, last, params, udn;
+  var device, info, params, udn;
 
-  last = plant.last || new Date();
+  if (!plant.last) return;    // Pro sometimes "forgets" to include update time...
 
   params = { placement       : plant.location
-           , lastSample      : last.getTime()
+           , lastSample      : plant.last.getTime()
            , needsWater      : plant.vdm_water_pending      ? 'true' : 'false'
            , needsMist       : plant.vdm_mist_pending       ? 'true' : 'false'
            , needsFertilizer : plant.vdm_fertilizer_pending ? 'true' : 'false'
