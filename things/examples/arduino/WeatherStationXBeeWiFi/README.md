@@ -167,7 +167,7 @@ When the sketch runs, if you're watching the console log from the steward you sh
 
 which indicates that the steward has detected the new 'thing.'
 
-If you go to [http://steward.local:8888](http://steward.local:8888) and look at the d3 client you should see your new Weather Station has appeared in your list of things.
+If you go to [https://steward.local:8888](https://steward.local:8888) and look at the d3 client you should see your new Weather Station has appeared in your list of things.
 
 ![d3 client](images/d3-1.png)
 
