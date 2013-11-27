@@ -46,7 +46,11 @@ You can now unplug your XBee Wi-Fi from the XBee adaptor connected to your lapto
 
 ###Wiring the Breadboard
 
+![Wiring](WeatherStationXBeeWiFi.jpg)
 
+We're going to use an [Arduino Leonardo](http://arduino.cc/en/Main/arduinoBoardLeonardo) and the [Arduino Wireless SD Shield](http://arduino.cc/en/Main/ArduinoWirelessShield) along with a [DHT-22](http://www.adafruit.com/products/385) sensor to create a simple weather station measuring temperature and pressure which will report its readings via [TRSP](https://github.com/TheThingSystem/steward/wiki/Thing-Sensor-Reporting-Protocol) to the steward.
+
+![Wiring](WeatherStationXBeeWiFi.png)
 
 ###Running the Sketch
 
