@@ -42,7 +42,7 @@ Click on the "Pencil" button again to write them to your radio, the lines should
 
 We have now finished configuring the XBee radio. You might want to go and check your home router to make sure it has successfully associated with your wireless network. The first time it does so, it might take a few moments to acquire a DHCP address.
 
-You can now unplug it from the XBee adaptor
+You can now unplug your XBee Wi-Fi from the XBee adaptor connected to your laptop.
 
 ###Wiring the Breadboard
 
