@@ -64,7 +64,7 @@ PixelPusher.prototype.update = function(self, controller) {
     self.changed();
   });
 
-  for (led = 0; led < self.pixelpusher.numberStrips; led++) { self.addchild(self, led); break; }
+  for (led = 0; led < self.pixelpusher.numberStrips; led++) { self.addchild(self, led); }
 };
 
 PixelPusher.prototype.addchild = function(self, led) {
@@ -263,6 +263,16 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
 };
 
 /*
+  range syntax:
+    terms = term [',' terms]
+    term  = digits | ( digits '-' digits ( '/' digits )
+
+  e.g.,
+    0-79   : 0, 1, ..., 79
+    0-78/2 : 0, 2, ..., 78
+    
+
+
   { color: { model  : 'rgb'
            , pixels : { '0-79'    : { r: 255, g: 0,   b: 0 } 
                       , '80-159'  : { r: 0,   g: 255, b: 0 } 
@@ -273,14 +283,15 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
  */
 
 PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
-  var black, color, i, offset, p, pixel, pixels, props, q, rgb, rgb16, rgbow, state, strip, width;
+  var black, color, i, offset, p, pixel, pixels, props, q, r, rgb, rgb16, rgbow, state, strip, width;
 
-  var set = function(color, lo, hi) {
+  var set = function(color, lo, hi, dx) {
     lo = parseInt(lo, 10);
     hi = parseInt(hi, 10);
-    if ((lo === NaN) || (lo < 0) || (hi === NaN) || (hi >= strip.length) || (lo > hi)) return false;
+    dx = parseInt(dx, 10);
+    if (isNaN(lo) || (lo < 0) || isNaN(hi) || (hi >= strip.length) || (lo > hi) || isNaN(dx) || (dx < 1)) return false;
 
-    while (lo <= hi) strip[lo++] = color;
+    for (; lo <= hi; lo += dx) strip[lo] = color;
     return true;
   };
 
@@ -328,7 +339,8 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
     for (i = 0; i < p.length; i++) {
       q = p[i].split('-');
       if (q.length > 2) return false;
-      if (!set(color, q[0], q[q.length - 1])) return false;
+      r = q[1].split('/');
+      if (!set(color, q[0], r[0], r[1] || 1)) return false;
     }
   }
   if (!performP) return true;

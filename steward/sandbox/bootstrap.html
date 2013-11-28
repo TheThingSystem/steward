@@ -102,6 +102,40 @@ var bootable = { prowl          :
 
 
 var bootstrap = function(steward, ws) {
+/*
+  var iter   = 0
+    , red    = { r: 255, g:   0, b:   0 }
+    , orange = { r: 255, g: 165, b:   0 }
+    , yellow = { r: 255, g: 255, b:   0 }
+    , green  = { r:   0, g: 255, b:   0 }
+    , blue   = { r:   0, g:   0, b: 255 }
+    , indigo = { r:  75, g:   0, b: 130 }
+    , violet = { r: 143, g:   0, b: 255 }
+    , black  = { r:   0, g:   0, b:   0 }
+    , white  = { r: 255, g: 255, b: 255 }
+    , colors = [ red, orange, yellow, green, blue, indigo, violet, black, white ];
+    ;
+
+  return setInterval(function() {
+    perform_device(ws, 160, 'pixels',
+                   { color: { model  : 'rgb', pixels: { '0-39/3': colors[iter       % colors.length]
+                                                      , '1-39/3': colors[(iter + 1) % colors.length]
+                                                      , '2-39/3': colors[(iter + 2) % colors.length]
+                                                      } } });
+    perform_device(ws, 161, 'pixels',
+                   { color: { model  : 'rgb', pixels: { '0-39/3': colors[(iter + 3) % colors.length]
+                                                      , '1-39/3': colors[(iter + 4) % colors.length]
+                                                      , '2-39/3': colors[(iter + 5) % colors.length]
+                                                      } } });
+    perform_device(ws, 162, 'pixels',
+                   { color: { model  : 'rgb', pixels: { '0-39/3': colors[(iter + 6) % colors.length]
+                                                      , '1-39/3': colors[(iter + 7) % colors.length]
+                                                      , '2-39/3': colors[(iter + 8) % colors.length]
+                                                      } } });
+    iter++;
+  }, 1000);
+*/
+
   list_actors(ws, '', { depth : 'all' }, function(message) {
     var a, actor, actors, d, emptyP, entry, info, name, prop, z;
 
