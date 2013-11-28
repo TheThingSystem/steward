@@ -169,7 +169,7 @@ var perform = function(logger, ws, api, message, tag) {
 
   results = { requestID: message.requestID };
 
-  if (!!device.perform) logger.notice('device/' + device.deviceID, { api: 'device', perform: message.perform, parameter: p });
+  if (!!device.perform) logger.debug('device/' + device.deviceID, { api: 'device', perform: message.perform, parameter: p });
   performed = (!!device.perform) ? (device.perform)(device, null, message.perform, p) : false;
   results.result = { status: performed ? 'success' : 'failure' };
 
