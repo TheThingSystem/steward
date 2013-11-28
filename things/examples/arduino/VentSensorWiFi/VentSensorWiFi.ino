@@ -137,21 +137,21 @@ void loop() {
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-  strcat(packetBuffer, dtostrf(concentration, 12, 4, buffer));
+  strcat(packetBuffer, dtostrf((double) concentration, 12, 4, buffer));
 
   if (flow >= 0.0) {
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-    strcat(packetBuffer, dtostrf(flow, 12, 4, buffer));
+    strcat(packetBuffer, dtostrf((double) flow, 12, 4, buffer));
   }
 
   if (!isnan(temperature)) {
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-    strcat(packetBuffer, dtostrf(temperature, 12, 4, buffer));
+    strcat(packetBuffer, dtostrf((double) temperature, 12, 4, buffer));
   }
 
   if (!isnan(humidity)) {
     strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
-    strcat(packetBuffer, dtostrf(humidity, 12, 4, buffer));
+    strcat(packetBuffer, dtostrf((double) humidity, 12, 4, buffer));
   }
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket8) );

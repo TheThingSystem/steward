@@ -28,7 +28,7 @@ unsigned long debounce_flame = 0;
 
 // logic taken from http://www.seeedstudio.com/wiki/Grove_-_HCHO_Sensor
 #define HCHO_SENSOR  A4
-int previous_hcho  = -1;
+float previous_hcho  = -1;
 
 #define NO2_SENSOR   A3
 float previous_no2 = -1;
@@ -166,16 +166,16 @@ void loop() {
   strcat(packetBuffer,flame ? "detected" : "absent");
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-  strcat(packetBuffer, dtostrf(mq2, 12, 4, buffer));
+  strcat(packetBuffer, dtostrf((double) mq2, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
-  strcat(packetBuffer, dtostrf(mq9, 12, 4, buffer));
+  strcat(packetBuffer, dtostrf((double) mq9, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket8) );
-  strcat(packetBuffer, dtostrf(no2, 12, 4, buffer));
+  strcat(packetBuffer, dtostrf((double) no2, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
-  strcat(packetBuffer, dtostrf(hcho, 12, 4, buffer));
+  strcat(packetBuffer, dtostrf((double) hcho, 12, 4, buffer));
 
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket10) );
   strcat(packetBuffer, ultoa( now, buffer, 10) );

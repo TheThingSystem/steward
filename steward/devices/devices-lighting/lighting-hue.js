@@ -383,7 +383,7 @@ Hue.prototype.addlight = function(self, id, props) {
       break;
 
     default:
-      whatami = '/device/lighting/hue/bulb';
+      whatami = (props.modelid !== 'LCT002') ? '/device/lighting/hue/bulb' : '/device/lighting/hue/downlight';
       break;
   }
   self.lights[id] = { whatami : whatami
@@ -797,6 +797,9 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform_bulb }
       };
+
+  steward.actors.device.lighting.hue.downlight = utility.clone(steward.actors.device.lighting.hue.bulb);
+  steward.actors.device.lighting.hue.downlight.$info.type = '/device/lighting/hue/downlight';
 
   steward.actors.device.lighting.hue.bloom = utility.clone(steward.actors.device.lighting.hue.bulb);
   steward.actors.device.lighting.hue.bloom.$info.type = '/device/lighting/hue/bloom';

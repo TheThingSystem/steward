@@ -131,13 +131,13 @@ void loop() {
       strcat(packetBuffer, buffer); 
   }   
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket4) );
-  strcat(packetBuffer, dtostrf(no2,12,4,buffer));
+  strcat(packetBuffer, dtostrf((double) no2,12,4,buffer));
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket5) );
-  strcat(packetBuffer, dtostrf(co,12,4,buffer));
+  strcat(packetBuffer, dtostrf((double)co,12,4,buffer));
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket6) );
-  strcat(packetBuffer, dtostrf(t,4,2,buffer));
+  strcat(packetBuffer, dtostrf((double)t,4,2,buffer));
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket7) );
-  strcat(packetBuffer, dtostrf(h,4,2,buffer));
+  strcat(packetBuffer, dtostrf((double)h,4,2,buffer));
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket8) );
   strcat(packetBuffer, ultoa( millis(), buffer, 10) );
   strcat(packetBuffer,(char*)pgm_read_word(&loopPacket9) );
