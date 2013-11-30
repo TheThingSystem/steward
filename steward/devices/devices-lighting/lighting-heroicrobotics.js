@@ -87,7 +87,7 @@ PixelPusher.prototype.addchild = function(self, led) {
                      , type    : whatami
                      , name    : 'LED strip #' + led.toString()
                      , state   : state
-                     , number  : self.pixelpusher.pixelsPerStrip
+                     , pps     : self.pixelpusher.pixelsPerStrip
                      , updated : self.updated
                      };
 
@@ -141,7 +141,7 @@ var childprops = function(self, led) {
           , whoami    : 'device/' + props.deviceID
           , name      : props.name
           , status    : props.state.on ? 'on' : 'off'
-          , info      : { color: props.state.color, pps: self.pixelpusher.pixelsPerStrip }
+          , info      : { color: props.state.color, pps: props.pps }
           , deviceID  : props.deviceID
           , updated   : props.updated
           };
@@ -155,7 +155,7 @@ var childprops = function(self, led) {
 };
 
 PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) {
-  var i, offset, params, pixel, pixels, props, rgb, rgb16, rgbow, state, width;
+  var i, params, pixels, props, state, width;
 
   state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
@@ -167,97 +167,26 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
     return false;
   }
 
-  if (perform === 'off') state.on = false;
-  else if (perform === 'pixels') return self.pixels(self, taskID, true, params, led);
+  if (perform === 'off') {
+    width = { rgb: 3, rgb16: 6, rgbow: 9 }[props.state.color.model];
+    if (!width) return false;
+  } else if (perform === 'pixels') return self.pixels(self, taskID, true, params, led);
   else if (perform !== 'on') return false;
   else {
-    state.on = true;
-
     state.color = params.color || props.state.color;
-    switch (state.color.model) {
-      case 'rgb':
-        if (!lighting.validRGB(state.color.rgb)) return false;
-        rgb = state.color.rgb;
-        if ((rgb.r === 0) && (rgb.g === 0) && (rgb.b === 0)) state.on = false;
-        break;
-
-      case 'rgb16':
-        if (!lighting.validRGB16(state.color.rgb16)) return false;
-        rgb16 = state.color.rgb16;
-        if ((rgb16.r === 0) && (rgb16.g === 0) && (rgb16.b === 0)) state.on = false;
-        break;
-
-      case 'rgbow':
-        if (!lighting.validRGBOW(state.color.rgbow)) return false;
-        rgbow = state.color.rgbow;
-        if ((rgbow.r === 0) && (rgbow.g === 0) && (rgbow.b === 0) && (rgbow.o === 0) && (rgbow.w === 0)) state.on = false;
-        break;
-
-      default:
-        return false;
-    }
-  }
-  if (!state.on) state.color = { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } };
-
-  if (props.state.color.model != state.color.model) {
-    if (state.color.model === 'rgb16') {
-      state.color = { model: 'rgb'
-                    , rgb: { r : state.color.rgb16.r >> 8, g : state.color.rgb16.g >> 8, b : state.color.rgb16.b >> 8 }
-                    };
-    } else if (state.color.model === 'rgbow') {
-      state.color = { model: 'rgb'
-                    , rgb: { r: state.color.rgbow.r,       g: state.color.rgbow.g,       b: state.color.rgbow.b       }
-                    };
-    }
-  }
-
-  switch (props.state.color.model) {
-    case 'rgb':
-      rgb = state.color.rgb;
-
-      width = 3;
-      pixel = new Buffer(width);
-      pixel[0] = rgb.r; pixel[1] = rgb.g; pixel[2] = rgb.b;
-      break;
-
-    case 'rgb16':
-      if (state.color.model === 'rgb') {
-        state.color = { model: 'rgb16', rgb16: { r: state.color.rgb.r<<8, g: state.color.rgb.g<<8, b: state.color.rgb.b<<8 } };
-      }
-      rgb16 = state.color.rgb16;
-
-      width = 6;
-      pixel = new Buffer(width);
-      pixel[0] = rgb16.r >> 8;   pixel[1] = rgb16.g >> 8;   pixel[2] = rgb16.b >> 8;
-      pixel[3] = rgb16.r & 0xff; pixel[4] = rgb16.g & 0xff; pixel[5] = rgb16.b & 0xff;
-      break;
-
-    case 'rgbow':
-      if (state.color.model === 'rgb') {
-        state.color = { model: 'rgbow', rgbow: { r: state.color.rgb.r, g: state.color.rgb.g, b: state.color.rgb.b,o: 0,w: 0 } };
-      }
-      rgbow = state.color.rgbow;
-
-      width = 9;
-      pixel = new Buffer(width);
-      pixel[0] = rgbow.r; pixel[1] = rgbow.g; pixel[2] = rgbow.b;
-      pixel[3] = rgbow.o; pixel[4] = rgbow.o; pixel[5] = rgbow.o;
-      pixel[6] = rgbow.w; pixel[7] = rgbow.w; pixel[8] = rgbow.w;
-      break;
-
-    default:
-      return false;
+    state.pixels = {};
+    state.pixels['0-' + (props.pps - 1)] = state.color[state.color.model];
+    return self.pixels(self, taskID, true, { color: { model: state.color.model, pixels: state.pixels } }, led);
   }
 
   logger.info('device/' + props.deviceID, { perform: state });
-  pixels = new Buffer(self.pixelpusher.pixelsPerStrip * width);
-  for (i = offset = 0; i < self.pixelpusher.pixelsPerStrip; i++, offset += width) pixel.copy(pixels, offset);
+  pixels = new Buffer(props.pps * width);
+  for (i = 0; i < pixels.length; i++) pixels[i] = 0;
   self.controller.refresh([ { number: +led, data: pixels } ]);
 
-  self.strips[led].state.on = state.on;
-  if (state.on) self.strips[led].state.color = state.color;
+  self.strips[led].state.on = false;
+  self.strips[led].updated = new Date().getTime();
   self.changed();
-  self.strips[led].updated = self.updated;
 
   return steward.performed(taskID);
 };
@@ -283,7 +212,7 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
  */
 
 PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
-  var black, color, i, offset, p, pixel, pixels, props, q, r, rgb, rgb16, rgbow, state, strip, width;
+  var black, color, first, i, offset, p, pixel, pixels, props, q, r, rgb, rgb16, rgbow, state, strip, width;
 
   var set = function(color, lo, hi, dx) {
     lo = parseInt(lo, 10);
@@ -303,16 +232,16 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
           }[state.color.model];
   if (!black) return false;
 
-  strip = [];
-  for (i = 0; i < self.pixelpusher.pixelsPerStrip; i++) strip.push(black);
-
   props = self.strips[led];
+  strip = [];
+  for (i = 0; i < props.pps; i++) strip.push(black);
 
   pixels = state.color.pixels;
   for (pixel in pixels) {
     if (!pixels.hasOwnProperty(pixel)) continue;
 
     color = pixels[pixel];
+    if (!first) first = color;
     switch (state.color.model) {
       case 'rgb':
         if (!lighting.validRGB(color)) return false;
@@ -343,6 +272,7 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       if (!set(color, q[0], r[0], r[1] || 1)) return false;
     }
   }
+  if (!first) return false;
   if (!performP) return true;
 
   switch (props.state.color.model) {
@@ -352,6 +282,8 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       pixels = new Buffer(strip.length * width);
       for (i = offset = 0; i < strip.length; i++, offset += width) {
         rgb = strip[i];
+        if (i == 0) first = rgb;
+
         pixel[0] = rgb.r; pixel[1] = rgb.g; pixel[2] = rgb.b;
         pixel.copy(pixels, offset);
       }
@@ -364,6 +296,7 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       for (i = offset = 0; i < strip.length; i++, offset += width) {
         rgb16 = strip[i];
         if (state.color.model === 'rgb') rgb16 = { r: rgb16.r << 8, g: rgb16.g << 8, b: rgb16.b << 8 };
+        if (i == 0) first = rgb16;
 
         pixel[0] = rgb16.r >> 8;   pixel[1] = rgb16.g >> 8;   pixel[2] = rgb16.b >> 8;
         pixel[3] = rgb16.r & 0xff; pixel[4] = rgb16.g & 0xff; pixel[5] = rgb16.b & 0xff;
@@ -372,13 +305,13 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       break;
 
     case 'rgbow':
-
       width = 9;
       pixel = new Buffer(width);
       pixels = new Buffer(strip.length * width);
       for (i = offset = 0; i < strip.length; i++, offset += width) {
         rgbow = strip[i];
         if (state.color.model === 'rgb') rgbow.o = rgbow.w = 0;
+        if (i == 0) first = rgbow;
 
         pixel[0] = rgbow.r; pixel[1] = rgbow.g; pixel[2] = rgbow.b;
         pixel[3] = rgbow.o; pixel[4] = rgbow.o; pixel[5] = rgbow.o;
@@ -391,9 +324,9 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
   self.controller.refresh([ { number: +led, data: pixels } ]);
 
   self.strips[led].state.on = true;
-  self.strips[led].state.color = state.color;
+  self.strips[led].state.color[props.state.color.model] = first;
+  self.strips[led].updated = new Date().getTime();
   self.changed();
-  self.strips[led].updated = self.updated;
 
   return steward.performed(taskID);
 };

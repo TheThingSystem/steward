@@ -198,7 +198,7 @@ var red    = { r: 255, g:   0, b:   0 }
 var colorful = function(ws, strips) {
   var iter  = 0;
 
-  if ((strips.length === 1) && (strips[0].pps === 240)) {
+  if (/* (strips.length === 1) && */ (strips[0].pps === 240)) {
     return setInterval(function() {
       perform_device(ws, strips[0].deviceID, 'pixels',
                      { color : { model : 'rgb'
