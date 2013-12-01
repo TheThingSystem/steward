@@ -282,7 +282,7 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       pixels = new Buffer(strip.length * width);
       for (i = offset = 0; i < strip.length; i++, offset += width) {
         rgb = strip[i];
-        if (i == 0) first = rgb;
+        if (i === 0) first = rgb;
 
         pixel[0] = rgb.r; pixel[1] = rgb.g; pixel[2] = rgb.b;
         pixel.copy(pixels, offset);
@@ -296,7 +296,7 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       for (i = offset = 0; i < strip.length; i++, offset += width) {
         rgb16 = strip[i];
         if (state.color.model === 'rgb') rgb16 = { r: rgb16.r << 8, g: rgb16.g << 8, b: rgb16.b << 8 };
-        if (i == 0) first = rgb16;
+        if (i === 0) first = rgb16;
 
         pixel[0] = rgb16.r >> 8;   pixel[1] = rgb16.g >> 8;   pixel[2] = rgb16.b >> 8;
         pixel[3] = rgb16.r & 0xff; pixel[4] = rgb16.g & 0xff; pixel[5] = rgb16.b & 0xff;
@@ -311,7 +311,7 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
       for (i = offset = 0; i < strip.length; i++, offset += width) {
         rgbow = strip[i];
         if (state.color.model === 'rgb') rgbow.o = rgbow.w = 0;
-        if (i == 0) first = rgbow;
+        if (i === 0) first = rgbow;
 
         pixel[0] = rgbow.r; pixel[1] = rgbow.g; pixel[2] = rgbow.b;
         pixel[3] = rgbow.o; pixel[4] = rgbow.o; pixel[5] = rgbow.o;
