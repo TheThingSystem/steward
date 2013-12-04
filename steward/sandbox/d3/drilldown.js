@@ -51,15 +51,25 @@ var notify = function(msg, next) {
 var priorityNotify = function(msg) {
   var currMsg, hasNext = false;
   if (document.getElementById('notification')) {
-    currMsg === d3.select('#notification').text().substring(1)
+    currMsg = d3.select('#notification').text().substring(1)
+    if (msg === currMsg || alertQueue.indexOf(msg) >= 0) return;
     alertQueue.unshift(currMsg);
     hasNext = true;
   }
   notify(msg, hasNext);
 }
 
+var resetNotifications = function() {
+  if (document.getElementById('notification')) {
+    d3.select('#notification').transition()
+      .duration(400)
+      .style('top', function() { return '-' + d3.select('#notification').style('height') }).remove();
+    alertQueue = [];
+  }
+}
+
 var home = function(state) {
-  var a, actor, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
+  var a, actor, b, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
   var actorHeight = 80, actorRow = 0, actorWidth = 58;
   
   var self = this;
@@ -196,8 +206,15 @@ if (false) {
   div.appendChild(document.createElement('br'));
 
   a = 0;
-  for (prop in categories) if (categories.hasOwnProperty(prop)) a++;
-  div.setAttribute('style', 'left:' + (435 - ((60 * a)/2)) + 'px');
+  b = 0
+  for (prop in categories) {
+    if (categories.hasOwnProperty(prop)) {
+      a++;
+      if (prop === "gateway" || prop === "indicator") continue;
+      b++;
+    }
+  }
+  div.setAttribute('style', 'left:' + (420 - ((60 * b)/2) - 6) + 'px');
   a = (a >= 11) ? 0 : Math.floor((12 - a) / 2);
   for (prop in categories) if (categories.hasOwnProperty(prop)) {
     if (prop === "gateway" || prop === "indicator") continue;
@@ -445,11 +462,12 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .style('overflow', 'hidden');
        
     actor.append('img')
-       .attr('src', function(d, i) {entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType); return entry.img; })
+       .attr('src', function(d, i) {var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType); return entry.img; })
        .style('background-color', function(d, i) {return statusColor(devices[i]); })
        .attr('class', 'actor-grouping')
        .attr('id', function(d, i) {return actor2ID(devices[i].actor) + "-tray-icon";})
-       .attr('onclick', function(d, i) {return 'javascript:goforw(' + entries[devices[i].deviceType].single + ', "' + devices[i].actor + '");'; });
+       .attr('onclick', function(d, i) {var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType);
+         return 'javascript:goforw(' + entry.single + ', "' + devices[i].actor + '");'; });
     
     div.appendChild(div3);
     
@@ -889,10 +907,11 @@ var sensor_device_arcs         = single_device_arcs;
 
 
 var single_climate_drilldown = function(state) {
-  var device, instructions;
+  var device, entry, instructions;
 
   device = actors[state.actor];
-  instructions = entries[device.deviceType].instrux(device);
+  entry = entries[device.deviceType] || entries.default(device.deviceType);
+  instructions = entry.instrux(device);
 
   device_drilldown(device.name, [ device ], climate_device_arcs(device), instructions);
 };
@@ -1212,10 +1231,11 @@ var climate_device_arcs = function(device) {
 
 
 var single_thermostat_drilldown = function(state) {
-  var device, instructions;
+  var device, entry, instructions;
 
   device = actors[state.actor];
-  instructions = entries[device.deviceType].instrux(device);
+  entry = entries[device.deviceType] || entries.default(device.deviceType);
+  instructions = entry.instrux(device);
 
   device_drilldown(device.name, [ device ], thermostat_device_arcs(device), instructions);
 };
@@ -1224,10 +1244,11 @@ var thermostat_device_arcs    = climate_device_arcs;
 
 
 var single_lighting_drilldown = function(state) {
-  var device, instructions;
+  var device, entry, instructions;
 
   device = actors[state.actor];
-  instructions = entries[device.deviceType].instrux(device);
+  entry = entries[device.deviceType] || entries.default(device.deviceType);
+  instructions = entry.instrux(device);
 
   device_drilldown(device.name, [ device ], lighting_device_arcs(device), instructions);
 };
@@ -1245,10 +1266,11 @@ var lighting_device_arcs = single_device_arcs;
 
 
 var single_media_drilldown = function(state) {
-  var device, instructions;
+  var device, entry, instructions;
 
   device = actors[state.actor];
-  instructions = entries[device.deviceType].instrux(device);
+  entry = entries[device.deviceType] || entries.default(device.deviceType);
+  instructions = entry.instrux(device);
 
   device_drilldown(device.name, [ device ], media_device_arcs(device), instructions);
 };
@@ -1380,10 +1402,11 @@ var getTimeString = function(v) {
 
 
 var single_motive_drilldown = function(state) {
-  var device, instructions;
+  var device, entry, instructions;
 
   device = actors[state.actor];
-  instructions = entries[device.deviceType].instrux(device);
+  entry = entries[device.deviceType] || entries.default(device.deviceType);
+  instructions = entry.instrux(device);
 
   device_drilldown(device.name, [ device ], motive_device_arcs(device), instructions);
 };
@@ -1646,7 +1669,7 @@ var multiple_drilldown = function(name, members) {
     arcz = entry.arcs(device);
 
     arc = arcz[1] || {};
-    arc.id = actor2ID(device.actor); // device.deviceType.split('/')[3] + ' ' + device.actor.split('/')[1];
+    arc.id = actor2ID(device.actor);
     arc.label = device.name;
     arc.index = index;
     index -= 0.1;

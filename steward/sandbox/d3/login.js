@@ -71,6 +71,7 @@ var showReauth = function() {
     chart = document.getElementById("chart");
     div = document.createElement('div');
     div.setAttribute('class', 'reauthenticator');
+    div.setAttribute('id', 'reauthenticator');
     chart.appendChild(div);
     div2 = document.createElement('div');
     div2.setAttribute('class', 'relogin');
@@ -388,7 +389,7 @@ function geocode() {
 		  }
 		} catch(ex) { console.log(ex); }
 	  }.bind(req);
-	  var url = 'http://maps.googleapis.com/maps/api/geocode/json?address=' + physical.value.replace(/\s/g, "+") 
+	  var url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + physical.value.replace(/\s/g, "+") 
 		   + '&sensor=false'
 	  req.open('GET', url , true);
 	  req.send(null);

@@ -3,6 +3,7 @@ var bigSlider = { "min": 310, "max": 39 };
 var bigHorSlider = { "min": 64, "max": 264 };
 var onOffKnob = { "diam": 18 };
 var onOffSlider = { "min": 25, "max": 71 - onOffKnob.diam };
+var onOffSliderMotive = { "min": 53, "max": 99 - onOffKnob.diam };
 var newPerform = { "path":"", "requestID":"2", "perform":"", "parameter":{} };
 
 // d3 drag functions
@@ -87,6 +88,26 @@ function dragmove(d) {
 				return bx2 + "px";
 			});
 			break;
+		case "temperature-knob-motive":
+        	var tempFRange = {min: 40, max: 100};
+        	var offset = parseInt(d3.select("#temperature-motive").style("left"), 10);
+			max = 116;
+			min = 0;
+			d3.select(this).style("left", function() { 
+				bx1 = parseInt(d3.select(this).style("left"));
+				bx2 = bx1 + d3.event.dx;
+				bx2 = Math.max(bx2, min);
+				bx2 = Math.min(bx2, max);
+				var pct = bx2/(max - min);
+				var fahr = (pct * (tempFRange.max - tempFRange.min)) + tempFRange.min;
+				var cels = ((fahr - 32) * 5) / 9;
+				d3.select("#temperature-readout-motive").html(fahr.toFixed(1) + "&deg;F").style("left", bx2 - 5 + offset + "px");
+				newPerform.parameter.hvac = cels;
+				newPerform.perform = "hvac";
+				
+				return bx2 + "px";
+			});
+			break;
 		case "fantime-knob":
 			max = bigSlider.max; // brightness div top minus half button height
 			min = bigSlider.min; // brightness div bottom minus button height
@@ -135,25 +156,25 @@ var showPop = function(device) {
   var entry = entries[device.deviceType] || entries.default(device.deviceType);
 
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
-	case "/device/lighting/":
-		w = 485, h = 497, t = 100, l = 133;
-		break;
-	case "/device/switch/":
-		w = 485, h = 497, t = 290, l = 133;
-		break;
 	case "/device/climate/":
 	    if (!device.deviceType.match("/control")) {
 		  w = 485, h = 497, t = 290, l = 133;
 		  break;
 		}
+	case "/device/lighting/":
+		w = 485, h = 497, t = 100, l = 133;
+		break;
+	case "/device/motive/":
+		w = 598, h = 407, t = 170, l = 80;
+		break;
+	case "/device/switch/":
+		w = 485, h = 497, t = 290, l = 133;
+		break;
 	default:
 		w = 598, h = 497, t = 100, l = 83;
 		break
   }
 
-//   console.log("showPop() for device=" + JSON.stringify(device));
-//   console.log("showPop() for entry=" + JSON.stringify(entry));
-   
    var deviceID = device.actor.slice(device.actor.lastIndexOf("/"));
    newPerform.path = "/api/v1/device/perform" + deviceID;
    newPerform.parameter = device.info;
@@ -191,18 +212,21 @@ var showPop = function(device) {
 	
 	function popoverBG(device) {
 		switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
-			case "/device/lighting/":
-				return "popovers/assets/window.square.svg";
-				break;
-			case "/device/media/":
-				return "popovers/assets/window.two-panel.bkg.svg";
-				break;
 			case "/device/climate/":
 	            if (device.deviceType.match("/control")) {
 				  return "popovers/assets/window.three-panel.bkg.svg";
 				} else {
 				  return "popovers/assets/window.short.popover.svg";
 				}
+				break;
+			case "/device/lighting/":
+				return "popovers/assets/window.square.svg";
+				break;
+			case "/device/media/":
+				return "popovers/assets/window.two-panel.bkg.svg";
+				break;
+			case "/device/motive/":
+				return "popovers/assets/motive.alert.bkg.svg";
 				break;
 			case "/device/switch/":
 				return "popovers/assets/window.short.popover.svg";
@@ -220,6 +244,9 @@ var showPop = function(device) {
 				break;
 			case "media_pop":
 				return finishMedia;
+				break;
+			case "motive_pop":
+				return finishMotive;
 				break;
 			case "thermostat_pop":
 			    return finishClimate;
@@ -435,6 +462,187 @@ var showPop = function(device) {
      }
    }
    
+   function finishMotive() {
+     var div, div2, elem, disabled = "-disabled", offset;
+     finishCommon("done-wide");
+     d3.select("#done").attr("id", "done-motive");
+     
+     div = pop.append("div")
+       .attr("id", "hvac-wrapper-motive");
+     div.append("div")
+       .attr("id", "on-off-slider-motive")
+       .append("img")
+         .attr("src", "popovers/assets/slider.on-off.svg")
+         .on("click", function() { toggleOnOff("motiveTemp"); });
+     div.append("div")
+       .attr("id", "on-off-knob")
+       .style("left", function() { return ((device.info.hvac === "off") ? onOffSliderMotive.min : onOffSliderMotive.max) + "px" })
+       .on("click", function() { toggleOnOff("motiveTemp"); })
+       .append("img")
+         .attr("src", "popovers/assets/knob.small.svg");
+     div.append("div")
+       .attr("class", "small-label")
+       .attr("id", "on-label-motive")
+       .text("ON");
+     div.append("div")
+       .attr("class", "small-label")
+       .attr("id", "off-label-motive")
+       .text("OFF");
+       
+     div.append("div")
+	   .attr("class", "label")
+	   .attr("id", "hvac-bracket")
+	   .append("img")
+	      .attr("src", "popovers/assets/hvac.bracket.svg")
+		  .attr("height", "21px");
+		  
+	 div2 = div.append("div")
+	   .attr("class", "temperature-motive")
+	   .attr("id", "temperature-motive")
+	   .style("background-image", function() { return ((device.info.hvac === "off") ? 
+	       "url(\'popovers/assets/slider.transparent.short.off.svg\')" :
+           "url(\'popovers/assets/slider.transparent.short.svg\')")});
+     elem = div2.append("img")
+       .attr("id", "temperature-knob-motive")
+       .attr("class", "temperature-knob-motive")
+       .attr("src", function() { return ((device.info.hvac === "off") ?
+           "popovers/assets/knob.small.off.svg" :
+           "popovers/assets/knob.svg");})
+	 elem
+	   .style("left", "0px")
+       .transition()
+       .duration(600)
+       .style("left", motiveGoalTempLeft(device.info) + "px");
+     elem.call(drag);
+     
+     offset = parseInt(d3.select("#temperature-motive").style("left"), 10);
+
+     elem = div.append("div")
+         .attr("class", "temperature-readout-motive")
+         .attr("id", "temperature-readout-motive")
+         .style("color", function() { return ((device.info.hvac === "off") ? "#444" : "#fff") } )
+         .style("left", (motiveGoalTempLeft(device.info) - 10) + offset + "px");
+     elem.append("span")
+        .attr("class", "temp-label")
+        .text(function() { var temp = (((motiveGoalTemp(device.info) * 9) / 5) + 32).toFixed(1);
+           if (temp > 100) temp = "> 100"; if (temp < 40) temp = "< 40"; return temp + "°F"});
+
+     if (device.info.sunroof !== "none") {
+       div2 = pop.append("div")
+         .attr("id", "sunroof-wrapper");
+		 div2.append("div")
+		   .attr("class", "label")
+		   .append("img")
+		     .attr("id", "button-one")
+			 .attr("src", function() {return (device.info.sunroof === "open") ? "popovers/assets/open-button.svg" : "popovers/assets/open-button-off.svg"} )
+			 .attr("height", "20px")
+			 .on("click", function() {motiveToggleSunroof(event, "open")});
+		 div2.append("div")
+		   .attr("class", "label")
+		   .append("img")
+		     .attr("id", "button-two")
+			 .attr("src", function() {return (device.info.sunroof === "comfort") ? "popovers/assets/comfort-button.svg" : "popovers/assets/comfort-button-off.svg"} )
+			 .attr("height", "20px")
+			 .on("click", function() {motiveToggleSunroof(event, "comfort")});
+		 div2.append("div")
+		   .attr("class", "label")
+		   .append("img")
+		     .attr("id", "button-three")
+			 .attr("src", function() {return (device.info.sunroof === "vent") ? "popovers/assets/vent-button.svg" : "popovers/assets/vent-button-off.svg"} )
+			 .attr("height", "20px")
+			 .on("click", function() {motiveToggleSunroof(event, "vent")});
+		 div2.append("div")
+		   .attr("class", "label")
+		   .append("img")
+		     .attr("id", "button-four")
+			 .attr("src", function() {return (device.info.sunroof === "close") ? "popovers/assets/close-button.svg" : "popovers/assets/close-button-off.svg"} )
+			 .attr("height", "20px")
+			 .on("click", function() {motiveToggleSunroof(event, "close")});
+		 div2.append("div")
+		   .attr("class", "label")
+		   .attr("id", "sunroof-bracket")
+		   .append("img")
+			 .attr("src", "popovers/assets/sunroof.bracket.svg")
+			 .attr("height", "21px");
+		 d3.select("#popover-name").style("width", "230px");
+     }
+     
+     div = pop.append("div")
+         .attr("id", "big-button-wrapper-motive");
+		 div2 = div.append("div")
+		   .attr("class", "label")
+		   .attr("id", "big-button-one-motive")
+		   .style("text-align", "center");
+		 div2.append("img")
+			 .attr("src", "popovers/assets/headlights-on.svg")
+			 .attr("height", "152px")
+			 .style("margin-bottom", "12px")
+			 .on("click", function() {motiveCommand(event, "lights")});
+		 div2.append("span")
+		   .text("HEADLIGHTS");
+		 div2 = div.append("div")
+		   .attr("class", "label")
+		   .attr("id", "big-button-two-motive")
+		   .style("text-align", "center");
+		 div2.append("img")
+			 .attr("src", "popovers/assets/horn-on.svg")
+			 .attr("height", "152px")
+			 .style("margin-bottom", "12px")
+			 .on("click", function() {motiveCommand(event, "horn")});
+		 div2.append("span").text("HORN");
+		 div2 = div.append("div")
+		   .attr("class", "label")
+		   .attr("id", "big-button-three-motive")
+		   .style("text-align", "center");
+		 div2.append("img")
+		     .attr("id", "doorLocks")
+			 .attr("src", function() { return (device.info.doors === "locked") ? "popovers/assets/lock-on.svg" : "popovers/assets/lock-off.svg"} )
+			 .attr("height", "152px")
+			 .style("margin-bottom", "12px")
+			 .on("click", function() {motiveCommand(event, "doors")});
+		 div2.append("span")
+		     .attr("id", "doorLockAction")
+		     .text(function() { return (device.info.doors === "locked") ? "UNLOCK DOORS" : "LOCK DOORS"});
+
+     function motiveToggleSunroof(event, type) {
+       elem = event.target;
+       document.getElementById("button-one").src = "popovers/assets/open-button-off.svg";
+       document.getElementById("button-two").src = "popovers/assets/comfort-button-off.svg";
+       document.getElementById("button-three").src = "popovers/assets/vent-button-off.svg";
+       document.getElementById("button-four").src = "popovers/assets/close-button-off.svg";
+       elem.src = "popovers/assets/" + type + "-button.svg";
+       newPerform.perform = "sunroof";
+       newPerform.parameter.sunroof = type;
+       sendData();
+     }
+     
+     function motiveCommand(event, type) {
+       switch(type) {
+         case "lights":
+           newPerform.perform = "lights";
+           break;
+         case "horn":
+           newPerform.perform = "horn";
+           break;
+         case "doors":
+           newPerform.perform = "doors"
+           if (event.target.src.indexOf("lock-on") !== -1) {
+             event.target.src = "popovers/assets/lock-off.svg";
+             newPerform.parameter.doors = "unlocked";
+             event.target.nextSibling.innerText = "LOCK DOORS"
+           } else {
+             event.target.src = "popovers/assets/lock-on.svg";
+             newPerform.parameter.doors = "locked";
+             event.target.nextSibling.innerText = "UNLOCK DOORS"
+           }
+           break;
+         default:
+           break;
+       }
+       sendData();
+     }
+   }
+     
    function finishClimate() {
      var div, div2, elem;
      newPerform.perform = "set";
@@ -677,31 +885,6 @@ var showPop = function(device) {
    function finishEmpty() {
        var elem;
        finishCommon("done-narrow");
-       
-//        div = pop.append("span")
-//            .attr("id", "hard-hat-area")
-//            .style("background-color", "#367ad2")
-//            .style("position", "absolute")
-//            .style("left", "100px")
-//            .style("top", "175px")
-//            .style("width", "400px")
-//            .style("height", "150px")
-//            .style("text-align", "center")
-// 		   .style("-moz-border-radius", "20px")
-// 		   .style("-webkit-border-radius", "20px")
-// 		   .style("border-radius", "20px")
-// 		   .style("border", "6px solid #000");
-//        div.append("p")
-//        	   .style("color", "#fff")
-//        	   .style("font-size", "32pt")
-//        	   .style("margin", "28px 0px 28px 0px")
-//        	   .style("padding", "0px")
-//        	   .html("Coming soon!");
-//        div.append("p")
-//        	   .style("color", "#000")
-//        	   .style("margin", "0px")
-//        	   .style("padding", "0px")
-//            .html("(This is a developer preview, and all of our<br />features are not yet functional. Check back soon.)");
    };
    
 	function finishCommon(doneClass) {
@@ -745,21 +928,50 @@ var showPop = function(device) {
     };
     
 	function toggleOnOff(type) {
-	   var endLeft
-	   if (newPerform.perform === "on") {
-	      newPerform.perform = "off";
-	      endLeft = onOffSlider.min
-	   } else {
-	      newPerform.perform = "on";
-	      endLeft = onOffSlider.max
-	      if (type && type === "lighting") {
-	        if (newPerform.parameter.hasOwnProperty("color") &&
+	   var endLeft;
+	   if (!type) return;
+	   switch(type) {
+	     case "lighting":
+	       if (newPerform.perform === "on") {
+	         newPerform.perform = "off";
+	         endLeft = onOffSlider.min
+	       } else {
+	         newPerform.perform = "on";
+	         endLeft = onOffSlider.max
+	         if (newPerform.parameter.hasOwnProperty("color") &&
 	            newPerform.parameter.color.hasOwnProperty("rgb") &&
 	            objEquals(newPerform.parameter.color.rgb, {r:0, g:0, b:0})) {
 	              newPerform.parameter.color.rgb = {r:255, g:255, b:255};
-	        }
-	      }
-	   }
+	         }
+	       }
+	       break;
+	     case "motiveTemp":
+	       newPerform.perform = "hvac";
+	       if (newPerform.parameter.hvac === "off") {
+	         newPerform.parameter.hvac = "on";
+	         endLeft = onOffSliderMotive.max;
+	         d3.select("#temperature-motive")
+	           .style("background-image", "url(\'popovers/assets/slider.transparent.short.svg\')");
+	         d3.select("#temperature-knob-motive")
+	           .attr("src", "popovers/assets/knob.svg");
+	         d3.select("#temperature-readout-motive")
+	           .style("color", "#fff");
+	           // SET READOUT & SLIDER to newPerform.parameter.intTemperature
+	       } else {
+	         newPerform.parameter.hvac = "off";
+	         endLeft = onOffSliderMotive.min;
+	         d3.select("#temperature-motive")
+	           .style("background-image", "url(\'popovers/assets/slider.transparent.short.off.svg\')");
+	         d3.select("#temperature-knob-motive")
+	           .attr("src", "popovers/assets/knob.small.off.svg");
+	         d3.select("#temperature-readout-motive")
+	           .style("color", "#444");
+	         // EMPTY READOUT & DEACTIVATE SLIDER
+	       }
+	       break;
+	     default:
+	       break;
+	    }
 	   d3.select("#on-off-knob")
 	      .transition().each("end", sendData())
 	      .duration(600)
@@ -1173,6 +1385,7 @@ var updatePopover = function(device, update) {
 	  updateMediaPop();
 	  break;
 	case "/device/motive/":
+	  updateMotivePop();
 	  break;
 	case "/device/presence/":
 	  break;
@@ -1320,6 +1533,53 @@ var updatePopover = function(device, update) {
 	newPerform.parameter = update.info;
   }
   
+  function updateMotivePop() {
+    if (update.info.sunroof !== "none") {
+      d3.select("#button-one")
+        .attr("src", function() {return (update.info.sunroof === "open")  ? "popovers/assets/open-button.svg"  : "popovers/assets/open-button-off.svg"} );
+      d3.select("#button-two")
+        .attr("src", function() {return (update.info.sunroof === "comfort")  ? "popovers/assets/comfort-button.svg"  : "popovers/assets/comfort-button-off.svg"} );
+      d3.select("#button-three")
+        .attr("src", function() {return (update.info.sunroof === "vent") ? "popovers/assets/vent-button.svg" : "popovers/assets/vent-button-off.svg"} );
+      d3.select("#button-four")
+        .attr("src", function() {return (update.info.sunroof === "close") ? "popovers/assets/close-button.svg" : "popovers/assets/close-button-off.svg"} );
+    }
+    
+    d3.select("#on-off-knob")
+      .transition()
+      .duration(600)
+      .style("left", function() { return ((update.info.hvac === "off") ? onOffSliderMotive.min : onOffSliderMotive.max) + "px"});
+      
+    d3.select("#temperature-motive")
+      .style("background-image", function() { return ((update.info.hvac === "off") ? 
+	       "url(\'popovers/assets/slider.transparent.short.off.svg\')" :
+           "url(\'popovers/assets/slider.transparent.short.svg\')")});
+    d3.select("#temperature-knob-motive")
+      .attr("src", function() { return ((update.info.hvac === "off") ?
+           "popovers/assets/knob.small.off.svg" :
+           "popovers/assets/knob.svg");})
+      .transition()
+      .duration(600)
+      .style("left", motiveGoalTempLeft(update.info) + "px");
+
+    offset = parseInt(d3.select("#temperature-motive").style("left"), 10);
+
+    d3.select("#temperature-readout-motive")
+      .style("color", function() { return ((update.info.hvac === "off") ? "#444" : "#fff") } )
+      .transition()
+      .duration(600)
+      .style("left", (motiveGoalTempLeft(update.info) - 10) + offset + "px")
+      .text(function() { var temp = (((motiveGoalTemp(update.info) * 9) / 5) + 32).toFixed(1);
+           if (temp > 100) temp = "> 100"; if (temp < 40) temp = "< 40"; return temp + "°F"});
+    
+    d3.select("#doorLocks")
+      .attr("src", function() { return (update.info.doors === "locked") ? "popovers/assets/lock-on.svg" : "popovers/assets/lock-off.svg"});
+    d3.select("#doorLockAction")
+      .text(function() { return (update.info.doors === "locked") ? "UNLOCK DOORS" : "LOCK DOORS"});
+
+    newPerform.parameter = update.info;
+  }
+  
   function updateSwitchPop() {
 	if (document.getElementById("on-off-knob")) {
 	  d3.select("#on-off-knob")
@@ -1437,11 +1697,32 @@ function levelLeft(level) {
   return bigHorSlider.min + level;
 }
        
-
+function motiveGoalTempLeft(info) {
+  var result = 0;
+  var goalTempC = motiveGoalTemp(info);
+  var goalTempF = ((parseFloat(goalTempC) * 9) / 5) + 32;
+  var elemEdges = {min: 0, max: 115};
+  var tempFRange = {min: 40, max: 100};
+  if (goalTempF <= tempFRange.min) return elemEdges.min;
+  if (goalTempF >= tempFRange.max) return elemEdges.max;
+  result = (goalTempF / (tempFRange.max + tempFRange.min)) * elemEdges.max;
+  return result;
+}
+     
+function motiveGoalTemp(info) {
+  var goalTempC;
+  if (info.hvac === "off" || info.hvac === "on") {
+    goalTempC = parseInt(info.intTemperature, 10);
+  } else {
+    goalTempC = parseInt(info.hvac, 10);
+    if (isNaN(goalTempC)) goalTempC = info.intTemperature;
+  }
+  return goalTempC;
+}
 
 function sendData(device) {
   newPerform.parameter = JSON.stringify(newPerform.parameter);
-//console.log("Sending: " + JSON.stringify(newPerform));
+//  console.log("Sending: " + JSON.stringify(newPerform));
   wsSend(JSON.stringify(newPerform));
   newPerform.parameter = JSON.parse(newPerform.parameter);
 };

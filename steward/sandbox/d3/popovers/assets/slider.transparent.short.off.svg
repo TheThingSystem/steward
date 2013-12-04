@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" sodipodi:docname="slider.transparent.short.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:version="0.48.2 r9819" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="144px" height="35.66px"
+	 viewBox="0 0 144 35.66" enable-background="new 0 0 144 35.66" xml:space="preserve">
+<sodipodi:namedview  inkscape:cx="185.893" inkscape:pageshadow="2" pagecolor="#ffffff" fit-margin-top="0" borderopacity="1" bordercolor="#666666" guidetolerance="10" inkscape:window-x="0" fit-margin-right="0" inkscape:pageopacity="0" inkscape:window-width="640" inkscape:current-layer="Layer_1" inkscape:window-maximized="0" fit-margin-bottom="0" objecttolerance="10" gridtolerance="10" id="namedview45" inkscape:window-y="0" inkscape:window-height="480" inkscape:cy="17.83" fit-margin-left="0" inkscape:zoom="0.38562092" showgrid="false">
+	</sodipodi:namedview>
+<path id="path47" inkscape:connector-curvature="0" fill="#1D1D1D" d="M0,0v35.66h144V0H0z"/>
+<linearGradient id="path9_1_" gradientUnits="userSpaceOnUse" x1="-983.7935" y1="-3151.3735" x2="-983.7935" y2="-3132.4805" gradientTransform="matrix(1 0 0 -1 1056.2432 -3124.4814)">
+	<stop  offset="0.0052" style="stop-color:#6E6F71"/>
+	<stop  offset="1" style="stop-color:#231F20"/>
+</linearGradient>
+<path id="path9" inkscape:connector-curvature="0" fill="url(#path9_1_)" d="M13.769,26.893c-4.341,0-7.872-4.24-7.872-9.449
+	c0-5.208,3.529-9.445,7.872-9.445h117.365c4.341,0,7.868,4.236,7.868,9.444c0,5.208-3.527,9.45-7.868,9.45H13.769L13.769,26.893z"/>
+<linearGradient id="path16_1_" gradientUnits="userSpaceOnUse" x1="-983.7935" y1="-3150.6216" x2="-983.7935" y2="-3133.2295" gradientTransform="matrix(1 0 0 -1 1056.2432 -3124.4814)">
+	<stop  offset="0.0052" style="stop-color:#6E6F71"/>
+	<stop  offset="1" style="stop-color:#231F20"/>
+</linearGradient>
+<path id="path16" inkscape:connector-curvature="0" fill="url(#path16_1_)" d="M131.135,8.748H13.769
+	c-3.927,0-7.122,3.901-7.122,8.695c0,4.793,3.195,8.698,7.122,8.698h117.365c3.927,0,7.118-3.902,7.118-8.698
+	C138.253,12.65,135.059,8.748,131.135,8.748L131.135,8.748L131.135,8.748z"/>
+<path id="path43" inkscape:connector-curvature="0" fill="none" stroke="#919191" stroke-miterlimit="10" d="M13.769,25.614
+	c-3.662,0-6.643-3.664-6.643-8.17c0-4.503,2.979-8.168,6.643-8.168h117.365c3.657,0,6.646,3.666,6.646,8.168
+	c0,4.506-2.979,8.17-6.646,8.17H13.769z"/>
+</svg>

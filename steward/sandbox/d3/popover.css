@@ -148,6 +148,33 @@
 	
 #done-climate { position: absolute; top: 450px; left: 510px; }
 
+/* Motive */
+
+#hvac-wrapper-motive
+	{ position: absolute; top: 62px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
+	#hvac-bracket { position: absolute; top: 38px; left: 24px; }
+	#on-off-slider-motive { position: absolute; top: 24px; left: 53px; }
+	#hvac-wrapper-motive #on-off-knob { position: absolute; top: 24px; left: 59px; }
+	#on-label-motive { position: absolute; top: 26px; left: 100px; }
+	#off-label-motive { position: absolute; top: 26px; left: 31px; }
+	.temperature-motive { position: absolute; top: 19px; left: 130px; height: 24px; width: 135px; background:url('assets/slider.transparent.short.svg'); background-position: -5px -3px; }
+	.temperature-readout-motive { position: absolute; top: 8px; left: 232px; font-family: "Roadgeek 2005 Series D"; font-size: 13px; line-height: 15px; }
+	img.temperature-knob-motive { position: absolute; top: 5px; left: 30px; }
+
+#sunroof-wrapper
+	{ position: absolute; top: 62px; left: 285px; width: 312px; height: 60px; z-index: 1px; }
+	#button-one { position: absolute; top: 24px; left: 4px; }
+	#button-two { position: absolute; top: 24px; left: 68px; }
+	#button-three { position: absolute; top: 24px; left: 152px; }
+	#button-four { position: absolute; top: 24px; left: 216px; }
+	#sunroof-bracket { position: absolute; top: 38px; left: -16px; }
+
+#big-button-wrapper-motive { position: absolute; top: 124px; left: 0px; }
+	#big-button-one-motive { position: absolute; top: 24px; left: 38px; }
+	#big-button-two-motive { position: absolute; top: 24px; left: 225px; }
+	#big-button-three-motive { position: absolute; top: 24px; left: 408px; }
+
+#done-motive { position: absolute; top: 355px; left: 510px; }
 
 
 /* Switch */
