@@ -132,7 +132,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
     var decr, level, max;
 
     if (!station.battery_vp) return null;
-    
+
 // http://forum.netatmo.com/viewtopic.php?f=5&t=2290#p5111
     if (station.type !== 'NAModule4') { max = 5500; decr = 500; } else { max = 5640; decr = 360; }
     for (level = 100; level > 0; level -= 25) if (station.battery_vp > max) return level;

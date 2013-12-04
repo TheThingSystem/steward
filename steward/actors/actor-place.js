@@ -229,7 +229,7 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
       parser.parseExpression(parameter, options, function(err, interval) {
         if (!!err) return steward.report(eventID, { event: 'parser.parserExpression', diagnostic: err.message });
 
-        try { next = interval.next().getTime(); } catch(ex) { 
+        try { next = interval.next().getTime(); } catch(ex) {
           return steward.report(eventID, { event: 'interval.next().getTime', diagnostic: ex.message });
         }
         events[eventID] = { interval: interval, next: next, observe: observe, parameter: parameter };

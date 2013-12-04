@@ -1919,6 +1919,10 @@ var entries = {
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
                                                               }
+              , '/device/gateway/greenwave-gop/lighting'    : { img     : 'actors/home.svg'
+                                                              , single  : single_gateway_drilldown
+                                                              , arcs    : gateway_device_arcs
+                                                              }
               , '/device/gateway/insteon/hub'               : { img     : 'actors/insteon-hub.svg'
                                                               , single  : single_gateway_drilldown
                                                               , arcs    : gateway_device_arcs
@@ -2045,6 +2049,12 @@ var entries = {
                                                               , pop     : 'lighting_pop'
                                                               }
               , '/device/lighting/robosmart/led'            : { img     : 'actors/robosmart.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
+                                                              }
+              , '/device/lighting/tcpi/led'                 : { img     : 'actors/home.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions

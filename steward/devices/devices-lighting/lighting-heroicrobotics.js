@@ -199,16 +199,6 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
   e.g.,
     0-79   : 0, 1, ..., 79
     0-78/2 : 0, 2, ..., 78
-    
-
-
-  { color: { model  : 'rgb'
-           , pixels : { '0-79'    : { r: 255, g: 0,   b: 0 } 
-                      , '80-159'  : { r: 0,   g: 255, b: 0 } 
-                      , '160-239' : { r: 0,   g: 0,   b: 255 } 
-                      }
-           }
-  }
  */
 
 PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {

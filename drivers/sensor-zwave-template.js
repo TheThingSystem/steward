@@ -105,6 +105,7 @@ ZWave_Template.prototype.perform = function(self, taskID, perform, parameter) {
   if (perform === 'set') {
     if (!!params.name) self.driver.setName(self.peripheral.nodeid, params.name);
     if (!!params.physical) self.driver.setLocation(self.peripheral.nodeid, params.physical);
+
     return ((!params.name) || self.setName(params.name, taskID));
   }
 

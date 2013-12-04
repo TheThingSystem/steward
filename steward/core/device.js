@@ -460,6 +460,9 @@ exports.scaledPercentage = function(percentage, minimum, maximum) {
   return boundedValue(Math.round((boundedValue(percentage, 0, 100) * maximum) / 100), minimum, maximum);
 };
 
+exports.scaledLevel = function(level, minimum, maximum) {
+  return boundedValue(Math.round((boundedValue(level, minimum, maximum) * 100) / maximum), 0, 100);
+};
 
 exports.degreesValue = function(value, maximum) {
   return Math.floor((boundedValue(value, 0, maximum) * 360) / maximum);
