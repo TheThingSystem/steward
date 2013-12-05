@@ -74,6 +74,8 @@ var login = function(evt) {
   if ((!code) || (code.length === 0)) {
     return false;
   }
+  
+  if (document.getElementById("logo")) document.getElementById("chart").removeChild(document.getElementById("logo"));
 
   main(name, code);
   return false;
@@ -99,13 +101,16 @@ var go = function(steward) {
   ws = null;
   ws2 = null;
   
+  if (steward.primer === undefined && steward.secure) {
+    showLogin();
+    return;
+  }
   
   // Socket for streaming updates from steward
   ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/console');
   
   ws.onopen = function(evt) {
     readyP = true;
-    
     if (!!steward.primer) ws.send(JSON.stringify(steward.primer));
     firstP = true;
     // Global socket for ongoing commands to steward
@@ -222,29 +227,6 @@ var go = function(steward) {
       }
     }
     
-    if (firstP) {
-      firstP = false;
-        
-      if ((!!message.error) && (!!message.error.permanent)) {
-        if (!document.getElementById("login")) {
-          if (!document.getElementById("logo")) {
-            var chart = document.getElementById('chart');
-			div = document.createElement('div');
-			div.setAttribute('id', 'logo');
-			div.setAttribute('class', 'logo');
-			img = document.createElement('img');
-			img.setAttribute('src', 'images/thing.sys.logo.black.svg');
-			div.appendChild(img);
-			chart.appendChild(div);
-		  }
-          showLogin();
-
-        }
-        return;
-      }
-      waitP = false;
-    }
-    
     if (message.hasOwnProperty("error")) {
       if (message.error.permanent) {
         priorityNotify(message.error.diagnostic);
@@ -274,7 +256,7 @@ var go = function(steward) {
     } catch(ex) {
       console.log("Update error: " + ex.message + " with update for: " + message[".updates"][0].whoami);
     }
-  }
+   }
     
   ws.onclose = function(evt) { notify("Connection lost. Restart steward and refresh browser."); };
   ws.onerror = function(evt) { notify(evt.reason); };

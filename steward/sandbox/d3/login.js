@@ -1,5 +1,16 @@
 var showLogin = function() {
-  var div, form, table, td, tr;
+  var chart, div, form, table, td, tr;
+  
+  if (!document.getElementById("logo")) {
+    chart = document.getElementById('chart');
+    div = document.createElement('div');
+    div.setAttribute('id', 'logo');
+    div.setAttribute('class', 'logo');
+    img = document.createElement('img');
+    img.setAttribute('src', 'images/thing.sys.logo.black.svg');
+    div.appendChild(img);
+    chart.appendChild(div);
+  }
   
   div = d3.select("body")
   	.append("div")
@@ -61,13 +72,14 @@ var hideLogin = function() {
     .style("top", "-240px")
     .remove();
 }
+
 var submitLogin = function(evt) {
     if (evt.keyCode === 13) login();
-  }
+}
 
 var showReauth = function() {
   var chart, div, div2;
-  if (!document.getElementById('reauthenticator') && (!document.URL.match("127.0.0.1"))) {
+  if (!document.getElementById('reauthenticator') && (document.URL.indexOf("https://") === 0)) {
     chart = document.getElementById("chart");
     div = document.createElement('div');
     div.setAttribute('class', 'reauthenticator');
