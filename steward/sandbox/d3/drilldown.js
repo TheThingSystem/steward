@@ -1290,6 +1290,11 @@ var single_thermostat_instructions = function(device) {
   return instructions;
 };
 
+var single_presence_instructions = function(device) {
+  instructions = (device.status === "present") ? "send alerts" : "";
+  return instructions;
+};
+
 var media_device_arcs = function(device) {
   var arcs, prop, text, v;
 
@@ -2105,27 +2110,32 @@ var entries = {
               , '/device/presence/fob/ble'                  : { img     : 'actors/presence-fob.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'presence_pop'
                                                               }
               , 'device/presence/fob/hone'                  : { img     : 'actors/hone.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'presence_pop'
                                                               }
               , '/device/presence/fob/inrange'              : { img     : 'actors/philips-inrange.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'presence_pop'
                                                               }
               , '/device/presence/mobile/mqttitude'         : { img     : 'actors/mqttitude.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'presence_pop'
                                                               }
               , '/device/presence/reelyactive/tag'          : { img     : 'actors/reelyActive-tag.svg'
                                                               , single  : single_presence_drilldown
                                                               , arcs    : presence_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'presence_pop'
                                                               }
               , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/arduino.svg'
                                                               , single  : single_sensor_drilldown
@@ -2202,12 +2212,14 @@ var entries = {
               , '/device/wearable/watch/cookoo'             : { img     : 'actors/cookoo.svg'
                                                               , single  : single_wearable_drilldown
                                                               , arcs    : wearable_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'wearable_pop'
                                                               }
               , '/device/wearable/watch/metawatch'          : { img     : 'actors/metawatch.svg'
                                                               , single  : single_wearable_drilldown
                                                               , arcs    : wearable_device_arcs
-                                                              , instrux : single_device_instructions
+                                                              , instrux : single_presence_instructions
+                                                              , pop     : 'wearable_pop'
                                                               }
 // defaults for unknown device types
 			  , default     								: function(deviceType) {
@@ -2259,7 +2271,8 @@ var entries = {
 			  													  case 'presence':
 			  													    result.single = single_presence_drilldown;
 			  													    result.arcs = presence_device_arcs;
-			  													    result.instrux = single_device_instructions;
+			  													    result.instrux = single_presence_instructions;
+			  													    result.pop = 'presence_pop';
 			  													    break;
 			  													  case 'sensor':
 			  													    result.single = single_sensor_drilldown;
@@ -2275,7 +2288,8 @@ var entries = {
 			  													  case 'wearable':
 			  													    result.single = single_wearable_drilldown;
 			  													    result.arcs = wearable_device_arcs;
-			  													    result.instrux = single_lighting_instructions;
+			  													    result.instrux = single_presence_instructions;
+			  													    result.pop = 'wearable_pop';
 			  													    break;
 			  													}
 			  													

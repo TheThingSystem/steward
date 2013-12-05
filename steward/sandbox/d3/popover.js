@@ -170,6 +170,10 @@ var showPop = function(device) {
 	case "/device/switch/":
 		w = 485, h = 497, t = 290, l = 133;
 		break;
+	case "/device/presence/":
+	case "/device/wearable/":
+		w = 420, h = 340, t = 215, l = 165;
+		break;
 	default:
 		w = 598, h = 497, t = 100, l = 83;
 		break
@@ -231,6 +235,10 @@ var showPop = function(device) {
 			case "/device/switch/":
 				return "popovers/assets/window.short.popover.svg";
 				break;
+			case "/device/presence/":
+			case "/device/wearable/":
+				return "popovers/assets/wearable-popover.svg";
+				break;
 			default:
 				return "popovers/assets/window.short.popover.svg";
 				break;
@@ -247,6 +255,10 @@ var showPop = function(device) {
 				break;
 			case "motive_pop":
 				return finishMotive;
+				break;
+			case "presence_pop":
+			case "wearable_pop":
+				return finishPresence;
 				break;
 			case "thermostat_pop":
 			    return finishClimate;
@@ -642,7 +654,83 @@ var showPop = function(device) {
        sendData();
      }
    }
-     
+   
+   function finishPresence() {
+     var div, div2, elem;
+     newPerform.perform = "alert";
+
+     div = pop.append("div")
+       .attr("id", "primary-controls");
+     div.append("div")
+       .attr("id", "actor")
+       .append("img")
+         .attr("src", function(d, i) {return "popovers/assets/" + entry.img; })
+         .attr("width", "43px");
+     div.append("div")
+       .attr("class", "popover-name")
+       .attr("id", "popover-name-wear")
+	   .attr("contenteditable", "true")
+	   .on("blur", setDeviceName)
+	   .on("keydown", setDeviceName)
+       .text(device.name);
+       
+     div = pop.append("div")
+         .attr("id", "big-button-wrapper-wear");
+		 div2 = div.append("div")
+		   .attr("class", "label")
+		   .attr("id", "big-button-one-wear")
+		   .style("text-align", "center");
+		 div2.append("img")
+		   .attr("id", "big-button-one-img-wear")
+		   .attr("src", function() { return (device.status === "present") ? "popovers/assets/alert-on.svg" : "popovers/assets/alert-off.svg" })
+		   .attr("height", "152px")
+		   .style("margin-bottom", "12px")
+		   .on("click", function() {presenceCommand(event, "mild")});
+		 div2.append("span")
+		   .attr("id", "alert-button-one-label")
+		   .style("color", function() { return (device.status === "present") ? "#fff" : "#444" })
+		   .text("SEND ALERT");
+		 div2 = div.append("div")
+		   .attr("class", "label")
+		   .attr("id", "big-button-two-wear")
+		   .style("text-align", "center");
+		 div2.append("img")
+		   .attr("id", "big-button-two-img-wear")
+		   .attr("src", function() { return (device.status === "present") ? "popovers/assets/alert-urgent-on.svg" : "popovers/assets/alert-urgent-off.svg" })
+		   .attr("height", "152px")
+		   .style("margin-bottom", "12px")
+		   .on("click", function() {presenceCommand(event, "high")});
+		 div2.append("span")
+		   .attr("id", "alert-button-two-label")
+		   .style("color", function() { return (device.status === "present") ? "#fff" : "#444" })
+		   .text("SEND URGENT ALERT");
+		   
+	  pop.append("img")
+        .attr("src", "popovers/assets/done_on.svg")
+        .attr("id", "done-wear")
+        .style("height", "22px")
+        .on("click", cancel);
+        
+     function presenceCommand(event, type) {
+       if (newPerform.status === "present") {
+         switch(type) {
+           case "mild":
+             newPerform.parameter.level = type;
+             break;
+           case "high":
+             newPerform.parameter.level = type;
+             break;
+           default:
+             newPerform.parameter.level = "none";
+             break;
+         }
+         sendData();
+       } else {
+         notify("Device is out of range for alerts.");
+       }
+     }
+   }
+   
    function finishClimate() {
      var div, div2, elem;
      newPerform.perform = "set";
@@ -1372,6 +1460,7 @@ var ColorPickerMgr = {
 };
 
 var updatePopover = function(device, update) {
+
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/climate/":
 	  if (device.deviceType.match("/control")) updateThermostatPop();
@@ -1388,13 +1477,13 @@ var updatePopover = function(device, update) {
 	  updateMotivePop();
 	  break;
 	case "/device/presence/":
+	case "/device/wearable/":
+	  updatePresencePop();
 	  break;
 	case "/device/sensor/":
 	  break;
 	case "/device/switch/":
 	  updateSwitchPop();
-	  break;
-	case "/device/wearable/":
 	  break;
 	default:
 	  break;
@@ -1578,6 +1667,20 @@ var updatePopover = function(device, update) {
       .text(function() { return (update.info.doors === "locked") ? "UNLOCK DOORS" : "LOCK DOORS"});
 
     newPerform.parameter = update.info;
+  }
+  
+  function updatePresencePop() {
+    d3.select("#big-button-one-img-wear")
+      .attr("src", function() { return (update.status === "present") ? "popovers/assets/alert-on.svg" : "popovers/assets/alert-off.svg"});
+    d3.select("#big-button-two-img-wear")
+      .attr("src", function() { return (update.status === "present") ? "popovers/assets/alert-urgent-on.svg" : "popovers/assets/alert-urgent-off.svg"});
+    d3.select("#alert-button-one-label")
+      .style("color", function() { return (update.status === "present") ? "#fff" : "#444" });
+    d3.select("#alert-button-two-label")
+      .style("color", function() { return (update.status === "present") ? "#fff" : "#444" });
+
+    newPerform.parameter = update.info;
+    newPerform.status = update.status;
   }
   
   function updateSwitchPop() {

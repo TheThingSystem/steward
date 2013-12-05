@@ -176,6 +176,15 @@
 
 #done-motive { position: absolute; top: 355px; left: 510px; }
 
+/* Presence/Wearable */
+
+#popover-name-wear { width: 336px; }
+
+#big-button-wrapper-wear { position: absolute; top: 54px; left: 0px; }
+	#big-button-one-wear { position: absolute; top: 24px; left: 38px; }
+	#big-button-two-wear { position: absolute; top: 24px; left: 220px; width: 160px; }
+
+#done-wear { position: absolute; top: 290px; left: 340px; }
 
 /* Switch */
 
