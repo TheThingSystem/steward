@@ -165,9 +165,11 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
 // other Insteon devices corresponding to a dimmable switch may also be listed here...
+  devices.makers['Insteon.0100'] = Insteon_Dimmer;
   devices.makers['Insteon.010e'] = Insteon_Dimmer;
   devices.makers['Insteon.010f'] = Insteon_Dimmer;
   devices.makers['Insteon.0111'] = Insteon_Dimmer;
   devices.makers['Insteon.0112'] = Insteon_Dimmer;
   devices.makers['Insteon.01ef'] = Insteon_Dimmer;
+  devices.makers['Insteon.0120'] = Insteon_Dimmer;
 };

@@ -172,7 +172,8 @@ Gateway.prototype.announce = function(self, id) {
   info.id = info.device.unit.udn;
   if (!!devices.devices[info.id]) return;
 
-  logger.info('device/' + self.deviceID, { name: info.device.name, id: sixtoid(id),  description: deviceType });
+  logger.info('device/' + self.deviceID,
+              { name: info.device.name, id: sixtoid(id),  description: deviceType, productCode: station.device });
   devices.discover(info);
 };
 
@@ -514,9 +515,22 @@ var deviceTypes = {
                   , '000b' : 'Access Point [2443]'
                   , '000c' : 'IES/Color Touchscreen'
                   , '000d' : 'SmartLabs/KeyFOB'
+                  , '0010' : 'Mini Remote - 4 Scene [2444A2WH4]'
+                  , '0011' : 'Mini Remote - Switch [2444A3]'
+                  , '0012' : 'Mini Remote - 8 Scene [2444A2WH8]'
+                  , '0014' : 'Mini Remote - 4 Scene [2342-432]'
+                  , '0015' : 'Mini Remote - Switch [2342-442]'
+                  , '0016' : 'Mini Remote - 8 Scene [2342-422]'
+                  , '0017' : 'Mini Remote - 4 Scene [2342-532]'
+                  , '0018' : 'Mini Remote - 8 Scene [2342-522]'
+                  , '0019' : 'Mini Remote - Switch [2342-542]'
+                  , '001a' : 'Mini Remote - 4 Scene [2342-222]'
+                  , '001b' : 'Mini Remote - 8 Scene [2342-232]'
+                  , '001c' : 'Mini Remote - Switch [2342-242]'
+                  , '001d' : 'Range Extender [2992-222]'
 
 // 01: dimmable lighting control
-                  , '0100' : 'LampLinc V2 [2456D3]'
+                  , '0100' : 'LampLinc V2/OutletLinc Dimmer [2456D3/2457D3/2472DWH]'
                   , '0101' : 'SwitchLinc V2 Dimmer 600W [2476D]'
                   , '0102' : 'In-LineLinc Dimmer [2475D]'
                   , '0103' : 'Icon/Switch Dimmer [2876D]'
@@ -542,6 +556,24 @@ var deviceTypes = {
                   , '011b' : 'KeypadLinc 6-button Dimmer [2486DWH6]'
                   , '011c' : 'KeypadLinc 8-button Dimmer [2486DWH8]'
                   , '011d' : 'SwitchLinc Dimmer 1200W [2476D]'
+                  , '011e' : 'ICON Dimmer Switch [2876D]'
+                  , '011f' : 'ToggleLinc Dimmer [2466DW]'
+                  , '0120' : 'SwitchLinc Dimmer, Dual-Band [2477D]'
+                  , '0121' : 'OutletLinc Dimmer [2472DWH]'
+                  , '0122' : 'LampLinc Dimmer [2457D2X]'
+                  , '0124' : 'SwitchLinc 2-Wire Dimmer (RF) [2474DWH]'
+                  , '0125' : 'INSTEON Ballast Dimmer [2475DA2]'
+                  , '0127' : 'Wall Dimmer [4701]'
+                  , '0129' : 'Wall Keypad Dimmer [4703]'
+                  , '012a' : 'Plug-in Dimmer [4705]'
+                  , '012b' : 'Wall Dimmer - 1000W [4711]'
+                  , '012c' : 'In-Line Dimmer [4712]'
+                  , '012d' : 'SwitchLinc Dimmer [2477DH]'
+                  , '012e' : 'FanLinc [2475F]'
+                  , '012f' : 'KeypadLinc Schedule Timer with Dimmer [2484DST6]'
+                  , '0130' : 'SwitchLinc Dimmer [2476D]'
+                  , '0131' : 'SwitchLinc Dimmer (Dual-Band) [2478D]'
+                  , '0132' : 'In-LineLinc Dimmer [2475DA1]'
                   , '0134' : 'DIN Rail Dimmer [2452-222]'
                   , '0135' : 'Micro Dimmer Module [2442-222]'
                   , '0136' : 'DIN Rail Dimmer (EU) [2452-422]'
@@ -549,10 +581,26 @@ var deviceTypes = {
                   , '0138' : 'Micro Dimmer Module (EU) [2442-422]'
                   , '0139' : 'Micro Dimmer Module (AU) [2442-522]'
                   , '013a' : 'LED Bulb, 8 watt (60W) [2672-222]'
+                  , '013b' : 'LED Bulb [2672-422]'
+                  , '013c' : 'LED Bulb [2672-522]'
+                  , '013d' : 'Ballast Dimmer (Dual-Band) [2446-422]'
+                  , '013e' : 'Ballast Dimmer (Dual-Band) [2446-522]'
+                  , '013f' : 'Fixture Dimmer (Dual-Band) [2447-422]'
+                  , '0140' : 'Fixture Dimmer (Dual-Band) [2447-522]'
+                  , '0141' : 'Keypad Dimmer[2334-222]'
+                  , '0142' : 'Keypad with Dimmer[2334-232]'
+                  , '0149' : 'LED PAR38 Bulb [2674-222]'
+                  , '014a' : 'LED PAR38 Bulb [2674-422]'
+                  , '014b' : 'LED PAR38 Bulb [2672-522]'
+                  , '014c' : 'LED Bulb [2672-432]'
+                  , '014d' : 'LED Bulb [2672-522]'
+                  , '014e' : 'LED PAR38 Bulb [2674-422]'
+                  , '014f' : 'LED PAR38 Bulb [2672-522]'
+                  , '0151' : 'LED Bulb [2672-452]'
                   , '01ef' : 'Dimmer Module (FR) [2632-422]'
 
 // 02: switched lighting control
-                  , '0205' : 'KeypadLinc Relay - 8-button defaulted mode [2486SWH8[]'
+                  , '0205' : 'KeypadLinc Relay - 8-button defaulted mode [2486SWH8]'
                   , '0206' : 'Outdoor ApplianceLinc [2456S3E]'
                   , '0207' : 'TimerLinc [2456ST3]'
                   , '0208' : 'OutletLinc [2473S]'
@@ -568,7 +616,26 @@ var deviceTypes = {
                   , '0212' : 'Icon/SL Relay Inline Companion'
                   , '0213' : 'Icon/SwitchLinc Relay for Lixar/Bell Canada [2676R-B]'
                   , '0214' : 'In-LineLinc Relay with Sense [2475S2]'
+                  , '0215' : 'SwitchLinc Relay with Sense [2476S]'
                   , '0216' : 'SwitchLinc Relay with Sense [2476S2]'
+                  , '0217' : 'ICON Appliance Module  [2856S3B]'
+                  , '0218' : 'SwitchLinc 220V Relay [2494S220]'
+                  , '0219' : 'SwitchLinc 220V Relay [2494S220]'
+                  , '021a' : 'ToggleLinc On/Off [2466SW]'
+                  , '021c' : 'SwitchLinc Relay [2476S]'
+                  , '021e' : 'KeypadLinc On/Off [2487S]'
+                  , '021f' : 'In-LineLinc On/Off [2475SDB]'
+                  , '0220' : 'Wall Keypad Switch [4704]'
+                  , '0221' : 'Outlet Switch [4707]'
+                  , '0222' : 'In-Line Switch [4713]'
+                  , '0223' : 'Wall Switch [4702]'
+                  , '0224' : 'Wall Keypad Switch 277V [4102]'
+                  , '0225' : 'Keypad Countdown Timer 8-button [2484SWH8]'
+                  , '0226' : 'KeypadLinc Schedule Timer On/Off Switch [2485SWH6]'
+                  , '0229' : 'SwitchLinc Relay Countdown Timer [2476ST]'
+                  , '022a' : 'SwitchLinc Relay [2477S]'
+                  , '022b' : 'In-LineLinc On/Off [2475SDB-50]'
+                  , '022c' : 'KeypadLinc On/Off [2487S]'
                   , '022d' : 'OnOff Module (FR) [2633-422]'
                   , '022e' : 'DIN Rail OnOff [2453-222]'
                   , '022f' : 'Micro OnOff Module [2443-222]'
@@ -579,7 +646,9 @@ var deviceTypes = {
                   , '0234' : 'DIN Rail OnOff (AU) [2453-522]'
                   , '0235' : 'OnOff Module (UK) [2633-442]'
                   , '0236' : 'OnOff Module (AU) [2633-522]'
+                  , '0237' : 'On/Off Module [2635-222]'
                   , '0238' : 'Outdoor OnOff Module [2634-222]'
+                  , '0239' : 'On/Off Outlet [2663-222]'
 
 // 03: network bridges
                   , '0301' : 'PowerLinc Serial [2414S]'
@@ -604,7 +673,29 @@ var deviceTypes = {
                   , '0313' : 'PowerLinc USB - HouseLinc 2 enabled [2412UH]'
                   , '0314' : 'PowerLinc Serial - HuseLinc 2 enabled [2412SH]'
                   , '0315' : 'PowerLinc - USB (Dual Band) [2413U]'
+                  , '0318' : 'Central Controller [2243-222]'
+                  , '0319' : 'PowerLinc Serial Modem [2413SH]'
+                  , '031a' : 'PowerLinc USB Modem [2413UH]'
+                  , '031b' : 'iGateway [2423A4]'
+                  , '031f' : 'USB Adapter [2448A7]'
+                  , '0320' : 'USB Adapter [2448A7]'
+                  , '0321' : 'USB Adapter [2448A7H]'
+                  , '0322' : 'Central Controller Interface [4706A]'
+                  , '0323' : 'USB Adapter [2448A7H]'
+                  , '0324' : 'TouchLinc [2448A7T]'
+                  , '0327' : 'TouchLinc [2448A7T]'
+                  , '032b' : 'Hub, US [2242-222]'
+                  , '032c' : 'Central Controller [2243-442]'
+                  , '032d' : 'Central Controller [2243-522]'
+                  , '032e' : 'Hub, EU [2242-422]'
+                  , '032f' : 'Hub [2242-522]'
                   , '0330' : 'Hub [2242-442]'
+                  , '0331' : 'Hub [2242-232]'
+                  , '0332' : 'Hub [2242-222]'
+                  , '0333' : 'Hub [2245-555]'
+                  , '0334' : 'Hub [2245-442]'
+                  , '0335' : 'Hub [2245-422]'
+                  , '0336' : 'Hub [2245-522]'
                   , '0337' : 'Hub [2242-222]'
 
 // 04: irrigation control
@@ -618,7 +709,17 @@ var deviceTypes = {
                   , '0504' : 'Compacta/EZThermx Thermostat'
                   , '0505' : 'Broan, Venmar, BEST/Rangehoods'
                   , '0506' : 'Broad/SmartSense Make-up Damper'
+                  , '0507' : 'Wireless Thermostat [2441ZTH]'
+                  , '0508' : 'Thermostat [2441TH]'
+                  , '0509' : '7 Day Thermostat [4715]'
                   , '050a' : 'Wireless Thermostat [2441ZTH]'
+                  , '050b' : 'Thermostat [2441TH]'
+                  , '050e' : 'Integrated Remote Control Thermostat [2491T1E]'
+                  , '050f' : 'Thermostat [2732-422]'
+                  , '0510' : 'Thermostat [2732-522]'
+                  , '0511' : 'Wireless Thermostat [2732-432]'
+                  , '0512' : 'Wireless Thermostat [2732-532]'
+                  , '090d' : 'Thermostat [2441TH]'
 
 // 06: pool and spa control
                   , '0600' : 'Compacta/EZPool'
@@ -636,6 +737,12 @@ var deviceTypes = {
                   , '0706' : 'Compacta/EZISnsRF Sensor interface module'
                   , '0707' : 'EZIO6i (6 inputs)'
                   , '0708' : 'EZIO4O (4 relay outputs)'
+                  , '0709' : 'SynchroLinc [2423A5]'
+                  , '070d' : 'I/O Linc [2450-50-60]'
+                  , '070e' : 'I/O Module [2248-222]'
+                  , '070f' : 'I/O Module [2248-422]'
+                  , '0710' : 'I/O Module [2248-442]'
+                  , '0711' : 'I/O Module [2248-522]'
 
 // 08: home entertainment
 
@@ -648,6 +755,9 @@ var deviceTypes = {
                   , '0905' : 'Energy Inc./TED 5000 Gateway - Ethernet'
                   , '0906' : 'Energy Inc./TED 5000 Three Phase MTU'
                   , '0907' : 'IO Meter Solo [2423A1]'
+                  , '090a' : '220V/240V 30 AMP Load Controller Normally Open [2477SA1]'
+                  , '090b' : '220V/240V 30 AMP Load Controller Normally Closed [2477SA2]'
+                  , '0910' : 'Network Hub [4700]'
 
 // 0a: built-in appliance control
 // 0b: plumbing
@@ -658,6 +768,7 @@ var deviceTypes = {
                   , '0e00' : 'Somfy Drape Controller RF Bridge'
                   , '0e01' : 'Micro Open Close Module [2443-222]'
                   , '0e02' : 'Micro Open Close Module [2443-422]'
+                  , '0e03' : 'Micro Open/Close Module [2444-522]'
                   , '0e32' : 'Micro Open Close Module [2443-522]'
 
 // 0f: access control
@@ -667,13 +778,26 @@ var deviceTypes = {
                   , '0f03' : 'Welland Doors Elevation Drive'
                   , '0f04' : 'GarageHawk Garage Unit'
                   , '0f05' : 'GarageHawk Remote Unit'
+                  , '0f06' : 'MorningLinc [2458A1]'
+                  , '0f07' : 'Deadbolt [2863-222]'
+                  , '0f08' : 'Deadbolt [2863-422]'
+                  , '0f09' : 'Deadbolt [2863-522]'
 
 // 10: security, health, safety
                   , '1000' : 'First Alert ONELink RF to Insteon Bridge'
                   , '1001' : 'Motion Sensor [2420M]'
                   , '1002' : 'TriggerLink - INSTEON Open/Close Sensor [2421]'
+                  , '1003' : 'Motion Sensor [4716]'
+                  , '1004' : 'Motion Sensor [2842-422]'
+                  , '1005' : 'Motion Sensor [2842-522]'
+                  , '1006' : 'Open/Close Sensor [2843-422]'
+                  , '1007' : 'Open/Close Sensor [2843-522]'
                   , '1008' : 'Leak Sensor [2852-222]'
+                  , '1009' : 'Door Sensor [2843-232]'
                   , '100a' : 'Smoke Bridge [2982-222]'
+                  , '1011' : 'Hidden Door Sensor [2845-222]'
+                  , '1014' : 'Hidden Door Sensor [2845-422]'
+                  , '1015' : 'Hidden Door Sensor [2845-522]'
 
 // 11: surveillance
 
@@ -844,11 +968,17 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
                   };
     info.url = null;
     info.deviceType = '/device/gateway/insteon/';
-    switch (productCode) {
-      case '0330': info.deviceType += 'hub';       break;
-      case '0337': info.deviceType += 'hub';       break;
-      default:     info.deviceType += 'smartlinc'; break;
-    }
+    info.deviceType += { '032e' : 'hub'
+                       , '032f' : 'hub'
+                       , '0330' : 'hub'
+                       , '0331' : 'hub'
+                       , '0332' : 'hub'
+                       , '0333' : 'hub'
+                       , '0334' : 'hub'
+                       , '0335' : 'hub'
+                       , '0336' : 'hub'
+                       , '0337' : 'hub'
+                       }[productCode] || 'smartlinc';
     info.id = info.device.unit.udn;
     if (!!devices.devices[info.id]) return socket.destroy();
 
@@ -1029,5 +1159,5 @@ exports.start = function() {
 
   require('./../../discovery/discovery-portscan').pairing([ 9761 ], pair);
 
-//  scan();
+  scan();
 };

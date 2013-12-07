@@ -147,7 +147,6 @@ var childprops = function(self, led) {
           };
 
   child.proplist = devices.Device.prototype.proplist;
-  child.setName = devices.Device.prototype.setName;
 
   child.perform = function(strip, taskID, perform, parameter) { return self.perform(self, taskID, perform, parameter, led); };
 
@@ -162,9 +161,22 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
 
   props = self.strips[led];
   if (perform === 'set') {
-    if (!!params.name) return childprops(self, led).setName(params.name, taskID);
+    if (!params.name) return false;
 
-    return false;
+    if (props.name === params.name) return steward.performed(taskID);
+
+    db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',
+           { $deviceName: params.name, $deviceID : props.deviceID }, function(err) {
+      if (err) {
+        return logger.error('devices', { event: 'UPDATE device.deviceName for ' + props.deviceID, diagnostic: err.message });
+      }
+
+      props.name = params.name;
+      props.updated = new Date().getTime();
+      self.changed();
+    });
+
+    return steward.performed(taskID);
   }
 
   if (perform === 'off') {

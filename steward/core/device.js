@@ -279,19 +279,19 @@ Device.prototype.setName = function(deviceName, taskID) {
   var self = this;
 
   if (!deviceName) return false;
+  if (self.name === deviceName) return ((!taskID) || steward.performed(taskID));
 
   db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',
          { $deviceName: deviceName, $deviceID : self.deviceID }, function(err) {
     if (err) {
-      logger.error('devices', { event: 'UPDATE device.deviceName for ' + self.deviceID, diagnostic: err.message });
-    } else if (self.name !== deviceName) {
-      self.name = deviceName;
-      self.changed();
+      return logger.error('devices', { event: 'UPDATE device.deviceName for ' + self.deviceID, diagnostic: err.message });
     }
+
+    self.name = deviceName;
+    self.changed();
   });
 
-  if (!!taskID) return steward.performed(taskID);
-  return true;
+  return ((!taskID) || steward.performed(taskID));
 };
 
 Device.prototype.setInfo = function() {
