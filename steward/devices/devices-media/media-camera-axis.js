@@ -31,7 +31,7 @@ var logger = media.logger;
 var Axis_Camera = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/media/axis/camera';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

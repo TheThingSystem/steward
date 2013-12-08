@@ -13,7 +13,7 @@ var stringify   = require('json-stringify-safe')
 var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/sensor/wemo/motion';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

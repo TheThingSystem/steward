@@ -21,7 +21,7 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = '/device/media/sonos/audio';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -338,7 +338,7 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = '/device/gateway/sonos/bridge';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

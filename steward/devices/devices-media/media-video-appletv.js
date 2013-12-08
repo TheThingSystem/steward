@@ -29,7 +29,7 @@ var AppleTV = exports.Device = function(deviceID, deviceUID, info) {
 
   var self = this;
 
-  self.whatami = '/device/media/appletv/video';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

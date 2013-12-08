@@ -15,7 +15,7 @@ var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
   var self;
   self = this;
 
-  self.whatami = '/device/media/roku/video';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

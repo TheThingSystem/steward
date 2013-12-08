@@ -14,7 +14,7 @@ var stringify   = require('json-stringify-safe')
 var WeMo_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/switch/wemo/onoff';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

@@ -14,7 +14,7 @@ var logger = lighting.logger;
 var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/lighting/insteon/led';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -166,6 +166,19 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-// other Insteon devices corresponding to a single bulb may also be listed here...
+// other Insteon devices corresponding to a single dimmable bulb may also be listed here...
   devices.makers['Insteon.013a'] = Insteon;
+  devices.makers['Insteon.013b'] = Insteon;
+  devices.makers['Insteon.013c'] = Insteon;
+  devices.makers['Insteon.014c'] = Insteon;
+  devices.makers['Insteon.014d'] = Insteon;
+  devices.makers['Insteon.0151'] = Insteon;
+
+  steward.actors.device.lighting.insteon.downlight = utility.clone(steward.actors.device.lighting.insteon.led);
+  steward.actors.device.lighting.insteon.downlight.$info.type = '/device/lighting/insteon/downlight';
+  devices.makers['Insteon.0149'] = Insteon;
+  devices.makers['Insteon.014a'] = Insteon;
+  devices.makers['Insteon.014b'] = Insteon;
+  devices.makers['Insteon.014e'] = Insteon;
+  devices.makers['Insteon.014f'] = Insteon;
 };

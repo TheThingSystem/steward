@@ -14,7 +14,7 @@ var logger = plug.logger;
 var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/switch/insteon/dimmer';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

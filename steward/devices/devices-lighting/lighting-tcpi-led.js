@@ -1,22 +1,12 @@
 // Connected by TCP LED and CFL bulbs, powered by GreenWave Reality
 
-var gop
-  , utility     = require('./../../core/utility')
-  ;
-
-try {
-  gop           = require('node-greenwave-gop');
-} catch(ex) {
-  exports.start = function() {};
-
-  return utility.logger('devices').info('failing tcpi-led lighting (continuing)', { diagnostic: ex.message });
-}
-
-var util        = require('util')
+var gop        = require('node-greenwave-gop')
+  , util        = require('util')
   , url         = require('url')
   , db          = require('./../../core/database').db
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
+  , utility     = require('./../../core/utility')
   , broker      = utility.broker
   , lighting    = require('./../device-lighting')
   ;
@@ -28,7 +18,7 @@ var logger = lighting.logger;
 var GreenWaveGOP = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/gateway/greenwave-gop/lighting';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;

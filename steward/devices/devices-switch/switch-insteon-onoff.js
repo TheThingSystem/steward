@@ -14,7 +14,7 @@ var logger = plug.logger;
 var Insteon_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/switch/insteon/onoff';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
