@@ -52,10 +52,12 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   }).on('th3',  function(evt) { self.thX(self, evt);
   }).on('th4',  function(evt) { self.thX(self, evt);
   }).on('th5',  function(evt) { self.thX(self, evt);
+  }).on('th8',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th8',       params: evt });  // Clas Ohlson
   }).on('lighting1',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'lighting1', params: evt });
   }).on('lighting2',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });
+    logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });  // Nexa / Home Easy
   }).on('lighting5',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'lighting5', params: evt });
   }).on('data',  function(data) {
