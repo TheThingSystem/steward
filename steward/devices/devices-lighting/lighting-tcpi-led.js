@@ -1,6 +1,6 @@
 // Connected by TCP LED and CFL bulbs, powered by GreenWave Reality
 
-var gop        = require('node-greenwave-gop')
+var gop         = require('node-greenwave-gop')
   , util        = require('util')
   , url         = require('url')
   , db          = require('./../../core/database').db
