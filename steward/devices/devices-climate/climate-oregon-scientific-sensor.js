@@ -69,11 +69,13 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/oregon-scientific/sensor'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name        : true
-                                   , status      : [ 'present' ]
-                                   , lastSample  : 'timestamp'
-                                   , temperature : 'celsius'
-                                   , humidity    : 'percentage'
+                    , properties : { name         : true
+                                   , status       : [ 'present' ]
+                                   , lastSample   : 'timestamp'
+                                   , temperature  : 'celsius'
+                                   , humidity     : 'percentage'
+                                   , batteryLevel : 'percentage'
+                                   , rssi         : 's8'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform

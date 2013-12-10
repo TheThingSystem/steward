@@ -1,3 +1,4 @@
+// RFXtrx433 - USB 433.92MHz transceiver: http://www.rfxcom.com/store/Transceivers/12103
 // RFXrec433 - USB 433.92MHz receiver: http://www.rfxcom.com/store/Receivers/12113
 
 var rfxcom      = require('rfxcom')
@@ -47,25 +48,38 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   }).on('temp3',  function(evt) { self.tempX(self, evt);
   }).on('temp4',  function(evt) { self.tempX(self, evt);
   }).on('temp5',  function(evt) { self.tempX(self, evt);
+  }).on('temp6',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th6',       params: evt });  // Clas Ohlson
+  }).on('temp7',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th7',       params: evt });  // Clas Ohlson
+  }).on('temp8',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th8',       params: evt });  // Clas Ohlson
+  }).on('temp9',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th9',       params: evt });  // Clas Ohlson
   }).on('th1',  function(evt) { self.thX(self, evt);
   }).on('th2',  function(evt) { self.thX(self, evt);
   }).on('th3',  function(evt) { self.thX(self, evt);
   }).on('th4',  function(evt) { self.thX(self, evt);
   }).on('th5',  function(evt) { self.thX(self, evt);
-  }).on('th8',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'th8',       params: evt });  // Clas Ohlson
+  }).on('th6',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th9',       params: evt });
+  }).on('th7',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th7',       params: evt });
+  }).on('th8',  function(evt) { self.thX(self, evt);
+  }).on('th9',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'th9',       params: evt });
   }).on('lighting1',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'lighting1', params: evt });
-  }).on('lighting2',  function(evt) {
-    logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });  // Nexa / Home Easy
+  }).on('lighting2',  function(evt) { self.lighting2(self, evt);
   }).on('lighting5',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'lighting5', params: evt });
   }).on('data',  function(data) {
     logger.debug('device/' + self.deviceID, { event: 'data',      params: data.toString('hex') });
   }).on('receive',  function(data) {
     logger.debug('device/' + self.deviceID, { event: 'receive',   params: data.toString('hex') });
-  }).initialise(function() {
-    logger.info('device/' + self.deviceID,  { event: 'initialize' });
+  }).initialise(function(err, results) {
+    if (!!err) return logger.error('rfxcom-usb', { event: 'initialize', diagnostic: err.message });
+    logger.info('device/' + self.deviceID,  { event: 'initialize', results: results });
   });
 };
 util.inherits(Gateway, require('./../device-gateway').Device);
@@ -74,9 +88,11 @@ util.inherits(Gateway, require('./../device-gateway').Device);
 Gateway.prototype.thX = function(self, evt) {
   var info, name, params, sensor, udn;
 
-  params = { lastSample  : new Date().getTime()
-           , temperature : (!!evt.temperature) ? evt.temperature : null
-           , humidity    : (!!evt.humidity)    ? evt.humidity    : null
+  params = { lastSample   : new Date().getTime()
+           , temperature  : (!!evt.temperature)  ? evt.temperature                               : null
+           , humidity     : (!!evt.humidity)     ? evt.humidity                                  : null
+           , batteryLevel : (!!evt.batteryLevel) ? devices.percentageValue(evt.batteryLevel, 15) : null
+           , rssi         : (!!evt.rssi)         ? devices.percentageValue(evt.rssi, 15)         : null
            };
 
   udn = 'rfxcom:th:' + evt.id;
@@ -90,7 +106,7 @@ Gateway.prototype.thX = function(self, evt) {
   info =  { source: self.deviceID, gateway: self, params: params };
   info.device = { url                          : null
                 , name                         : name + ' #' + evt.id
-                , manufacturer                 : 'Oregon Scientific'
+                , manufacturer                 : { 8: 'Clas Ohlson' }[evt.subtype.toString()] || 'Oregon Scientific'
                 , model        : { name        : name
                                  , description : ''
                                  , number      : evt.subtype
@@ -109,6 +125,50 @@ Gateway.prototype.thX = function(self, evt) {
 };
 Gateway.prototype.tempX = Gateway.prototype.thX;
 
+Gateway.prototype.lighting2 = function(self, evt) {
+  var gateway, info, lights, name, params, udn;
+
+  return logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });
+
+  params = { lastSample   : new Date().getTime()
+           , status       : (!!evt.command) ? ((evt.command == 1) || (evt.command == 4) ? 'on' : 'off') : null
+           , brightness   : (!!evt.level)   ? devices.percentageValue(evt.level, 15)                    : null
+           , rssi         : (!!evt.rssi)    ? devices.percentageValue(evt.rssi, 15)                     : null
+           };
+
+  udn = 'rfxcom:lighting2:' + evt.id;
+  if (!!devices.devices[udn]) {
+    lights = devices.devices[udn].device;
+    return lights.update(lights, params);
+  }
+
+  name = evt.subtype || 'Siemens';
+
+  gateway = new rfxcom.Lighting2(self.rfx, { AC           : rfxcom.lighting2.AC
+                                           , 'HomeEasy EU': rfxcom.lighting2.HOMEEASY_EU
+                                           , ANSLUT       : rfxcom.lighting2.ANSLUT }[evt.subtype] || 0);
+
+  info =  { source: self.deviceID, gateway: gateway, params: params };
+  info.device = { url                          : null
+                , name                         : name + ' #' + evt.id
+                , manufacturer                 : 'Siemens'
+                , model        : { name        : name
+                                 , description : ''
+                                 , number      : ''
+                                 }
+                , unit         : { serial      : evt.id
+                                 , udn         : udn
+                                 }
+                };
+  info.url = info.device.url;
+  info.deviceType = '/device/lighting/siemens/bulb';
+  info.id = info.device.unit.udn;
+
+  logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: params });
+  devices.discover(info);
+  self.changed();
+};
+
 
 var scanning      = {};
 
@@ -120,16 +180,16 @@ var fingerprints  =
     , manufacturer   : 'RFXCOM'
     , vendorId       : 0x0403
     , productId      : 0x6001
-    , deviceType     : '/device/gateway/rfxtrx433/usb'
+    , deviceType     : '/device/gateway/rfxcom/usb'
     }
   , { vendor         : 'RFXCOM'
-    , modelName      : 'RFXrec433'
+    , modelName      : 'Rfxcom'
     , description    : 'USB 433.92MHz receiver'
     , manufacturer   : 'RFXCOM'
     , vendorId       : 0x0403
     , productId      : 0x6001
-    , pnpId          : 'usb-RFXCOM_RFXrec433_'
-    , deviceType     : '/device/gateway/rfxrec433/usb'
+    , pnpId          : 'usb-RFXCOM_Rfxcom_'
+    , deviceType     : '/device/gateway/rfxcom/usb'
     }
   ];
 
@@ -137,7 +197,7 @@ var scan = function() {
   serialport.list(function(err, info) {
     var i, j;
 
-    if (!!err) return logger2.error('RFXrec433-usb', { diagnostic: err.message });
+    if (!!err) return logger2.error('rfxcom-usb', { diagnostic: err.message });
 
     for (i = 0; i < info.length; i++) {
       for (j = fingerprints.length - 1; j !== -1; j--) {
@@ -197,11 +257,11 @@ var scan1 = function(driver) {
 
 
 exports.start = function() {
-  steward.actors.device.gateway.rfxrec433 = steward.actors.device.gateway.rfxrec433 ||
-      { $info     : { type: '/device/gateway/rfxrec433' } };
+  steward.actors.device.gateway.rfxcom = steward.actors.device.gateway.rfxcom ||
+      { $info     : { type: '/device/gateway/rfxcom' } };
 
-  steward.actors.device.gateway.rfxrec433.usb =
-      { $info     : { type       : '/device/gateway/rfxrec433/usb'
+  steward.actors.device.gateway.rfxcom.usb =
+      { $info     : { type       : '/device/gateway/rfxcom/usb'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name   : true
@@ -211,12 +271,7 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/gateway/rfxrec433/usb'] = Gateway;
-
-  steward.actors.device.gateway.rfxtrx433 = utility.clone(steward.actors.device.gateway.rfxrec433);
-  steward.actors.device.gateway.rfxtrx433.$info.type = '/device/gateway/rfxtrx433';
-  steward.actors.device.gateway.rfxtrx433.usb.$info.type = '/device/gateway/rfxtrx433/usb';
-  devices.makers['/device/gateway/rfxtrx433/usb'] = Gateway;
+  devices.makers['/device/gateway/rfxcom/usb'] = Gateway;
 
   scan();
 };

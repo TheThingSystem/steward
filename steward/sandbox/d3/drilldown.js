@@ -1068,7 +1068,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'LIGHT'
-                          , cooked : v + ' lx'
+                          , cooked : v.toFixed(1) + ' lx'
                           , value  : clip2bars(v, 5000, 25000)
                           , index  : 0.40
                           });
