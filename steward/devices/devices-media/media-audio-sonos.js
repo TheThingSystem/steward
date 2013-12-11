@@ -355,6 +355,7 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
   });
 };
 util.inherits(Sonos_Bridge, media.Device);
+Sonos_Bridge.prototype.perform = devices.perform;
 
 
 exports.start = function() {

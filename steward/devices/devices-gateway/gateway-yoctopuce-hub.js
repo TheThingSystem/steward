@@ -54,6 +54,7 @@ var Hub = exports.Device = function(deviceID, deviceUID, info) {
   }, 0);
 };
 util.inherits(Hub, require('./../device-gateway').Device);
+Hub.prototype.perform = devices.perform;
 
 
 Hub.prototype.addstation = function(module) {

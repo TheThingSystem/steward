@@ -48,6 +48,7 @@ var Tag = exports.Device = function(deviceID, deviceUID, info) {
   setInterval(function() { if (!self.waitingP) self.update(self, null, new Date().getTime()); }, 10 * 1000);
 };
 util.inherits(Tag, presence.Device);
+Tag.prototype.perform = devices.perform;
 
 
 // TBD: multiple reels reporting the same tag...

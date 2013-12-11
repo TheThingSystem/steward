@@ -44,7 +44,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
       if (self.status === 'reset') self.alert('please check login credentials at https://home.nest.com/');
       for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
       for (macaddr in newaddrs) {
-        if (newaddrs.hasOwnProperty(macaddr)) self.alert('discovered Nest thermostat at ' + newaddrs[macaddr]);
+        if (newaddrs.hasOwnProperty(macaddr)) self.alert('discovered Nest device at ' + newaddrs[macaddr]);
       }
 
       return;
@@ -100,13 +100,28 @@ Cloud.prototype.scan = function(self) {
   if (!self.nest) return;
 
   self.nest.fetchStatus(function(data) {
-    var away, id, name;
+    var away, i, id, name, station, t, topaz, where, wheres;
 
     name = '';
+    topaz = [];
     for (id in data.structure) if (data.structure.hasOwnProperty(id)) {
       name = data.structure[id].name;
       away = data.structure[id].away;
+      if (!data.structure[id].swarm) continue;
+      for (i = 0; i < data.structure[id].swarm.length; i++) {
+        t = data.structure[id].swarm[i];
+        if (t.indexOf('topaz.') === 0) topaz.push(t.substr(6));
+      }
       break;
+    }
+
+    where = {};
+    for (id in data.where) if (data.where.hasOwnProperty(id)) {
+      if (!where[id]) where[id] = {};
+      wheres = data.where[id].wheres;
+      for (i = 0; i < wheres.length; i++) {
+        where[id][wheres[i].where_id] = wheres[i].name;
+      }
     }
 
     for (id in data.device) {
@@ -115,23 +130,43 @@ Cloud.prototype.scan = function(self) {
                         data.track[id].online);
       }
     }
+
+    for (i = 0; i < topaz.length; i++) {
+      id = topaz[i];
+      station = data.topaz[id];
+      station.type          = 'Nest Protect';
+      station.model_version = station.model;
+      station.mac_address   = station.wifi_mac_address;
+      station.name          = where[station.structure_id][station.where_id];
+
+      self.addstation(self, id, station, name, away, station, data.topaz[id].$timestamp, data.widget_track[id].online);
+    }
   });
 };
 
 Cloud.prototype.addstation = function(self, id, station, name, away, data, timestamp, online) {
-  var info, params, sensor, udn;
+  var deviceType, info, params, sensor, udn;
 
-  params = { lastSample      : timestamp
-           , temperature     : data.current_temperature
-           , goalTemperature : (!!station.time_to_target) ? data.target_temperature : data.current_temperature
-           , humidity        : station.current_humidity
-           , hvac            : (!!data.hvac_ac_state)           ? 'cool'
-                                   : (!!data.hvac_heater_state) ? 'heat'
-                                   : (!!data.hvac_fan_state)    ? 'fan'     : 'off'
-           , away            : (!!away)                         ? 'on'      : 'off'
-           , leaf            : (!!station.leaf)                 ? 'on'      : 'off'
-           , status          : online                           ? 'present' : 'absent'
-           };
+  if (data.current_temperature) {
+    deviceType = '/device/climate/nest/control';
+    params = { temperature     : data.current_temperature
+             , goalTemperature : (!!station.time_to_target) ? data.target_temperature : data.current_temperature
+             , humidity        : station.current_humidity
+             , hvac            : (!!data.hvac_ac_state)           ? 'cool'
+                                     : (!!data.hvac_heater_state) ? 'heat'
+                                     : (!!data.hvac_fan_state)    ? 'fan'     : 'off'
+             , away            : (!!away)                         ? 'on'      : 'off'
+             , leaf            : (!!station.leaf)                 ? 'on'      : 'off'
+             };
+  } else {
+    deviceType = '/device/climate/nest/smoke';
+    params = { smoke           : data.smoke_status ? 'detected' : 'absent'
+             , coStatus        : data.co_status    ? 'unsafe'   : 'safe'
+             , batteryLevel    : data.battery_level
+             };
+  }
+  params.lastSample = timestamp;
+  params.status     = online ? 'present' : 'absent';
 
   udn = 'nest:' + id;
   if (!!devices.devices[udn]) {
@@ -152,7 +187,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = '/device/climate/nest/control';
+  info.deviceType = deviceType;
   info.id = info.device.unit.udn;
   macaddrs[station.mac_address] = true;
 

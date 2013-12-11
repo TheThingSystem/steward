@@ -43,6 +43,7 @@ var Hublet = exports.Device = function(deviceID, deviceUID, info) {
   });
 };
 util.inherits(Hublet, gateway.Device);
+Hublet.prototype.perform = devices.perform;
 
 
 Hublet.prototype.update = function(self, data, timestamp) {
@@ -168,6 +169,7 @@ var Reelceiver = exports.Device = function(deviceID, deviceUID, info) {
   });
 };
 util.inherits(Reelceiver, gateway.Device);
+Reelceiver.prototype.perform = devices.perform;
 
 
 Reelceiver.prototype.update = function(self, packet, timestamp) {

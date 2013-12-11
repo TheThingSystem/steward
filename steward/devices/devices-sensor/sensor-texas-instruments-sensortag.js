@@ -57,6 +57,7 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   });
 };
 util.inherits(SensorTag, sensor.Device);
+SensorTag.prototype.perform = devices.perform;
 
 
 SensorTag.prototype.connect = function(self) {

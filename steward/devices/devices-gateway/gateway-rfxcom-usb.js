@@ -83,6 +83,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   });
 };
 util.inherits(Gateway, require('./../device-gateway').Device);
+Gateway.prototype.perform = devices.perform;
 
 
 Gateway.prototype.thX = function(self, evt) {

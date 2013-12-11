@@ -32,11 +32,14 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'present';
   self.changed();
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {/* jshint unused: false */
-// name is read-only...
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Sensor, climate.Device);
+Sensor.prototype.perform = devices.perform;
 
 
 Sensor.prototype.update = function(self, params, status) {

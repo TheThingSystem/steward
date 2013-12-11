@@ -12,7 +12,7 @@ var util        = require('util')
 // var logger = climate.logger;
 
 
-var Sensor = exports.Device = function(deviceID, deviceUID, info) {
+var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   var param, self;
 
   self = this;
@@ -38,14 +38,16 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.gateway = info.gateway;
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {/* jshint unused: false */
-// name is read-only...
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 };
-util.inherits(Sensor, climate.Device);
+util.inherits(Thermostat, climate.Device);
 
 
-Sensor.prototype.update = function(self, params, status) {
+Thermostat.prototype.update = function(self, params, status) {
   var param, updateP;
 
   updateP = false;
@@ -65,7 +67,7 @@ Sensor.prototype.update = function(self, params, status) {
   }
 };
 
-Sensor.operations = {
+Thermostat.operations = {
   set: function(sensor, params) {
 
     var serial = sensor.serial;
@@ -129,12 +131,12 @@ Sensor.operations = {
   }
 };
 
-Sensor.prototype.perform = function(self, taskID, perform, parameter) {
+Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
   try { params = JSON.parse(parameter); } catch(e) {}
 
-  if (!!Sensor.operations[perform]) {
-    if (Sensor.operations[perform](this, params)) {
+  if (!!Thermostat.operations[perform]) {
+    if (Thermostat.operations[perform](this, params)) {
       return steward.performed(taskID);
     }
   }
@@ -158,7 +160,7 @@ var validate_perform = function(perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(e) {}
 
-  if (!!Sensor.operations[perform]) {
+  if (!!Thermostat.operations[perform]) {
     if (perform === 'set') {
       if (!params) {
         result.requires.push('parameter');
@@ -175,6 +177,43 @@ var validate_perform = function(perform, parameter) {
 
   return devices.validate_perform(perform, parameter);
 };
+
+var Protect = exports.Device = function(deviceID, deviceUID, info) {
+  var param, self;
+
+  self = this;
+
+  self.whatami = info.deviceType;
+  self.deviceID = deviceID.toString();
+  self.deviceUID = deviceUID;
+  self.name = info.device.name;
+  self.getName();
+
+  self.serial = info.device.unit.serial;
+
+  self.info = {};
+  if (!!info.params.status) {
+    self.status = info.params.status;
+    delete(info.params.status);
+  } else self.status = 'present';
+  for (param in info.params) {
+    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
+  }
+  sensor.update(self.deviceID, info.params);
+
+  self.changed();
+  self.gateway = info.gateway;
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+  });
+};
+util.inherits(Protect, climate.Device);
+Protect.prototype.perform = devices.perform;
+Protect.prototype.update = Thermostat.prototype.update;
+
 
 exports.start = function() {
   steward.actors.device.climate.nest = steward.actors.device.climate.nest ||
@@ -198,5 +237,21 @@ exports.start = function() {
                     }
         , $validate : { perform    : validate_perform }
       };
-  devices.makers['/device/climate/nest/control'] = Sensor;
+  devices.makers['/device/climate/nest/control'] = Thermostat;
+
+  steward.actors.device.climate.nest.smoke =
+      { $info     : { type       : '/device/climate/nest/smoke'
+                    , observe    : [ ]
+                    , perform    : [ ]
+                    , properties : { name            : true
+                                   , status          : [ 'present', 'absent' ]
+                                   , lastSample      : 'timestamp'
+                                   , smoke           : [ 'detected', 'absent' ]
+                                   , coStatus        : [ 'safe', 'unsafe' ]
+                                   , batteryLevel    : 'percentage'
+                                   }
+                    }
+        , $validate : { perform    : devices.validate_perform }
+      };
+  devices.makers['/device/climate/nest/smoke'] = Protect;
 };

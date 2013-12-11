@@ -39,8 +39,10 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.changed();
   self.gateway = info.gateway;
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {/* jshint unused: false */
-// name is read-only...
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 };
 util.inherits(Sensor, climate.Device);

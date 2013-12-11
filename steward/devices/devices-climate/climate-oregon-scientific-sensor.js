@@ -39,6 +39,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   });
 };
 util.inherits(Sensor, climate.Device);
+Sensor.prototype.perform = devices.perform;
 
 
 Sensor.prototype.update = function(self, params, status) {
