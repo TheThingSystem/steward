@@ -42,14 +42,12 @@ var Lumen = exports.Device = function(deviceID, deviceUID, info) {
 
 
   self.peripheral.on('disconnect', function() {
-console.log('>>> ' + self.name + ' callback: disconnect');
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
 
     self.lumen = null;
-    setTimeout(function() { self.status = 'waiting'; self.changed(); self.connect(self); }, 1 * 1000);
+    setTimeout(function() { /* self.status = 'waiting'; self.changed(); */ self.connect(self); }, 1 * 1000);
   }).on('rssiUpdate', function(rssi) {
-console.log('>>> ' + self.name + ' callback: rssiUpdate rssi='+rssi);
     self.info.rssi = rssi;
     self.refresh(self);
   });
@@ -67,19 +65,14 @@ util.inherits(Lumen, lighting.Device);
 
 
 Lumen.prototype.connect = function(self) {
-console.log('>>> ' + self.name + ' invoke: connect');
   self.peripheral.connect(function(err) {
     var bulb;
 
-console.log('>>> ' + self.name + ' callback: connect !!err='+ (!!err));
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-console.log('>>> ' + self.name + ' invoke new Lumen()');
     bulb = new lumen(self.peripheral);
 
-console.log('>>> ' + self.name + ' invoke: discoverServicesAndCharacteristics');
     bulb.discoverServicesAndCharacteristics(function(err) {
-console.log('>>> ' + self.name + ' callback: discoverServicesAndCharacteristics');
       if (err) return logger.error('device/' + self.deviceID,
                                    { event: 'discoverServicesAndCharacteristics', diagnostic: err.message });
 
@@ -96,9 +89,7 @@ Lumen.prototype.heartbeat = function(self) {
 Lumen.prototype.refresh = function(self) {
   if (!self.lumen) return;
 
-console.log('>>> invooke: readDeviceName');
   self.lumen.readDeviceName(function(lightName) {
-console.log('>>> callback: readDeviceName lightName='+lightName);
     if (self.name !== lightName) {
       self.name = lightName;
       self.changed();
@@ -106,43 +97,46 @@ console.log('>>> callback: readDeviceName lightName='+lightName);
   });
 
   self.lumen.readState(function(state) {
-    var onoff   = state.on ? 'on' : 'off'
+    var info    = utility.clone(self.info)
+      , onoff   = state.on ? 'on' : 'off'
       , states  = { warmWhite: function() {
-                                 var brightness = parseInt(state.warmPercentageWhite, 10);
-
-                                 if (isNaN(brightness)) brightness = 1;
-                                 if (self.info.brightness !== brightness) {
-                                   self.info.brightness = brightness;
-                                   updateP = true;
-                                 }
-
-                               }
+                                  info.brightness = Math.round(parseInt(state.warmPercentageWhite, 10));
+                                  info.color.rgb = { r: 255, g: 255, b: 255 };
+                                }
                   , color     : function() {
-                                  var rgb = colorconv.cmyk2rgb([ state.colorC * 100
-                                                               , state.colorM * 100
-                                                               , state.colorY * 100
-                                                               , (1.0 - state.colorW) * 100]);
+                                  var rgb;
 
-console.log('>>> rgb=' + JSON.stringify(rgb));
-                                  if ((self.info.color.rgb.r !== rgb[0])
-                                          || (self.info.color.rgb.g !== rgb[1])
-                                          || (self.info.color.rgb.b !== rgb[2])) {
-                                    self.info.color.rgb = { r: rgb[0], g: rgb[1], b: rgb[2] };
-                                    updateP = true;
-                                  }
+                                  info.brightness = Math.round((state.colorW) * 100);
+
+                                  rgb = colorconv.cmyk2rgb([ state.colorC * 100
+                                                           , state.colorM * 100
+                                                           , state.colorY * 100
+                                                           , 100 - info.brightness
+                                                           ]);
+                                  info.color.rgb.r = rgb[0];
+                                  info.color.rgb.g = rgb[1];
+                                  info.color.rgb.b = rgb[2];
                                 }
                   }
       , updateP = false
       ;
 
-console.log('>>> state=' + JSON.stringify(state));
+    if (states[state.mode]) (states[state.mode])();
+
     if (self.status !== onoff) {
       self.status = onoff;
       updateP = true;
     }
-
-    if (states[state.mode]) (states[state.mode])();
-    else logger.info('device/' + self.deviceID, { event: 'readState', state: state });
+    if ((self.info.color.rgb.r !== info.color.rgb.r)
+            || (self.info.color.rgb.g !== info.color.rgb.g)
+            || (self.info.color.rgb.b !== info.color.rgb.b)) {
+      self.info.color.rgb = info.color.rgb;
+      updateP = true;
+    }
+    if ((!isNaN(info.brightness)) && (self.info.brightness !== info.brightness)) {
+      self.info.brightness = info.brightness;
+      updateP = true;
+    }
 
     if (updateP) self.changed();
   });
@@ -154,7 +148,7 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!self.lumen) return false;
 
-  state = { color: self.info.color, brightness: state.info.brightness };
+  state = { color: self.info.color, brightness: self.info.brightness };
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   refresh = function() { setTimeout (function() { self.refresh(self); }, 0); };
