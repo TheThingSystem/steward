@@ -46,7 +46,7 @@ exports.start = function() {
     var deviceType, info, name, uuids;
 
 console.log('>>> discover ' + peripheral.advertisement.localName + ' uuid=' + peripheral.uuid);
-    if (!!discovered[peripheral.uuid]) return console.log('already saw ' + peripheral.uuid);
+    if (!!discovered[peripheral.uuid]) return console.log('>>> already saw ' + peripheral.uuid);
     discovered[peripheral.uuid] = true;
 
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';

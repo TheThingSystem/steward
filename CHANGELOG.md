@@ -15,6 +15,7 @@ ChangeLog
 - place/1: new cron event "reboot" which fires 1 minute after startup
 - device/climate:
     - koubachi/sensor: added batteryLevel, fixed bug for plant lastSamle
+    - nest/smoke: initial support for Nest Protect
 - device/gateway:
     - insteon/usb: initial support
     - rfxcom/usb: support RFXtrx433
