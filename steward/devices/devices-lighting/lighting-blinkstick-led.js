@@ -35,7 +35,7 @@ var Blinkstick = exports.Device = function(deviceID, deviceUID, info) {
   self.led.getColor(function(err, r, g, b) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'getColor', diagnostic: err.message });
 
-    self.status = 'on';
+    self.status = ((r !== 0) || (g !== 0) || (b !== 0)) ? 'on' : 'off';
     self.info.color = { model: 'rgb', rgb: { r: r, g: g, b: b } };
     self.changed();
   });
@@ -72,7 +72,6 @@ Blinkstick.prototype.perform = function(self, taskID, perform, parameter) {
     self.info.color = { model: 'rgb', rgb: { r: state.color[0], g: state.color[1], b: state.color[2] } };
     self.changed();
   });
-
 
   return steward.performed(taskID);
 };

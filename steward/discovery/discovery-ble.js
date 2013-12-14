@@ -9,6 +9,7 @@ var logger = utility.logger('discovery');
 
 
 var advertisements = { localNames: {}, serviceUUIDs: {} };
+var discovered     = {};
 
 exports.register = function(deviceType, localName, serviceUUIDs) {
   var name, uuids;
@@ -37,21 +38,27 @@ exports.start = function() {
     if (state === 'poweredOn') noble.startScanning(); else noble.stopScanning();
   });
 
+  exports.register('/device/ignore', 'Dropcam',    [ 'd2d3f8ef9c994d9ca2b391c85d44326c' ]);
+  exports.register('/device/ignore', 'estimote',   [                                    ]);
   exports.register('/device/ignore', 'StickNFind', [ 'bec26202a8d84a9480fc9ac1de37daa6' ]);
 
   noble.on('discover', function(peripheral) {
     var deviceType, info, name, uuids;
+
+console.log('>>> discover ' + peripheral.advertisement.localName + ' uuid=' + peripheral.uuid);
+    if (!!discovered[peripheral.uuid]) return console.log('already saw ' + peripheral.uuid);
+    discovered[peripheral.uuid] = true;
 
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';
     uuids = peripheral.advertisement.serviceUuids.sort().join(',').toLowerCase();
     deviceType =   (!!advertisements.localNames[name])    ? advertisements.localNames[name][uuids]
                  : (!!advertisements.serviceUUIDs[uuids]) ? advertisements.serviceUUIDs[uuids]['']
                  : '';
-    if (deviceType === '/device/ignore') {
-      return logger.warning('BLE ignore', { uuid         : peripheral.uuid
-                                          , localName    : peripheral.advertisement.localName
-                                          , serviceUuids : peripheral.advertisement.serviceUuids
-                                          });
+    if ((deviceType === '/device/ignore') || (deviceType === '')) {
+      return logger.info('BLE ignore', { uuid         : peripheral.uuid
+                                       , localName    : peripheral.advertisement.localName
+                                       , serviceUuids : peripheral.advertisement.serviceUuids
+                                       });
     }
 
     info = { source: 'ble', peripheral: peripheral };

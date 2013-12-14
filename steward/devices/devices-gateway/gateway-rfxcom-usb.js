@@ -70,7 +70,8 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
     logger.info('device/' + self.deviceID,  { event: 'th9',       params: evt });
   }).on('lighting1',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'lighting1', params: evt });
-  }).on('lighting2',  function(evt) { self.lighting2(self, evt);
+  }).on('lighting2',  function(evt) {
+    logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });
   }).on('lighting5',  function(evt) {
     logger.info('device/' + self.deviceID,  { event: 'lighting5', params: evt });
   }).on('data',  function(data) {
@@ -126,10 +127,9 @@ Gateway.prototype.thX = function(self, evt) {
 };
 Gateway.prototype.tempX = Gateway.prototype.thX;
 
+/*
 Gateway.prototype.lighting2 = function(self, evt) {
   var gateway, info, lights, name, params, udn;
-
-  return logger.info('device/' + self.deviceID,  { event: 'lighting2', params: evt });
 
   params = { lastSample   : new Date().getTime()
            , status       : (!!evt.command) ? ((evt.command == 1) || (evt.command == 4) ? 'on' : 'off') : null
@@ -169,7 +169,7 @@ Gateway.prototype.lighting2 = function(self, evt) {
   devices.discover(info);
   self.changed();
 };
-
+ */
 
 var scanning      = {};
 

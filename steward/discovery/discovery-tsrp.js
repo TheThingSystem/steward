@@ -41,7 +41,7 @@ var handle = exports.handle = function(message, remoteAddress, tag) {
       if ((!instance.name) || (!instance.status) || (!instance.unit) || (!instance.unit.serial) || (!instance.unit.udn)) {
         logger.error(tag, { event     : 'report'
                           , requestID : requestID
-                          , instance  : instance
+                          , instance  : JSON.stringify(instance)
                           , error     : { diagnostic: 'invalid instance #' + i + ' in ' + thingPath } });
         okP = false;
       }

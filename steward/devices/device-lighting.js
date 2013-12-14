@@ -15,11 +15,17 @@ exports.start = function() {
 };
 
 
-exports.validBrightness  = function(bri) { return ((  0 <= bri) && (bri <= 100)); };
-exports.validHue         = function(hue) { return ((  0 <= hue) && (hue <  360)); };
-exports.validSaturation  = function(sat) { return ((  0 <= sat) && (sat <= 100)); };
-exports.validCIE1931     = function(xy)  { return ((0 <= xy.x) && (xy.x <= 1) && (0 <= xy.y) && (xy.y <= 1)); };
-exports.validRGB         = function(rgb) {
+exports.validBrightness  = function(bri)  { return ((  0 <= bri) && (bri <= 100)); };
+exports.validHue         = function(hue)  { return ((  0 <= hue) && (hue <  360)); };
+exports.validSaturation  = function(sat)  { return ((  0 <= sat) && (sat <= 100)); };
+exports.validCIE1931     = function(xy)   { return ((0 <= xy.x) && (xy.x <= 1) && (0 <= xy.y) && (xy.y <= 1)); };
+exports.validCMYW        = function(cmyw) {
+  return (   (0 <= cmyw.c) && (cmyw.c <= 100)
+          && (0 <= cmyw.m) && (cmyw.m <= 100)
+          && (0 <= cmyw.y) && (cmyw.y <= 100)
+          && (0 <= cmyw.w) && (cmyw.w <= 100));
+};
+exports.validRGB         = function(rgb)  {
   return (   (0 <= rgb.r) && (rgb.r <= 255)
           && (0 <= rgb.g) && (rgb.g <= 255)
           && (0 <= rgb.b) && (rgb.b <= 255));

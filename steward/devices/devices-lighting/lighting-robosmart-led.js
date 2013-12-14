@@ -38,15 +38,13 @@ var RoboSmart = exports.Device = function(deviceID, deviceUID, info) {
               , rssi  : self.peripheral.rssi
               };
 
-  self.connect(self);
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
 
     self.robosmart = null;
     setTimeout(function() { self.status = 'waiting'; self.changed(); self.connect(self); }, 1 * 1000);
-  });
-  self.peripheral.on('rssiUpdate', function(rssi) {
+  }).on('rssiUpdate', function(rssi) {
     self.info.rssi = rssi;
     self.refresh(self);
   });
@@ -67,13 +65,13 @@ RoboSmart.prototype.connect = function(self) {
   self.peripheral.connect(function(err) {
     if (err) return logger.error('device/' + self.deviceID, { event: 'connect', diagnostic: err.message });
 
-    var r = new robosmart(self.peripheral);
+    var bulb = new robosmart(self.peripheral);
 
-    r.discoverServicesAndCharacteristics(function(err) {
-      if (err) return logger.error('device/' + self.deviceID, { event: 'discoverServicesAndCharacteristics', diagnostic: err.message });
+    bulb.discoverServicesAndCharacteristics(function(err) {
+      if (err) return logger.error('device/' + self.deviceID,
+                                   { event: 'discoverServicesAndCharacteristics', diagnostic: err.message });
 
-      self.robosmart = r;
-
+      self.robosmart = bulb;
       self.refresh(self);
     });
   });

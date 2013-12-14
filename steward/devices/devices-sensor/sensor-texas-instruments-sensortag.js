@@ -36,15 +36,13 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.peripheral = info.peripheral;
   self.info = { rssi: self.peripheral.rssi };
 
-  self.connect(self);
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
 
     self.sensortag = null;
     setTimeout(function() { self.status = 'absent'; self.changed(); self.connect(self); }, 120 * 1000);
-  });
-  self.peripheral.on('rssiUpdate', function(rssi) {
+  }).on('rssiUpdate', function(rssi) {
     self.status = 'present';
     self.info.rssi = rssi;
     self.changed();
@@ -55,6 +53,8 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
 
     if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
+
+  self.connect(self);
 };
 util.inherits(SensorTag, sensor.Device);
 SensorTag.prototype.perform = devices.perform;
