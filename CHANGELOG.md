@@ -1,9 +1,50 @@
 ChangeLog
 =======
 
+## Release 1.3 - TBD
+## Commit - TBD
+
+### Steward
+- add subscriptions to steward status for /device/presence/mobile/* devices
+- fix bugs relating to setting name of things
+- better handling of SSDP error from Chromecast
+- warn user if $HOME/.nvm/nvm.sh doesn't exit
+- fix bugs in TSRP handling of lastSample
+    
+
+### Things
+- place/1: new cron event "reboot" which fires 1 minute after startup    
+- device/climate:
+    - koubachi/sensor: added batteryLevel, fixed bug for plant lastSamle
+- device/gateway:
+    - insteon/usb: initial support
+    - rfxcom/usb: support RFXtrx433
+- device/lighting:
+    - heroic-robotics/* - support colors for individual pixels
+    - hue/downlight: added
+    - tabu/lumen: added    
+    - tcpi/*: support Connected by TCPi
+- device/presence:
+    - mobile/mqtt: better rate limiting
+    - reelyactive/tag - better event handling
+- presence/* and wearable/*: no longer view alert level as readable
+
+### HTML5/D3 client
+- display errors from steward in notification queue
+- updated for new things
+- fixed numerous bug (keep those reports coming!)
+- better handling for unknown deviceTypes
+- authentication required for all access via https
+- implemented popovers for motivie, presence, and wearable deviceTypes
+    
+### Client examples
+- WeatherStationXBeeWiFi: added
+- all: proper casting for dtostrf()
+    
+
 ## Release 1.2 - November 23, 2013
 ## Commit - 795da048511bde27d998e6bf3432e4b2f7a1f722
-    
+
 ### Steward
 - numerous "minor clean-up" of some internals, especially:
     - better reporting when underlying modules not present
@@ -14,24 +55,23 @@ ChangeLog
     - dimmer code tested against: Cooper Aspire RF Dimmer cooper, GE Lamp Dimmer/Plugin Appliance Module
 - support MQTT as an upstream reporting protocol
 - support for Beaglebone Black running Debian Wheezy
-    
-    
+
 ### Things
 - support YoctoHub-Wireless hub
 - support Yoctopuce-Color (dual) LED
 - support reelyActive's micro-presence system (hub, reels, tags)
 - support MQTTitude's macro-presense system (iOS, Android)
 - initial support for Heroic Robotics' Pixel Pusher (need to add per-LED addressing)
-    
+
 ### HTML5/D3 client
 - updated for new things
 - numerous bug fixes (keep those reports coming!)
-    
-### client examples
-- 
-    
-    
-    
+
+### Client examples
+- no changes
+
+
+
 ## Release 1.1 - October 23, 2013
 ## Commit - 852a955128c192ac87b78763a5ef9537b0ec1d02
 
@@ -49,7 +89,7 @@ ChangeLog
 - do not respond to SSDP requests from the steward
 - place1.version reports commit SHA
 - place1.ipaddrs setting (useful for referring to files on the steward for playback)
-	
+
 ### Things
 - support Data Sensing Labs' Air Quality Sensor Mote
 - support Ecobee's Smart SI Thermostat
