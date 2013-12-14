@@ -105,27 +105,47 @@ console.log('>>> callback: readDeviceName lightName='+lightName);
     }
   });
 
-/* TBD
-  self.lumen.isOn(function(on) {
-    var onoff = on ? 'on' : 'off';
+  self.lumen.readState(function(state) {
+    var onoff   = state.on ? 'on' : 'off'
+      , states  = { warmWhite: function() {
+                                 var brightness = parseInt(state.warmPercentageWhite, 10);
 
+                                 if (isNaN(brightness)) brightness = 1;
+                                 if (self.info.brightness !== brightness) {
+                                   self.info.brightness = brightness;
+                                   updateP = true;
+                                 }
+
+                               }
+                  , color     : function() {
+                                  var rgb = colorconv.cmyk2rgb([ state.colorC * 100
+                                                               , state.colorM * 100
+                                                               , state.colorY * 100
+                                                               , (1.0 - state.colorW) * 100]);
+
+console.log('>>> rgb=' + JSON.stringify(rgb));
+                                  if ((self.info.color.rgb.r !== rgb[0])
+                                          || (self.info.color.rgb.g !== rgb[1])
+                                          || (self.info.color.rgb.b !== rgb[2])) {
+                                    self.info.color.rgb = { r: rgb[0], g: rgb[1], b: rgb[2] };
+                                    updateP = true;
+                                  }
+                                }
+                  }
+      , updateP = false
+      ;
+
+console.log('>>> state=' + JSON.stringify(state));
     if (self.status !== onoff) {
       self.status = onoff;
-      self.changed();
+      updateP = true;
     }
 
-    if (self.status !== 'on') return;
+    if (states[state.mode]) (states[state.mode])();
+    else logger.info('device/' + self.deviceID, { event: 'readState', state: state });
 
-    self.lumen.getDim(function(dim) {
-      var bri = devices.percentageValue(dim & 0xff, 255);
-
-      if (self.info.brightness !== bri) {
-        self.info.brightness = bri;
-        self.changed();
-      }
-    });
+    if (updateP) self.changed();
   });
- */
 };
 
 

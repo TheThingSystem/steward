@@ -45,8 +45,7 @@ exports.start = function() {
   noble.on('discover', function(peripheral) {
     var deviceType, info, name, uuids;
 
-console.log('>>> discover ' + peripheral.advertisement.localName + ' uuid=' + peripheral.uuid);
-    if (!!discovered[peripheral.uuid]) return console.log('>>> already saw ' + peripheral.uuid);
+    if (!!discovered[peripheral.uuid]) return;
     discovered[peripheral.uuid] = true;
 
     name = (!!peripheral.advertisement.localName) ? peripheral.advertisement.localName : '';
