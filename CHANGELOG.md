@@ -10,10 +10,9 @@ ChangeLog
 - better handling of SSDP error from Chromecast
 - warn user if $HOME/.nvm/nvm.sh doesn't exit
 - fix bugs in TSRP handling of lastSample
-    
 
 ### Things
-- place/1: new cron event "reboot" which fires 1 minute after startup    
+- place/1: new cron event "reboot" which fires 1 minute after startup
 - device/climate:
     - koubachi/sensor: added batteryLevel, fixed bug for plant lastSamle
 - device/gateway:
@@ -22,7 +21,7 @@ ChangeLog
 - device/lighting:
     - heroic-robotics/* - support colors for individual pixels
     - hue/downlight: added
-    - tabu/lumen: added    
+    - tabu/lumen: added
     - tcpi/*: support Connected by TCPi
 - device/presence:
     - mobile/mqtt: better rate limiting
@@ -36,11 +35,11 @@ ChangeLog
 - better handling for unknown deviceTypes
 - authentication required for all access via https
 - implemented popovers for motivie, presence, and wearable deviceTypes
-    
+
 ### Client examples
 - WeatherStationXBeeWiFi: added
 - all: proper casting for dtostrf()
-    
+
 
 ## Release 1.2 - November 23, 2013
 ## Commit - 795da048511bde27d998e6bf3432e4b2f7a1f722
@@ -69,7 +68,6 @@ ChangeLog
 
 ### Client examples
 - no changes
-
 
 
 ## Release 1.1 - October 23, 2013
