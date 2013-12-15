@@ -101,17 +101,18 @@ Lumen.prototype.refresh = function(self) {
       , onoff   = state.on ? 'on' : 'off'
       , states  = { warmWhite: function() {
                                   info.brightness = Math.round(parseInt(state.warmPercentageWhite, 10));
+
                                   info.color.rgb = { r: 255, g: 255, b: 255 };
                                 }
                   , color     : function() {
                                   var rgb;
 
-                                  info.brightness = Math.round((state.colorW) * 100);
+                                  info.brightness = Math.round(state.colorW * 100);
 
-                                  rgb = colorconv.cmyk2rgb([ state.colorC * 100
+                                  rgb = colorconv.cmyk2rgb([ state.colorC * 100,
                                                            , state.colorM * 100
                                                            , state.colorY * 100
-                                                           , 100 - info.brightness
+                                                           , info.brightness !== 100 ? info.brightness : 0
                                                            ]);
                                   info.color.rgb.r = rgb[0];
                                   info.color.rgb.g = rgb[1];
@@ -182,7 +183,7 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
       self.lumen.turnOn(function() {
         var cmyk = colorconv.rgb2cmyk(state.color);
 
-        self.lumen.color(cmyk[0] / 100, cmyk[1] / 100, cmyk[2] / 100, 1.0 - (cmyk[3] / 100), refresh);
+        self.lumen.color(cmyk[0] / 100, cmyk[1] / 100, cmyk[2] / 100, cmyk[3] / 100, refresh);
       });
     }
   }

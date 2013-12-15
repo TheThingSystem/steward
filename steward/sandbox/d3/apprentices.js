@@ -257,6 +257,8 @@ var apprentices =
       , status                  : 'active'
       , observations            :
         { title                 : 'Monitor Air Quality'
+        , uuid                  : '749070ee-08a9-430d-8e5a-812e40a297f1:events'
+        , operator              : 'or'
         , text                  : ''
         , events                :
           [ { title             : 'Air Sensors'
@@ -273,6 +275,8 @@ var apprentices =
         }
       , performances            :
         { title                 : 'Circulate the Air'
+        , uuid                  : '749070ee-08a9-430d-8e5a-812e40a297f1:tasks'
+        , operator              : 'and'
         , text                  : ''
         , tasks                 :
           [ { title             : 'Fans'
@@ -326,7 +330,7 @@ var apprentices =
       , performances            :
         { title                 : 'Status lights'
         , text                  : ''
-        , tasks                 :
+        , task                 :
           [ { title             : 'Lights'
             , uuid              : '40e40662-3bed-4a5a-968d-99e8c7d1917b:task:lights'
             , text              : ''
@@ -362,6 +366,7 @@ var apprentices =
         }
       , performances            :
         { title                 : 'Dawn tasks'
+        , uuid                  : 'f7063811-da36-4998-b31c-35d0a4ba88d6:tasks'
         , text                  : ''
         , tasks                 :
           [ { title             : 'Lights at dawn'
@@ -394,6 +399,7 @@ var apprentices =
         }
       , performances            :
         { title                 : 'Dusk tasks'
+        , uuid                  : '46da63fb-eee0-4ab3-89a8-e7693b8138d8:tasks'
         , text                  : ''
         , tasks                 :
           [ { title             : 'Lights at dusk'
@@ -426,6 +432,7 @@ var apprentices =
         }
       , performances            :
         { title                 : 'Late night tasks'
+        , uuid                  : 'e745eb62-ff24-444d-9a57-75b390fc3166:tasks'
         , text                  : ''
         , tasks                 :
           [ { title             : 'Lights at late night'
