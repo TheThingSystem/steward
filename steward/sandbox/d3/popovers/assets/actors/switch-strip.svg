@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" sodipodi:docname="insteon_LED.svg" inkscape:version="0.48.1 r9760" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:cc="http://creativecommons.org/ns#"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<sodipodi:namedview  objecttolerance="10" inkscape:current-layer="Layer_1" showgrid="false" guidetolerance="10" gridtolerance="10" inkscape:window-y="0" inkscape:window-maximized="0" inkscape:window-height="1156" inkscape:zoom="21.013957" inkscape:window-width="1910" inkscape:window-x="0" id="namedview11726" borderopacity="1" inkscape:cy="22.318501" inkscape:pageshadow="2" bordercolor="#666666" inkscape:cx="22.318501" inkscape:pageopacity="0" pagecolor="#ffffff">
+	</sodipodi:namedview>
+<g id="g11706">
+	<g id="g11708">
+	</g>
+	<g id="g11712">
+	</g>
+	<g id="g11716">
+	</g>
+	<g id="g11720">
+	</g>
+</g>
+<g id="Livello_1_2_">
+</g>
+<path fill="#FFFFFF" d="M22.32,43.061c-11.498,0-20.812-9.312-20.812-20.812S10.82,1.428,22.32,1.428
+	c11.496,0,20.816,9.321,20.816,20.821C43.136,33.743,33.816,43.064,22.32,43.061z"/>
+<g>
+	<path d="M35.156,31.049c-0.063-1.816-4.959-0.773-6.698-0.9c0.853,0.802,2.517,1.873,4.398,2
+		C33.885,32.217,35.193,32.088,35.156,31.049z"/>
+	<path d="M22.465,3.102c-10.573,0-19.146,8.572-19.146,19.146c0,10.563,8.573,19.143,19.146,19.143
+		c10.577,0,19.144-8.574,19.145-19.143C41.61,11.673,33.039,3.102,22.465,3.102z M36.93,26.067H26.673
+		c-0.021,1.287,0.417,2.185,0.884,2.982c3.084,0.335,9.014-1.196,8.598,2.301c-0.103,0.875-1.11,1.644-1.979,1.799
+		c-2.983,0.54-6.01-1.624-7.119-3.1l-2.931-0.005v0.896c-2.191,1.12-4.231,0.999-4.231,0.999v-0.716h-2.361
+		c0,0-0.353-0.016-0.353-0.354s0.332-0.33,0.332-0.33h2.383v-2.045h-2.36c0,0-0.354-0.015-0.354-0.353s0.332-0.332,0.332-0.332
+		h2.383v-0.705c0,0,2.041-0.121,4.231,0.998v0.979h2.229c0,0-0.777-1.812-0.823-3.017H7.541v-9.812H36.93V26.067z"/>
+	<path d="M11.254,24.42h3.314c1.205-0.609,2.034-1.861,2.034-3.305c0-1.229-0.599-2.303-1.52-2.975h-4.346
+		c-0.92,0.672-1.519,1.746-1.519,2.975C9.22,22.559,10.049,23.811,11.254,24.42z"/>
+	<path d="M20.543,24.42h3.314c1.205-0.609,2.034-1.861,2.034-3.305c0-1.229-0.599-2.303-1.52-2.975h-4.346
+		c-0.92,0.672-1.519,1.746-1.519,2.975C18.509,22.559,19.338,23.811,20.543,24.42z"/>
+	<path d="M29.832,24.42h3.313c1.205-0.609,2.034-1.861,2.034-3.305c0-1.229-0.599-2.303-1.52-2.975h-4.346
+		c-0.92,0.672-1.519,1.746-1.519,2.975C27.798,22.559,28.627,23.811,29.832,24.42z"/>
+</g>
+</svg>

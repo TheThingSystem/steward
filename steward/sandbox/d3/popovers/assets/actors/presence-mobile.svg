@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" sodipodi:docname="ecobee.svg" inkscape:version="0.48.2 r9819" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:cc="http://creativecommons.org/ns#"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="44.637px"
+	 height="44.637px" viewBox="0 0 44.637 44.637" enable-background="new 0 0 44.637 44.637" xml:space="preserve">
+<title>Layer 1</title>
+<path fill="#FFFFFF" d="M22.32,43.138c-11.498,0-20.812-9.322-20.812-20.818C1.501,10.823,10.821,1.5,22.32,1.5
+	c11.496,0,20.816,9.323,20.816,20.812C43.136,33.815,33.816,43.138,22.32,43.138z"/>
+<g>
+	<path d="M19.639,12.938h-6.466c-0.38,0-0.688,0.311-0.688,0.693v5.212c0,0.383,0.309,0.69,0.688,0.69h6.466
+		c0.383,0,0.691-0.309,0.691-0.69v-5.212C20.331,13.247,20.022,12.938,19.639,12.938z"/>
+	<circle cx="29.607" cy="25.424" r="1.73"/>
+	<circle cx="16.406" cy="22.829" r="2.04"/>
+	<path d="M22.465,3.176C11.892,3.176,3.32,11.747,3.32,22.32c0,10.573,8.571,19.146,19.146,19.146S41.61,32.895,41.61,22.321
+		C41.61,11.748,33.039,3.176,22.465,3.176z M21.9,25.182c0,0.694-0.56,1.256-1.255,1.256h-8.477c-0.694,0-1.256-0.562-1.256-1.256
+		V12.624c0-0.693,0.562-1.255,1.256-1.255h8.477c0.694,0,1.254,0.562,1.255,1.256V25.182z M33.861,28.767
+		c-0.896,1.113-2.809,2.116-3.19,6.536c0,0.26-0.176,0.807-0.979,0.807c-0.803,0-0.964-0.547-0.964-0.807
+		c-0.383-4.42-2.311-5.422-3.206-6.536c-0.736-0.917-1.18-2.083-1.18-3.351c0-2.957,2.395-5.356,5.35-5.356
+		c2.954,0,5.351,2.399,5.351,5.356C35.04,26.684,34.599,27.85,33.861,28.767z"/>
+</g>
+</svg>
