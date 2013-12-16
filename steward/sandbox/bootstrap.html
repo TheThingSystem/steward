@@ -298,13 +298,13 @@ var create_event = function(ws, name, actor, observe, parameter, cb) {
                          }));
 };
 
-var create_group = function(ws, name, type, operand, members, cb) {
+var create_group = function(ws, name, type, operator, members, cb) {
   ws.send(JSON.stringify({ path      : '/api/v1/group/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
-                         , type      : type    || ''
-                         , operand   : operand || ''
-                         , members   : members || []
+                         , type      : type     || ''
+                         , operator  : operator || ''
+                         , members   : members  || []
                          }));
 };
 
@@ -370,13 +370,13 @@ var list_task = function(ws, taskID, options, cb) {
                          }));
 };
 
-var modify_group = function(ws, groupID, name, type, operand, members, cb) {
+var modify_group = function(ws, groupID, name, type, operator, members, cb) {
   ws.send(JSON.stringify({ path      : '/api/v1/group/modify/' + groupID
                          , requestID : add_callback(cb)
                          , name      : name
-                         , type      : type    || ''
-                         , operand   : operand || ''
-                         , members   : members || []
+                         , type      : type     || ''
+                         , operator  : operator || ''
+                         , members   : members  || []
                          }));
 };
 

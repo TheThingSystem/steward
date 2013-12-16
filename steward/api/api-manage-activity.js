@@ -118,8 +118,8 @@ var create = function(logger, ws, api, message, tag) {
 };
 
 var list = function(logger, ws, api, message, tag) {
-  var activity, actor, actorID, actorType, againP, allP, entity, entities, event, group, i, id, member, p, parts, props,
-      results, suffix, task, treeP, type, uuid;
+  var activity, actor, actorID, actorIDs, actorType, againP, allP, entity, entities, event, group, i, id, member, p, parts,
+      props, results, suffix, task, treeP, type, uuid;
 
   if (!readyP()) return manage.error(ws, tag, 'activity listing', message.requestID, false, 'database not ready');
 
@@ -163,6 +163,29 @@ var list = function(logger, ws, api, message, tag) {
           entities[activity.task] = {};
         }
       }
+    }
+  }
+
+  if ((allP) && (!suffix)) {
+    actorIDs = groups.idlist();
+    if (!results.result.groups) results.result.groups = {};
+    for (i = 0; i < actorIDs.length; i++) {
+      if (!!results.result.groups['group/' + actorIDs[i]]) continue;
+      results.result.groups['group/' + actorIDs[i]] = groups.proplist(null, groups.id2group(actorIDs[i]));
+    }
+
+    actorIDs = events.idlist();
+    if (!results.result.groups) results.result.events = {};
+    for (i = 0; i < actorIDs.length; i++) {
+      if (!!results.result.events['event/' + actorIDs[i]]) continue;
+      results.result.events['event/' + actorIDs[i]] = events.proplist(null, events.id2event(actorIDs[i]));
+    }
+
+    actorIDs = tasks.idlist();
+    if (!results.result.groups) results.result.tasks = {};
+    for (i = 0; i < actorIDs.length; i++) {
+      if (!!results.result.tasks['task/' + actorIDs[i]]) continue;
+      results.result.tasks['task/' + actorIDs[i]] = tasks.proplist(null, tasks.id2task(actorIDs[i]));
     }
   }
 

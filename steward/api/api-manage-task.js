@@ -430,6 +430,14 @@ var id2task = exports.id2task = function(id) {
   return null;
 };
 
+exports.idlist = function() {
+  var results, uuid;
+
+  results = [];
+  for (uuid in tasks) if (tasks.hasOwnProperty(uuid)) results.push(tasks[uuid].taskID);
+  return results;
+};
+
 
 var proplist = exports.proplist = function(id, task) {
   var result = { uuid      : task.taskUID
@@ -474,7 +482,7 @@ exports.start = function() {
                    , options  : { depth: 'flat' }
                    , route    : list
                    , access   : manage.access.level.read
-                   , optional : { event      : 'id'
+                   , optional : { task       : 'id'
                                 , depth      : [ 'flat', 'tree', 'all' ]
                                 }
                    , response : {}

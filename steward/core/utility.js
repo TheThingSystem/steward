@@ -264,8 +264,7 @@ exports.keys = function(values) {
 
 
 exports.key2value = function(values, key) {
-  var value = values[key.toLowerCase()];
-  return (!!value) ? value : null;
+  if (!!key) return values[key.toLowerCase()];
 };
 
 

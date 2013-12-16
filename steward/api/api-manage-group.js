@@ -44,14 +44,14 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.type) type = 'device';
   else {
     type = utility.key2value(types, message.type);
-     if (!type)                                             return error(true,  'missing type element');
+     if (type === undefined)                                return error(true,  'missing type element');
   }
   if ((parentID !== 0) && (parent.groupType !== type))      return error(false, 'parent/group type mismatch');
 
   if (!message.operator) operator = operators.and;
   else {
     operator = utility.key2value(operators, message.operator);
-    if (!operator)                                          return error(true,  'invalid group operator');
+    if (operator === undefined)                             return error(true,  'invalid group operator');
   }
 
   if (!message.members)                                     return error(true,  'missing members element');
@@ -319,7 +319,7 @@ var modify = function(logger, ws, api, message, tag) {
 
   if (!!message.type) {
     type = utility.key2value(types, message.type);
-    if (!type)                                              return error(true,  'missing type element');
+    if (type === undefined)                                 return error(true,  'missing type element');
 
     if ((!message.parentID) && (group.parentID !== 0)) parent = id2group(group.parentID);
     if ((!!parent) && (parent.groupType !== type))          return error(false, 'parent/group type mismatch');
@@ -332,7 +332,7 @@ var modify = function(logger, ws, api, message, tag) {
 
   if (!!message.operator) {
     operator = utility.key2value(operators, message.operator);
-    if (!operator)                                          return error(true,  'invalid group operator');
+    if (operator === undefined)                             return error(true,  'invalid group operator');
 
     if (operator !== group.groupOperator) {
       group2.groupOperator = operator;
@@ -653,7 +653,7 @@ var id2group = exports.id2group = function(id) {
   return null;
 };
 
-var idlist = function() {
+var idlist = exports.idlist = function() {
   var results, uuid;
 
   results = [];

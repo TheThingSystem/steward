@@ -301,6 +301,14 @@ var id2event = exports.id2event = function(id) {
   return null;
 };
 
+exports.idlist = function() {
+  var results, uuid;
+
+  results = [];
+  for (uuid in events) if (events.hasOwnProperty(uuid)) results.push(events[uuid].eventID);
+  return results;
+};
+
 
 var proplist = exports.proplist = function(id, event) {
   var result = { uuid      : event.eventUID

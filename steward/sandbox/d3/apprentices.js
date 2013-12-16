@@ -266,7 +266,7 @@ var apprentices =
             , text              : 'Please chooose one or more things to monitor for CO<sub>2</sub>.'
             , deviceType        : '^/device/climate/[^/]+/sensor$'
             , mustHave          : [ 'co2' ]
-            , operand           : 'or'
+            , operator          : 'or'
             , '.condition'      : { operator: 'greater-than', operand1: '.[.co2].', operand2: 999 }
             , actors            : {}
             , howMany           : '1+'
@@ -284,7 +284,7 @@ var apprentices =
             , text              : 'Please choose one or more things to circulate the air.'
             , deviceType        : '^/device/climate/[^/]+/control$'
             , mustHave          : [ 'hvac' ]
-            , operand           : 'and'
+            , operator          : 'and'
             , '.set'            : { fan: 900000 }
             , guard             : { '.condition' : { operator: 'equals', operand1: '.[.hvac].', operand2: 'off' } }
             , actors            : {}
@@ -295,7 +295,7 @@ var apprentices =
       }
 
     , { title                   : 'Status lights'
-      , uuid                    : '40e40662-3bed-4a5a-968d-99e8c7d1917b'
+      , uuid                    : '40e40662-3bed-4a5a-968d-99e8c7d1917b:'
       , text                    : 'Select lights to report change of conditions.'
       , status                  : 'active'
       , observations            :
@@ -330,17 +330,25 @@ var apprentices =
       , performances            :
         { title                 : 'Status lights'
         , text                  : ''
-        , task                 :
+        , task                  :
           [ { title             : 'Lights'
-            , uuid              : '40e40662-3bed-4a5a-968d-99e8c7d1917b:task:lights'
+            , uuid              : '40e40662-3bed-4a5a-968d-99e8c7d1917b:task:'
             , text              : ''
             , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
             , mustHave          : [ ]
-            , operand           : 'and'
-            , '.on'             : [ { color: { model: 'rgb', rgb: { r: 255, g:   0, b:   0 }}, brightness: 50 }
-                                  , { color: { model: 'rgb', rgb: { r: 255, g: 131, b:   0 }}, brightness: 25 }
-                                  , { color: { model: 'rgb', rgb: { r:   0, g:   0, b: 255 }}, brightness:  5 }
-                                  , { color: { model: 'rgb', rgb: { r:   0, g: 255, b:   0 }}, brightness:  5 }
+            , operator          : 'and'
+            , tasks             : [ { perform   : '.on' 
+                                    , parameter : { color: { model: 'rgb', rgb: { r: 255, g:   0, b:   0 }}, brightness: 50 }
+                                    }
+                                  , { perform   : '.on' 
+                                    , parameter : { color: { model: 'rgb', rgb: { r: 255, g: 131, b:   0 }}, brightness: 25 }
+                                    }
+                                  , { perform   : '.on' 
+                                    , parameter : { color: { model: 'rgb', rgb: { r:   0, g:   0, b: 255 }}, brightness:  5 }
+                                    }
+                                  , { perform   : '.on' 
+                                    , parameter : { color: { model: 'rgb', rgb: { r:   0, g: 255, b:   0 }}, brightness:  5 }
+                                    }
                                   ]
             , actors            : {}
             , howMany           : '1+'
@@ -374,7 +382,7 @@ var apprentices =
             , text              : 'Please choose one or more lights to go on at dawn.'
             , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
             , mustHave          : [ ]
-            , operand           : 'and'
+            , operator          : 'and'
             , '.on'             : { brightness: 70 }
             , actors            : {}
             , howMany           : '1+'
@@ -407,7 +415,7 @@ var apprentices =
             , text              : 'Please choose one or more lights to go on at dusk.'
             , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
             , mustHave          : [ ]
-            , operand           : 'and'
+            , operator          : 'and'
             , '.on'             : { brightness: 70 }
             , actors            : {}
             , howMany           : '1+'
@@ -440,7 +448,7 @@ var apprentices =
             , text              : 'Please choose one or more lights to turnoff off late at night.'
             , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
             , mustHave          : [ ]
-            , operand           : 'and'
+            , operator          : 'and'
             , '.off'            : ''
             , actors            : {}
             , howMany           : '1+'
@@ -457,7 +465,7 @@ var apprentices =
 
 
 var prepare = function(apprentice, actors, activities) {
-  var actor, d, event, group, i, j, k, l, pane, status, suffixes, task, uuid;
+  var d, event, group, i, j, k, l, pane, status, suffixes, task, uuid;
 
   d = organize(activities);
 
@@ -485,7 +493,7 @@ var prepare = function(apprentice, actors, activities) {
       suffixes.push(event.uuid.substr(k + 6));
     }
 
-    for (j = pane.performances.tasks.length -1; j !== -1; j--) {
+    if (!!pane.performances.tasks) for (j = pane.performances.tasks.length -1; j !== -1; j--) {
       task = pane.performances.tasks[j];
       task.actors = findActors(actors.result, new RegExp(task.deviceType.split('/').join('\\/')), task.mustHave);
       if (d.groups[task.uuid]) {
@@ -505,6 +513,7 @@ var prepare = function(apprentice, actors, activities) {
     }
 
     pane.status = status;
+    setup(pane, d);
   }
 };
 
@@ -531,7 +540,7 @@ var findActors = function(actors, pattern, mustHave) {
 var organize = function(activities) {
   var d, v, w, x, y;
 
-  d = {};
+  d = { activities: {}, events: {}, tasks: {}, actors: {}, groups: {}, devices: {} };
   for (x in activities.result) {
     if (!activities.result.hasOwnProperty(x)) continue;
     y = activities.result[x];
@@ -557,7 +566,7 @@ var organize = function(activities) {
 };
 
 var dive = function(d, members) {
-  var child, devices, i;
+  var actor, child, devices, i;
 
   devices = [];
   for (i = 0; i < members.length; i++) {
@@ -581,5 +590,199 @@ var find = function(entities, id) {
 
   for (x in entities) if ((entities.hasOwnProperty(x)) && (entities[x].id === id)) return entities[x];
 };
+
+
+// on a vanilla steward, this should converge after 4 calls...
+
+var rID = 1024;
+
+var setup = function(pane, d) {
+  var event, task;
+
+  if (!!d.activities[pane.uuid]) return;
+
+  if (Array.isArray(pane.observations.event)) {
+    if (!Array.isArray(pane.performances.task)) return;
+  } else if (Array.isArray(pane.performances.task)) return;
+
+  event = setup_observations(pane.observations, d);
+  task = setup_performances(pane, pane.observations, pane.performances, d);
+
+  if ((!event) || (!task)) return;
+
+console.log('create activity ' + pane.uuid + ' event=' + event + ' task=' + task);
+  wsSend(JSON.stringify({ path      : '/api/v1/activity/create/' + pane.uuid
+                        , requestID : ++rID
+                        , name      : pane.title
+                        , event     : event
+                        , task      : task
+                        }));
+};
+
+var setup_observations = function(observations, d) {
+  var event, i, members;
+
+  if (!!observations.uuid) {
+    if (!!d.groups[observations.uuid]) return d.groups[observations.uuid].id;
+    if (!observations.events) return;
+
+    members = [];
+    for (i = 0; i < observations.events.length; i++) {
+      event = observations.events[i];
+      if (!!d.groups[event.uuid]) {
+        members.push(d.groups[event.uuid].id);
+        continue;
+      }
+
+console.log('create group ' + event.uuid);
+      wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + event.uuid
+                            , requestID : ++rID
+                            , name      : event.title
+                            , type      : 'event'
+                            , operator  : event.operator
+                            , members   : []
+                            }));
+    }
+    if (members.length === observations.events.length) {
+console.log('create group ' + observations.uuid);
+      wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + observations.uuid
+                            , requestID : ++rID
+                            , name      : observations.title
+                            , type      : 'event'
+                            , operator  : observations.operator
+                            , members   : members
+                            }));
+    }
+
+    return;
+  }
+
+  if (!observations.event) return;
+
+  if (Array.isArray(observations.event)) {
+    for (i = 0; i < observations.event.length; i++) {
+      event = observations.event[i];
+      if (!!d.events[event.uuid]) continue;
+
+console.log('create event ' + event.uuid);
+       wsSend(JSON.stringify({ path      : '/api/v1/event/create/' + event.uuid
+                             , requestID : ++rID
+                             , name      : event.title
+                             , actor     : event.actor
+                             , observe   : event.observe
+                             , parameter : parameterize(event.parameter)
+                             }));
+    }
+
+    return;
+  }
+
+  event = observations.event;
+  if (!!d.events[event.uuid]) return d.events[event.uuid].id;
+
+console.log('create event ' + event.uuid);
+  wsSend(JSON.stringify({ path      : '/api/v1/event/create/' + event.uuid
+                        , requestID : ++rID
+                        , name      : event.title
+                        , actor     : event.actor
+                        , observe   : event.observe
+                        , parameter : parameterize(event.parameter)
+                        }));
+};
+
+var setup_performances = function(pane, observations, performances, d) {
+  var event, members, i, j, suffix, task, tasks, uuid1, uuid2;
+
+  if (!!performances.uuid) {
+    if (!!d.groups[performances.uuid]) return d.groups[performances.uuid].id;
+    if (!performances.tasks) return;
+
+    members = [];
+    for (i = 0; i < performances.tasks.length; i++) {
+      task = performances.tasks[i];
+      if (!!d.groups[task.uuid]) {
+        members.push(d.groups[task.uuid].id);
+        continue;
+      }
+
+console.log('create group ' + task.uuid);
+      wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + task.uuid
+                            , requestID : ++rID
+                            , name      : task.title
+                            , type      : 'task'
+                            , operator  : task.operator
+                            , members   : []
+                            }));
+    }
+    if (members.length === performances.tasks.length) {
+console.log('create group ' + performances.uuid);
+      wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + performances.uuid
+                            , requestID : ++rID
+                            , name      : performances.title
+                            , type      : 'task'
+                            , operator  : performances.operator
+                            , members   : members
+                            }));
+    }
+
+    return;
+  }
+
+  if (!performances.task) return;
+
+  if (Array.isArray(performances.task)) {
+    if (performances.task.length !== 1) return;
+
+    tasks = performances.task[0];
+    for (i = 0; i < tasks.tasks.length; i++) {
+      event = observations.event[i];
+      task = tasks.tasks[i];
+
+      j = event.uuid.lastIndexOf(':');
+      suffix = (j !== -1) ? event.uuid.substring(j + 1) : i.toString();
+      uuid1 = tasks.uuid + suffix;
+
+      if (!!d.groups[uuid1]) {
+        if (!d.events[event.uuid]) continue;
+        uuid2 = pane.uuid + suffix;
+        if (!!d.activities[uuid2]) continue;
+
+console.log('create activity ' + uuid2 + ' event=' + d.events[event.uuid].id + ' task=' + d.groups[uuid1].id);
+        wsSend(JSON.stringify({ path      : '/api/v1/activity/create/' + uuid2
+                              , requestID : ++rID
+                              , name      : event.title
+                              , event     : d.events[event.uuid].id
+                              , task      : d.groups[uuid1].id
+                              }));
+        continue;
+      }
+
+console.log('create group ' + uuid1);
+       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + uuid1
+                             , requestID : ++rID
+                             , name      : event.title
+                             , type      : 'task'
+                             , operator  : tasks.operator
+                             , members   : []
+                             }));
+    }
+
+    return;
+  }
+
+  task = performances.task;
+  if (!!d.tasks[task.uuid]) return d.tasks[task.uuid].id;
+
+console.log('create task ' + task.uuid);
+  wsSend(JSON.stringify({ path      : '/api/v1/task/create/' + task.uuid
+                        , requestID : ++rID
+                        , name      : task.title
+                        , actor     : task.actor
+                        , perform   : task.perform
+                        , parameter : parameterize(task.parameter)
+                        }));
+};
+
+var parameterize = function(s) { return ((typeof s !== 'string') ? JSON.stringify(s) : s); };
 
 if (!Array.isArray) Array.isArray = function(a) { return Object.prototype.toString.call(a) === '[object Array]'; };
