@@ -7,6 +7,52 @@ if [ ! -f index.js ]; then
   exit 1
 fi
 
+OS=`uname -s`
+REV=`uname -r`
+MACH=`uname -m`
+
+GetVersionFromFile()
+{
+        VERSION=`cat $1 | tr "\n" ' ' | sed s/.*VERSION.*=\ // `
+}
+
+if [ "${OS}" = "SunOS" ] ; then
+        OS=Solaris
+        ARCH=`uname -p`
+        OSSTR="Running on ${OS} ${REV}(${ARCH} `uname -v`)"
+elif [ "${OS}" = "AIX" ] ; then
+        OSSTR="info: running on ${OS} `oslevel` (`oslevel -r`)"
+elif [ "${OS}" = "Darwin" ] ; then
+		OSSTR="info: running on ${OS} `sw_vers -productName` (`sw_vers -productVersion`) `sw_vers -buildVersion`"
+elif [ "${OS}" = "Linux" ] ; then
+        KERNEL=`uname -r`
+        if [ -f /etc/redhat-release ] ; then
+                DIST='RedHat'
+                PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
+                REV=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+        elif [ -f /etc/SuSE-release ] ; then
+                DIST=`cat /etc/SuSE-release | tr "\n" ' '| sed s/VERSION.*//`
+                REV=`cat /etc/SuSE-release | tr "\n" ' ' | sed s/.*=\ //`
+        elif [ -f /etc/mandrake-release ] ; then
+                DIST='Mandrake'
+                PSUEDONAME=`cat /etc/mandrake-release | sed s/.*\(// | sed s/\)//`
+                REV=`cat /etc/mandrake-release | sed s/.*release\ // | sed s/\ .*//`
+        elif [ -f /etc/debian_version ] ; then
+                DIST="Debian `cat /etc/debian_version`"
+                REV=""
+
+        fi
+        if [ -f /etc/UnitedLinux-release ] ; then
+                DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
+        fi
+
+        OSSTR="info: running on ${OS} ${DIST} ${REV}(${PSUEDONAME} ${KERNEL} ${MACH})"
+
+fi
+
+echo ${OSSTR}
+echo "info: using node `node --version`"
+
 if [ "$SUDO_USER" = "pi" ]; then 
    HOME=/home/pi; 
    export HOME; 
