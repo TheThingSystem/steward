@@ -76,9 +76,10 @@ GreenWaveGOP.prototype.addchild = function(self, device) {
 
   led = device.did;
 
-return console.log(JSON.stringify(device));
   deviceUID = self.deviceUID + '/bulbs/' + led;
-  whatami = '/device/lighting/tcpi/led';
+  whatami = { CFL : '/device/lighting/tcpi/cfl'
+            }[device.prodtype] || '/device/lighting/tcpi/led';
+  if ((whatami === '/device/lighting/tcpi/led') && (device.colorid === '0')) whatami = '/device/lighting/tcpi/downlight';
   self.bulbs[led] = { whatami  : whatami
                      , type    : whatami
                      , name    : device.name
@@ -298,11 +299,11 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
 
+  steward.actors.device.lighting.tcpi.cfl = utility.clone(steward.actors.device.lighting.tcpi.led);
+  steward.actors.device.lighting.tcpi.cfl.$info.type = '/device/lighting/tcpi/cfl';
+
   steward.actors.device.lighting.tcpi.downlight = utility.clone(steward.actors.device.lighting.tcpi.led);
   steward.actors.device.lighting.tcpi.downlight.$info.type = '/device/lighting/tcpi/downlight';
-
-  steward.actors.device.lighting.tcpi.led = utility.clone(steward.actors.device.lighting.tcpi.led);
-  steward.actors.device.lighting.tcpi.led.$info.type = '/device/lighting/tcpi/led';
 
   scan();
 };

@@ -1866,6 +1866,11 @@ var entries = {
                                                               , instrux : single_thermostat_instructions
                                                               , pop     : 'thermostat_pop'
                                                               }		
+              , '/device/climate/nest/smoke'                : { img     : 'actors/t.svg'
+                                                              , single  : single_climate_drilldown
+                                                              , arcs    : climate_device_arcs
+                                                              , instrux : no_instructions
+                                                              }		
               , '/device/climate/owl/monitor'               : { img     : 'actors/sensor-climate.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
