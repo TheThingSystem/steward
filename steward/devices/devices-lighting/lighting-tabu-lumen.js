@@ -1,11 +1,21 @@
 // tabu Lumen BLE bulb: http://tabuproducts.com/shop/lumen-bulb/
 
+var robosmart
+  , utility     = require('./../../core/utility')
+  ;
+
+try {
+  lumen         = require('lumen')
+} catch(ex) {
+  exports.start = function() {};
+
+  return utility.logger('devices').info('failing tabu-lumen lighting (continuing)', { diagnostic: ex.message });
+}
+
 var colorconv   = require('color-convert')
-  , lumen       = require('lumen')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , lighting    = require('./../device-lighting')
   ;
 

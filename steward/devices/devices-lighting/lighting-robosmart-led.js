@@ -5,7 +5,7 @@ var robosmart
   ;
 
 try {
-  robosmart   = require('robosmart');
+  robosmart     = require('robosmart');
 } catch(ex) {
   exports.start = function() {};
 
