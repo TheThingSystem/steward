@@ -964,7 +964,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'QUALITY'
-                          , cooked : v + '&sigma;'
+                          , cooked : isNaN(v) ? v : v + '&sigma;'
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.60
                           });
@@ -1058,7 +1058,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'SMOKE'
-                          , cooked : v + '&sigma;'
+                          , cooked : isNaN(v) ? v : v + '&sigma;'
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });
@@ -1078,7 +1078,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'AIR FLOW'
-                          , cooked : v + '&sigma;'
+                          , cooked : isNaN(v) ? v : v + '&sigma;'
                           , value  : clip2bars(-v, -5, 2.5)
                           , index  : 0.40
                           });
@@ -1132,7 +1132,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CO'
-                          , cooked : v + '&sigma;'
+                          , cooked : isNaN(v) ? v : v + '&sigma;'
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });
@@ -1824,17 +1824,17 @@ function textColor(bgColor, arcVal) {
 
 var entries = {
 // actors
-                '/device/climate/arduino/sensor'            : { img     : 'actors/t.svg'
+                '/device/climate/arduino/sensor'            : { img     : 'actors/sensor-generic.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
-              , '/device/climate/arduino/ventilation'       : { img     : 'actors/t.svg'
+              , '/device/climate/arduino/ventilation'       : { img     : 'actors/sensor-generic.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : single_device_instructions
                                                               }
-              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/t.svg'
+              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/sensor-airquality.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
@@ -1866,7 +1866,7 @@ var entries = {
                                                               , instrux : single_thermostat_instructions
                                                               , pop     : 'thermostat_pop'
                                                               }		
-              , '/device/climate/nest/smoke'                : { img     : 'actors/t.svg'
+              , '/device/climate/nest/smoke'                : { img     : 'actors/sensor-smoke.svg'
                                                               , single  : single_climate_drilldown
                                                               , arcs    : climate_device_arcs
                                                               , instrux : no_instructions
@@ -1899,7 +1899,7 @@ var entries = {
                                                               , instrux : single_climate_instructions
                                                               , pop     : 'history_pop'
                                                               }
-              , '/device/climate/yoctopuce/light'           : { img     : 'actors/t.svg'
+              , '/device/climate/yoctopuce/light'           : { img     : 'actors/sensor-light.svg'
                                                                , single  : single_climate_drilldown
                                                                , arcs    : climate_device_arcs
                                                                , instrux : single_climate_instructions
@@ -2070,7 +2070,7 @@ var entries = {
                                                               , instrux : single_lighting_instructions
                                                               , pop     : 'lighting_pop'
                                                               }
-              , '/device/lighting/tcpi/cfl'                 : { img     : 'actors/t.svg'
+              , '/device/lighting/tcpi/cfl'                 : { img     : 'actors/lighting-cfl.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
                                                               , instrux : single_lighting_instructions
@@ -2160,7 +2160,7 @@ var entries = {
                                                               , instrux : single_presence_instructions
                                                               , pop     : 'presence_pop'
                                                               }
-              , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/t.svg'
+              , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/sensor-generic.svg'
                                                               , single  : single_sensor_drilldown
                                                               , arcs    : sensor_device_arcs
                                                               , instrux : no_instructions
@@ -2196,13 +2196,13 @@ var entries = {
                                                               , instrux : single_device_instructions
                                                               , pop     : 'switch_pop'
                                                               }
-              , '/device/switch/ge/dimmer'                  : { img     : 'actors/t.svg'
+              , '/device/switch/ge/dimmer'                  : { img     : 'actors/switch-dimmer.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
                                                               , instrux : single_device_instructions
                                                               , pop     : 'switch_pop'
                                                               }
-              , '/device/switch/insteon/dimmer'             : { img     : 'actors/t.svg'
+              , '/device/switch/insteon/dimmer'             : { img     : 'actors/switch-dimmer.svg'
                                                               , single  : single_switch_drilldown
                                                               , arcs    : switch_device_arcs
                                                               , instrux : single_device_instructions
@@ -2232,13 +2232,13 @@ var entries = {
                                                               , instrux : single_device_instructions
                                                               , pop     : 'switch_pop'
                                                               }
-              , '/device/wearable/watch/cookoo'             : { img     : 'actors/t.svg'
+              , '/device/wearable/watch/cookoo'             : { img     : 'actors/wearable-watch.svg'
                                                               , single  : single_wearable_drilldown
                                                               , arcs    : wearable_device_arcs
                                                               , instrux : single_presence_instructions
                                                               , pop     : 'wearable_pop'
                                                               }
-              , '/device/wearable/watch/metawatch'          : { img     : 'actors/t.svg'
+              , '/device/wearable/watch/metawatch'          : { img     : 'actors/wearable-watch.svg'
                                                               , single  : single_wearable_drilldown
                                                               , arcs    : wearable_device_arcs
                                                               , instrux : single_presence_instructions
