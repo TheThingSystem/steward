@@ -25,6 +25,7 @@
     , "koubachi"            : "git://github.com/TheThingSystem/node-koubachi.git"
     , "line-reader"         : "0.2.3"
     , "longjohn"            : "0.2.0"
+    , "lumen"               : "git://github.com/TheThingSystem/node-lumen.git"
     , "mdns"                : "git://github.com/TheThingSystem/node_mdns.git"
     , "mime"                : "1.2.9"
     , "mqtt"                : "0.3.4"

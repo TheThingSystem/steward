@@ -1,21 +1,11 @@
 // tabu Lumen BLE bulb: http://tabuproducts.com/shop/lumen-bulb/
 
-var lumen
-  , utility     = require('./../../core/utility')
-  ;
-
-try {
-  lumen   = require('node-lumen');
-} catch(ex) {
-  exports.start = function() {};
-
-  return utility.logger('devices').info('failing tabu-lumen lighting (continuing)', { diagnostic: ex.message });
-}
-
 var colorconv   = require('color-convert')
+  , lumen       = require('lumen')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
+  , utility     = require('./../../core/utility')
   , lighting    = require('./../device-lighting')
   ;
 
@@ -76,8 +66,12 @@ Lumen.prototype.connect = function(self) {
       if (err) return logger.error('device/' + self.deviceID,
                                    { event: 'discoverServicesAndCharacteristics', diagnostic: err.message });
 
-      self.lumen = bulb;
-      self.refresh(self);
+      bulb.setup(function(err) {
+        if (err) return logger.error('device/' + self.deviceID, { event: 'setup', diagnostic: err.message });
+
+        self.lumen = bulb;
+        self.refresh(self);
+      });
     });
   });
 };
@@ -108,11 +102,15 @@ Lumen.prototype.refresh = function(self) {
                                   var rgb;
 
                                   info.brightness = Math.round(state.colorW * 100);
+                                  if ((state.colorC === 0) && (state.colorM === 0) && (state.colorY === 0)) {
+                                    info.color.rgb = { r: 255, g: 255, b: 255 };
+                                    return;
+                                  }
 
-                                  rgb = colorconv.cmyk2rgb([ state.colorC * 100,
+                                  rgb = colorconv.cmyk2rgb([ state.colorC * 100
                                                            , state.colorM * 100
                                                            , state.colorY * 100
-                                                           , info.brightness !== 100 ? info.brightness : 0
+                                                           , 100 - info.brightness
                                                            ]);
                                   info.color.rgb.r = rgb[0];
                                   info.color.rgb.g = rgb[1];
@@ -183,7 +181,7 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
       self.lumen.turnOn(function() {
         var cmyk = colorconv.rgb2cmyk(state.color);
 
-        self.lumen.color(cmyk[0] / 100, cmyk[1] / 100, cmyk[2] / 100, cmyk[3] / 100, refresh);
+        self.lumen.color(cmyk[0] / 100, cmyk[1] / 100, cmyk[2] / 100, (100 - cmyk[3]) / 100, refresh);
       });
     }
   }
