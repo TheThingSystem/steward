@@ -50,9 +50,6 @@ elif [ "${OS}" = "Linux" ] ; then
 
 fi
 
-echo ${OSSTR}
-echo "info: using node `node --version`"
-
 if [ "$SUDO_USER" = "pi" ]; then 
    HOME=/home/pi; 
    export HOME; 
@@ -66,6 +63,9 @@ if [ ! -f $HOME/.nvm/nvm.sh ]; then
 fi
 
 . $HOME/.nvm/nvm.sh
+
+echo ${OSSTR}
+echo "info: using node `node --version`"
 
 if [ ! -f db/server.key ]; then
   rm -f sandbox/server.crt sandbox/server.sha1

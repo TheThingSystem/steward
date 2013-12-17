@@ -2065,6 +2065,18 @@ var entries = {
                                                               , instrux : single_lighting_instructions
                                                               , pop     : 'lighting_pop'
                                                               }
+              , '/device/lighting/tcpi/cfl'                 : { img     : 'actors/t.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
+                                                              }
+              , '/device/lighting/tcpi/downight'            : { img     : 'actors/lighting-downlight.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
+                                                              }
               , '/device/lighting/tcpi/led'                 : { img     : 'actors/lighting-bulb.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs
