@@ -211,6 +211,8 @@ var scan = function() {
           info[i].modelName = fingerprints[j].modelName;
           info[i].description = fingerprints[j].description;
           info[i].deviceType = fingerprints[j].deviceType;
+          if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
+          if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
           scan1(info[i]);
         }
       }
