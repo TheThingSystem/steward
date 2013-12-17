@@ -181,15 +181,16 @@ var fingerprints  =
     , manufacturer   : 'RFXCOM'
     , vendorId       : 0x0403
     , productId      : 0x6001
+    , pnpId          : 'usb-RFXCOM_RFXtrx433_'
     , deviceType     : '/device/gateway/rfxcom/usb'
     }
   , { vendor         : 'RFXCOM'
-    , modelName      : 'Rfxcom'
+    , modelName      : 'RFXrec433'
     , description    : 'USB 433.92MHz receiver'
     , manufacturer   : 'RFXCOM'
     , vendorId       : 0x0403
     , productId      : 0x6001
-    , pnpId          : 'usb-RFXCOM_Rfxcom_'
+    , pnpId          : 'usb-RFXCOM_RFXrec433_'
     , deviceType     : '/device/gateway/rfxcom/usb'
     }
   ];
