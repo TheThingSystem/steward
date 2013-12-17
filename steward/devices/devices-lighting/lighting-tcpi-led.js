@@ -298,7 +298,7 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
 
-  steward.actors.device.lighting.tcpi.downlight = utility.clone(steward.actors.device.lighting.tcpi.downlight);
+  steward.actors.device.lighting.tcpi.downlight = utility.clone(steward.actors.device.lighting.tcpi.led);
   steward.actors.device.lighting.tcpi.downlight.$info.type = '/device/lighting/tcpi/downlight';
 
   steward.actors.device.lighting.tcpi.led = utility.clone(steward.actors.device.lighting.tcpi.led);
