@@ -60,8 +60,9 @@ Blinkstick.prototype.perform = function(self, taskID, perform, parameter) {
     if ((!!color) && (color.model === 'rgb') && lighting.validRGB(color.rgb)) {
       state.color = [ color.rgb.r, color.rgb.g, color.rgb.b ];
     }
+
+    if ((state.color[0] === 0) && (state.color[1] === 0) && (state.color[2] === 0)) state.on = false;
   }
-  if ((state.color[0] === 0) && (state.color[1] === 0) && (state.color[2] === 0)) state.on = false;
 
   logger.info('device/' + self.deviceID, { perform: state });
 

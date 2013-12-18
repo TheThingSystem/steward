@@ -278,9 +278,8 @@ var list = function(logger, ws, api, message, tag) {
   return true;
 };
 
-
 var modify = function(logger, ws, api, message, tag) {
-  var actor, columns, group, group2, groupID, i, member, members, members2, operator, parent, results, s, s1, s2, s3, triple, type;
+  var actor, columns, group, group2, groupID, i, member, members, members2, operator, parent, results, s, s1, s3, triple, type;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'group modification', message.requestID, permanent, diagnostic);
@@ -441,17 +440,15 @@ var modify = function(logger, ws, api, message, tag) {
   results.result = { group: group.groupID };
   if (columns.length > 0) {
     s = '(';
-    s1 = 'MODIFY groups';
-    s2 = 'VALUES';
+    s1 = 'UPDATE groups SET ';
     s3 = {};
-    for (i = 0, s = '('; i < columns.length; i++, s = ', ') {
-      s1 += s + columns[i];
-      s2 += s + '$' + columns[i];
+    for (i = 0, s = ''; i < columns.length; i++, s = ', ') {
+      s1 += s + columns[i] + '=$' + columns[i];
       s3['$' + columns[i]] = group2[columns[i]];
     }
     s3.$groupID = group.groupID;
 
-    db.run(s1 + ') ' + s2 + ') WHERE groupID=$groupID', s3, function(err) {
+    db.run(s1 + ' WHERE groupID=$groupID', s3, function(err) {
       if (err) {
         logger.error(tag, { event: 'MODIFY groups.groupID for ' + group.groupID, diagnostic: err.message });
         results.error = { permanent: false, diagnostic: 'internal error' };

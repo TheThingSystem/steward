@@ -2046,6 +2046,12 @@ var entries = {
                                                               , pop     : 'lighting_pop'
                                                               , norename: true
                                                               }
+              , '/device/lighting/hue/downlight'              : { img     : 'actors/lighting-downlight.svg'
+                                                              , single  : single_lighting_drilldown
+                                                              , arcs    : lighting_device_arcs
+                                                              , instrux : single_lighting_instructions
+                                                              , pop     : 'lighting_pop'
+                                                              }
               , '/device/lighting/hue/lightstrip'           : { img     : 'actors/lighting-strip.svg'
                                                               , single  : single_lighting_drilldown
                                                               , arcs    : lighting_device_arcs

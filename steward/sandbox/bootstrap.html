@@ -160,6 +160,8 @@ var bootstrap = function(steward, ws) {
       if (!emptyP) create_device(ws, name, entry.actor, info);
     }
 
+modify_activity(ws, '1', null, true);
+
     strips = [];
     actors = message.result;
     for (actor in actors) {
@@ -269,11 +271,11 @@ var add_callback = function(cb) {
   return reqno++;
 };
 
-var create_activity = function(ws, name, event, task, cb) {
+var create_activity = function(ws, name, armed, event, task, cb) {
   ws.send(JSON.stringify({ path      : '/api/v1/activity/create/' + name
                          , requestID : add_callback(cb)
                          , name      : name
-                         , armed     : true
+                         , armed     : armed
                          , event     : event
                          , task      : task
                          }));
@@ -367,6 +369,16 @@ var list_task = function(ws, taskID, options, cb) {
   ws.send(JSON.stringify({ path      : '/api/v1/task/list/' + taskID
                          , requestID : add_callback(cb)
                          , options   : options || {}
+                         }));
+};
+
+var modify_activity = function(ws, activityID, name, armed, event, task, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/activity/modify/' + activityID
+                         , requestID : add_callback(cb)
+                         , name      : name
+                         , armed     : armed
+                         , event     : event
+                         , task      : task
                          }));
 };
 

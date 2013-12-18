@@ -40,7 +40,6 @@ var Lumen = exports.Device = function(deviceID, deviceUID, info) {
               , rssi       : self.peripheral.rssi
               };
 
-
   self.peripheral.on('disconnect', function() {
     logger.info('device/' + self.deviceID, { status: self.status });
 // TBD: handle connection timeout...
@@ -122,9 +121,7 @@ Lumen.prototype.refresh = function(self) {
                                                            , state.colorY * 100
                                                            , 100 - info.brightness
                                                            ]);
-                                  info.color.rgb.r = rgb[0];
-                                  info.color.rgb.g = rgb[1];
-                                  info.color.rgb.b = rgb[2];
+                                  info.color.rgb = { r: rgb[0], g: rgb[1], b: rgb[2] };
                                 }
                   }
       , updateP = false
@@ -153,7 +150,7 @@ Lumen.prototype.refresh = function(self) {
 
 
 Lumen.prototype.perform = function(self, taskID, perform, parameter) {
-  var color, params, refresh, state;
+  var cmyk, color, params, refresh, state;
 
   if (!self.lumen) return false;
 
@@ -174,24 +171,42 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
     state.on = true;
 
     color = params.color;
-    if ((!!color) && (color.model === 'rgb') && lighting.validRGB(color.rgb)) {
-      state.color = [ color.rgb.r, color.rgb.g, color.rgb.b ];
-    }
-    if (!!params.brightness) state.brightness = params.brightness;
-  }
-  if ((state.color[0] === 0) && (state.color[1] === 0) && (state.color[2] === 0)) state.on = false;
+    if (!!color) {
+      switch (color.model) {
+        case 'rgb':
+          if (!lighting.validRGB(color.rgb)) return false;
+          cmyk = colorconv.rgb2cmyk([ color.rgb.r, color.rgb.g, color.rgb.b ]);
+          color.model = 'cmyw';
+          color.cmyw = { c: cmyk[0], m: cmyk[1], y: cmyk[2], w: 100 - cmyk[3] };
+          break;
 
-  logger.info('device/' + self.deviceID, { perform: state });
+        case 'cmyw':
+          if (!lighting.validCMYW(color.cmyw)) return false;
+          break;
+
+        default:
+          break;
+      }
+      state.color = color;
+    }
+
+    if ((!!params.brightness) && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
+
+    if ((state.color.cmyw.c === 0) && (state.color.cmyw.m === 0) && (state.color.cmyw.y === 0) && (state.color.cmyw.w === 0)) {
+      state.on = false;
+    }
+  }
+
+  logger.notice('device/' + self.deviceID, { perform: state });
 
   if (!state.on) self.lumen.turnOff(refresh);
   else {
-    if ((state.color[0] === 255) && (state.color[1] === 255) && (state.color[2] === 255)) {
+    if ((state.color.cmyw.c === 0) && (state.color.cmyw.m === 0) && (state.color.cmyw.y === 0)) {
       self.lumen.warmWhite(state.brightness, refresh);
     } else {
       self.lumen.turnOn(function() {
-        var cmyk = colorconv.rgb2cmyk(state.color);
-
-        self.lumen.color(cmyk[0] / 100, cmyk[1] / 100, cmyk[2] / 100, (100 - cmyk[3]) / 100, refresh);
+        self.lumen.color(state.color.cmyw.c / 100, state.color.cmyw.m / 100, state.color.cmyw.y / 100,
+                         state.color.cmyw.w / 100, refresh);
       });
     }
   }

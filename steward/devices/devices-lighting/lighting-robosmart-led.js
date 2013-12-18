@@ -138,7 +138,11 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
   else {
     state.on = true;
 
-    if (!!params.brightness) state.bri = roboSmartBrightness(params.brightness);
+    if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) return false;
+    if (!params.brightness) params.brightness = self.info.brightness;
+    state.brightness = roboSmartBrightness(params.brightness);
+
+    if (params.brightness === 0) state.on = false;
   }
 
   logger.info('device/' + self.deviceID, { perform: state });
@@ -146,7 +150,7 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
   if (!state.on) self.robosmart.switchOff(refresh);
   else
     self.robosmart.switchOn(function() {
-      if (!!state.bri) self.robosmart.setDim(roboSmartBrightness(state.bri), refresh); else refresh();
+      if (!!state.brightness) self.robosmart.setDim(roboSmartBrightness(state.brightness), refresh); else refresh();
     });
 
   return steward.performed(taskID);

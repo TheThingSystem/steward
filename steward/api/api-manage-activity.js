@@ -2,6 +2,7 @@ var actors     = require('./../core/steward').actors
   , clone      = require('./../core/utility').clone
   , database   = require('./../core/database')
   , devices    = require('./../core/device')
+  , utility    = require('./../core/utility')
   , events     = require('./api-manage-event')
   , groups     = require('./api-manage-group')
   , manage     = require('./../routes/route-manage')
@@ -265,6 +266,111 @@ var list = function(logger, ws, api, message, tag) {
   return true;
 };
 
+var modify = function(logger, ws, api, message, tag) {
+  var activity, activity2, activityID, columns, event, group, i, results, s, s1, s3, task;
+
+  var error = function(permanent, diagnostic) {
+    return manage.error(ws, tag, 'activity modification', message.requestID, permanent, diagnostic);
+  };
+
+  activityID = message.path.slice(api.prefix.length + 1);
+  if (activityID.length === 0)                              return error(true,  'missing activityID');
+  activity = id2activity(activityID);
+  if (!activity)                                            return error(false, 'unknown activity ' + activityID);
+  activity2 = utility.clone(activity);
+
+  columns = [];
+
+  if ((!!message.name) && (message.name.length) && (message.name !== activity.activityName)) {
+    activity2.activityName = message.name;
+    columns.push('activityName');
+  }
+
+  if ((!!message.comments) && (message.comments !== activity.activityComments)) {
+    activity2.activityComments = message.comments;
+    columns.push('activityComments');
+  }
+
+  if ((typeof message.armed !== "undefined") && (message.armed !== activity.armed)) {
+    activity2.armed = message.armed;
+    columns.push('armed');
+  }
+
+  if ((!!message.event) && (message.event !== (activity.eventType + '/' + activity.eventID))) {
+    event = message.event.split('/');
+    if (event.length !== 2)            return error(true,  'invalid event element');
+    event[1] = event[1].toString();
+    switch (event[0]) {
+      case 'group':
+        group = groups.id2group(event[1]);
+        if (!group)                    return error(false, 'unknown event ' + message.event);
+        if (group.groupType !== 'event')return error(false, 'not an event ' + message.event);
+        break;
+
+      case 'event':
+        if (!events.id2event(event[1]))return error(false, 'unknown event ' + message.event);
+        break;
+
+      default:
+                                       return error(true, 'invalid event ' + message.event);
+    }
+    activity2.eventType = event[0];
+    activity2.eventID = event[1];
+    columns.push('eventType', 'eventID');
+  }
+
+  if ((!!message.task) && (message.task !== (activity.taskType + '/' + activity.taskID))) {
+    task = message.task.split('/');
+    if (task.length !== 2)             return error(true,  'invalid task element');
+    task[1] = task[1].toString();
+    switch (task[0]) {
+      case 'group':
+        group = groups.id2group(task[1]);
+        if (!group)                    return error(false, 'unknown task ' + message.task);
+        if (group.groupType !== 'task')return error(false, 'not a task ' + message.task);
+        break;
+
+      case 'task':
+        if (!tasks.id2task(task[1]))   return error(false, 'unknown task ' + message.task);
+        break;
+
+      default:
+                                       return error(true, 'invalid task ' + message.task);
+    }
+    activity2.taskType = task[0];
+    activity2.taskID = task[1];
+    columns.push('taskType', 'taskID');
+  }
+
+  results = { requestID: message.requestID };
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+
+  results.result = { activity: activity.activityID };
+  if (columns.length > 0) {
+    s = '(';
+    s1 = 'UPDATE activities SET ';
+    s3 = {};
+    for (i = 0, s = ''; i < columns.length; i++, s = ', ') {
+      s1 += s + columns[i] + '=$' + columns[i];
+      s3['$' + columns[i]] = activity2[columns[i]];
+    }
+    s3.$activityID = activity.activityID;
+
+    db.run(s1 +  ' WHERE activityID=$activityID', s3, function(err) {
+      if (err) {
+        logger.error(tag, { event: 'MODIFY activities.activityID for ' + activity.activityID, diagnostic: err.message });
+        results.error = { permanent: false, diagnostic: 'internal error' };
+        try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+        return;
+      }
+
+      activities[activity.activityUID] = activity2;
+    });
+  }
+
+  return true;
+};
+
 var perform = function(logger, ws, api, message, tag) {
   var activity, activityID;
 
@@ -432,6 +538,13 @@ exports.start = function() {
                                 }
                    , response : {}
                    , comments : [ 'if present, the activityID is specified as the path suffix' ]
+                   });
+  manage.apis.push({ prefix   : '/api/v1/activity/modify'
+                   , route    : modify
+                   , access   : manage.access.level.write
+                   , required : { activityID : 'id' }
+                   , response : ''
+                   , comments : [ 'the activityID is specified as the path suffix' ]
                    });
   manage.apis.push({ prefix   : '/api/v1/activity/perform'
                    , route    : perform

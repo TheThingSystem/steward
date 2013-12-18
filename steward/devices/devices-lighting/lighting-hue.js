@@ -189,41 +189,6 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
             break;
         }
       }
-
-/*
-      if (!!params.transition) {
-        params.transition = parseInt(params.transition, 10);
-        if (params.transition >= 0) state.transitiontime = Math.round(params.transition / 100);
-      }
-
-      switch (params.interval) {
-        case 'once':
-          state.alert = 'select';
-          break;
-
-        case 'flash':
-          state.alert = 'lselect';
-          break;
-
-        case 'solid':
-          break;
-
-        default:
-          break;
-      }
-
-      switch (params.effect) {
-        case 'colorloop':
-          state.effect = 'colorloop';
-          break;
-
-        case 'none':
-          break;
-
-        default:
-          break;
-      }
-*/
     }
   }
 
@@ -658,16 +623,6 @@ var validate_perform_bulb = function(perform, parameter) {
 
   if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 
-/*
-  if ((!!params.transition) && (parseInt(params.transition, 10) < 0)) result.invalid.push('transition');
-
-  if ((!!params.interval) && (params.interval !== 'once') && (params.interval !== 'flash') && (params.interval !== 'solid')) {
-    result.invalid.push('interval');
-  }
-
-  if ((!!params.effect) && (params.effect !== 'colorloop') && (params.effect !== 'none')) result.invalid.push('effect');
- */
-
   return result;
 };
 
@@ -788,11 +743,6 @@ exports.start = function() {
                                                            ]
                                                   }
                                    , brightness : 'percentage'
-/*
-                                   , transition : 'milliseconds'
-                                   , interval   : [ 'once', 'flash', 'solid' ]
-                                   , effect     : [ 'none', 'colorloop' ]
- */
                                    }
                     }
       , $validate : { perform    : validate_perform_bulb }

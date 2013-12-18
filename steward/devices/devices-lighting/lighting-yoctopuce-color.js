@@ -103,8 +103,9 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
                                   , l : state.brightness
                                   }).toRgb();
     } else if ((state.color.model !== 'rgb') || !lighting.validRGB(state.color.rgb)) return false;
+
+    if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;
   }
-  if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;
 
   logger.info('device/' + self.deviceID, { perform: state });
 
