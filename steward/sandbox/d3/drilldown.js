@@ -187,7 +187,7 @@ if (false) {
   tag = document.createElement('span');
   tag.setAttribute('class', 'tag');
   tag.setAttribute('onclick', 'javascript:goApprentices()');
-  tag.innerHTML = 'home&nbsp;automomy';
+  tag.innerHTML = 'home&nbsp;autonomy';
   div.appendChild(tag);
   span = document.createElement('span');
   span.innerHTML = ' ';

@@ -127,6 +127,9 @@ var updatePanesList = function() {
 var goPaneDetail = function(i) {
   var div, div2, div3, div4, events, tasks;
   var actorWidth = 58, actorHeight = 80, paneWidth = 802, maxIcons = 12;
+  
+  div = d3.select('#pane' + i);
+  if (div.attr('class') === 'label-disabled') return;
 
   if (document.getElementById("settings")) d3.select('#settings').remove();
 
@@ -472,8 +475,6 @@ var prepare = function(apprentice, actors, activities) {
   for (i = apprentice.panes.length - 1; i !== -1; i--) {
     pane = apprentice.panes[i];
 
-    status = (!d.activities[pane.uuid]) ? 'incomplete' : d.activities[pane.uuid].active ? 'configured' : 'ignore';
-
     if (!!pane.observations.events) for (j = pane.observations.events.length -1; j !== -1; j--) {
       event = pane.observations.events[j];
       event.actors = findActors(actors.result, new RegExp(event.deviceType.split('/').join('\\/')), event.mustHave);
@@ -512,8 +513,36 @@ var prepare = function(apprentice, actors, activities) {
       }
     }
 
-    pane.status = status;
+    pane.status = getStatus(event, task);
     setup(pane, d);
+  }
+  
+  function getStatus(event, task) {
+    var result = "incomplete";
+    if (!!event && Array.isArray(event.actors)) {
+      if (event.actors.length === 0 || !hasHowMany(event.actors.length, event.howMany)) result = "ignore";
+    }
+    if (!!task && Array.isArray(task.actors)) {
+      if (task.actors.length === 0 || !hasHowMany(task.actors.length, task.howMany)) result = "ignore";
+    }
+    return result;
+  }
+  
+  function hasHowMany(val, howMany) {
+   var int, operand;
+   int = parseInt(howMany, 10);
+   operand = howMany.charAt(howMany.length-1);
+   switch (operand) {
+     case "+":
+       return val >= int;
+       break;
+     case "-":
+       return val <= int;
+       break;
+     default:
+       return val === int;
+       break;
+   }
   }
 };
 
