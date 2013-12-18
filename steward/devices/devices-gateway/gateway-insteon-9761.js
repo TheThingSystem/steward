@@ -174,7 +174,7 @@ Gateway.prototype.announce = function(self, id) {
   if (!!devices.devices[info.id]) return;
 
   logger.info('device/' + self.deviceID,
-              { name: info.device.name, id: sixtoid(id),  description: deviceType, productCode: station.device });
+              { name: info.device.name, id: sixtoid(id), description: deviceType, productCode: station.device });
   devices.discover(info);
 };
 

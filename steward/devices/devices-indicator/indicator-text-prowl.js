@@ -172,8 +172,8 @@ exports.start = function() {
                                    , priority : utility.keys(winston.config.syslog.levels)
                                    }
                     }
-      , $validate : {  create    : validate_create
-                    ,  perform   : validate_perform
+      , $validate : { create     : validate_create
+                    , perform    : validate_perform
                     }
       };
   devices.makers['/device/indicator/text/prowl'] = Prowl;

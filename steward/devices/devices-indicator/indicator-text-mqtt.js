@@ -166,8 +166,8 @@ exports.start = function() {
                                    , sensors      : []
                                    }
                     }
-      , $validate : {  create    : validate_create
-                    ,  perform   : validate_perform
+      , $validate : { create     : validate_create
+                    , perform    : validate_perform
                     }
       };
   devices.makers['/device/indicator/text/mqtt'] = Mqtt;

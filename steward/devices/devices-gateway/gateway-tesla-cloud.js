@@ -199,8 +199,8 @@ exports.start = function() {
                                    , passphrase : true
                                    }
                     }
-      , $validate : {  create    : validate_create
-                    ,  perform   : validate_perform
+      , $validate : { create     : validate_create
+                    , perform    : validate_perform
                     }
       };
   devices.makers['/device/gateway/tesla/cloud'] = Cloud;

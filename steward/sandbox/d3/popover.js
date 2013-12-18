@@ -640,11 +640,11 @@ var showPop = function(device) {
            newPerform.perform = "doors"
            if (event.target.src.indexOf("lock-on") !== -1) {
              event.target.src = "popovers/assets/lock-off.svg";
-             newPerform.parameter.doors = "unlocked";
+             newPerform.parameter.doors = "unlock";
              event.target.nextSibling.innerText = "LOCK DOORS"
            } else {
              event.target.src = "popovers/assets/lock-on.svg";
-             newPerform.parameter.doors = "locked";
+             newPerform.parameter.doors = "lock";
              event.target.nextSibling.innerText = "UNLOCK DOORS"
            }
            break;

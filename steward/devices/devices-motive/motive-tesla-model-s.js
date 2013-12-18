@@ -342,9 +342,7 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
       return self.setName(params.name, taskID);
 
     case 'doors':
-      f = function() { tesla.door_lock({ id    : self.vehicle.id
-                                       , state : parameter !== 'unlock' ? tesla.LOCK_ON : tesla.LOCK_OFF
-                                       }, cb); };
+      f = function() { tesla.door_lock({ id: self.vehicle.id, lock : params.doors || parameter }, cb); };
       break;
 
     case 'lights':
@@ -356,31 +354,32 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
       break;
 
     case 'hvac':
+      if (!!params.hvac) parameter = params.hvac;
       if (parameter === 'off') {
-        f = function() { tesla.auto_conditioning({ id: self.vehicle.id, state: tesla.CLIMATE_OFF }, cb); };
+        f = function() { tesla.auto_conditioning({ id: self.vehicle.id, climate: tesla.CLIMATE_OFF }, cb); };
         break;
       }
       if (parameter === 'on') {
-        f = function() { tesla.auto_conditioning({ id: self.vehicle.id, state: tesla.CLIMATE_ON }, cb); };
+        f = function() { tesla.auto_conditioning({ id: self.vehicle.id, climate: tesla.CLIMATE_ON }, cb); };
         break;
       }
       deg = parseInt(parameter, 10);
       if ((deg < tesla.TEMP_LO) || (deg >= tesla.TEMP_HI)) break;
       if (self.info.hvac === 'off') {
-        f = function() { tesla.auto_conditioning({ id: self.vehicle.id, state: tesla.CLIMATE_ON }, cb); };
+        f = function() { tesla.auto_conditioning({ id: self.vehicle.id, climate: tesla.CLIMATE_ON }, cb); };
         break;
       }
-      perform = null;
-      f = function() { tesla.set_temperature({ id: self.vehicle.id, dtemp: deg, ptemp: deg }, cb); };
+      f = function() { tesla.set_temperature({ id: self.vehicle.id, dtemp: deg }, cb); };
       break;
 
     case 'sunroof':
+      if (!!params.sunroof) parameter = params.sunroof;
       state = { open: tesla.ROOF_OPEN, comfort: tesla.ROOF_COMFORT, vent: tesla.ROOF_VENT, close: tesla.ROOF_CLOSE }[parameter];
-      if (!!state) f = function() { tesla.sun_roof({ id: self.vehicle.id, state: state }, cb); };
+      if (typeof state !== 'undefined') f = function() { tesla.sun_roof({ id: self.vehicle.id, roof: state }, cb); };
       else {
         pct = parseInt(parameter, 10);
         if ((pct < 0) || (pct > 100)) break;
-        f = function() { tesla.sun_roof({ id: self.vehicle.id, state: 'move',  percent: pct }, cb); };
+        f = function() { tesla.sun_roof({ id: self.vehicle.id, roof: 'move', percent: pct }, cb); };
       }
       break;
 
@@ -398,7 +397,7 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
                    { event: 'perform', perform: perform, parameter: parameter, diagnostic: 'failed' });
     } else if ((perform === 'hvac') && (!!deg)) {
       perform = null;
-      tesla.set_temperature({ id: self.vehicle.id, dtemp: deg, ptemp: deg }, cb);
+      tesla.set_temperature({ id: self.vehicle.id, dtemp: deg }, cb);
     }
 
     self.refresh(self);
@@ -423,19 +422,23 @@ var validate_perform = function(perform, parameter) {
       break;
 
     case 'doors':
+      if (!!params.doors) parameter = params.doors;
       if (!{ lock    : true
            , unlock  : true }[parameter]) result.invalid.push('doors');
       break;
 
     case 'lights':
+      if (!params.lights) parameter = 'flash';
       if (!{ flash   : true }[parameter]) result.invalid.push('lights');
       break;
 
     case 'horn':
-      if (!{ honk    : true }[parameter]) result.invalid.push('honk');
+      if (!params.horn) parameter = 'honk';
+      if (!{ honk    : true }[parameter]) result.invalid.push('horn');
       break;
 
     case 'hvac':
+      if (!!params.hvac) parameter = params.hvac;
       if (!{ on      : true
            , off     : true }[parameter]) {
         deg = parseInt(parameter, 10);
@@ -445,6 +448,7 @@ var validate_perform = function(perform, parameter) {
       break;
 
     case 'sunroof':
+      if (!!params.sunroof) parameter = params.sunroof;
       if (!{ open    : true
            , comform : true
            , vent    : true
@@ -505,4 +509,3 @@ exports.start = function() {
       };
   devices.makers['/device/motive/tesla/model-s'] = ModelS;
 };
-

@@ -285,8 +285,8 @@ exports.start = function() {
                                    , credentials : true
                                    }
                     }
-      , $validate : {  create    : validate_create
-                    ,  perform   : validate_perform
+      , $validate : { create     : validate_create
+                    , perform    : validate_perform
                     }
       };
   devices.makers['/device/gateway/koubachi/cloud'] = Cloud;

@@ -269,8 +269,8 @@ exports.start = function() {
                                    , private      : [ 'on', 'off' ]
                                    }
                     }
-      , $validate : {  create    : validate_create
-                    ,  perform   : validate_perform
+      , $validate : { create     : validate_create
+                    , perform    : validate_perform
                     }
       };
   devices.makers['/device/indicator/text/xively'] = Cosm;

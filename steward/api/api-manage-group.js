@@ -514,7 +514,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
 
     actor = actors[member.actorType];
     if (!actor) {
-      results.devices[member.actor] = { status: 'failure',  permanent: true, diagnostic: 'internal error' };
+      results.devices[member.actor] = { status: 'failure', permanent: true,  diagnostic: 'internal error' };
       continue;
     }
     entity = actor.$lookup(member.actorID);
