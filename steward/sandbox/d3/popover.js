@@ -536,8 +536,7 @@ var showPop = function(device) {
          .style("left", (motiveGoalTempLeft(device.info) - 10) + offset + "px");
      elem.append("span")
         .attr("class", "temp-label")
-        .text(function() { var temp = (((motiveGoalTemp(device.info) * 9) / 5) + 32).toFixed(1);
-           if (temp > 100) temp = "> 100"; if (temp < 40) temp = "< 40"; return temp + "°F"});
+        .text(motiveGoalTempText(device.info));
 
      if (device.info.sunroof !== "none") {
        div2 = pop.append("div")
@@ -567,9 +566,9 @@ var showPop = function(device) {
 		   .attr("class", "label")
 		   .append("img")
 		     .attr("id", "button-four")
-			 .attr("src", function() {return (device.info.sunroof === "close") ? "popovers/assets/close-button.svg" : "popovers/assets/close-button-off.svg"} )
+			 .attr("src", function() {return (device.info.sunroof === "closed") ? "popovers/assets/closed-button.svg" : "popovers/assets/closed-button-off.svg"} )
 			 .attr("height", "20px")
-			 .on("click", function() {motiveToggleSunroof(event, "close")});
+			 .on("click", function() {motiveToggleSunroof(event, "closed")});
 		 div2.append("div")
 		   .attr("class", "label")
 		   .attr("id", "sunroof-bracket")
@@ -621,7 +620,7 @@ var showPop = function(device) {
        document.getElementById("button-one").src = "popovers/assets/open-button-off.svg";
        document.getElementById("button-two").src = "popovers/assets/comfort-button-off.svg";
        document.getElementById("button-three").src = "popovers/assets/vent-button-off.svg";
-       document.getElementById("button-four").src = "popovers/assets/close-button-off.svg";
+       document.getElementById("button-four").src = "popovers/assets/closed-button-off.svg";
        elem.src = "popovers/assets/" + type + "-button.svg";
        newPerform.perform = "sunroof";
        newPerform.parameter.sunroof = type;
@@ -1631,7 +1630,7 @@ var updatePopover = function(device, update) {
       d3.select("#button-three")
         .attr("src", function() {return (update.info.sunroof === "vent") ? "popovers/assets/vent-button.svg" : "popovers/assets/vent-button-off.svg"} );
       d3.select("#button-four")
-        .attr("src", function() {return (update.info.sunroof === "close") ? "popovers/assets/close-button.svg" : "popovers/assets/close-button-off.svg"} );
+        .attr("src", function() {return (update.info.sunroof === "closed") ? "popovers/assets/closed-button.svg" : "popovers/assets/closed-button-off.svg"} );
     }
     
     d3.select("#on-off-knob")
@@ -1658,8 +1657,7 @@ var updatePopover = function(device, update) {
       .transition()
       .duration(600)
       .style("left", (motiveGoalTempLeft(update.info) - 10) + offset + "px")
-      .text(function() { var temp = (((motiveGoalTemp(update.info) * 9) / 5) + 32).toFixed(1);
-           if (temp > 100) temp = "> 100"; if (temp < 40) temp = "< 40"; return temp + "°F"});
+      .text(motiveGoalTempText(update.info));
     
     d3.select("#doorLocks")
       .attr("src", function() { return (update.info.doors === "locked") ? "popovers/assets/lock-on.svg" : "popovers/assets/lock-off.svg"});
@@ -1802,25 +1800,35 @@ function levelLeft(level) {
        
 function motiveGoalTempLeft(info) {
   var result = 0;
-  var goalTempC = motiveGoalTemp(info);
-  var goalTempF = ((parseFloat(goalTempC) * 9) / 5) + 32;
   var elemEdges = {min: 0, max: 115};
   var tempFRange = {min: 40, max: 100};
+  var goalTempF = motiveGoalTempF(info);
+  if (isNaN(goalTempF)) return elemEdges.min;
+  
   if (goalTempF <= tempFRange.min) return elemEdges.min;
   if (goalTempF >= tempFRange.max) return elemEdges.max;
   result = (goalTempF / (tempFRange.max + tempFRange.min)) * elemEdges.max;
   return result;
 }
      
-function motiveGoalTemp(info) {
-  var goalTempC;
+function motiveGoalTempF(info) {
+  var goalTemp;
+  var intTemperature = (info.hasOwnProperty("intTemperature")) ? parseInt(info.intTemperature, 10) : "- -";
   if (info.hvac === "off" || info.hvac === "on") {
-    goalTempC = parseInt(info.intTemperature, 10);
+    goalTemp = intTemperature;
   } else {
-    goalTempC = parseInt(info.hvac, 10);
-    if (isNaN(goalTempC)) goalTempC = info.intTemperature;
+    goalTemp = parseInt(info.hvac, 10);
   }
-  return goalTempC;
+  if (!isNaN(goalTemp)) goalTemp = ((goalTemp * 9) / 5) + 32;
+  return goalTemp;
+}
+
+function motiveGoalTempText(info) {
+  var temp = motiveGoalTempF(info);
+  if (temp > 100) temp = "> 100"; 
+  if (temp < 40) temp = "< 40"; 
+  if (!isNaN(temp)) temp = temp.toFixed(1);
+  return temp + "°F"; 
 }
 
 function sendData(device) {
