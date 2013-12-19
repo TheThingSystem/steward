@@ -1019,7 +1019,7 @@ var scan = function() {
   serialport.list(function(err, info) {
     var i, j;
 
-    if (!!err) return logger2.error('openzwave-usb', { diagnostic: err.message });
+    if (!!err) return logger2.error('insteon-9761', { diagnostic: err.message });
 
     for (i = 0; i < info.length; i++) {
       for (j = fingerprints.length - 1; j !== -1; j--) {
@@ -1030,6 +1030,8 @@ var scan = function() {
           info[i].vendor = fingerprints[j].vendor;
           info[i].modelName = fingerprints[j].modelName;
           info[i].description = fingerprints[j].description;
+          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
+          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
           if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
           if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
           scan1(info[i]);

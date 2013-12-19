@@ -62,7 +62,9 @@ Gateway.prototype.update = function(self, event, comclass, value) {
 };
 
 
+/* DEPRECATED
 var manufacturers = {};
+ */
 var pairings      = {};
 var scanning      = {};
 
@@ -106,6 +108,8 @@ var scan = function() {
           info[i].vendor = fingerprints[j].vendor;
           info[i].modelName = fingerprints[j].modelName;
           info[i].description = fingerprints[j].description;
+          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
+          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
           if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
           if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
           scan1(info[i]);
@@ -188,17 +192,21 @@ var scan1 = function(driver) {
                                      }
                     };
       info.url = info.device.url;
+/* DEPRECATED
       info.deviceType = manufacturers[props.manufacturerid] && manufacturers[props.manufacturerid][props.productid];
       if (info.deviceType) {
         info.device.model.name = info.deviceType.name;
         info.deviceType = info.deviceType.deviceType;
       } else {
+*/
         for (comclass in props.classes) {
           if ((!props.classes.hasOwnProperty(comclass)) || (!pairings[comclass])) continue;
           info.deviceType = pairings[comclass];
           break;
         }
+/* DEPRECATED
       }
+ */
       info.id = info.device.unit.udn;
       if (!info.deviceType) {
         oops.event = 'discovery';
@@ -317,6 +325,7 @@ exports.pair = function(commandClass, deviceType) {
   pairings[commandClass] = deviceType;
 };
 
+/* DEPRECATED
 exports.register = function(maker, deviceType, entries) {
   var manufacturer, manufacturerID, parts, prefix, product, productID, suffix, whom;
 
@@ -347,6 +356,7 @@ exports.register = function(maker, deviceType, entries) {
     }
   }
 };
+ */
 
 exports.start = function() {
   var fingerprint, i, j, parts, prefix, product, suffix;
@@ -387,8 +397,10 @@ exports.start = function() {
       steward.actors.device.gateway[prefix][suffix].$info.type = product.deviceType;
       devices.makers[product.deviceType] = Gateway;
 
+/* DEPRECATED
       if (!manufacturers[product.mID]) manufacturers[product.mID] = {};
       manufacturers[product.mID][product.pID] = { name: product.modelName, deviceType: product.deviceType };
+ */
     }
   }
 
