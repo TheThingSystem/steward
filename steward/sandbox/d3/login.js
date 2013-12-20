@@ -529,7 +529,7 @@ var bootable = { ecobee         :
                  , site         : 'https://prowlapp.com/login.php'
                  , icon         : ''
                  , name         : 'prowler'
-                 , actor        : '/device/indicator/text/prowl'
+                 , actor        : '/device/indicator/prowl/text'
                  , info         :
                    { apikey     : ''
                    }
@@ -552,7 +552,7 @@ var bootable = { ecobee         :
                  , site         : 'https://xlively.com/login'
                  , icon         : ''
                  , name         : 'xively'
-                 , actor        : '/device/indicator/text/xively'
+                 , actor        : '/device/indicator/xively/sensor'
                  , info         :
                    { apikey     : ''
                    , feed       : ''
