@@ -170,7 +170,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = '/device/climate/netatmo/sensor';
+  info.deviceType = '/device/climate/netatmo/meteo';
   info.id = info.device.unit.udn;
   macaddrs[station._id.split('-').join('').split(':').join('').toLowerCase()] = true;
 

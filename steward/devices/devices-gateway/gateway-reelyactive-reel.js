@@ -89,7 +89,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = '/device/presence/reelyactive/tag';
+  info.deviceType = '/device/presence/reelyactive/fob';
   info.id = info.device.unit.udn;
   if (!!devices.devices[info.id]) return;
 

@@ -456,7 +456,7 @@ var subscribe = function(params) {
                   };
 
     info.url = info.device.url;
-    info.deviceType = '/device/presence/mobile/' + parts[0];
+    info.deviceType = '/device/presence/' + parts[0] + '/mobile';
     info.id = info.device.unit.udn;
 
     logger.info('mqtt', { name: info.device.name, id: info.device.unit.serial,  params: info.params });

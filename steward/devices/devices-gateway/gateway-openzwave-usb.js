@@ -62,9 +62,7 @@ Gateway.prototype.update = function(self, event, comclass, value) {
 };
 
 
-/* DEPRECATED
 var manufacturers = {};
- */
 var pairings      = {};
 var scanning      = {};
 
@@ -192,21 +190,17 @@ var scan1 = function(driver) {
                                      }
                     };
       info.url = info.device.url;
-/* DEPRECATED
       info.deviceType = manufacturers[props.manufacturerid] && manufacturers[props.manufacturerid][props.productid];
       if (info.deviceType) {
         info.device.model.name = info.deviceType.name;
         info.deviceType = info.deviceType.deviceType;
       } else {
-*/
         for (comclass in props.classes) {
           if ((!props.classes.hasOwnProperty(comclass)) || (!pairings[comclass])) continue;
           info.deviceType = pairings[comclass];
           break;
         }
-/* DEPRECATED
       }
- */
       info.id = info.device.unit.udn;
       if (!info.deviceType) {
         oops.event = 'discovery';
@@ -397,10 +391,8 @@ exports.start = function() {
       steward.actors.device.gateway[prefix][suffix].$info.type = product.deviceType;
       devices.makers[product.deviceType] = Gateway;
 
-/* DEPRECATED
       if (!manufacturers[product.mID]) manufacturers[product.mID] = {};
       manufacturers[product.mID][product.pID] = { name: product.modelName, deviceType: product.deviceType };
- */
     }
   }
 

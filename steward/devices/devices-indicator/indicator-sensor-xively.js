@@ -248,16 +248,16 @@ var validate_perform = function(perform, parameter) {
 exports.start = function() {
   var measureName, measurements;
 
-  steward.actors.device.indicator.text = steward.actors.device.indicator.text ||
-      { $info     : { type: '/device/indicator/text' } };
+  steward.actors.device.indicator.xively = steward.actors.device.indicator.xively ||
+      { $info     : { type: '/device/indicator/xively' } };
 
   measurements = {};
   for (measureName in sensor.measures) {
     if (sensor.measures.hasOwnProperty(measureName)) measurements[measureName] = sensor.measures[measureName].units;
   }
 
-  steward.actors.device.indicator.text.xively =
-      { $info     : { type       : '/device/indicator/text/xively'
+  steward.actors.device.indicator.xively.sensor =
+      { $info     : { type       : '/device/indicator/xively/sensor'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
@@ -273,5 +273,5 @@ exports.start = function() {
                     , perform    : validate_perform
                     }
       };
-  devices.makers['/device/indicator/text/xively'] = Cosm;
+  devices.makers['/device/indicator/xively/sensor'] = Cosm;
 };

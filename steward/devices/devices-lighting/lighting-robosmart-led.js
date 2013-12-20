@@ -188,8 +188,8 @@ exports.start = function() {
   steward.actors.device.lighting.robosmart = steward.actors.device.lighting.robosmart ||
       { $info     : { type: '/device/lighting/robosmart' } };
 
-  steward.actors.device.lighting.robosmart.led =
-      { $info     : { type       : '/device/lighting/robosmart/led'
+  steward.actors.device.lighting.robosmart.bulb =
+      { $info     : { type       : '/device/lighting/robosmart/bulb'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
@@ -200,7 +200,7 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['/device/lighting/robosmart/led'] = RoboSmart;
+  devices.makers['/device/lighting/robosmart/bulb'] = RoboSmart;
 
-  require('./../../discovery/discovery-ble').register('/device/lighting/robosmart/led', null, [ 'ff10', 'ff20' ]);
+  require('./../../discovery/discovery-ble').register('/device/lighting/robosmart/bulb', null, [ 'ff10', 'ff20' ]);
 };

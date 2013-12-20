@@ -110,11 +110,11 @@ var validate_perform = function(perform, parameter) {
 exports.start = function() {
   var register = require('./../../discovery/discovery-ble').register;
 
-  steward.actors.device.wearable.watch = steward.actors.device.wearable.watch ||
-      { $info     : { type: '/device/wearable/watch' } };
+  steward.actors.device.wearable.ble = steward.actors.device.wearable.ble ||
+      { $info     : { type: '/device/wearable/ble' } };
 
-  steward.actors.device.wearable.watch.cookoo =
-      { $info     : { type       : '/device/wearable/watch/cookoo'
+  steward.actors.device.wearable.ble.watch =
+      { $info     : { type       : '/device/wearable/ble/watch'
                     , observe    : [ ]
                     , perform    : [ 'alert' ]
                     , properties : { name   : true
@@ -124,12 +124,20 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['/device/wearable/watch/cookoo'] = Watch;
-  register('/device/wearable/watch/cookoo', 'COOKOO watch', [ '1802', '180a' ]);
-  register('/device/wearable/watch/cookoo', 'COOKOO watch', [ '4b455254747211e1a5750002a5d58001' ]);
+  devices.makers['/device/wearable/ble/watch'] = Watch;
 
-  steward.actors.device.wearable.watch.metawatch = utility.clone(steward.actors.device.wearable.watch.cookoo);
-  steward.actors.device.wearable.watch.metawatch.$info.type = '/device/wearable/watch/metawatch';
-  devices.makers['/device/wearable/watch/metawatch'] = Watch;
-  register('/device/wearable/watch/metawatch', 'MetaWatch 08', [ '8880' ]);
+  steward.actors.device.wearable.cookoo = utility.clone(steward.actors.device.wearable.ble);
+  steward.actors.device.wearable.cookoo.$info.type = '/device/wearable/cookoo';
+  steward.actors.device.wearable.cookoo.watch = utility.clone(steward.actors.device.wearable.ble.watch);
+  steward.actors.device.wearable.cookoo.watch.$info.type = '/device/wearable/cookoo/watch';
+  devices.makers['/device/wearable/cookoo/watch'] = Watch;
+  register('/device/wearable/cookoo/watch', 'COOKOO watch', [ '1802', '180a' ]);
+  register('/device/wearable/cookoo/watch', 'COOKOO watch', [ '4b455254747211e1a5750002a5d58001' ]);
+
+  steward.actors.device.wearable.metawatch = utility.clone(steward.actors.device.wearable.ble);
+  steward.actors.device.wearable.metawatch.$info.type = '/device/wearable/metawatch';
+  steward.actors.device.wearable.metawatch.watch = utility.clone(steward.actors.device.wearable.ble.watch);
+  steward.actors.device.wearable.metawatch.watch.$info.type = '/device/wearable/metawatch/watch';
+  devices.makers['/device/wearable/metawatch/watch'] = Watch;
+  register('/device/wearable/metawatch/watch', 'MetaWatch 08', [ '8880' ]);
 };

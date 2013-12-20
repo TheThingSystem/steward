@@ -172,7 +172,7 @@ Cloud.prototype.addstation = function(self, station) {
                 };
 
   info.url = info.device.url;
-  info.deviceType = '/device/climate/koubachi/sensor';
+  info.deviceType = '/device/climate/koubachi/soil';
   info.id = info.device.unit.udn;
   macaddrs[station.mac_address.split('-').join('').split(':').join('').toLowerCase()] = true;
 

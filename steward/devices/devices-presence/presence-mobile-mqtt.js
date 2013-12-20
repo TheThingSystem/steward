@@ -238,11 +238,11 @@ var deg2rad = function(deg) {
 
 
 exports.start = function() {
-  steward.actors.device.presence.mobile = steward.actors.device.presence.mobile ||
-      { $info     : { type: '/device/presence/mobile' } };
+  steward.actors.device.presence.mqtt = steward.actors.device.presence.mqtt ||
+      { $info     : { type: '/device/presence/mqtt' } };
 
-  steward.actors.device.presence.mobile.mqtt =
-      { $info     : { type       : '/device/presence/mobile/mqtt'
+  steward.actors.device.presence.mqtt.mobile =
+      { $info     : { type       : '/device/presence/mqtt/mobile'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name      : true
@@ -256,9 +256,11 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['/device/presence/mobile/mqtt'] = Mobile;
+  devices.makers['/device/presence/mqtt/mobile'] = Mobile;
 
-  steward.actors.device.presence.mobile.mqttitude = utility.clone(steward.actors.device.presence.mobile.mqtt);
-  steward.actors.device.presence.mobile.mqttitude.$info.type = '/device/presence/mobile/mqttitude';
-  devices.makers['/device/presence/mobile/mqttitude'] = Mobile;
+  steward.actors.device.presence.mqttitude = utility.clone(steward.actors.device.presence.mqtt);
+  steward.actors.device.presence.mqttitude.$info.type = '/device/presence/mqttitude';
+  steward.actors.device.presence.mqttitude.mobile = utility.clone(steward.actors.device.presence.mqtt.mobile);
+  steward.actors.device.presence.mqttitude.mobile.$info.type = '/device/presence/mqttitude/mobile';
+  devices.makers['/device/presence/mqttitude/mobile'] = Mobile;
 };

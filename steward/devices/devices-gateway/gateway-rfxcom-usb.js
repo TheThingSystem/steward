@@ -118,7 +118,7 @@ Gateway.prototype.thX = function(self, evt) {
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = '/device/climate/oregon-scientific/sensor';
+  info.deviceType = '/device/climate/oregon-scientific/meteo';
   info.id = info.device.unit.udn;
 
   logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: params });

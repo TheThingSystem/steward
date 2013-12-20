@@ -340,7 +340,7 @@ Hue.prototype.addlight = function(self, id, props) {
 
   switch (props.modelid.substr(0, 3)) {
     case 'LLC':
-      whatami = '/device/lighting/hue/bloom';
+      whatami = '/device/lighting/hue/uplight';
       break;
 
     case 'LST':
@@ -751,8 +751,8 @@ exports.start = function() {
   steward.actors.device.lighting.hue.downlight = utility.clone(steward.actors.device.lighting.hue.bulb);
   steward.actors.device.lighting.hue.downlight.$info.type = '/device/lighting/hue/downlight';
 
-  steward.actors.device.lighting.hue.bloom = utility.clone(steward.actors.device.lighting.hue.bulb);
-  steward.actors.device.lighting.hue.bloom.$info.type = '/device/lighting/hue/bloom';
+  steward.actors.device.lighting.hue.uplight = utility.clone(steward.actors.device.lighting.hue.bulb);
+  steward.actors.device.lighting.hue.uplight.$info.type = '/device/lighting/hue/uplight';
 
   steward.actors.device.lighting.hue.lightstrip = utility.clone(steward.actors.device.lighting.hue.bulb);
   steward.actors.device.lighting.hue.lightstrip.$info.type = '/device/lighting/hue/lightstrip';

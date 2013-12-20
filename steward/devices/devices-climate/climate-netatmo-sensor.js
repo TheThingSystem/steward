@@ -66,8 +66,8 @@ exports.start = function() {
   steward.actors.device.climate.netatmo = steward.actors.device.climate.netatmo ||
       { $info     : { type: '/device/climate/netatmo' } };
 
-  steward.actors.device.climate.netatmo.sensor =
-      { $info     : { type       : '/device/climate/netatmo/sensor'
+  steward.actors.device.climate.netatmo.meteo =
+      { $info     : { type       : '/device/climate/netatmo/meteo'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name        : true
@@ -83,5 +83,5 @@ exports.start = function() {
                     }
       , $validate : { perform    : devices.validate_perform }
       };
-  devices.makers['/device/climate/netatmo/sensor'] = Sensor;
+  devices.makers['/device/climate/netatmo/meteo'] = Sensor;
 };

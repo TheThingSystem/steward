@@ -118,8 +118,8 @@ exports.start = function() {
   steward.actors.device.climate.koubachi = steward.actors.device.climate.koubachi ||
       { $info     : { type: '/device/climate/koubachi' } };
 
-  steward.actors.device.climate.koubachi.sensor =
-      { $info     : { type       : '/device/climate/koubachi/sensor'
+  steward.actors.device.climate.koubachi.soil =
+      { $info     : { type       : '/device/climate/koubachi/soil'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
@@ -135,7 +135,7 @@ exports.start = function() {
                     }
       , $validate : { perform    : devices.validate_perform }
       };
-  devices.makers['/device/climate/koubachi/sensor'] = Sensor;
+  devices.makers['/device/climate/koubachi/soil'] = Sensor;
 
   colors = [];
   for (status in devices.rainbow) if (devices.rainbow.hasOwnProperty(status)) colors.push(devices.rainbow[status].color);

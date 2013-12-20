@@ -157,11 +157,11 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device.indicator.text = steward.actors.device.indicator.text ||
-      { $info     : { type: '/device/indicator/text' } };
+  steward.actors.device.indicator.prowl = steward.actors.device.indicator.prowl ||
+      { $info     : { type: '/device/indicator/prowl' } };
 
-  steward.actors.device.indicator.text.prowl =
-      { $info     : { type       : '/device/indicator/text/prowl'
+  steward.actors.device.indicator.prowl.text =
+      { $info     : { type       : '/device/indicator/prowl/text'
                     , observe    : [ ]
                     , perform    : [ 'growl' ]
                     , properties : { name     : true
@@ -176,5 +176,5 @@ exports.start = function() {
                     , perform    : validate_perform
                     }
       };
-  devices.makers['/device/indicator/text/prowl'] = Prowl;
+  devices.makers['/device/indicator/prowl/text'] = Prowl;
 };

@@ -157,8 +157,8 @@ exports.start = function() {
   steward.actors.device.lighting.insteon = steward.actors.device.lighting.insteon ||
       { $info     : { type: '/device/lighting/insteon' } };
 
-  steward.actors.device.lighting.insteon.led =
-      { $info     : { type       : '/device/lighting/insteon/led'
+  steward.actors.device.lighting.insteon.bulb =
+      { $info     : { type       : '/device/lighting/insteon/bulb'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name       : true
@@ -176,7 +176,7 @@ exports.start = function() {
   devices.makers['Insteon.014d'] = Insteon;
   devices.makers['Insteon.0151'] = Insteon;
 
-  steward.actors.device.lighting.insteon.downlight = utility.clone(steward.actors.device.lighting.insteon.led);
+  steward.actors.device.lighting.insteon.downlight = utility.clone(steward.actors.device.lighting.insteon.bulb);
   steward.actors.device.lighting.insteon.downlight.$info.type = '/device/lighting/insteon/downlight';
   devices.makers['Insteon.0149'] = Insteon;
   devices.makers['Insteon.014a'] = Insteon;

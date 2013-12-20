@@ -226,8 +226,8 @@ exports.start = function() {
   steward.actors.device.presence.reelyactive = steward.actors.device.presence.reelyactive ||
       { $info     : { type: '/device/presence/reelyactive' } };
 
-  steward.actors.device.presence.reelyactive.tag =
-      { $info     : { type       : '/device/presence/reelyactive/tag'
+  steward.actors.device.presence.reelyactive.fob =
+      { $info     : { type       : '/device/presence/reelyactive/fob'
                     , observe    : [ 'closest', 'sequence' ]
                     , perform    : [ ]
                     , properties : { name     : true
@@ -240,5 +240,5 @@ exports.start = function() {
                     , perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/presence/reelyactive/tag'] = Tag;
+  devices.makers['/device/presence/reelyactive/fob'] = Tag;
 };

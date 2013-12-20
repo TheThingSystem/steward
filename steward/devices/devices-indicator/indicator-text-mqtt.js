@@ -145,16 +145,16 @@ var validate_perform = function(perform, parameter) {
 exports.start = function() {
   var measureName, measurements;
 
-  steward.actors.device.indicator.text = steward.actors.device.indicator.text ||
-      { $info     : { type: '/device/indicator/text' } };
+  steward.actors.device.indicator.mqtt = steward.actors.device.indicator.mqtt ||
+      { $info     : { type: '/device/indicator/mqtt' } };
 
   measurements = {};
   for (measureName in sensor.measures) {
     if (sensor.measures.hasOwnProperty(measureName)) measurements[measureName] = sensor.measures[measureName].units;
   }
 
-  steward.actors.device.indicator.text.mqtt =
-      { $info     : { type       : '/device/indicator/text/mqtt'
+  steward.actors.device.indicator.mqtt.text =
+      { $info     : { type       : '/device/indicator/mqtt/text'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
@@ -170,5 +170,5 @@ exports.start = function() {
                     , perform    : validate_perform
                     }
       };
-  devices.makers['/device/indicator/text/mqtt'] = Mqtt;
+  devices.makers['/device/indicator/mqtt/text'] = Mqtt;
 };

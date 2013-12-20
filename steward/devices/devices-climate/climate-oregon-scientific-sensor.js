@@ -66,8 +66,8 @@ exports.start = function() {
   steward.actors.device.climate['oregon-scientific'] = steward.actors.device.climate['oregon-scientific'] ||
       { $info     : { type: '/device/climate/oregon-scientific' } };
 
-  steward.actors.device.climate['oregon-scientific'].sensor =
-      { $info     : { type       : '/device/climate/oregon-scientific/sensor'
+  steward.actors.device.climate['oregon-scientific'].meteo =
+      { $info     : { type       : '/device/climate/oregon-scientific/meteo'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
@@ -82,5 +82,5 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/climate/oregon-scientific/sensor'] = Sensor;
+  devices.makers['/device/climate/oregon-scientific/meteo'] = Sensor;
 };

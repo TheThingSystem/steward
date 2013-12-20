@@ -265,7 +265,7 @@ exports.start = function() {
       { $info     : { type: '/device/lighting/tabu' } };
 
   steward.actors.device.lighting.tabu.lumen =
-      { $info     : { type       : '/device/lighting/tabu/lumen'
+      { $info     : { type       : '/device/lighting/tabu/bulb'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name         : true
@@ -285,7 +285,7 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['/device/lighting/tabu/lumen'] = Lumen;
+  devices.makers['/device/lighting/tabu/bulb'] = Lumen;
 
-  require('./../../discovery/discovery-ble').register('/device/lighting/tabu/lumen', 'iSmartLight Bough', [ 'fff0' ]);
+  require('./../../discovery/discovery-ble').register('/device/lighting/tabu/bulb', 'iSmartLight Bough', [ 'fff0' ]);
 };

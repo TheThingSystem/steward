@@ -119,7 +119,7 @@ exports.start = function() {
           report = { "path"                             : "/api/v1/thing/reporting"
                    , "requestID"                        : requestID.toString()
                    , "things":
-                     { "/device/climate/owl/sensor"    :
+                     { "/device/climate/owl/meteo"     :
                        { "prototype"                    :
                          { "device"                     :
                            { "name"                     : "Network OWL"
