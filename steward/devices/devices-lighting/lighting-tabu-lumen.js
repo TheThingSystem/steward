@@ -264,7 +264,7 @@ exports.start = function() {
   steward.actors.device.lighting.tabu = steward.actors.device.lighting.tabu ||
       { $info     : { type: '/device/lighting/tabu' } };
 
-  steward.actors.device.lighting.tabu.lumen =
+  steward.actors.device.lighting.tabu.bulb =
       { $info     : { type       : '/device/lighting/tabu/bulb'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
