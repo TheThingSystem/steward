@@ -139,10 +139,12 @@ var validate_perform = function(perform, parameter) {
 };
 
 
+/* DEPRECATED
 var manufacturers =
 { '001a' : { '0003' : { name: 'Aspire RF Dimmer',                    deviceType: '/device/switch/cooper/dimmer' } }
 , '0063' : { '3030' : { name: 'Lamp Dimmer/Plugin Appliance Module', deviceType: '/device/switch/ge/dimmer'     } }
 };
+ */
 
 exports.start = function() {
   steward.actors.device['switch'].zwave = steward.actors.device['switch'].zwave ||
@@ -163,5 +165,7 @@ exports.start = function() {
   devices.makers['/device/switch/zwave/dimmer'] = ZWave_Dimmer;
   registrar.pair(0x26, '/device/switch/zwave/dimmer'); // COMMAND_CLASS_SWITCH_MULTILEVEL
 
+/* DEPRECATED
   registrar.register(ZWave_Dimmer, '/device/switch/zwave/dimmer', manufacturers);
+ */
 };
