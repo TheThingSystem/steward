@@ -14,8 +14,8 @@ var TBD         = require('TBD')
 
 var logger = lighting.logger;
 
-
 // define the prototype that will be instantiated when a bulb is discovered
+// later, we will create a ...perform function, and a ...update function.
 var TBD = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
@@ -26,7 +26,8 @@ var TBD = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.bulb = info.bulb;
-// TBD: invoked whenever a bulb changes state (the event may be named/parameterized differently)
+// TBD: invoked by the lower-level bulb driver whenever a bulb changes state. You probably
+// have to set the name of the event to whatever the bulb driver emits when its state changes.
   self.bulb.on('stateChange', function(state) { self.update(self, state); });
   self.update(self, self.bulb.state);
   self.changed();
@@ -40,6 +41,9 @@ var TBD = exports.Device = function(deviceID, deviceUID, info) {
 // have the prototype inherit properties from a generic lighting device
 util.inherits(TBD, lighting.Device);
 
+// the low-level driver calls this function when its state changes.
+// possibly somebody else is changing the state of the hardware directly,
+// or the hardware has built-in controls, like a light switch.
 TBD.prototype.update = function(self, state) {
 /* TBD: update self.state and self.info accordingly
 
@@ -50,7 +54,10 @@ TBD.prototype.update = function(self, state) {
  */
 };
 
-
+// handle the calls from the steward to change things.
+// set: set the internal name of the bulb.
+// off: turn the bulb off.
+// on: turn the bulb on and set its bulb to the 'color' and 'brightness' parameter.
 TBD.prototype.perform = function(self, taskID, perform, parameter) {
   var color, f, params, state;
 
@@ -85,7 +92,7 @@ TBD.prototype.perform = function(self, taskID, perform, parameter) {
 
     if ((!!params.brightness) && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
 
-/* TBD: test for all dark here, if so:
+/* TBD: if a brightness of zero means that the bulb is off, remember that.
 
      state.on = false;
  */
@@ -93,7 +100,8 @@ TBD.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-// TBD: these calls may be named/parameterized differently
+// TBD: here is the meat of our driver. We call into the low-level hardware driver to turn the bulb on and off,
+// set the brightness, and/or set the color.
   if (!state.on) self.bulb.turnOff();
   else {
     f = function() { self.bulb.setState(state); };
@@ -106,6 +114,8 @@ TBD.prototype.perform = function(self, taskID, perform, parameter) {
   return steward.performed(taskID);
 };
 
+// check the parameters on the perform before we even try to do it.
+// TBD: if you have an RGB bulb, you'll need all of these checks.
 var validate_perform = function(perform, parameter) {
   var color
     , params = {}
@@ -179,8 +189,8 @@ exports.start = function() {
   steward.actors.device.lighting.TBD.downlight.$info.type = '/device/lighting/TBD/downlight';
  */
 
-// create a discovery object to find the bulbs, listen for discovery events (the event may be named/parameterized differently)
-// and set its logging function
+// TBD: when the hardware driver discovers a new bulb, it will call us.
+// TBD: or if the low-level driver needs to be polled, then create a 'scan' function and call it periodically.
   new TBD().on('discover', function(bulb) {
     var info;
 
