@@ -434,8 +434,8 @@ exports.start = function() {
 
   if (utility.acquiring > 0) return setTimeout(exports.start, 10);
 
-  if (exports.uuid) {
-    logger.info('start', { uuid: exports.uuid });
+  if (!!exports.uuid) {
+    logger.notice('start', { uuid: exports.uuid });
     server.start();
     setInterval(scan, 10 * 1000);
     setInterval(function() {
