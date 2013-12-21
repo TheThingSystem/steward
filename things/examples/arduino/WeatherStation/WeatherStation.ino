@@ -23,7 +23,7 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0x05 };  // Arduino Ethernet
 char packetBuffer[512];
 
 PROGMEM prog_char *loopPacket1 = "{\"path\":\"/api/v1/thing/reporting\",\"requestID\":\"";
-PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/arduino/sensor\":{\"prototype\":{\"device\":{\"name\":\"Arduino with DHT-22\",\"maker\":\"Arduino\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"temperature\":\"celsius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Weather Station\",\"status\":\"present\",\"unit\":{\"serial\":\"";
+PROGMEM prog_char *loopPacket2 = "\",\"things\":{\"/device/climate/arduino/meteo\":{\"prototype\":{\"device\":{\"name\":\"Arduino with DHT-22\",\"maker\":\"Arduino\"},\"name\":true,\"status\":[\"present\",\"absent\",\"recent\"],\"properties\":{\"temperature\":\"celsius\",\"humidity\":\"percentage\"}},\"instances\":[{\"name\":\"Weather Station\",\"status\":\"present\",\"unit\":{\"serial\":\"";
 PROGMEM prog_char *loopPacket3 = "\",\"udn\":\"195a42b0-ef6b-11e2-99d0-";
 PROGMEM prog_char *loopPacket4 = "-dnt-22\"},\"info\":{\"temperature\":";
 PROGMEM prog_char *loopPacket5 = ",\"humidity\":";
