@@ -38,6 +38,9 @@ UPDATE devices SET deviceType='/device/presence/mqttitude/mobile'
 UPDATE devices SET deviceType='/device/presence/reelyactive/fob'
              WHERE deviceType='/device/presence/reelyactive/tag';
 
+UPDATE devices SET deviceType='/device/sensor/owl/meter'
+             WHERE deviceType='/device/sensor/owl/electricity';
+
 UPDATE devices SET deviceType='/device/wearable/ble/watch'
              WHERE deviceType='/device/wearable/watch/ble';
 UPDATE devices SET deviceType='/device/wearable/cookoo/watch'

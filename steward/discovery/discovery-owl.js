@@ -36,7 +36,7 @@ exports.start = function() {
           report = { "path"                             : "/api/v1/thing/reporting"
                    , "requestID"                        : requestID.toString()
                    , "things":
-                     { "/device/sensor/owl/electricity" :
+                     { "/device/sensor/owl/meter"       :
                        { "prototype"                    :
                          { "device"                     :
                            { "name"                     : "OWL Intuition-e"
