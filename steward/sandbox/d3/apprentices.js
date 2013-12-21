@@ -1,4 +1,4 @@
-var goApprentices = function() {
+var goApprentices = function(local) {
   var backdrop;
 
   if (document.getElementById("sub-pane-one")) d3.select('#sub-pane-one').remove();
@@ -13,13 +13,14 @@ var goApprentices = function() {
       .on('click', function() {exitApprentices()});
   } else {
     backdrop = d3.select('#apprentice-backdrop');
+    updatePanesList();
   }
 
   function exitApprentices() {
     d3.select('#apprentice-backdrop').remove();
   }
 
-  refreshActors(4);
+  if (!local) {refreshActors(4); } else { finishApprentices(); }
 }
 
 var finishApprentices = function() {
@@ -124,11 +125,11 @@ var updatePanesList = function() {
   }
 }
 
-var goPaneDetail = function(i) {
+var goPaneDetail = function(n) {
   var div, div2, div3, div4, events, tasks;
   var actorWidth = 58, actorHeight = 80, paneWidth = 802, maxIcons = 12;
   
-  div = d3.select('#pane' + i);
+  div = d3.select('#pane' + n);
   if (div.attr('class') === 'label-disabled') return;
 
   if (document.getElementById("settings")) d3.select('#settings').remove();
@@ -137,14 +138,14 @@ var goPaneDetail = function(i) {
     .append('div')
     .attr('id', 'sub-pane-one');
 
-  if (apprentices.home.panes[i].observations.hasOwnProperty('events')) {
-    events = apprentices.home.panes[i].observations.events[0];
+  if (apprentices.home.panes[n].observations.hasOwnProperty('events')) {
+    events = apprentices.home.panes[n].observations.events[0];
     div.append('div')
       .attr('class', 'form-heading')
       .style('margin-top', '0px')
       .style('top', '-100px')
       .style('text-transform', 'capitalize')
-      .html(apprentices.home.panes[i].title);
+      .html(apprentices.home.panes[n].title);
     div.append('div')
       .attr('class', 'form-heading')
       .style('margin-top', '0px')
@@ -166,7 +167,7 @@ var goPaneDetail = function(i) {
     .enter().append('div')
       .attr('class', 'actor-home')
       .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px';})
-      .on('click', function(d, i) { toggleEvent(i) });
+      .on('click', function(d, i) { toggleEvent(i, n) });
   div4.append('p')
      .attr('class', 'actor-name')
      .attr('id', function(d, i) { return 'name_' + actor2ID(events.actors[i].device); })
@@ -179,7 +180,7 @@ var goPaneDetail = function(i) {
      .style('background-color', function(d, i) { return (events.actors[i].selected) ? '#00ba00' : '#666';});
   }
 
-  tasks = apprentices.home.panes[i].performances.tasks[0];
+  tasks = apprentices.home.panes[n].performances.tasks[0];
   div2 = div.append('div')
     .attr('id', 'sub-pane-two');
   div2.append('div')
@@ -203,7 +204,7 @@ var goPaneDetail = function(i) {
     .enter().append('div')
       .attr('class', 'actor-home')
       .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px';})
-      .on('click', function(d, i) { toggleTask(i) });
+      .on('click', function(d, i) { toggleTask(i, n) });
   div4.append('p')
      .attr('class', 'actor-name')
      .attr('id', function(d, i) { return 'name_' + actor2ID(tasks.actors[i].device); })
@@ -220,13 +221,13 @@ var goPaneDetail = function(i) {
   div3.append('img')
     .attr('class', 'action-button')
     .attr('src', 'popovers/assets/activate.svg')
-    .on('click', goApprentices);
+    .on('click', function() { goApprentices(true); });
   div3.append('img')
     .attr('class', 'action-button')
     .attr('src', 'popovers/assets/done.svg')
-    .on('click', goApprentices);
+    .on('click', function() { goApprentices(true); });
 
-  function toggleEvent(i) {
+  function toggleEvent(i, n) {
     var newColor = (events.actors[i].selected) ? '#666' : '#00ba00';
     var device = events.actors[i].device;
     events.actors[i].selected = !events.actors[i].selected;
@@ -234,9 +235,10 @@ var goPaneDetail = function(i) {
       .style('color', newColor);
     d3.select('#img_' + actor2ID(device))
       .style('background-color', newColor);
+    checkPane(apprentices.home.panes[n]);
   }
 
-  function toggleTask(i) {
+  function toggleTask(i, n) {
     var newColor = (tasks.actors[i].selected) ? '#666' : '#00ba00';
     var device = tasks.actors[i].device;
     tasks.actors[i].selected = !tasks.actors[i].selected;
@@ -244,6 +246,7 @@ var goPaneDetail = function(i) {
       .style('color', newColor);
     d3.select('#img_' + actor2ID(device))
       .style('background-color', newColor);
+    checkPane(apprentices.home.panes[n]);
   }
 }
 
@@ -257,7 +260,8 @@ var apprentices =
       , uuid                    : '749070ee-08a9-430d-8e5a-812e40a297f1'
       , text                    : 'When CO<sub>2</sub> reaches 1000ppm, circulate the air for 15min.'
                                    // or 'configured' or 'ignore' or 'incomplete'
-      , status                  : 'active'
+      , status                  : 'incomplete'
+      , active                  : null
       , observations            :
         { title                 : 'Monitor Air Quality'
         , uuid                  : '749070ee-08a9-430d-8e5a-812e40a297f1:events'
@@ -300,7 +304,8 @@ var apprentices =
     , { title                   : 'Status lights'
       , uuid                    : '40e40662-3bed-4a5a-968d-99e8c7d1917b:'
       , text                    : 'Select lights to report change of conditions.'
-      , status                  : 'active'
+      , status                  : 'incomplete'
+      , active                  : null
       , observations            :
         { title                 : ''
         , text                  : ''
@@ -363,7 +368,8 @@ var apprentices =
     , { title                   : 'Here Comes the Sun'
       , uuid                    : 'f7063811-da36-4998-b31c-35d0a4ba88d6'
       , text                    : 'At dawn, tasks to perform.'
-      , status                  : 'active'
+      , status                  : 'incomplete'
+      , active                  : null
       , observations            :
         { title                 : ''
         , text                  : ''
@@ -397,7 +403,8 @@ var apprentices =
     , { title                   : 'There Goes the Sun'
       , uuid                    : '46da63fb-eee0-4ab3-89a8-e7693b8138d8'
       , text                    : 'At dusk, tasks to perform.'
-      , status                  : 'active'
+      , status                  : 'incomplete'
+      , active                  : null
       , observations            :
         { title                 : ''
         , text                  : ''
@@ -430,7 +437,8 @@ var apprentices =
     , { title                   : 'Late at night'
       , uuid                    : 'e745eb62-ff24-444d-9a57-75b390fc3166'
       , text                    : 'At late night, tasks to perform.'
-      , status                  : 'active'
+      , status                  : 'incomplete'
+      , active                  : null
       , observations            :
         { title                 : ''
         , text                  : ''
@@ -468,12 +476,13 @@ var apprentices =
 
 
 var prepare = function(apprentice, actors, activities) {
-  var d, event, group, i, j, k, l, pane, status, suffixes, task, uuid;
+  var d, event, group, i, j, k, l, m, n, pane, suffixes, task, uuid;
 
   d = organize(activities);
 
   for (i = apprentice.panes.length - 1; i !== -1; i--) {
     pane = apprentice.panes[i];
+	pane.active = !!d.activities[pane.uuid] && d.activities[pane.uuid].active;
 
     if (!!pane.observations.events) for (j = pane.observations.events.length -1; j !== -1; j--) {
       event = pane.observations.events[j];
@@ -501,7 +510,7 @@ var prepare = function(apprentice, actors, activities) {
         group = d.groups[task.uuid];
         for (k = 0; k < task.actors.length; k++) task.actors[k].selected = group.devices.indexOf(task.actors[k].device) !== -1;
       }
-      if(suffixes.length === 0) continue;
+      if (suffixes.length === 0) continue;
 
       for (l = 0; l < suffixes.length; l++) {
         uuid = task.uuid + suffixes[l];
@@ -513,38 +522,71 @@ var prepare = function(apprentice, actors, activities) {
       }
     }
 
-    pane.status = getStatus(event, task);
+    checkPane(pane);
+
     setup(pane, d);
   }
-  
-  function getStatus(event, task) {
-    var result = "incomplete";
-    if (!!event && Array.isArray(event.actors)) {
-      if (event.actors.length === 0 || !hasHowMany(event.actors.length, event.howMany)) result = "ignore";
-    }
-    if (!!task && Array.isArray(task.actors)) {
-      if (task.actors.length === 0 || !hasHowMany(task.actors.length, task.howMany)) result = "ignore";
-    }
-    return result;
-  }
-  
-  function hasHowMany(val, howMany) {
-   var int, operand;
-   int = parseInt(howMany, 10);
-   operand = howMany.charAt(howMany.length-1);
-   switch (operand) {
-     case "+":
-       return val >= int;
-       break;
-     case "-":
-       return val <= int;
-       break;
-     default:
-       return val === int;
-       break;
-   }
-  }
 };
+
+var checkPane = function(pane) {
+	var event, i, items, j, task;
+	var result = "incomplete";
+	
+	if (!!pane.observations.events) for (i = 0; i < pane.observations.events.length; i++) {
+		event = pane.observations.events[i]; 
+		if (!!event.actors && Array.isArray(event.actors)) {
+			if (event.actors.length === 0) {
+				result = "ignore";
+			} else if (!hasHowMany(event.actors.length, event.howMany)) {
+				result = "ignore";
+			} else {
+				items = 0;
+				for (j = 0; j < event.actors.length; j++) {
+					if (event.actors[j].hasOwnProperty("selected") && event.actors[j].selected) items++;
+				}
+				if (hasHowMany(items, event.howMany)) result = "configured";
+			}
+		}
+	}
+	
+	if (result !== "ignore") {
+		if (!!pane.performances.tasks) for (i = 0; i < pane.performances.tasks.length; i++) {
+			task = pane.performances.tasks[i]; 
+			if (!!task.actors && Array.isArray(task.actors)) {
+				if (task.actors.length === 0) {
+					result = "ignore";
+				} else if (!hasHowMany(task.actors.length, task.howMany)) {
+					result = "ignore";
+				} else {
+					items = 0;
+					for (j = 0; j < task.actors.length; j++) {
+						if (task.actors[j].hasOwnProperty("selected") && task.actors[j].selected) items++;
+					}
+					if (hasHowMany(items, task.howMany)) result = "configured";
+				}
+			}
+		}
+	}
+
+	pane.status = result;
+
+	function hasHowMany(val, howMany) {
+		var int, operand;
+		int = parseInt(howMany, 10);
+		operand = howMany.charAt(howMany.length - 1);
+		switch (operand) {
+			case "+":
+				return val >= int;
+				break;
+			case "-":
+				return val <= int;
+				break;
+			default:
+				return val === int;
+				break;
+		}
+	}
+}
 
 var findActors = function(actors, pattern, mustHave) {
   var actor, device, i, proto, result;
