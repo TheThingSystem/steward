@@ -10,7 +10,8 @@ ChangeLog
 - better handling of SSDP error from Chromecast
 - warn user if $HOME/.nvm/nvm.sh doesn't exit
 - fix bugs in TSRP handling of lastSample
-
+- simplify taxonomy
+    
 ### Things
 - place/1: new cron event "reboot" which fires 1 minute after startup
 - device/climate:
@@ -18,15 +19,16 @@ ChangeLog
     - nest/smoke: initial support for Nest Protect
 - device/gateway:
     - insteon/usb: initial support
-    - rfxcom/usb: support RFXtrx433
+    - rfxcom/usb: support RFXtrx433 and better RPi support
 - device/lighting:
     - heroic-robotics/* - support colors for individual pixels
     - hue/downlight: added
-    - tabu/lumen: added
+    - tabu/bulb: added
     - tcpi/*: support Connected by TCPi
+    - added templates for gateway and single bulb drivers
 - device/presence:
     - mobile/mqtt: better rate limiting
-    - reelyactive/tag - better event handling
+    - reelyactive/fob - better event handling
 - presence/* and wearable/*: no longer view alert level as readable
 
 ### HTML5/D3 client
