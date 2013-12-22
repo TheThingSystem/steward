@@ -11,6 +11,7 @@ ChangeLog
 - warn user if $HOME/.nvm/nvm.sh doesn't exit
 - fix bugs in TSRP handling of lastSample
 - simplify taxonomy
+- added version reporting to steward startup
     
 ### Things
 - place/1: new cron event "reboot" which fires 1 minute after startup
