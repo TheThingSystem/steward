@@ -232,7 +232,7 @@ Hue.prototype.pair = function(self, oops) {
   if (!steward.uuid) {
     oops++;
     self.timer = setTimeout(function() { self.pair(self, oops); },  ((oops < 3) ? 5 : 30) * 1000);
-    return logger.warn('device/' + self.deviceID, { event: 'pair', diagnostic: 'steward.uuid not yet set' });
+    return logger.warning('device/' + self.deviceID, { event: 'pair', diagnostic: 'steward.uuid not yet set' });
   }
 
   self.roundtrip(self, 'device/' + self.deviceID, { method: 'POST', pathname: '/api' },
