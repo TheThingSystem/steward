@@ -2,7 +2,7 @@ ChangeLog
 =======
 
 ## Release 1.3 "Rudolf" - December 23, 2013
-## Commit - 62986813b4b6e745ad8d56e3d859f7f30bed4afd
+## Commit - 62986813b4b6e745ad8d56e3d859f7f30bed4afd 
 
 ### Steward
 - add subscriptions to steward status for /device/presence/mobile/* devices
