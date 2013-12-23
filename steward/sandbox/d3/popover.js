@@ -1827,8 +1827,11 @@ function motiveGoalTempText(info) {
   var temp = motiveGoalTempF(info);
   if (temp > 100) temp = "> 100"; 
   if (temp < 40) temp = "< 40"; 
-  if (!isNaN(temp)) temp = temp.toFixed(1);
-  return temp + "°F"; 
+  if (isNaN(temp)) {
+    return "";
+  } else {
+    return temp.toFixed(1) + "°F";
+  }
 }
 
 function sendData(device) {
