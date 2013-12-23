@@ -61,8 +61,8 @@ var logconfigs = {
   , devices   : { console: { level: 'info'   } }
   , discovery : { console: { level: 'info'   } }
   , gateway   : { console: { level: 'info'   } }
-  , indicator : { console: { level: 'notice' } }
-  , lighting  : { console: { level: 'notice' } }
+  , indicator : { console: { level: 'info'   } }
+  , lighting  : { console: { level: 'info'   } }
   , manage    : { console: { level: 'notice' } }
   , media     : { console: { level: 'debug'  } }
   , motive    : { console: { level: 'debug'  } }

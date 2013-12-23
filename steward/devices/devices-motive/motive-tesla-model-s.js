@@ -233,6 +233,9 @@ ModelS.prototype.scan = function(self) {
       if (utility.toType(data) === 'error') {
         return logger.error('device/' + self.deviceID, { event: 'get_charge_state', diagnostic: data.message });
       }
+      if ((!self.vehicle_speed) && (typeof data.charging_state === 'undefined')) {
+        return logger.error('device/' + self.deviceID, { event: 'get_charge_state', data: data }); 
+      }
 
       didP = false;
 

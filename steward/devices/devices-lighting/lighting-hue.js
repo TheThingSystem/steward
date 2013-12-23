@@ -131,7 +131,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     if ((perform !== 'set') || (!params.name)) return false;
     state.name = params.name;
 
-    logger.info('device/' + self.deviceID, { perform: state });
+    logger.debug('device/' + self.deviceID, { perform: state });
     self.roundtrip(self, 'device/' + self.deviceID, { method: 'PUT', pathname: '/api/' + self.username + '/config'}, state,
                    function(err, state, response, result) {
       var i, errors;
@@ -192,7 +192,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     }
   }
 
-  logger.info('device/' + self.lights[id].deviceID, { perform: state });
+  logger.debug('device/' + self.lights[id].deviceID, { perform: state });
   self.roundtrip(self, 'device/' + self.deviceID,
                  { method: 'PUT', pathname: '/api/' + self.username + '/lights/' + id + '/state'}, state,
                  function(err, state, response, result) {
@@ -691,7 +691,7 @@ var scan = function() {
         info.id = info.device.unit.udn;
         if (!!devices.devices[info.id]) return;
 
-        logger2.info('nUPnP ' + info.device.name, { url: info.url });
+        logger2.debug('nUPnP ' + info.device.name, { url: info.url });
         devices.discover(info);
       }
     }).on('close', function() {

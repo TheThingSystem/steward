@@ -455,7 +455,10 @@ exports.start = function() {
   errorP = false;
   noneP = true;
   for (ifname in ifaces) {
-    if ((!ifaces.hasOwnProperty(ifname)) || (ifname.substr(0, 5) === 'vmnet') || (ifname.indexOf('tun') !== -1)) continue;
+    if ((!ifaces.hasOwnProperty(ifname))
+        || (ifname.indexOf('vmnet') === 0)
+        || (ifname.indexOf('vnic') === 0)
+        || (ifname.indexOf('tun') !== -1)) continue;
 
     ifaddrs = ifaces[ifname];
     if (ifaddrs.length === 0) continue;

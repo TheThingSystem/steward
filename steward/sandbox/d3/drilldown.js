@@ -951,7 +951,7 @@ var climate_device_arcs = function(device) {
                           , raw    : v
                           , label  : 'TEMPERATURE'
                           , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
-                          , value  : clip2bars(v, 18, 28)
+                          , value  : clip2bars(v, v >= 18 ? 18 : 0, v <= 28 ? 28 : 100)
                           , index  : 0.60
                           });
         break;
