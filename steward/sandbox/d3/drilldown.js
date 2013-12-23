@@ -2214,7 +2214,7 @@ var entries = {
 
                     case 'sensor':
 // temporary
-                      if (quad[4] === 'model-s') result.img = 'actors/' + quad[2] + '-generic.svg';
+                      if (quad[4] === 'sensortag') result.img = 'actors/' + quad[2] + '-generic.svg';
                       result.single = single_sensor_drilldown;
                       result.arcs = sensor_device_arcs;
                       result.instrux = no_instructions;
