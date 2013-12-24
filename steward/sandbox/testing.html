@@ -1,186 +1,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>&#x24e3; steward bootstrap</title>
+<title>&#x24e3; steward testing</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <script src='js-beautify-master/beautify.js'></script>
 <script>
-// BEGIN: BOOSTRAP
+var actors;
 
-// all of these things are normally done by the first client that does the tap...
-
-
-// you may change the name field, if you wish
-// you may change the physical address field, if you wish
-// please change the latitude and longitude in the location below (needed to calculate solar time, e.g., dawn)
-
-var place_info   = { name        : 'Home'
-                   , physical    : ''
-                   , location    : [ 39.50000, -98.35000 ]
-                   };
-
-
-// if you have any of these products/services, please fill-in the relevant 'info' fields...
-
-var bootable = { prowl          :
-                 { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Generate an API key.'
-                 , site         : 'https://prowlapp.com/login.php'
-                 , icon         : ''
-                 , name         : 'prowler'
-                 , actor        : '/device/indicator/prowl/text'
-                 , info         :
-                   { name       : 'prowler'
-                   , apikey     : ''
-
-                   }
-                 }
-               , netatmo        :
-                 { text         : 'If you have a Netatmo weather station, the steward can manage it for you.'
-                 , instructions : 'Enter your email and password.'
-                 , site         : 'https://my.netatmo.com'
-                 , icon         : ''
-                 , name         : 'netatmo'
-                 , actor        :'/device/gateway/netatmo/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
-                   }
-                 }
-               , nest           :
-                 { text         : 'If you have a Nest thermostat, the steward can manage it for you.'
-                 , instructions : 'Enter your email address and password.'
-                 , site         : 'https://home.nest.com'
-                 , icon         : ''
-                 , name         : 'nest'
-                 , actor        : '/device/gateway/nest/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
-                   }
-                 }
-               , tesla          :
-                 { text         : 'If you have a Tesla Model S, the steward can monitor it for you.'
-                 , instructions : 'Enter your email address and password.'
-                 , site         : 'https://teslamotors.com/mytesla'
-                 , icon         : ''
-                 , name         : 'tesla'
-                 , actor        : '/device/gateway/tesla/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
-                   }
-                 }
-               , xively         :
-                 { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
-                 , instructions : 'Create a "device" and xively will automatically generate a device key (apikey) and feed'
-                 , site         : 'https://xively.com/login'
-                 , icon         : ''
-                 , name         : 'xively'
-                 , actor        : '/device/indicator/xively/sensor'
-                 , info         :
-                   { apikey     : ''
-                   , feed       : ''
-                   }
-                 }
-               , koubachi       :
-                 { text         : 'If you have a Netatmo weather station, the steward can manage it for you.'
-                 , instructions : 'Enter your app_key and user_credentials.'
-                 , site         : 'https://labs.koubachi.com'
-                 , icon         : ''
-                 , name         : 'koubachi'
-                 , actor        :'/device/gateway/koubachi/cloud'
-                 , info         :
-                   { appkey     : ''
-                   , credentials: ''
-                   }
-                 }
-               };
-
-
-// END: BOOTSTRAP
-
-
-var bootstrap = function(steward, ws) {
+var tester = function(steward, ws) {
   list_actors(ws, '', { depth : 'all' }, function(message) {
-    var a, actor, actors, d, emptyP, entry, info, name, prop, z;
-
-    var update_place   = function() { perform_actors(ws, 'place', 'set', place_info); };
-
     if ((!message.result) && (!message.error)) return false;
     if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
 
     actors = message.result;
-    z = {};
-    for (actor in actors) {
-      z[actor] = true;
-
-      if ((!actors.hasOwnProperty(actor)) || (actor === 'actors')) continue;
-
-      if (actor === '/place') {
-        if (!actors[actor]['place/1']) throw new Error('actor place/1 is not present');
-        d = actors[actor]['place/1'];
-        if ((!d.info.location) || (d.info.location.length < 2)) { update_place(); break; }
-      }
-
-      for (name in bootable) {
-        if (!bootable.hasOwnProperty(name)) continue;
-
-        entry = bootable[name];
-        if (entry.actor !== actor) continue;
-
-        info = entry.info;
-        emptyP = false;
-        for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
-        if (emptyP) continue;
-
-        for (a in actors[actor]) {
-          if (!actors[actor].hasOwnProperty(a)) continue;
-
-          d = actors[actor][a];
-
-          emptyP = false;
-          for (prop in info) if ((info.hasOwnProperty(prop)) && (d.info[prop] === '')) emptyP = true;
-          if (emptyP) break;
-        }
-       
-        if (!a) create_device(ws, name, entry.actor, info);
-      }
-    }
-
-    for (name in bootable) {
-      if (!bootable.hasOwnProperty(name)) continue;
-
-      entry = bootable[name];
-      if (!!z[entry.actor]) continue;
-
-      info = entry.info;
-      emptyP = false;
-      for (prop in info) if ((info.hasOwnProperty(prop)) && (info[prop] === '')) emptyP = true;
-      if (!emptyP) create_device(ws, name, entry.actor, info);
-    }
-
-modify_activity(ws, '1', null, true);
-
-    strips = [];
-    actors = message.result;
-    for (actor in actors) {
-      if ((!actors.hasOwnProperty(actor)) || (actor === 'actors')) continue;
-
-      for (a in actors[actor]) {
-        if (!actors[actor].hasOwnProperty(a)) continue;
-
-        d = actors[actor][a];
-
-        if ((!!d.info) && (!!d.info.pps)) strips.push({ deviceID: a.split('/')[1], pps: d.info.pps });
-        
-      }
-    }
-    if (strips.length > 0) colorful(ws, strips);
-
-    blinky(ws, 0);
-
-    return true;
   });
 };
 
@@ -507,7 +339,7 @@ var go = function(steward, i) {
     ws2.onclose   = function(event) {/* jshint unused: false */ ws.close(); };
     ws2.onerror   = function(event) {/* jshint unused: false */ ws.close(); };
 
-    try { bootstrap(steward, ws); } catch(ex) { notice(tag, { state: 'bootstrap', message: ex.message }); }
+    try { testing(steward, ws); } catch(ex) { notice(tag, { state: 'testing', message: ex.message }); }
   };
 
   ws.onmessage = function(event) {
