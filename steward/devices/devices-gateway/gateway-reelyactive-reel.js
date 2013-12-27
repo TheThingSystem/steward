@@ -7,6 +7,8 @@
 
 
 var dgram       = require('dgram')
+  , fs          = require('fs')
+  , serialport  = require('serialport')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -15,7 +17,7 @@ var dgram       = require('dgram')
   ;
 
 
-var logger = utility.logger('discovery');
+var logger2                  = utility.logger('discovery');
 
 
 var Hublet = exports.Device = function(deviceID, deviceUID, info) {
@@ -93,7 +95,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
   info.id = info.device.unit.udn;
   if (!!devices.devices[info.id]) return;
 
-  utility.logger('discovery').info(info.device.name);
+  logger2.info(info.device.name);
   devices.discover(info);
 };
 
@@ -104,7 +106,7 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
 
   var toRSSI = function(start)         { var v = toUInt(data, start, 2); return ((v < 128) ? (v + 128) : (v - 128)); };
 
- if (data.length < 23) return;
+  if (data.length < 23) return;
 
   packet = { reelOffset       : toUInt( 1, 1)
            , deviceIdentifier : self.eui64 + data.substr(5, 7)
@@ -142,7 +144,7 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
   info.id = info.device.unit.udn;
   if (!!devices.devices[info.id]) return;
 
-  utility.logger('discovery').info(info.device.name);
+  logger2.info(info.device.name);
   devices.discover(info);
 };
 
@@ -180,43 +182,72 @@ Reelceiver.prototype.update = function(self, packet, timestamp) {
 
 
 var scan = function(portno) {
-  dgram.createSocket('udp4').on('message', function(message, rinfo) {/* jshint unused: false */
-    var data, hublet, info, timestamp, udn;
-
-    data = message.toString('hex');
-    timestamp = new Date().getTime();
-
-    udn = 'reelyActive:reel:' + rinfo.family.toLowerCase() + ':' + rinfo.address + ':' + rinfo.port;
-    if (!!devices.devices[udn]) return update(udn, data, timestamp);
-
-    info = { params: { data: data, timestamp: timestamp }};
-    info.device = { url          : null
-                  , name         : 'reel-to-Ethernet hublet (' + rinfo.address + ')'
-                  , manufacturer : 'reelyActive'
-                  , model        : { name        : 'reelyActive hublet'
-                                   , description : 'reel-to-Ethernet hublet'
-                                   , number      : ''
-                                   }
-                  , unit         : { serial      : ''
-                                   , udn         : udn
-                                   }
-                  };
-    info.url = info.device.url;
-    info.deviceType = '/device/gateway/reelyactive/hublet';
-    info.id = info.device.unit.udn;
-    if (!!devices.devices[info.id]) return;
-
-    utility.logger('discovery').info(info.device.name, rinfo);
-    devices.discover(info);
+  dgram.createSocket('udp4').on('message', function(message, rinfo) {
+    onmessage(message, { id          : rinfo.family.toLowerCase() + ':' + rinfo.address + ':' + rinfo.port
+                       , address     : rinfo.address
+                       , description : 'reel-to-Ethernet hublet'
+                       });
   }).on('listening', function() {
     var address = this.address();
 
-    logger.info('reelyactive-reel driver listening on  udp://*:' + address.port);
+    logger2.info('reelyactive-reel driver listening on  udp://*:' + address.port);
   }).on('error', function(err) {
-    logger.error('gateway-reelyactive-hublet', { event: 'socket', diagnostic: err.message });
+    logger2.error('gateway-reelyactive-reel', { event: 'socket', diagnostic: err.message });
   }).bind(portno);
+
+  fs.readFile('/sys/devices/bone_capemgr.9/slots', { encoding: 'utf8' }, function(err, data) {
+    if (err) return;
+
+    data = data.toString();
+    if (data.indexOf('ttyO1_armhf.com') === -1) return console.log('no ttyO1_armhf.com');
+
+    fs.exists('/dev/ttyO1', function(exists) {
+      if (!exists) return console.log('/dev/ttyO1 does not exist');
+
+      new serialport.SerialPort('/dev/ttyO1', { baudrate: 230400 }).on('open', function(err) {
+        if (err) return logger2.error('gateway-reelyactive-reel', { event: 'serialport open', diagnostic: err.message });
+
+        this.on('data', function(data) {
+          onmessage(data, { id: '/dev/ttyO1', address: 'Reel Cape', description: 'reel-to-cape hublet' });
+        }).on('close', function() {
+          logger2.error('gateway-reelyactive-reel', { event: 'serialport close', diagnostic: err.message });
+        });
+      }).on('error', function(err) {
+        return logger2.error('gateway-reelyactive-reel', { event: 'serialport error', diagnostic: err.message });
+      });
+    });
+  });
 };
 
+var onmessage = function(message, reel) {
+  var data, info, timestamp, udn;
+
+  data = message.toString('hex');
+  timestamp = new Date().getTime();
+
+  udn = 'reelyActive:reel:' + reel.id;
+  if (!!devices.devices[udn]) return update(udn, data, timestamp);
+
+  info = { params: { data: data, timestamp: timestamp }};
+  info.device = { url          : null
+                , name         : reel.description + ' (' + reel.address + ')'
+                , manufacturer : 'reelyActive'
+                , model        : { name        : 'reelyActive hublet'
+                                 , description : reel.description
+                                 , number      : ''
+                                 }
+                , unit         : { serial      : ''
+                                 , udn         : udn
+                                 }
+                };
+  info.url = info.device.url;
+  info.deviceType = '/device/gateway/reelyactive/hublet';
+  info.id = info.device.unit.udn;
+  if (!!devices.devices[info.id]) return;
+
+  logger2.info(info.device.name, reel);
+  devices.discover(info);
+};
 
 // the UDP stream is faster than the database on startup
 

@@ -149,7 +149,7 @@ var perform = function(logger, ws, api, message, tag) {
   if (!message.perform)                                     return error(true,  'missing perform element');
   if (!message.perform.length)                              return error(true,  'empty perform element');
 
-  if (!message.parameter) message.parameter = '';
+  if (!message.parameter) message.parameter = '{}';
 
   actor = actors.device;
   if (!actor)                                               return error(false, 'internal error');

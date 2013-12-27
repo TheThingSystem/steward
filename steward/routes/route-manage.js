@@ -112,7 +112,7 @@ var accessP = function(api, clientInfo, tag) {
 };
 
 var error = exports.error = function(ws, tag, event, requestID, permanent, diagnostic) {
-  var meta = { error: { permanent: permanent, diagnostic: diagnostic }};
+  var meta = { error: { permanent: permanent, diagnostic: diagnostic } };
 
   if (requestID) meta.requestID = requestID;
   ws.send(JSON.stringify(meta), function(err) {

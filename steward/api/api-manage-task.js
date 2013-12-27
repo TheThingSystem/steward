@@ -44,7 +44,7 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.perform)           return error(true,  'missing perform element');
   if (!message.perform.length)    return error(true,  'empty perform element');
 
-  if (!message.parameter) message.parameter = '';
+  if (!message.parameter) message.parameter = '{}';
 
   if (actorType !== 'group') {
     parts = entity.whatami.split('/');
@@ -426,6 +426,17 @@ var id2task = exports.id2task = function(id) {
   if (!id) return null;
 
   for (uuid in tasks) if ((tasks.hasOwnProperty(uuid)) && (id === tasks[uuid].taskID)) return tasks[uuid];
+
+  return null;
+};
+
+exports.name2task = function(name) {
+  var uuid;
+
+  if (!name) return null;
+  name = name.toLowerCase();
+
+  for (uuid in tasks) if ((tasks.hasOwnProperty(uuid)) && (name === tasks[uuid].taskName.toLowerCase())) return tasks[uuid];
 
   return null;
 };

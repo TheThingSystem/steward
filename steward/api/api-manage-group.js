@@ -478,7 +478,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
   if (!message.perform)                                     return error(true,  'missing perform element');
   if (!message.perform.length)                              return error(true,  'empty perform element');
 
-  if (!message.parameter) message.parameter = '';
+  if (!message.parameter) message.parameter = '{}';
 
   group = id2group(groupID);
   if (!group)                                               return error(false, 'unknown group ' + groupID);
@@ -646,6 +646,19 @@ var id2group = exports.id2group = function(id) {
   if (!id) return null;
 
   for (uuid in groups) if ((groups.hasOwnProperty(uuid)) && (id === groups[uuid].groupID)) return groups[uuid];
+
+  return null;
+};
+
+exports.name2group = function(name) {
+  var uuid;
+
+  if (!name) return null;
+  name = name.toLowerCase();
+
+  for (uuid in groups) {
+    if ((groups.hasOwnProperty(uuid)) && (name === groups[uuid].groupName.toLowerCase())) return groups[uuid];
+  }
 
   return null;
 };

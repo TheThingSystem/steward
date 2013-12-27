@@ -371,7 +371,7 @@ var modify = function(logger, ws, api, message, tag) {
   return true;
 };
 
-var perform = function(logger, ws, api, message, tag) {
+var perform = exports.perform = function(logger, ws, api, message, tag) {
   var activity, activityID;
 
   var error = function(permanent, diagnostic) {
@@ -489,6 +489,28 @@ var id2activity = function(id) {
 
   return null;
 };
+
+exports.name2activity = function(name) {
+  var uuid;
+
+  if (!name) return null;
+  name = name.toLowerCase();
+
+  for (uuid in activities) {
+    if ((activities.hasOwnProperty(uuid)) && (name === activities[uuid].activityName.toLowerCase())) return activities[uuid];
+  }
+
+  return null;
+};
+
+exports.idlist = function() {
+  var results, uuid;
+
+  results = [];
+  for (uuid in activities) if (activities.hasOwnProperty(uuid)) results.push(activities[uuid].activityID);
+  return results;
+};
+
 
 var proplist = function(id, activity) {
   var result = { uuid     : activity.activityUID

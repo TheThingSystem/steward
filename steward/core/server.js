@@ -166,6 +166,11 @@ var start = function(port, secureP) {
 
       if (!places) places = require('./../actors/actor-place');
 
+// strict must be OFF and the request must either come from the LAN or localhost
+      if ((places.place1.info.strict === 'off') && ((request.connection.localAddress !== '127.0.0.1') || !secureP)) {
+        if ((pathname === '/oneshot') && (require('./../routes/route-oneshot').process(request, response, tag))) return;
+      }
+
 /* NB: everything "interesting" should be via WebSockets, not HTML...
        if that changes, we can add an exception list here.
 

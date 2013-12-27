@@ -44,7 +44,7 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.observe)           return error(true,  'missing observe element');
   if (!message.observe.length)    return error(true,  'empty observe element');
 
-  if (!message.parameter) message.parameter = '';
+  if (!message.parameter) message.parameter = '{}';
 
   if (actorType !== 'group') {
     parts = entity.whatami.split('/');

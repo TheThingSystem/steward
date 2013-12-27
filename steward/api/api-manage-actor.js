@@ -112,6 +112,8 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
   if (!message.perform)                                  return error(true,  'missing perform element');
   if (!message.perform.length)                           return error(true,  'empty perform element');
 
+  if (!message.parameter) message.parameter = '{}';
+
   present = { actors: {}, who: {} };
   actors = steward.actors;
   for (actor in actors) {
