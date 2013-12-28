@@ -283,7 +283,10 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
   }
   if (i >= now.length) results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
   else {
-    results.result = { userID: user.userID, role: user.userRole };
+    results.result = proplist(null, user);
+    results.result.client = proplist2(null, client, user);
+    results.result.client.clientID = clientID;
+
     ws.clientInfo.userID = user.userID;
     ws.clientInfo.clientID = clientID;
 
