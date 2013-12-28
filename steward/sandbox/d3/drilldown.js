@@ -2172,8 +2172,9 @@ var entries = {
                         result.pop = 'thermostat_pop';
                         break;
                       }
-                      if (quad[4] === 'monitor') result.img = 'actors/sensor-meteo.svg';
-                      else                       result.img = 'actors/sensor-' + quad[4] + '.svg';
+                           if (quad[4] === 'monitor')     result.img = 'actors/sensor-meteo.svg';
+                      else if (quad[4] === 'temperature') result.img = 'actors/sensor-meteo.svg';
+                      else                                result.img = 'actors/sensor-' + quad[4] + '.svg';
                       result.single = single_climate_drilldown;
                       result.arcs = climate_device_arcs;
                       result.instrux = single_device_instructions;
@@ -2181,7 +2182,7 @@ var entries = {
                       break;
 
                     case 'lighting':
-                           if (quad[4].indexOf('rgb') !== -1) result.img = 'actors/' + quad[2] + '-lightstrip.svg';
+                           if (quad[4].indexOf('rgb') !== -1)   result.img = 'actors/' + quad[2] + '-lightstrip.svg';
                       else if (quad[4].indexOf('color') !== -1) result.img = 'actors/' + quad[2] + '-led.svg';
                       result.single = single_lighting_drilldown;
                       result.arcs = lighting_device_arcs;
