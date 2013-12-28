@@ -37,7 +37,7 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
-  self.points = [];
+  self.info.locations = [];
   self.timer = null;
   self.update(self, info.params);
 
@@ -109,7 +109,7 @@ var validate_perform = function(perform, parameter) {
 
 
 Mobile.prototype.update = function(self, params, status) {
-  var entry, i, markers, param, updateP;
+  var entry, i, param, updateP;
 
   updateP = false;
   if ((!!status) && (status !== self.status)) {
@@ -125,29 +125,17 @@ Mobile.prototype.update = function(self, params, status) {
   if (updateP) self.changed();
 
   entry = self.info.location.slice(0, 2).join(',');
-  if (self.points.length === 0) {
-    self.points.push(entry);
+  if (self.info.locations.length === 0) {
+    self.info.locations.push(entry);
     return;
   }
-  if (entry === self.points[self.points.length - 1]) return;
+  if (entry === self.info.locations[self.info.locations.length - 1]) return;
 
-  self.points.push(entry);
+  self.info.locations.push(entry);
 // derived experientially: 28 appears to be the limit
-  if (self.points.length > 24) {
+  if (self.info.locations.length > 24) {
     if (!self.timer) self.timer = setTimeout (function() { self.balance(self, 24); }, 0);
     return;
-  }
-
-  markers = [];
-  for (i = 0; i < self.points.length; i++) markers.push({ location: self.points[i], color: 'red', shadow: 'false' });
-
-  try {
-    self.info.staticmap = googlemaps.staticMap(self.points[0], '', '250x250', false, false, 'roadmap', markers,
-                                               [ { feature: 'road',   element: 'all', rules: { hue: '0x16161d' } } ]
-                                               [ { color: '0x0000ff', weight: '5',    points: self.points        } ]);
-    if (self.info.staticmap.indexOf('http://') === 0) self.info.staticmap = 'https' + self.info.staticmap.slice(4);
-  } catch(ex) {
-    return logger.error('device/' + self.deviceID, { event: 'staticMap', dignostic: ex.message, size: self.points.length });
   }
 };
 
@@ -155,16 +143,16 @@ Mobile.prototype.balance = function(self, max) {
   var d, i, location, points, previous, q;
 
   self.timer = null;
-  if (self.points.length <= max) return;
+  if (self.info.locations.length <= max) return;
 
-  if (self.points.length > max) self.points.splice (0, self.points.length - max);
+  if (self.info.locations.length > max) self.info.locations.splice (0, self.info.locations.length - max);
   q = Math.round(max / 4);
-  self.points.splice(0, q);
+  self.info.locations.splice(0, q);
 
   d = [];
-  for (i = 1, previous = self.points[0].split(','); i < self.points.length - 1; i++, previous = location) {
-    location = self.points[i].split(',');
-    d.push([ i, self.points[i], getDistanceFromLatLonInKm(location[0], location[1], previous[0], previous[1]) ]);
+  for (i = 1, previous = self.info.locations[0].split(','); i < self.info.locations.length - 1; i++, previous = location) {
+    location = self.info.locations[i].split(',');
+    d.push([ i, self.info.locations[i], getDistanceFromLatLonInKm(location[0], location[1], previous[0], previous[1]) ]);
   }
   d.sort(function(a,b) { return (b[2] - a[2]); });
   d.splice(0, q);
@@ -172,9 +160,9 @@ Mobile.prototype.balance = function(self, max) {
   points = [];
   d.sort(function(a,b) { return (b[0] - a[0]); });
   for (i = 0; i < d.length; i++) points.push(d[i][1]);
-  points.push(self.points[self.points.length - 1]);
+  points.push(self.info.locations[self.info.locations.length - 1]);
 
-  self.points = points;
+  self.info.locations = points;
 };
 
 Mobile.prototype.detail = function(self, params) {/* jshint unused: false */};
@@ -182,9 +170,9 @@ Mobile.prototype.detail = function(self, params) {/* jshint unused: false */};
 Mobile.prototype.reverseGeocode = function(self) {
   var key, location;
 
-  if (self.points.length < 1) return;
+  if (self.info.locations.length < 1) return;
 
-  location = self.points[self.points.length - 1].split(',');
+  location = self.info.locations[self.info.locations.length - 1].split(',');
   key = parseFloat(location[0]).toFixed(3) + ',' + parseFloat(location[1]).toFixed(3);
 
   if ((!!places.place1.info.location)
@@ -250,7 +238,6 @@ exports.start = function() {
                                    , location  : 'coordinates'
                                    , accuracy  : 'meters'
                                    , physical  : true
-                                   , staticmap : 'url'
                                    , priority : utility.keys(winston.config.syslog.levels)
                                    }
                     }
