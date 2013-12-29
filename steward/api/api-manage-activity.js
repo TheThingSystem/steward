@@ -478,7 +478,7 @@ var readyP = function() {
 };
 
 
-var id2activity = function(id) {
+var id2activity = exports.id2activity = function(id) {
   var uuid;
 
   if (!id) return null;

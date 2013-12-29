@@ -1,7 +1,6 @@
 // http://mqttitude.org
 
 var geocoder    = require('geocoder')
-  , googlemaps  = require('googlemaps')
   , util        = require('util')
   , winston     = require('winston')
   , db          = require('./../../core/database').db
@@ -109,7 +108,7 @@ var validate_perform = function(perform, parameter) {
 
 
 Mobile.prototype.update = function(self, params, status) {
-  var entry, i, param, updateP;
+  var entry, param, updateP;
 
   updateP = false;
   if ((!!status) && (status !== self.status)) {

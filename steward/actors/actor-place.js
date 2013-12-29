@@ -489,6 +489,13 @@ var validate_perform = function(perform, parameter) {
 };
 
 
+exports.name2place = function(name) {
+  if ((!!name) && (place1.name.toLowerCase() === name.toLowerCase())) return place1;
+
+  return null;
+};
+
+
 exports.start = function() {
   var colors, status;
 

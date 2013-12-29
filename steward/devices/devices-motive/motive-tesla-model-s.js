@@ -1,15 +1,19 @@
 // Tesla Motors, Inc. - Model S - Electric Vehicle (for the WIN)
 
-var tesla       = require('teslams')
+var geocoder    = require('geocoder')
+  , tesla       = require('teslams')
   , util        = require('util')
   , devices     = require('./../../core/device')
+  , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , motive      = require('./../device-motive')
   ;
 
 
-var logger = motive.logger;
+var logger   = motive.logger;
+
+var geocache = {};
 
 
 var ModelS = exports.device = function(deviceID, deviceUID, info) {
@@ -197,7 +201,11 @@ ModelS.prototype.scan = function(self) {
 
       didP = false;
 
-      if (!util.isArray(self.info.location)) self.info.location = [ 0, 0 ];
+      if (!util.isArray(self.info.location)) {
+        self.info.location = [ 0, 0 ];
+        setInterval(function() { self.reverseGeocode(self); }, 60 * 1000);
+        setTimeout(function() { self.reverseGeocode(self); }, 0);
+      }
       if ((self.info.location[0] != data.latitude) || (self.info.location[1] != data.longitude)) {
         didP = true;
         self.info.location[0] = data.latitude;
@@ -331,6 +339,43 @@ ModelS.prototype.stream = function(self, fastP) {
     if (!didP) return;
     self.changed();
     setTimeout(function() { self.stream(self, true); }, 500);
+  });
+};
+
+ModelS.prototype.reverseGeocode = function(self) {
+  var key, location;
+
+  if (!util.isArray(self.info.location)) return;
+
+  location = self.info.location;
+  key = parseFloat(location[0]).toFixed(3) + ',' + parseFloat(location[1]).toFixed(3);
+
+  if ((!!places.place1.info.location)
+          && (location[0] === places.place1.info.location[0])
+          && (location[1] === places.place1.info.location[1])) {
+    geocache[key] = places.place1.info.physical;
+  }
+  if (!!geocache[key]) {
+    if (self.info.physical !== geocache[key]) {
+      self.info.physical = geocache[key];
+      self.changed();
+    }
+
+    return;
+  }
+
+  geocoder.reverseGeocode(location[0], location[1], function(err, result) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event      : 'reverseGeocode'
+                                                              , location   : location
+                                                              , diagnostic : err.message });
+    if (result.status !== 'OK') return logger.warning('device/' + self.deviceID, { event      : 'reverseGeocode'
+                                                                                 , location   : location
+                                                                                 , diagnostic : result.status });
+    if (result.results.length < 1) return;
+
+    geocache[key] = result.results[0].formatted_address;
+    self.info.physical = geocache[key];
+    self.changed();
   });
 };
 
@@ -497,6 +542,7 @@ exports.start = function() {
                                    , extTemperature : 'celsius'
 
                                    , location       : 'coordinates'
+                                   , physical       : true
                                    , heading        : 'degrees'
                                    , velocity       : 'meters/second'
                                    , odometer       : 'kilometers'

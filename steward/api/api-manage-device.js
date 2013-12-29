@@ -134,7 +134,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   return true;
 };
 
-var perform = function(logger, ws, api, message, tag) {
+var perform = exports.perform = function(logger, ws, api, message, tag) {
   var actor, device, deviceID, p, parts, performed, results, v;
 
   var error = function(permanent, diagnostic) {
@@ -175,6 +175,25 @@ var perform = function(logger, ws, api, message, tag) {
 
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   return true;
+};
+
+
+exports.name2device = function(name) {
+  var actor, device, i, results;
+
+  if (!name) return null;
+  name = name.toLowerCase();
+
+  actor = actors.device;
+  if (!actor) return;
+
+  results = actor.$list();
+  for (i = 0; i < results.length; i++) {
+    device = actor.$lookup(results[i]);
+    if ((!!device) && (device.name.toLowerCase() === name)) return device;
+  }
+
+  return null;
 };
 
 
