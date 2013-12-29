@@ -6,7 +6,7 @@ var stringify  = require('json-stringify-safe')
   ;
 
 
-var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
+var list = exports.list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   var actor, actors, againP, allP, child, entity, entities, i, id, info, p, parts, props, results, suffix, treeP, what, who;
 
   allP = message.options.depth === 'all';

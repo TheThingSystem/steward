@@ -519,14 +519,18 @@ exports.expand = function(line, defentity) {
       result += '.[';
       continue;
     }
+
+    if ((parts.length == 2) && ((parts[1] === 'name') || (parts[1] === 'status'))) {
+      result += entity[parts[1]];
+      continue;
+    }
+
     info = entity.info;
     field = '';
     for (p = 1; p < parts.length; p++) {
       part = parts[p];
-           if (part === 'name')   field = entity.name;
-      else if (part === 'status') field = entity.status;
-      else if (!!info[part])      field = info[part];
-      else break;
+      if (!!info[part]) field = info[part]; else break;
+      info = field;
     }
     result += field;
   }

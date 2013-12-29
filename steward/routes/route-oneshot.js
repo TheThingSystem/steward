@@ -17,6 +17,7 @@
  */
 
 var url         = require('url')
+  , device      = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
   , activities  = require('./../api/api-manage-activity')
@@ -31,7 +32,7 @@ var logger = utility.logger('server');
 
 var requestID = 1;
 
-var find = function(query) {
+var find = function(query, tag) {
   var e, id, x;
 
   if (!!query.id) {
@@ -58,18 +59,38 @@ var find = function(query) {
                         }
 
            , actor    : function() {
-                          var prefix;
+                          var api, d, entity, entities, message, prefix, proplists, results, ws;
 
                           if ((!query.prefix) || ((query.behavior === 'perform') && (!query.perform))) return false;
-                          if (query.behavior === 'report') return false;
 
                           prefix = query.prefix;
                           if (prefix.indexOf('/') === 0) prefix = prefix.substring(1);
-                          return { message : { path      : '/api/v1/actor/perform/' + prefix
-                                             , perform   : query.perform
-                                             , parameter : query.parameter
-                                             }
-                                 , perform : actors.perform
+                          if (query.behavior === 'report') {
+                            requestID++;
+                            message = { requestID : requestID.toString()
+                                      , path      : '/api/v1/actor/list/' + prefix
+                                      , options   : { depth: 'all' }
+                                      };
+                            api = { prefix: '/api/v1/actor/list' };
+                            ws = { send: function(result) { try { results = JSON.parse(result); } catch(ex) {} } };
+                            results = {};
+                            actors.list(logger, ws, api, message, tag);
+
+                            proplists = [];
+                            for (d in results.result) {
+                              if (!results.result.hasOwnProperty(d)) continue;
+                              if ((d.indexOf('/device') !== 0) && (d.indexOf('/place') !== 0)) continue;
+
+                              entities = results.result[d];
+                              for (entity in entities) if (entities.hasOwnProperty(entity)) proplists.push(entities[entity]);
+                            }
+                          }
+                          return { message   : { path      : '/api/v1/actor/perform/' + prefix
+                                               , perform   : query.perform
+                                               , parameter : query.parameter
+                                               }
+                                 , perform   : actors.perform
+                                 , proplists : proplists
                                  };
                         }
 
@@ -87,12 +108,12 @@ var find = function(query) {
                           } else return false;
                           if ((query.behavior === 'perform') && (!query.perform)) return false;
 
-                          return { message : { path      : '/api/v1/device/perform/' + e.deviceID
-                                             , perform   : query.perform
-                                             , parameter : query.parameter
-                                             }
-                                  , entity : e
-                                 , perform : devices.perform
+                          return { message  : { path      : '/api/v1/device/perform/' + e.deviceID
+                                              , perform   : query.perform
+                                              , parameter : query.parameter
+                                              }
+                                 , perform  : devices.perform
+                                 , proplist : e.proplist()
                                  };
                         }
 
@@ -112,12 +133,12 @@ var find = function(query) {
                           }
                           if (query.behavior === 'report') return false;
 
-                           return { message : { path      : '/api/v1/group/perform/' + e.groupID
-                                             , perform   : query.perform
-                                             , parameter : query.parameter
-                                             }
-                                 , perform  : groups.perform
-                                 };
+                          return { message : { path      : '/api/v1/group/perform/' + e.groupID
+                                            , perform   : query.perform
+                                            , parameter : query.parameter
+                                            }
+                                , perform  : groups.perform
+                                };
                         }
 
            , place    : function() {
@@ -135,12 +156,12 @@ var find = function(query) {
                           if ((query.behavior === 'perform') && (!query.perform)) return false;
 
 // TBD: allow multiple places -- needed when we introduce /person/X
-                          return { message : { path      : '/api/v1/actor/perform/place'
-                                             , perform   : query.perform
-                                             , parameter : query.parameter
-                                             }
-                                  , entity : e
-                                 , perform : actors.perform
+                          return { message  : { path      : '/api/v1/actor/perform/place'
+                                              , perform   : query.perform
+                                              , parameter : query.parameter
+                                              }
+                                 , perform  : actors.perform
+                                 , proplist : e.proplist()
                                  };
                         }
 
@@ -165,7 +186,7 @@ var find = function(query) {
   return f();
 };
 
-var report = function(query, entity) {
+var report = function(query, proplist) {
   var data, i, prop, properties, s;
 
   data = '';
@@ -176,14 +197,10 @@ var report = function(query, entity) {
       if ((i + 1) === properties.length) s += 'and ';
       data += s + prop + ' is ';
     }
-    if (prop === 'status') data += entity.status;
-    else if (!entity.info[prop]) data += 'unknown';
-    else {
-      data += entity.info[prop];
-    }
+    data += device.expand('.[.' + prop + '].', proplist);
   }
 
-  return data;
+  return data.replace('[object Object]', 'complicated');
 };
 
 
@@ -193,7 +210,7 @@ exports.process = function(request, response, tag) {
   query = url.parse(request.url, true).query;
   ct = 'application/json';
 
-  o = find(query);
+  o = find(query, tag);
   if (!!o.error) {
     data = o;
     logger.warning(tag, data);
@@ -215,8 +232,19 @@ exports.process = function(request, response, tag) {
                     }
 
         , report  : function() {
+                      var proplist, i, s;
+
                       ct = 'text/plain';
-                      data = report(query, o.entity);
+                      if (!!o.proplist) data = report(query, o.proplist);
+                      else if (o.proplists.length === 0) data = 'nothing to report';
+                      else if (o.proplists.length === 1) data = report(query, o.proplists[0]);
+                      else {
+                        data = '';
+                        for (i = 0, s = 'report for '; i < o.proplists.length; i++, s = '; report for ') {
+                          proplist = o.proplists[i];
+                          data += s + proplist.name + ': ' + report(query, proplist);
+                        }
+                      }
                     }
         }[query.behavior];
     if (!!f) f(); else data = { error: { permanent: true, diagnostic: 'invalid behavior: ' + query.behavior } };
