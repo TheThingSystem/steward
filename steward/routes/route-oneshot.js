@@ -197,7 +197,7 @@ var report = function(query, proplist) {
       if ((i + 1) === properties.length) s += 'and ';
 // heh
       data += s + ({ co2      : 'C O 2'
-                   , coStatus : 'C O level'
+                   , coStatus : 'carbon monoxide level'
                    }[prop] || prop) + ' is ';
     }
     data += device.expand('.[.' + prop + '].', proplist);

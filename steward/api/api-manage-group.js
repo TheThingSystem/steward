@@ -1,9 +1,11 @@
 var util       = require('util')
   , stringify  = require('json-stringify-safe')
-  , actors     = require('./../core/steward').actors
   , database   = require('./../core/database')
   , devices    = require('./../core/device')
+  , steward    = require('./../core/steward')
+  , actors     = steward.actors
   , utility    = require('./../core/utility')
+  , broker      = utility.broker
   , events     = require('./api-manage-event')
   , manage     = require('./../routes/route-manage')
   , tasks      = require('./api-manage-task')
@@ -475,13 +477,16 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
   groupID = message.path.slice(api.prefix.length + 1);
   if (groupID.length === 0)                                 return error(true,  'missing groupID');
 
+  group = id2group(groupID);
+  if (!group)                                               return error(false, 'unknown group ' + groupID);
+
+  if (group.groupType === 'task') return perform2(logger, ws, message, group, tag);
+  else if (group.groupType !== 'device')                    return error(true,  'invalid groupType: ' + group.groupType);
+
   if (!message.perform)                                     return error(true,  'missing perform element');
   if (!message.perform.length)                              return error(true,  'empty perform element');
 
   if (!message.parameter) message.parameter = '{}';
-
-  group = id2group(groupID);
-  if (!group)                                               return error(false, 'unknown group ' + groupID);
 
   present = {};
   search1 = [ group ];
@@ -543,6 +548,50 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
     if (!!entity.perform) logger.debug('device/' + entity.deviceID, { api: 'group', perform: message.perform, parameter: p });
     performed = (!!entity.perform) ? (entity.perform)(entity, null, message.perform, p) : false;
     results.devices[member.actor] = { status: performed ? 'success' : 'failure' };
+  }
+
+  try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+  return true;
+};
+
+var perform2 = function(logger, ws, message, group /*, tag */) {
+  var device, i, parameter, performance, performances, results, task, uuid;
+
+  steward.prepare('group/' + group.groupID);
+
+  performances = [];
+  for (uuid in tasks.tasks) {
+    if (!tasks.tasks.hasOwnProperty(uuid)) continue;
+
+    task = tasks.tasks[uuid];
+    if (!task.performP) continue;
+
+    task.performP = false;
+
+    performances.push({ taskID:    task.taskID
+                      , devices:   steward.participants(task.actor)
+                      , perform:   task.perform
+                      , parameter: task.parameter });
+  }
+
+  results = { requestID: message.requestID, tasks: {} };
+  for (i = 0; i < performances.length; i++) {
+    performance = performances[i];
+    results.tasks[performance.taskID] = { devices: utility.keys(performance.devices)
+                                        , perform: task.perform
+                                        , parameter: task.parameter
+                                        };
+// .info
+    logger.notice('perform',
+                { taskID: performance.taskID, perform: performance.perform, parameter: performance.parameter });
+
+
+    for (device in performance.devices) {
+      if (!performance.devices.hasOwnProperty(device)) continue;
+
+      parameter = devices.expand(performance.parameter);
+      broker.publish('actors', 'perform', performance.taskID, device, performance.perform, parameter);
+    }
   }
 
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }

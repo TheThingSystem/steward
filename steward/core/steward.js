@@ -259,7 +259,7 @@ var observedP = function(whoami) {
 };
 
 
-var prepare = function(whoami) {
+var prepare = exports.prepare = function(whoami) {
   var task, group, i, parts;
 
   parts = whoami.split('/');
@@ -283,7 +283,7 @@ var prepare = function(whoami) {
 
 // TBD: temporal ordering
 
-var participants = function(whoami) {
+var participants = exports.participants = function(whoami) {
   var device, group, i, parts, result, results, task;
 
   results = {};
