@@ -179,10 +179,16 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
     return steward.performed(taskID);
   }
 
+  if (!!props.timer) {
+    clearInterval(props.timer);
+    props.timer = null;
+  }
+
   if (perform === 'off') {
     width = { rgb: 3, rgb16: 6, rgbow: 9 }[props.state.color.model];
     if (!width) return false;
   } else if (perform === 'pixels') return self.pixels(self, taskID, true, params, led);
+  else if (perform === 'program') return self.program(self, taskID, params, led);
   else if (perform !== 'on') return false;
   else {
     state.color = params.color || props.state.color;
@@ -333,9 +339,70 @@ PixelPusher.prototype.pixels = function(self, taskID, performP, params, led) {
   return steward.performed(taskID);
 };
 
+var red    = { r: 255, g:   0, b:   0 }
+  , orange = { r: 255, g: 165, b:   0 }
+  , yellow = { r: 255, g: 255, b:   0 }
+  , green  = { r:   0, g: 255, b:   0 }
+  , blue   = { r:   0, g:   0, b: 255 }
+  , indigo = { r:  75, g:   0, b: 130 }
+// , violet = { r: 143, g:   0, b: 255 }
+//, black  = { r:   0, g:   0, b:   0 }
+//, white  = { r: 255, g: 255, b: 255 }
+  , colors = [ red, green, blue, orange, indigo, yellow /* , violet, black, white */ ]
+  ;
+
+PixelPusher.prototype.program = function(self, taskID, params, led) {
+  var iter, interval, props;
+
+  if ((!!params.pattern) && (params.pattern !== 'spiral')) return false;
+  if (!!params.interval) interval = parseInt(params.interval, 10);
+  if (isNaN(interval) || (interval < 250)) interval = 250;
+
+  iter = 0;
+  props = self.strips[led];
+  props.timer = (props.pps === 240) ? setInterval(function() {
+    self.pixels(self, taskID, true,
+                { color : { model : 'rgb'
+                          , pixels: {   '0-25'  : colors[(iter + 14) % colors.length]
+                                    ,  '26-47'  : colors[(iter + 13) % colors.length]
+                                    ,  '48-68'  : colors[(iter + 12) % colors.length]
+                                    ,  '69-88'  : colors[(iter + 11) % colors.length]
+                                    ,  '89-107' : colors[(iter + 10) % colors.length]
+                                    , '108-125' : colors[(iter +  9) % colors.length]
+                                    , '126-142' : colors[(iter +  8) % colors.length]
+                                    , '143-158' : colors[(iter +  7) % colors.length]
+                                    , '159-173' : colors[(iter +  6) % colors.length]
+                                    , '172-185' : colors[(iter +  5) % colors.length]
+                                    , '186-198' : colors[(iter +  4) % colors.length]
+                                    , '199-210' : colors[(iter +  3) % colors.length]
+                                    , '211-222' : colors[(iter +  2) % colors.length]
+//                                  , '223-232' : colors[(iter +  1) % colors.length]
+//                                  , '233-239' : colors[(iter +  0) % colors.length]
+                                    }
+                          }
+                }, led);
+      iter++;
+  }, interval) : setInterval(function() {
+    var i, len, n, pixels;
+
+    len = props.pps - 1;
+    pixels = {};
+    n = colors.length;
+    for (i = 0; i < colors.length; i++) {
+      pixels[i.toString() + '-' + len + '/' + n.toString()] = colors[(iter + i) % colors.length];
+    }
+    self.pixels(self, taskID, true, { color : { model: 'rgb', pixels: pixels } }, led);
+    iter++;
+  }, interval);
+
+
+  return true;
+};
+
 
 var validate_perform_led = function(perform, parameter) {
   var color
+    , interval
     , params = {}
     , result = { invalid: [], requires: [] };
 
@@ -354,6 +421,16 @@ var validate_perform_led = function(perform, parameter) {
 
   if (perform === 'pixels') {
 // TBD: figure out how to check this easily...
+    return result;
+  }
+
+  if (perform === 'program') {
+    if ((!!params.pattern) && (params.pattern !== 'spiral')) result.invalid.push('pattern');
+    if (!!params.interval) {
+      interval = parseInt(params.interval, 10);
+      if (isNaN(interval) || (interval < 250)) result.invalid.push('interval');
+    }
+
     return result;
   }
 

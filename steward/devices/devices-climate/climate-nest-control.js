@@ -108,6 +108,7 @@ Thermostat.operations = {
       var time;
 
       switch (value) {
+        case 'off':
         case 'on':
         case 'auto':
           nest.setFanMode(serial, value);
@@ -115,7 +116,9 @@ Thermostat.operations = {
 
         default:
           time = parseInt(value, 10);
-          if (!isNaN(time)) nest.setFanMode(serial, 'timer', time);
+          if (isNaN(time)) break;
+          nest.setFanMode(serial, 'duty-cycle', time);
+          nest.setFanModeOn(serial);
           break;
       }
     });
@@ -169,7 +172,7 @@ var validate_perform = function(perform, parameter) {
 
       checkParam('away', params, result, false, { on: 1, off: 1 });
       checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
-      checkParam('fan', params, result, true, { on: 1, auto: 1 });
+      checkParam('fan', params, result, true, { off: 1, on: 1, auto: 1 });
       checkParam('goalTemperature', params, result, true, {});
     }
     return result;

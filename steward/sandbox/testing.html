@@ -36,7 +36,7 @@ var colorful = function(ws, strips) {
     return setInterval(function() {
       perform_device(ws, strips[0].deviceID, 'pixels',
                      { color : { model : 'rgb'
-                               , pixels: {  '0-25'   : colors[(iter + 14) % colors.length]
+                               , pixels: {   '0-25'  : colors[(iter + 14) % colors.length]
                                          ,  '26-47'  : colors[(iter + 13) % colors.length]
                                          ,  '48-68'  : colors[(iter + 12) % colors.length]
                                          ,  '69-88'  : colors[(iter + 11) % colors.length]
