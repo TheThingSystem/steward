@@ -45,8 +45,9 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
       if (self.status === 'reset') self.alert('please check login credentials at https://my.netatmo.com/');
 
       for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
-      for (macaddr in newaddrs) {
-        if (newaddrs.hasOwnProperty(macaddr)) self.alert('discovered Netatmo Weather Station at ' + newaddrs[macaddr]);
+      for (macaddr in newaddrs) if (newaddrs.hasOwnProperty(macaddr)) {
+        self.alert('discovered Netatmo Weather Station at ' + newaddrs[macaddr]);
+        macaddrs[macaddr] = true;
       }
 
       return;

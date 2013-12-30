@@ -341,9 +341,9 @@ var listen = function(ifname, ifaddr) {
     if ((!arp.sender_ha) || (!arp.sender_pa)) return;
 
     ifaces[ifname].arp[arp.sender_pa] = arp.sender_ha;
-    if (arp.operation === 'request') {
+    if (arp.sender_pa === ifaddr) {
       if (!exports.uuid) exports.uuid = '2f402f80-da50-11e1-9b23-' + arp.sender_ha.split(':').join('');
-    } else if (arp.operation === 'reply') {
+    } else if (arp.target_pa === ifaddr) {
       if (!exports.uuid) exports.uuid = '2f402f80-da50-11e1-9b23-' + arp.target_ha.split(':').join('');
     }
     discovered1(ifname, ifaddr, arp);
@@ -456,9 +456,9 @@ exports.start = function() {
   noneP = true;
   for (ifname in ifaces) {
     if ((!ifaces.hasOwnProperty(ifname))
-        || (ifname.indexOf('vmnet') === 0)
-        || (ifname.indexOf('vnic') === 0)
-        || (ifname.indexOf('tun') !== -1)) continue;
+          || (ifname.indexOf('vmnet') === 0)
+          || (ifname.indexOf('vnic') === 0)
+          || (ifname.indexOf('tun') !== -1)) continue;
 
     ifaddrs = ifaces[ifname];
     if (ifaddrs.length === 0) continue;

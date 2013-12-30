@@ -123,6 +123,7 @@ Mobile.prototype.update = function(self, params, status) {
   }
   if (updateP) self.changed();
 
+  if (!self.info.location) return;
   entry = self.info.location.slice(0, 2).join(',');
   if (self.info.locations.length === 0) {
     self.info.locations.push(entry);
@@ -132,10 +133,7 @@ Mobile.prototype.update = function(self, params, status) {
 
   self.info.locations.push(entry);
 // derived experientially: 28 appears to be the limit
-  if (self.info.locations.length > 24) {
-    if (!self.timer) self.timer = setTimeout (function() { self.balance(self, 24); }, 0);
-    return;
-  }
+  if ((self.info.locations.length > 24) && (!self.timer)) self.timer = setTimeout (function() { self.balance(self, 24); }, 0);
 };
 
 Mobile.prototype.balance = function(self, max) {

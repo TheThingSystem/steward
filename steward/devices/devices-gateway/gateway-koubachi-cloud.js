@@ -41,8 +41,9 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
       if (self.status === 'reset') self.alert('please check login credentials at https://my.koubachi.com/');
 
       for (macaddr in macaddrs) if (macaddrs.hasOwnProperty(macaddr)) delete(newaddrs[macaddr]);
-      for (macaddr in newaddrs) {
-        if (newaddrs.hasOwnProperty(macaddr)) self.alert('discovered Koubachi Plant Sensor at ' + newaddrs[macaddr]);
+      for (macaddr in newaddrs) if (newaddrs.hasOwnProperty(macaddr)) {
+        self.alert('discovered Koubachi Plant Sensor at ' + newaddrs[macaddr]);
+        macaddrs[macaddr] = true;
       }
 
       return;

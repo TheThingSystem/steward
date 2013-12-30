@@ -9,11 +9,11 @@
                 &entity   = task        & ( name=... | id=... )
 
     for perform behavior:
-      - actor, device, and group: & perform=... [ & parameter=... ]
-      - group must be a 'device' group
+      - actors, devices, and device groups: & perform=... [ & parameter=... ]
+      - group must be a 'device' or a 'task' group
 
     for report behavior:
-      - only actor, device, and place allowed
+      - only actors, devices, and places allowed
  */
 
 var url         = require('url')
@@ -126,17 +126,17 @@ var find = function(query, tag) {
                             if (!e) return { error: { permanent: true, diagnostic: 'unknown group: ' + query.name } };
                           } else return false;
                           if (query.behavior === 'perform') {
-                            if (!query.perform) return false;
-                            if (e.groupType !== 'device') {
+                            if (e.groupType === 'task') {
+                            } else if (e.groupType !== 'device') {
                               return { error: { permanent: true, diagnostic: 'invalid group: ' + query.name } };
-                            }
+                            } else if (!query.perform) return false;
                           }
                           if (query.behavior === 'report') return false;
 
                           return { message : { path      : '/api/v1/group/perform/' + e.groupID
-                                            , perform   : query.perform
-                                            , parameter : query.parameter
-                                            }
+                                             , perform   : query.perform
+                                             , parameter : query.parameter
+                                             }
                                 , perform  : groups.perform
                                 };
                         }
@@ -195,9 +195,18 @@ var report = function(query, proplist) {
     prop = properties[i];
     if (properties.length > 1) {
       if ((i + 1) === properties.length) s += 'and ';
-      data += s + prop + ' is ';
+// heh
+      data += s + ({ co2      : 'C O 2'
+                   , coStatus : 'C O level'
+                   }[prop] || prop) + ' is ';
     }
     data += device.expand('.[.' + prop + '].', proplist);
+// TBD: this is really a UI thing, but it is rather convenient to place here...
+    data += { temperature : ' degrees celcius'
+            , humidity    : ' percent'
+            , co2         : ' parts per million'
+            , noise       : ' decibels'
+            }[prop] || '';
   }
 
   return data.replace('[object Object]', 'complicated');
