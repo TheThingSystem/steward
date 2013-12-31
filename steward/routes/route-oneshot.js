@@ -9,7 +9,7 @@
                 &entity   = task        & ( name=... | id=... )
 
     for perform behavior:
-      - actors, devices, and device groups: & perform=... [ & parameter=... ]
+      - actors, devices, device groups, and places: & perform=... [ & parameter=... ]
       - group must be a 'device' or a 'task' group
 
     for report behavior:
