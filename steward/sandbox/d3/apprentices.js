@@ -258,7 +258,7 @@ var apprentices =
   , panes                       :
     [ { title                   : 'Manage Air Quality'
       , uuid                    : '749070ee-08a9-430d-8e5a-812e40a297f1'
-      , text                    : 'When CO<sub>2</sub> reaches 1000ppm, circulate the air for 15min.'
+      , text                    : 'When CO<sub>2</sub> reaches 2500ppm, circulate the air for 15min.'
                                    // or 'configured' or 'ignore' or 'incomplete'
       , status                  : 'incomplete'
       , active                  : null
@@ -274,7 +274,7 @@ var apprentices =
             , deviceType        : '^/device/climate/[^/]+/sensor$'
             , mustHave          : [ 'co2' ]
             , operator          : 'or'
-            , '.condition'      : { operator: 'greater-than', operand1: '.[.co2].', operand2: 999 }
+            , '.condition'      : { operator: 'greater-than', operand1: '.[.co2].', operand2: 2499 }
             , actors            : {}
             , howMany           : '1+'
             }

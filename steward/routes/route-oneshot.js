@@ -16,7 +16,8 @@
       - only actors, devices, and places allowed
  */
 
-var url         = require('url')
+var querystring = require('querystring')
+  , url         = require('url')
   , device      = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
@@ -214,9 +215,34 @@ var report = function(query, proplist) {
 
 
 exports.process = function(request, response, tag) {
-  var api, ct, data, f, message, o, query, ws;
+  var data;
 
-  query = url.parse(request.url, true).query;
+  if (request.method === 'GET') return oneshot(request, response, url.parse(request.url, true).query, tag);
+  if (request.method !== 'POST') {
+    logger.info(tag, { event: 'invalid method', code: 405, method: request.method });
+    response.writeHead(405, { Allow: 'GET, POST' });
+    response.end();
+
+    return true;
+  }
+
+  request.setEncoding('utf8');
+
+  data = '';
+  request.on('data', function(chunk) {
+    data += chunk.toString();
+  }).on('end', function() {
+    oneshot(request, response, querystring.parse(data), tag);
+  });
+
+  return true;
+};
+
+var oneshot = function(request, response, query, tag) {
+  var api, ct, data, f, message, o, ws;
+
+console.log('>>>');
+console.log(query);
   ct = 'application/json';
 
   o = find(query, tag);
@@ -262,7 +288,7 @@ exports.process = function(request, response, tag) {
   if (typeof data !== 'string') data = JSON.stringify(data);
   logger.info(tag, { code: 200, type: ct, octets: data.length });
   response.writeHead(200, { 'Content-Type': ct, 'Content-Length': data.length });
-  response.end(request.method === 'GET' ? data : '');
+  response.end(data);
 
   return true;
 };

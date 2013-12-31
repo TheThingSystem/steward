@@ -581,11 +581,9 @@ var perform2 = function(logger, ws, message, group /*, tag */) {
                                         , perform: task.perform
                                         , parameter: task.parameter
                                         };
-// .info
-    logger.notice('perform',
+
+    logger.debug('perform',
                 { taskID: performance.taskID, perform: performance.perform, parameter: performance.parameter });
-
-
     for (device in performance.devices) {
       if (!performance.devices.hasOwnProperty(device)) continue;
 

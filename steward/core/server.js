@@ -153,6 +153,13 @@ var start = function(port, secureP) {
       meta.method = request.method;
       logger.info(tag, meta);
 
+      if (!places) places = require('./../actors/actor-place');
+
+// strict must be OFF and the request must either come from the LAN or localhost
+      if ((places.place1.info.strict === 'off') && ((request.connection.localAddress !== '127.0.0.1') || !secureP)) {
+        if ((pathname === '/oneshot') && (require('./../routes/route-oneshot').process(request, response, tag))) return;
+      }
+
       if ((request.method !== 'GET') && (request.method !== 'HEAD')) {
         logger.info(tag, { event: 'invalid method', code: 405, method: request.method });
         response.writeHead(405, { Allow: 'CONNECT' });
@@ -163,13 +170,6 @@ var start = function(port, secureP) {
                  , '/client'  : '/client.html'
                  , '/console' : '/console.html'
                  }[pathname] || pathname;
-
-      if (!places) places = require('./../actors/actor-place');
-
-// strict must be OFF and the request must either come from the LAN or localhost
-      if ((places.place1.info.strict === 'off') && ((request.connection.localAddress !== '127.0.0.1') || !secureP)) {
-        if ((pathname === '/oneshot') && (require('./../routes/route-oneshot').process(request, response, tag))) return;
-      }
 
 /* NB: everything "interesting" should be via WebSockets, not HTML...
        if that changes, we can add an exception list here.
