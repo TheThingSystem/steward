@@ -89,6 +89,7 @@ Gateway.prototype.setup = function(self) {
 
     self.stream = new net.Socket({ type: 'tcp4' });
     self.stream.on('connect', function() {
+      self.stream.setNoDelay();
       self.stream.setTimeout(0);
 
       self.status = 'ready';
