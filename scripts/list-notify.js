@@ -39,10 +39,11 @@ SSDP.prototype.notify = function(ipaddr, portno, signature, vars) {/* jshint unu
 
 // TBD: use the (obsolete) class A/B/C netmasks
     bcast = new netmask.Netmask(ipaddr + '/' + mask).broadcast;
-    console.log('multicasting as ' + bcast + ' for ' + ipaddr);
+    console.log();
+    console.log('multicasting to ' + bcast + ':1900 from ' + ipaddr + ':' + portno);
     console.log(out);
     out = new Buffer(out);
-    self.sock.send(out, 0, out.length, portno, bcast);
+    self.sock.send(out, 0, out.length, 1900, bcast);
   });
 };
 
@@ -84,9 +85,11 @@ var listen = function(ipaddr, portno) {
     }).end();
   });
 
-  ssdp.server('192.168.1.72');
-  ssdp.notify(ipaddr, portno, 'AIR CONDITIONER',
-              { SPEC_VER: 'MSpec-1.00', SERVICE_NAME: 'ControlServer-MLib', MESSAGE_TYPE: 'CONTROLLER_START' });
+  ssdp.server('192.168.1.72', null, portno);
+  setTimeout(function() {
+    ssdp.notify(ipaddr, portno, 'AIR CONDITIONER',
+                { SPEC_VER: 'MSpec-1.00', SERVICE_NAME: 'ControlServer-MLib', MESSAGE_TYPE: 'CONTROLLER_START' });
+  }, 1000);
 };
 
 
@@ -105,7 +108,7 @@ for (ifname in ifaces) {
   for (ifa = 0; ifa < ifaddrs.length; ifa++) {
     if ((ifaddrs[ifa].internal) || (ifaddrs[ifa].family !== 'IPv4')) continue;
 
-    console.log('listening ' + ifname + ' on ' + ifaddrs[ifa].address);
-    listen(ifaddrs[ifa].address, 1900);
+    console.log('listening ' + ifname + ' on ' + ifaddrs[ifa].address + ' udp port ' + 10293);
+    listen(ifaddrs[ifa].address, 10293);
   }
 }

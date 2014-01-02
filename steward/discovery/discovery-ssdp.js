@@ -59,7 +59,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
   ssdp.addUSN('upnp:rootdevice');
   ssdp.addUSN('urn:schemas-upnp-org:device:Basic:1');
 
-  try { ssdp.server(addr, portno); } catch(ex) {
+  try { ssdp.server(addr, portno, 1900); } catch(ex) {
     lsof.rawUdpPort(1900, function(data) {
       logger.error('discovery', { event: 'listen', diagnostic: ex.message, listeners: stringify(data) });
     });
