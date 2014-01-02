@@ -97,5 +97,6 @@ ulimit -n 1024
 while true; do
   node index.js
 
+  echo "Press ^C to exit or wait 10 seconds to restart"
   sleep 10
 done
