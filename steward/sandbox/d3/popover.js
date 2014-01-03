@@ -33,7 +33,7 @@ function dragmove(d) {
 				return by1 + "px";
 			});
 			break;
-    	case "volume-control-indicator":
+    case "volume-control-indicator":
 			var currAngle = 0;
 			elem = d3.event.sourceEvent.target;
 			var exy = [d3.event.sourceEvent.offsetX, d3.event.sourceEvent.offsetY];
@@ -125,6 +125,7 @@ function dragmove(d) {
 			});
 			break;
 		case "level-knob":
+		  if (newPerform.perform !== "on") return;
 			max = 264;
 			min = 64;
 			d3.select(this).style("left", function() { 
@@ -916,19 +917,22 @@ var showPop = function(device) {
      
      elem = div.append("img")
      	.attr("class", "level-knob")
-        .attr("id", "level-knob")
-     	.attr("src", function() {return (hasLevel) ? "popovers/assets/knob.large.svg" :  "popovers/assets/knob.large.off.svg"});
+      .attr("id", "level-knob")
+     	.attr("src", "popovers/assets/knob.large.off.svg");
+     elem.call(drag);
      if (hasLevel) {
+       if (device.status === "on") {
+		     elem
+		       .attr("src", "popovers/assets/knob.large.svg");
+		   } 
 		   elem
-			.style("left", bigHorSlider.min + "px")
-			.transition()
-			.duration(600)
-			.style("left", levelLeft(device.info.level) + "px");
-		   elem.call(drag);
+			   .style("left", bigHorSlider.min + "px")
+			   .transition()
+			   .duration(600)
+			   .style("left", levelLeft(device.info.level) + "px");
      } else {
 		   elem
-			.style("left", bigHorSlider.max + "px");
-     
+			  .style("left", bigHorSlider.max + "px");
      }
 // If we decide to add readout box to level slider
 //      if (hasLevel) {
@@ -951,12 +955,12 @@ var showPop = function(device) {
          .attr("class", "on-off-slider")
          .append("img")
            .attr("src", "popovers/assets/slider.on-off.svg")
-           .on("click", toggleOnOff);
+           .on("click", function() { toggleOnOff("switch") });
      div.append("div")
          .attr("class", "on-off-knob")
          .attr("id", "on-off-knob")
          .style("left", function() { return ((device.status === "on") ? onOffSlider.max : onOffSlider.min) + "px" })
-         .on("click", toggleOnOff)
+         .on("click", function() { toggleOnOff("switch") })
          .append("img")
            .attr("src", "popovers/assets/knob.small.svg");
      div.append("div")
@@ -1021,10 +1025,10 @@ var showPop = function(device) {
 	     case "lighting":
 	       if (newPerform.perform === "on") {
 	         newPerform.perform = "off";
-	         endLeft = onOffSlider.min
+	         endLeft = onOffSlider.min;
 	       } else {
 	         newPerform.perform = "on";
-	         endLeft = onOffSlider.max
+	         endLeft = onOffSlider.max;
 	         if (newPerform.parameter.hasOwnProperty("color") &&
 	            newPerform.parameter.color.hasOwnProperty("rgb") &&
 	            objEquals(newPerform.parameter.color.rgb, {r:0, g:0, b:0})) {
@@ -1055,6 +1059,20 @@ var showPop = function(device) {
 	           .style("color", "#444");
 	         // EMPTY READOUT & DEACTIVATE SLIDER
 	       }
+	       break;
+	     case "switch":
+	       if (newPerform.perform === "on") {
+	         newPerform.perform = "off";
+	         endLeft = onOffSlider.min;
+	         d3.select("#level-knob")
+	           .attr("src", "popovers/assets/knob.large.off.svg");
+	       } else {
+	         newPerform.perform = "on";
+	         endLeft = onOffSlider.max;
+	         if (newPerform.parameter.hasOwnProperty("level")) 
+	           d3.select("#level-knob")
+	             .attr("src", "popovers/assets/knob.large.svg");
+	       }	       
 	       break;
 	     default:
 	       break;
@@ -1682,26 +1700,28 @@ var updatePopover = function(device, update) {
   }
   
   function updateSwitchPop() {
-	if (document.getElementById("on-off-knob")) {
-	  d3.select("#on-off-knob")
-		 .transition()
-		 .duration(600)
-         .style("left", function() { return ((update.status === "on") ? onOffSlider.max : onOffSlider.min) + "px" });
-	}
-	if (update.info.hasOwnProperty("level")) {
-	  d3.select("#level-knob")
-		 .transition()
-		 .duration(600)
-		 .style("left", levelLeft(update.info.level) + "px");
+  	if (document.getElementById("on-off-knob")) {
+	    d3.select("#on-off-knob")
+        .transition()
+  		  .duration(600)
+        .style("left", function() { return ((update.status === "on") ? onOffSlider.max : onOffSlider.min) + "px" });
+	  }
+	  if (update.info.hasOwnProperty("level")) {
+      d3.select("#level-knob")
+        .attr("src", function() { return (update.status === "on") ? "popovers/assets/knob.large.svg" : "popovers/assets/knob.large.off.svg"; });
+	    d3.select("#level-knob")
+		   .transition()
+		   .duration(600)
+		   .style("left", levelLeft(update.info.level) + "px");
 // If we decide to add readout box to level slider
 // 	  d3.select("#slider-readout")
 // 		 .transition()
 // 		 .duration(600)
 // 		 .style("left", parseInt(levelLeft(update.info.level)) + 7 + "px")
 // 		 .text(update.info.level + "%");
- 	}
+ 	  }
     newPerform.perform = update.status;
-	newPerform.parameter = update.info;
+	  newPerform.parameter = update.info;
   }
 
 }
