@@ -88,7 +88,7 @@ ZWave_Dimmer.prototype.update = function(self, event, comclass, value) {
 
 
 ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
-  var params, state = {};
+  var params, state;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -99,6 +99,7 @@ ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
     return ((!params.name) || self.setName(params.name, taskID));
   }
 
+  state = {};
   if (perform === 'off') state.level = 0;
   else if (perform === 'on') state.level = (params.level > 0 && params.level < 100) ? params.level : 50;
   else return false;
@@ -116,15 +117,12 @@ ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if ((!params.name) && (!params.physical)) result.requires.push('name');

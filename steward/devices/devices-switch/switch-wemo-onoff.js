@@ -218,15 +218,16 @@ var validate_perform = function(perform, parameter) {
     , result = { invalid: [], requires: [] }
     ;
 
-  if (perform === 'set') {
-    if (!parameter) {
-      result.requires.push('parameter');
-      return result;
-    }
-    try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
+  if (perform === 'off') return result;
+
+  if (perform === 'set') {
     if (!params.name) result.requires.push('name');
-  } else if ((perform !== 'on') && (perform !== 'off')) result.invalid.push('perform');
+    return result;
+  }
+
+  if (perform !== 'on') result.invalid.push('perform');
 
   return result;
 };

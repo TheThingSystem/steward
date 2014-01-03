@@ -123,13 +123,9 @@ var validate_perform = function(perform, parameter) {
   var params = {}
     , result = { invalid: [], requires: [] };
 
-  if (perform === 'off') return result;
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+  if (perform === 'off') return result;
 
   if (perform === 'set') {
     if ((!params.name) && (!params.physical)) result.requires.push('name');

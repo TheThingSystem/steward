@@ -154,7 +154,6 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!self.lumen) return false;
 
-  state = { color: self.info.color, brightness: self.info.brightness };
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   refresh = function() { setTimeout (function() { self.refresh(self); }, 0); };
@@ -165,6 +164,7 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
     return self.setName(params.name, taskID);
   }
 
+  state = { color: self.info.color, brightness: self.info.brightness };
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -217,15 +217,12 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
 var validate_perform = function(perform, parameter) {
   var color
     , params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');
@@ -252,7 +249,7 @@ var validate_perform = function(perform, parameter) {
           result.invalid.push('color.model');
           break;
     }
-  } else result.requires.push('color');
+  }
 
   if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 

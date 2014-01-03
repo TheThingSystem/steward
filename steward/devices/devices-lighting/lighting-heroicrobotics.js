@@ -156,7 +156,6 @@ var childprops = function(self, led) {
 PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) {
   var i, params, pixels, props, state, width;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   props = self.strips[led];
@@ -191,13 +190,12 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
   else if (perform === 'program') return self.program(self, taskID, params, led);
   else if (perform !== 'on') return false;
   else {
-    state.color = params.color || props.state.color;
-    state.pixels = {};
+    state = { color: params.color || props.state.color, pixels: {} };
     state.pixels['0-' + (props.pps - 1)] = state.color[state.color.model];
     return self.pixels(self, taskID, true, { color: { model: state.color.model, pixels: state.pixels } }, led);
   }
 
-  logger.info('device/' + props.deviceID, { perform: state });
+  logger.info('device/' + props.deviceID, { on: false });
   pixels = new Buffer(props.pps * width);
   for (i = 0; i < pixels.length; i++) pixels[i] = 0;
   self.controller.refresh([ { number: +led, data: pixels } ]);
@@ -404,15 +402,12 @@ var validate_perform_led = function(perform, parameter) {
   var color
     , interval
     , params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');

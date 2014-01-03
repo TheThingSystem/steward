@@ -124,9 +124,9 @@ var childprops = function(self, light) {
 Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
   var color, params, state;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
+  state = {};
   if (id === null) {
     if ((perform !== 'set') || (!params.name)) return false;
     state.name = params.name;
@@ -558,18 +558,15 @@ Hue.prototype.roundtrip = function(self, tag, params) {
 
 var validate_perform_hue = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform !== 'set') {
     result.invalid.push('perform');
     return result;
   }
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (!params.name) result.requires.push('name');
 
@@ -579,15 +576,12 @@ var validate_perform_hue = function(perform, parameter) {
 var validate_perform_bulb = function(perform, parameter) {
   var color
     , params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');

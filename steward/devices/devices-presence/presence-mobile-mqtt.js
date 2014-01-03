@@ -95,9 +95,10 @@ Mobile.prototype.perform = function(self, taskID, perform, parameter) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform !== 'set') result.invalid.push('perform');
 

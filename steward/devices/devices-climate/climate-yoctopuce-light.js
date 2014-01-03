@@ -108,9 +108,9 @@ Sensor.prototype.update = function(self, params, status) {
 Sensor.prototype.perform = function(self, taskID, perform, parameter) {
   var params, result;
 
-  if (perform !== 'set') return false;
-
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  if (perform !== 'set') return false;
 
   result = self.light.set_logicalName(params.name);
   if (result === yapi.YAPI_SUCCESS) return self.setName(params.name, taskID);

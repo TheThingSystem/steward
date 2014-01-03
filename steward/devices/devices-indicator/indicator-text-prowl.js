@@ -132,9 +132,10 @@ var validate_create = function(info) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.apikey) params.apikey = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';

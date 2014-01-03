@@ -75,7 +75,6 @@ util.inherits(Color, lighting.Device);
 Color.prototype.perform = function(self, taskID, perform, parameter) {
   var params, result, state;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
@@ -86,6 +85,7 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
     return false;
   }
 
+  state = {};
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -95,7 +95,7 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
 
     state.color = params.color || self.info.color;
     if (state.color.model === 'hue') {
-      if (!!!state.brightness) return false;
+      if (!state.brightness) return false;
 
       state.color.model = 'rgb';
       state.color.rgb = tinycolor({ h : state.color.hue.hue
@@ -106,6 +106,7 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
 
     if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;
   }
+  if (!state.on) state.color = { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } };
 
   logger.info('device/' + self.deviceID, { perform: state });
 
@@ -126,15 +127,12 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
 var validate_perform = function(perform, parameter) {
   var color
     , params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') return hub.validate_perform(perform, parameter);
 
@@ -160,7 +158,7 @@ var validate_perform = function(perform, parameter) {
           result.invalid.push('color.model');
           break;
     }
-  } else result.requires.push('color');
+  }
 
   if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 

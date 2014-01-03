@@ -243,18 +243,15 @@ var scan1 = function(driver) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform !== 'set') {
     result.invalid.push('perform');
     return result;
   }
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if ((!params.name) && (!params.physical)) result.requires.push('name');
 

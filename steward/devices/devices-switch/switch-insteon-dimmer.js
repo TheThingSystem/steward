@@ -103,11 +103,11 @@ var insteonLevel = function(pct) {
 Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
   var params, state;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') return self.setName(params.name, taskID);
 
+  state = {};
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -126,15 +126,12 @@ Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');

@@ -462,7 +462,7 @@ var validate_perform = function(perform, parameter) {
     , result = { invalid: [], requires: [] }
     ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   switch (perform) {
     case 'set':

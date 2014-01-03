@@ -89,11 +89,11 @@ Insteon_OnOff.prototype.onoff = function(self, octets) {
 Insteon_OnOff.prototype.perform = function(self, taskID, perform, parameter) {
   var params, state;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') return self.setName(params.name, taskID);
 
+  state = {};
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else state.on = true;
@@ -109,15 +109,16 @@ var validate_perform = function(perform, parameter) {
     , result = { invalid: [], requires: [] }
     ;
 
-  if (perform === 'set') {
-    if (!parameter) {
-      result.requires.push('parameter');
-      return result;
-    }
-    try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
+  if (perform === 'off') return result;
+
+  if (perform === 'set') {
     if (!params.name) result.requires.push('name');
-  } else if ((perform !== 'on') && (perform !== 'off')) result.invalid.push('perform');
+    return result;
+  }
+
+  if (perform !== 'on') result.invalid.push('perform');
 
   return result;
 };

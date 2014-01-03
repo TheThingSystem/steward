@@ -66,7 +66,8 @@ Roku_Video.operations = {
 
 Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
-  try { params = JSON.parse(parameter); } catch(e) {}
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (!!Roku_Video.operations[perform]) {
     Roku_Video.operations[perform](this.roku, params);
@@ -77,7 +78,16 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 var validate_perform = function(perform, parameter) {
-  if (!!Roku_Video.operations[perform]) return { invalid: [], requires: [] };
+  var params = {}
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (!!Roku_Video.operations[perform]) {
+    result.invalid.push('perform');
+    return result;
+  }
 
   return devices.validate_perform(perform, parameter);
 };

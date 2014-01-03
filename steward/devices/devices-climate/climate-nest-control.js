@@ -117,8 +117,7 @@ Thermostat.operations = {
         default:
           time = parseInt(value, 10);
           if (isNaN(time)) break;
-          nest.setFanMode(serial, 'duty-cycle', time);
-          nest.setFanModeOn(serial);
+          nest.setFanMode(serial, 'on', time);
           break;
       }
     });
@@ -136,7 +135,8 @@ Thermostat.operations = {
 
 Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
-  try { params = JSON.parse(parameter); } catch(e) {}
+
+  try { params = JSON.parse(parameter); } catch(e) { params = {}; }
 
   if (!!Thermostat.operations[perform]) {
     if (Thermostat.operations[perform](this, params)) {
@@ -159,9 +159,11 @@ var checkParam = function(key, params, result, allowNumeric, map) {
 };
 
 var validate_perform = function(perform, parameter) {
-  var result = { invalid: [], requires: [] }, params;
+  var params = {}
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(e) {}
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (!!Thermostat.operations[perform]) {
     if (perform === 'set') {

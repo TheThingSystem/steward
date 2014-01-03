@@ -533,16 +533,17 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.appKey) result.requires.push('appKey');
-  else if (info.appKey.length < 32) result.invalid.push('appKey');
+  else if ((typeof info.apikey !== 'string') || (info.apikey.length < 32)) result.invalid.push('apikey');
 
   return result;
 };
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform !== 'set') {
     result.invalid.push('perform');

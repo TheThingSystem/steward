@@ -120,7 +120,6 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!self.robosmart) return false;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   refresh = function() { setTimeout (function() { self.refresh(self); }, 0); };
@@ -133,6 +132,7 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
     return steward.performed(taskID);
   }
 
+  state = {};
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -158,15 +158,12 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');

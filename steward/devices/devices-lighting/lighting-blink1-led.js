@@ -44,11 +44,11 @@ util.inherits(Blink1, lighting.Device);
 Blink1.prototype.perform = function(self, taskID, perform, parameter) {
   var color, params, state;
 
-  state = { color: [ 0, 0, 0 ] };
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') return self.setName(params.name, taskID);
 
+  state = { color: [ 0, 0, 0 ] };
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -76,15 +76,12 @@ Blink1.prototype.perform = function(self, taskID, perform, parameter) {
 var validate_perform = function(perform, parameter) {
   var color
     , params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');

@@ -224,16 +224,17 @@ var validate_create = function(info) {
   }
 
   if (!info.passphrase) result.requires.push('passphrase');
-  else if (info.passphrase.length < 1) result.invalid.push('passphrase');
+  else if ((typeof info.passphrase !== 'string') || (info.passphrase.length < 1)) result.invalid.push('passphrase');
 
   return result;
 };
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform !== 'set') {
     result.invalid.push('perform');

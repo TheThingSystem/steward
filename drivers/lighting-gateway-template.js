@@ -181,7 +181,6 @@ var childprops = function(self, led) {
 TBD.prototype.perform = function(self, taskID, perform, parameter, led) {
   var color, f, params, props, state;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   props = self.bulbs[led];
@@ -193,6 +192,7 @@ TBD.prototype.perform = function(self, taskID, perform, parameter, led) {
     return steward.performed(taskID);
   }
 
+  state = {};
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -249,13 +249,9 @@ var validate_perform = function(perform, parameter) {
     , params = {}
     , result = { invalid: [], requires: [] };
 
-  if (perform === 'off') return result;
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+  if (perform === 'off') return result;
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');
@@ -280,7 +276,7 @@ var validate_perform = function(perform, parameter) {
           result.invalid.push('color.model');
           break;
     }
-  } else result.requires.push('color');
+  }
 
   if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
 

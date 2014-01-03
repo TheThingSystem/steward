@@ -87,21 +87,23 @@ Watch.prototype.perform = function(self, taskID, perform, parameter) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  if ((perform !== 'set') && (perform !== 'alert')) result.invalid.push('perform');
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');
-  } else if (perform === 'alert') {
+    return result;
+  }
+
+  if (perform === 'alert') {
     if (!params.level) result.requires.push('level');
     else if (!levels[params.level]) result.invalid.push('level');
+    return result;
   }
+
+  result.invalid.push('perform');
 
   return result;
 };

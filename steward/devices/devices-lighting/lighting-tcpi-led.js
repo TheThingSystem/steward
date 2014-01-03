@@ -162,7 +162,6 @@ var childprops = function(self, led) {
 GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led) {
   var bri, params, props, state;
 
-  state = {};
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   props = self.bulbs[led];
@@ -174,6 +173,7 @@ GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led)
     return steward.performed(taskID);
   }
 
+  state = {};
   if (perform === 'off') state.on = false;
   else if (perform !== 'on') return false;
   else {
@@ -202,15 +202,12 @@ GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led)
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'off') return result;
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');

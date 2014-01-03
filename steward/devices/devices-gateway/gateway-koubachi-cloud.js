@@ -246,19 +246,20 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.appkey) result.requires.push('appkey');
-  else if (info.appkey.length < 1) result.invalid.push('appkey');
+  else if ((typeof info.appkey !== 'string') || (info.appkey.length < 1)) result.invalid.push('appkey');
 
   if (!info.credentials) result.requires.push('credentials');
-  else if (info.credentials.length < 1) result.invalid.push('credentials');
+  else if ((typeof info.credentials !== 'string') || (info.credentials.length < 1)) result.invalid.push('credentials');
 
   return result;
 };
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform !== 'set') {
     result.invalid.push('perform');

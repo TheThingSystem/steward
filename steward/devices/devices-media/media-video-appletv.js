@@ -107,12 +107,16 @@ AppleTV.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 var validate_perform = function(perform, parameter) {
-  var params, result;
+  var params = {}
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
-  result = { invalid: [], requires: [] };
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!AppleTV.operations[perform]) return result;
+  if (!!AppleTV.operations[perform]) {
+    result.invalid.push('perform');
+    return result;
+  }
 
   if (perform === 'set') {
     if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');

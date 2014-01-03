@@ -113,7 +113,8 @@ Sensor.operations = {
 
 Sensor.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
-  try { params = JSON.parse(parameter); } catch(e) {}
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (!!Sensor.operations[perform]) {
     if (Sensor.operations[perform](this, params)) {
@@ -136,9 +137,11 @@ var checkParam = function(key, params, result, allowNumeric, map) {
 };
 
 var validate_perform = function(perform, parameter) {
-  var result = { invalid: [], requires: [] }, params;
+  var params = {}
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(e) {}
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (!!Sensor.operations[perform]) {
     if (perform === 'set') {
