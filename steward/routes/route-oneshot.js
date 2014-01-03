@@ -241,8 +241,6 @@ exports.process = function(request, response, tag) {
 var oneshot = function(request, response, query, tag) {
   var api, ct, data, f, message, o, ws;
 
-console.log('>>>');
-console.log(query);
   ct = 'application/json';
 
   o = find(query, tag);
