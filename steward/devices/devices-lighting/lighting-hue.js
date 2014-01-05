@@ -156,7 +156,22 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
 
   if (perform === 'set') {
     if (!params.name) return false;
-    state.name = params.name;
+
+    if (self.lights[id].name === params.name) return steward.performed(taskID);
+
+    db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',
+           { $deviceName: params.name, $deviceID : self.lights[id].deviceID }, function(err) {
+      if (err) {
+        return logger.error('devices',
+                            { event: 'UPDATE device.deviceName for ' + self.lights[id].deviceID, diagnostic: err.message });
+      }
+
+      self.lights[id].name = params.name;
+      self.lights[id].updated = new Date().getTime();
+      self.changed();
+    });
+
+    return steward.performed(taskID);
   } else {
     if (perform === 'off') state.on = false;
     else if (perform !== 'on') return;
@@ -332,9 +347,12 @@ Hue.prototype.addlight = function(self, id, props) {
 
   if (self.lights[id]) {
     name = self.lights[id].name;
+// a name set by the user wins over the Hue configuration name...
+    if (name !== id.toString()) props.name = name;
     type = self.lights[id].type;
     for (prop in props) if (props.hasOwnProperty(prop)) self.lights[id][prop] = props[prop];
     if ((name !== self.lights[id].name) || (type !== self.lights[id].type)) {
+
       db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
              { $deviceType: self.lights[id].type, $deviceName: self.lights[id].name, $deviceID: self.lights[id].deviceID });
       logger.info('device/' + self.lights[id].deviceID, childprops(self, id));
@@ -428,6 +446,7 @@ Hue.prototype.refresh2 = function(self, id, oops) {
 };
 
 Hue.prototype.refresh3 = function(self, id, results) {
+  if (self.lights[id].name !== id.toString()) results.name = self.lights[id].name;
   db.run('UPDATE devices SET deviceType=$deviceType, deviceName=$deviceName WHERE deviceID=$deviceID',
          { $deviceType: results.type, $deviceName: results.name, $deviceID: self.lights[id].deviceID },
          function(err) {
@@ -585,7 +604,6 @@ var validate_perform_bulb = function(perform, parameter) {
 
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');
-    else result.invalid.push('name'); // sigh, not supported by Hue
     return result;
   }
 
