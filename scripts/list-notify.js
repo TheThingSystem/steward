@@ -2,12 +2,12 @@ var http        = require('http')
   , os          = require('os')
   , url         = require('url')
   , SSDP        = require('../steward/node_modules/node-ssdp')
-  , netmask     = require('../steward/node_modules/netmask')  
-  , xml2json    = require('../steward/node_modules/xml2json')  
+  , netmask     = require('../steward/node_modules/netmask')
+  , xml2json    = require('../steward/node_modules/xml2json')
   ;
 
 
-SSDP.prototype.notify = function(ipaddr, portno, signature, vars) {/* jshint unused: false */
+SSDP.prototype.notify = function(ifname, ipaddr, portno, signature, vars) {/* jshint unused: false */
   var out;
 
   var self = this;
@@ -22,12 +22,6 @@ SSDP.prototype.notify = function(ipaddr, portno, signature, vars) {/* jshint unu
         { HOST            : '239.255.255.250:1900'
         , 'CACHE-CONTROL' : 'max-age=20'
         , SERVER          : signature
-
-// comment out these lines, if need be...
-        , NT              : usn
-        , NTS             : 'ssdp:alive'
-        , USN             : udn
-        , LOCATION        : 'http://' + ipaddr + '/' + self.description
         }
       ;
 
@@ -40,17 +34,20 @@ SSDP.prototype.notify = function(ipaddr, portno, signature, vars) {/* jshint unu
 // TBD: use the (obsolete) class A/B/C netmasks
     bcast = new netmask.Netmask(ipaddr + '/' + mask).broadcast;
     console.log();
-    console.log('multicasting to ' + bcast + ':1900 from ' + ipaddr + ':' + portno);
+    console.log(ifname + ' multicasting to ' + bcast + ':1900 from ' + ipaddr + ':' + portno);
     console.log(out);
     out = new Buffer(out);
     self.sock.send(out, 0, out.length, 1900, bcast);
   });
 };
 
-var listen = function(ipaddr, portno) {
+var listen = function(ifname, ipaddr, portno) {
   var ssdp;
 
-  ssdp = new SSDP().on('response', function(msg, rinfo) {
+  ssdp = new SSDP({ addMembership     : false
+                  , responsesOnly     : true
+                  , multicastLoopback : false
+                  , noAdvertisements  : true }).on('response', function(msg, rinfo) {
     var f, i, info, j, lines;
 
     lines = msg.toString().split("\r\n");
@@ -85,9 +82,9 @@ var listen = function(ipaddr, portno) {
     }).end();
   });
 
-  ssdp.server(ipaddr, null, portno);
+  ssdp.server('0.0.0.0');    // i suspect this should be ipaddr
   setTimeout(function() {
-    ssdp.notify(ipaddr, portno, 'AIR CONDITIONER',
+    ssdp.notify(ifname, ipaddr, portno, 'AIR CONDITIONER',
                 { SPEC_VER: 'MSpec-1.00', SERVICE_NAME: 'ControlServer-MLib', MESSAGE_TYPE: 'CONTROLLER_START' });
   }, 1000);
 };
@@ -108,7 +105,7 @@ for (ifname in ifaces) {
   for (ifa = 0; ifa < ifaddrs.length; ifa++) {
     if ((ifaddrs[ifa].internal) || (ifaddrs[ifa].family !== 'IPv4')) continue;
 
-    console.log('listening ' + ifname + ' on ' + ifaddrs[ifa].address + ' udp port ' + 10293);
-    listen(ifaddrs[ifa].address, 10293);
+    console.log(ifname + ' listening on ' + ifaddrs[ifa].address + ' udp port ' + 1900);
+    listen(ifname, ifaddrs[ifa].address, 1900);
   }
 }
