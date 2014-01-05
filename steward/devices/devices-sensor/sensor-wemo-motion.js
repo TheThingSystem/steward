@@ -13,7 +13,7 @@ var stringify   = require('json-stringify-safe')
 var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = info.deviceType;
+  self.whatami = '/device/sensor/wemo/motion';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -82,7 +82,13 @@ WeMo_Motion.prototype.perform = function(self, taskID, perform, parameter) {/* j
 </s:Envelope>', function(err, state, response, result) {
     var faults, i;
 
-    self.logger.debug('perform: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
+    self.logger.debug('device/' + self.deviceID, { event  : 'perform'
+                                                 , state  : state
+                                                 , code   : response.statusCode
+                                                 , err    : stringify(err)
+                                                 , result : stringify(result)
+                                                 });
+
     if (err) return;
 
     faults = result.faults;

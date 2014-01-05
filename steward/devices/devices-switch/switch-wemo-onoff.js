@@ -14,7 +14,7 @@ var stringify   = require('json-stringify-safe')
 var WeMo_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = info.deviceType;
+  self.whatami = { Insight: '/device/switch/wemo/meter' }[info.deviceType] || '/device/switch/wemo/onoff';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -23,6 +23,7 @@ var WeMo_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   self.url = info.url;
   self.status = 'waiting';
   self.changed();
+  self.info = { };
   self.sid = null;
   self.seq = 0;
   self.logger = plug.logger;
@@ -38,6 +39,7 @@ var WeMo_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.jumpstart(self);
+  if (self.whatami === '/device/switch/wemo/meter') self.jumpstart(self, '/upnp/event/insight1');
   self.primer(self);
 };
 util.inherits(WeMo_OnOff, plug.Device);
@@ -65,7 +67,13 @@ WeMo_OnOff.prototype.primer = function(self) {/* jshint multistr: true */
 </s:Envelope>', function(err, state, response, result) {
     var faults, i;
 
-    self.logger.debug('primer: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
+    self.logger.debug('device/' + self.deviceID, { event : 'primer'
+                                                 , state : state
+                                                 , code  : response.statusCode
+                                                 , err   : stringify(err)
+                                                 , result: stringify(result)
+                                                 });
+
     if (err) return;
 
     try {
@@ -79,13 +87,18 @@ WeMo_OnOff.prototype.primer = function(self) {/* jshint multistr: true */
   });
 };
 
-WeMo_OnOff.prototype.jumpstart = function(self) {
-  discovery.upnp_subscribe('device/' + self.deviceID, self.url, self.sid, '/upnp/event/basicevent1',
-                           function(err, state, response) {
+WeMo_OnOff.prototype.jumpstart = function(self, path) {
+  if (!path) path = '/upnp/event/basicevent1';
+  discovery.upnp_subscribe('device/' + self.deviceID, self.url, self.sid, path, function(err, state, response) {
     var i, secs;
 
-    self.logger.debug('subscribe: ' + state + ' code ' + response.statusCode,
-                      { err: stringify(err), headers: stringify(response.headers) });
+    self.logger.debug('device/' + self.deviceID, { event   : 'subscribe'
+                                                 , state   : state
+                                                 , code    : response.statusCode
+                                                 , err     : stringify(err)
+                                                 , headers : stringify(response.headers)
+                                                 });
+
     if (err) {
       self.logger.info('device/' + self.deviceID, { event: 'subscribe', diagnostic: err.message });
       setTimeout(function() { self.jumpstart(self); }, secs * 30 * 1000);
@@ -94,7 +107,7 @@ WeMo_OnOff.prototype.jumpstart = function(self) {
 
     if ((response.statusCode !== 200) || (!response.headers.sid)) {
       self.sid = null;
-      setTimeout(function() { self.jumpstart(self); }, secs * 30 * 1000);
+      setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
       return;
     }
 
@@ -105,7 +118,7 @@ WeMo_OnOff.prototype.jumpstart = function(self) {
       if ((i = secs.indexOf('Second-')) >= 0) secs = secs.substring(i + 7);
       secs = parseInt(secs, 10) - 1;
       if (secs <= 10) secs = 10;
-      setTimeout(function() { self.jumpstart(self); }, secs * 1000);
+      setTimeout(function() { self.jumpstart(self, path); }, secs * 1000);
     } else secs = 0;
 
     self.logger.info('device/' + self.deviceID, { subscribe: self.sid, sequence: self.seq, seconds: secs });
@@ -160,7 +173,13 @@ WeMo_OnOff.prototype.perform = function(self, taskID, perform, parameter) {/* js
 </s:Envelope>', function(err, state, response, result) {
     var faults, i;
 
-    self.logger.debug('perform: ' + state + ' code ' + response.statusCode, { err: stringify(err), result: stringify(result) });
+    self.logger.debug('device/' + self.deviceID, { event  : 'perform'
+                                                 , state  : state
+                                                 , code   : response.statusCode
+                                                 , err    : stringify(err)
+                                                 , result : stringify(result)
+                                                 });
+
     if (err) return;
 
     faults = result.faults;
@@ -181,6 +200,10 @@ WeMo_OnOff.prototype.notify = function(self, headers, content) {
   if ((headers.sid !== self.sid) || (headers.seq < self.seq)) return;
   self.seq = headers.seq + 1;
 
+  self.logger.debug('device/' + self.deviceID, { event   : 'notify'
+                                               , content : content
+                                               });
+
   try { parser.parseString(content, function(err, data) {
     if (err) {
       self.logger.error('device/' + self.deviceID, { event: 'xml2js.Parser', content: content, diagnostic: err.message });
@@ -192,24 +215,59 @@ WeMo_OnOff.prototype.notify = function(self, headers, content) {
 };
 
 WeMo_OnOff.prototype.observe = function(self, results) {
-  var i, now, onoff, previous;
+  var changedP, i, now, prop, result, value;
 
   now = new Date();
 
-  previous = self.status;
   if (self.status === 'waiting') self.changed(now);
-  self.status = 'busy';
   if (!util.isArray(results)) return;
 
+  var f = function(k, v) {
+// console.log('>>> k='+k+' v='+v);
+    var g = { BinaryState   : function() {
+                                var onoff  = parseInt(v, 10) ? 'on' : 'off';
+
+                                if (self.status !== onoff) {
+                                  changedP = true;
+                                  self.status = onoff;
+                                }
+                              }
+
+            , InsightParams : function() {
+                                var status = v.split('|')
+                                  , watts  = parseInt(status.length > 6 ? status[6] : 'NaN', 10)
+                                  ;
+
+                                if ((!isNaN(watts)) && (self.info.currentUsage !== watts)) {
+                                  changedP = true;
+                                  self.info.currentUsage = watts;
+                                }
+                              }
+
+            , TodayKWH      : function() {
+                                var status = v.split('|')
+                                  , kwh    = parseInt(status.length > 0 ? status[0] : 'NaN', 10)
+                                  ;
+
+                                if (self.info.dailyUsage !== kwh) {
+                                  changedP = true;
+                                  self.info.dailyUage = kwh;
+                                }
+                              }
+            }[k];
+    if (!!g) g();
+  };
+
+  changedP = false;
   for (i = 0; i < results.length; i++) {
-    onoff = results[i].BinaryState;
-    if (!util.isArray(onoff)) continue;
-
-    self.status = parseInt(onoff[0], 10) ? 'on' : 'off';
-    break;
+    result = results[i];
+    for (prop in result) if (result.hasOwnProperty(prop)) {
+      value = result[prop];
+      if ((util.isArray(value)) && (value.length > 0)) f(prop, value[0]);
+    }
   }
-
-  if (self.status != previous) self.changed(now);
+// console.log('>>> changedP='+changedP);
+  if (changedP) self.changed(now);
 };
 
 
@@ -248,4 +306,11 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
   devices.makers['urn:Belkin:device:controllee:1'] = WeMo_OnOff;
+  devices.makers['urn:Belkin:device:lightswitch:1'] = WeMo_OnOff;
+
+  steward.actors.device['switch'].wemo.meter = utility.clone(steward.actors.device['switch'].wemo.onoff);
+  steward.actors.device['switch'].wemo.meter.$info.type = '/device/switch/wemo/meter';
+  steward.actors.device['switch'].wemo.meter.$info.properties.currentUsage = 'watts';
+  steward.actors.device['switch'].wemo.meter.$info.properties.dailyUsage   = 'watt-hours';
+  devices.makers['urn:Belkin:device:insight:1'] = WeMo_OnOff;
 };

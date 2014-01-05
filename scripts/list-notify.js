@@ -85,7 +85,7 @@ var listen = function(ipaddr, portno) {
     }).end();
   });
 
-  ssdp.server('192.168.1.72', null, portno);
+  ssdp.server(ipaddr, null, portno);
   setTimeout(function() {
     ssdp.notify(ipaddr, portno, 'AIR CONDITIONER',
                 { SPEC_VER: 'MSpec-1.00', SERVICE_NAME: 'ControlServer-MLib', MESSAGE_TYPE: 'CONTROLLER_START' });

@@ -21,7 +21,7 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = info.deviceType;
+  self.whatami = '/device/media/sonos/audio';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -66,8 +66,13 @@ Sonos_Audio.prototype.jumpstart = function(self, path) {
   discovery.upnp_subscribe('device/' + self.deviceID, self.url, self.sid, path, function(err, state, response) {
     var i, secs;
 
-    logger.debug('subscribe: ' + state + ' code ' + response.statusCode,
-                      { err: stringify(err), headers: stringify(response.headers) });
+    logger.debug('device/' + self.deviceID, { event   : 'subscribe'
+                                            , state   : state
+                                            , code    : response.statusCode
+                                            , err     : stringify(err)
+                                            , headers : stringify(response.headers)
+                                            });
+
     if (err) {
       self.error(self, err, 'subscribe');
       setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
@@ -339,7 +344,7 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = info.deviceType;
+  self.whatami = '/device/gateway/sonos/bridge';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
