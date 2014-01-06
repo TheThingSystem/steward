@@ -2174,6 +2174,7 @@ var entries = {
                       }
                            if (quad[4] === 'monitor')     result.img = 'actors/sensor-meteo.svg';
                       else if (quad[4] === 'temperature') result.img = 'actors/sensor-meteo.svg';
+                      else if (quad[4] === 'sensor')      result.img = 'actors/sensor-generic.svg';
                       else                                result.img = 'actors/sensor-' + quad[4] + '.svg';
                       result.single = single_climate_drilldown;
                       result.arcs = climate_device_arcs;
