@@ -223,7 +223,6 @@ WeMo_OnOff.prototype.observe = function(self, results) {
   if (!util.isArray(results)) return;
 
   var f = function(k, v) {
-// console.log('>>> k='+k+' v='+v);
     var g = { BinaryState   : function() {
                                 var onoff  = parseInt(v, 10) ? 'on' : 'off';
 
@@ -266,7 +265,6 @@ WeMo_OnOff.prototype.observe = function(self, results) {
       if ((util.isArray(value)) && (value.length > 0)) f(prop, value[0]);
     }
   }
-// console.log('>>> changedP='+changedP);
   if (changedP) self.changed(now);
 };
 
