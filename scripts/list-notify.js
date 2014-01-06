@@ -37,6 +37,7 @@ SSDP.prototype.notify = function(ifname, ipaddr, portno, signature, vars) {/* js
     console.log(ifname + ' multicasting to ' + bcast + ':1900 from ' + ipaddr + ':' + portno);
     console.log(out);
     out = new Buffer(out);
+    self.sock.setBroadcast(true);
     self.sock.send(out, 0, out.length, 1900, bcast);
   });
 };
@@ -64,25 +65,27 @@ var listen = function(ifname, ipaddr, portno) {
       console.log(info);
     };
 
-    http.request(url.parse(info.LOCATION || info.Location), function(response) {
-      var data = '';
+    if (info.LOCATION || info.Location) {
+      http.request(url.parse(info.LOCATION || info.Location), function(response) {
+        var data = '';
 
-      response.on('data', function(chunk) {
-        data += chunk.toString();
-      }).on('end', function() {
+        response.on('data', function(chunk) {
+          data += chunk.toString();
+        }).on('end', function() {
+          f();
+          console.log(xml2json.toJson(data));
+        }).on('close', function() {
+          f();
+          console.log('socket premature eof');
+        }).setEncoding('utf8');
+      }).on('error', function(err) {
         f();
-        console.log(xml2json.toJson(data));
-      }).on('close', function() {
-        f();
-        console.log('socket premature eof');
-      }).setEncoding('utf8');
-    }).on('error', function(err) {
-      f();
-      console.log('socket error: ' + err.message);
-    }).end();
+        console.log('socket error: ' + err.message);
+      }).end();
+    }
   });
 
-  ssdp.server('0.0.0.0');    // i suspect this should be ipaddr
+  ssdp.server('0.0.0.0');
   setTimeout(function() {
     ssdp.notify(ifname, ipaddr, portno, 'AIR CONDITIONER',
                 { SPEC_VER: 'MSpec-1.00', SERVICE_NAME: 'ControlServer-MLib', MESSAGE_TYPE: 'CONTROLLER_START' });
