@@ -22,6 +22,20 @@ table.short-form td { padding: 10px; }
 .form-container { background: url('d3/popovers/assets/window.form.svg') no-repeat; width: 600px; height: 250px; padding: 30px; margin: 30px auto; }
 .form-container-short { background: url('d3/popovers/assets/window.form.short.svg') no-repeat; width: 600px; height: 180px; padding: 30px; margin: 30px auto; }
 .form-container table { width: 600px; }
+
+/* log in screen elements */
+#login {
+        position: absolute;
+        width: 600px;
+        height: 210px;
+        text-align: center;
+}
+
+#login form {
+		width: 420px;
+		margin: -10px 90px;
+}
+
   
 @font-face {
   font-family: "Roadgeek 2004 Series C";
@@ -35,6 +49,9 @@ table.short-form td { padding: 10px; }
 
   
 </style>
+
+<script type='text/javascript' src='d3/d3.v2.js'></script>
+
 <script>
 
 var reqno = 1;
@@ -121,7 +138,7 @@ var validate_create = function() {
     var w, x, y, z;
 
     if (!!message.result) {
-      listall();
+      listall(true);
 
       qrcode.src = message.result.authenticatorURL;
       otpURL.href = message.result.otpURL;
@@ -180,7 +197,7 @@ var validate_test = function() {
   authenticate_user(ws, name, code, function(message) {
     console.log(JSON.stringify(message));
     if (!!message.result) {
-      listall();
+      listall(true);
       status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
       return true;
     }
@@ -196,10 +213,10 @@ var validate_test = function() {
   return false;
 };
 
-var listall = function() {
+var listall = function(fromCreation) {
   list_users(ws, function(message) {
     var client, clientID, firstP, table, text, user, x, y;
-
+    
     table = '';
 
     users = message.result.users;
@@ -240,16 +257,147 @@ var listall = function() {
       text = '<table><tr><td>User</td><td>Role</td><td>User Info&nbsp;&nbsp;</td>'
               + '<td>Client</td><td>Name</td><td>Client Info&nbsp;&nbsp;</td><td>Last Login</td></tr>'
               + table + '</table>';
+      if (!fromCreation) showLogin();
     } else text = 'None.';
 
     document.getElementById('user-container').innerHTML = text;
   });
+  
+  function objHasProps(obj) {
+    for (var prop in obj) {
+      if (obj.hasOwnProperty(prop)) return true;
+    }
+    return false;
+  };
 };
 
 var last_login = function(time) {
   if (!!time) return time_ago(time, true);
   return '';
 }
+
+var showLogin = function() {
+  var div, form, table, td, tr;
+  
+  disableCreate(true);
+  
+  d3.select("#main")
+    .style("opacity", 1)
+    .transition()
+    .duration(500)
+    .style("opacity", 0);
+  div = d3.select("body")
+  	.append("div")
+  	.attr("id", "login")
+  	.classed("form-container-short", true)
+  	.style("display", "block")
+  	.style("left", function() { return ((document.body.offsetWidth / 2) - 322) + "px"; })
+  	.style("top", "-240px");
+  form = div.append("form")
+  	.attr("name", "loginForm")
+  	.attr("action", "#");
+  table = form.append("table")
+    .classed("short-form", true);
+    
+  tr = table.append("tr");
+  tr.append("td").text("Client ID:");
+  tr.append("td")
+  	.append("input")
+  	  .attr("type", "text")
+  	  .attr("name", "userName");
+  tr.append("td").text("e.g., \'root/1\'");
+  
+  tr = table.append("tr");
+  tr.append("td").text("Login code:");
+  tr.append("td")
+  	.append("input")
+  	  .attr("type", "text")
+  	  .attr("name", "userCode")
+  	  .attr("onkeyup", "javascript:submitLogin(event)");
+  tr.append("td").text("e.g., \'123456\'");
+
+  tr = table.append("tr");
+  tr.append("td");
+  td = tr.append("td")
+    .style("text-align", "center");
+  td.append("img")
+  	  .attr("src", "d3/popovers/assets/login.svg")
+  	  .style("cursor", "pointer")
+  	  .on("click", login);
+  tr = table.append("tr")
+    .append("td")
+  	.attr("colspan", "3")
+  	.style("text-align", "center")
+  	.style("padding-bottom", "15px")
+    .attr("id", "loginStatus");
+
+  d3.select("#login")
+    .style("top", "-240px")
+    .transition()
+    .duration(500)
+    .style("top", function() { var top = window.pageYOffset || document.documentElement.scrollTop; return top + 150 + "px" });
+    
+};
+
+var hideLogin = function() {
+  d3.select("#login")
+    .transition()
+    .duration(300)
+    .style("top", "-240px")
+    .remove();
+  d3.select("#main")
+    .style("opacity", 0)
+    .transition()
+    .duration(300)
+    .style("opacity", 1);
+  disableCreate(false);
+}
+
+var submitLogin = function(evt) {
+    if (evt.keyCode === 13) login();
+}
+
+var disableCreate = function(state) {
+  document.forms["createForm"].userName.disabled = state;
+  document.forms["createForm"].userComments.disabled = state;
+  document.forms["createForm"].userRole.disabled = state;
+  document.getElementById("create-button").style.display = (state) ? "none" : "inline";
+}
+
+var login = function() {
+  var form         = document.forms.loginForm
+    , name         = form.userName.value
+    , code         = form.userCode.value
+    , loginStatus  = document.getElementById('loginStatus')
+    ;
+
+  loginStatus.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    return false;
+  }
+  
+  authenticate_user(ws, name, code, function(message) {
+    console.log(JSON.stringify(message));
+    if (!!message.result) {
+      loginStatus.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      disableCreate(false);
+      setTimeout(function() {
+        hideLogin();
+      }, 2 * 1000);
+//      return true;
+    }
+
+    if (!!message.error) {
+      loginStatus.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+//      return true;
+    }
+
+    return false;
+  });
+  return false;
+};
 
 // http://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
 var time_ago = function(time, agoP) {
@@ -319,7 +467,7 @@ var go = function(steward, i) {
                            , fingerprint : '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
                            , requestID   : add_callback(function(message) { console.log(JSON.stringify(message)); })
                            }));
-    listall();
+    listall(false);
     return;
 
 /*
@@ -499,7 +647,7 @@ Input a short name (e.g., "user") and a longer, more descriptive name (e.g., "Us
     </select></td>
 </tr>
 <tr valign='top'>
-    <td colspan="2" style="padding-top: 15px; padding-left: 15px; padding-right: 25px;"><span id='status'></span><input type="image" src="d3/popovers/assets/create.svg" value='Create' style="float: right;" /></td>
+    <td colspan="2" style="padding-top: 15px; padding-left: 15px; padding-right: 25px;"><span id='status'></span><input type="image" src="d3/popovers/assets/create.svg" value='Create' id="create-button" style="float: right;" /></td>
 </tr>
 <tr><td colspan='4'><font color='green'><span id='otpWords'><br /></span></font></td></tr>
 </table>
