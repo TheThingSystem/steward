@@ -195,7 +195,6 @@ var validate_test = function() {
   }
 
   authenticate_user(ws, name, code, function(message) {
-    console.log(JSON.stringify(message));
     if (!!message.result) {
       listall(true);
       status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
@@ -379,7 +378,6 @@ var login = function() {
   }
   
   authenticate_user(ws, name, code, function(message) {
-    console.log(JSON.stringify(message));
     if (!!message.result) {
       loginStatus.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
       disableCreate(false);
@@ -465,7 +463,7 @@ var go = function(steward, i) {
 
     ws.send(JSON.stringify({ path        : '/api/v1/user/prime/1/1'
                            , fingerprint : '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
-                           , requestID   : add_callback(function(message) { console.log(JSON.stringify(message)); })
+                           , requestID   : add_callback(function(message) { /* console.log(JSON.stringify(message)); */ })
                            }));
     listall(false);
     return;
