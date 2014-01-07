@@ -277,7 +277,8 @@ p.actor-name {
 }
 
 #login form {
-		margin: 15px 110px;
+		width: 420px;
+		margin: 20px 90px;
 }
 
 .form-container table { width: 600px; }
@@ -390,10 +391,10 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 .notification-text {
 		color: #f00;
 		float: right;
-		margin: 8px 2px 2px 2px;
+		margin: 6px 2px 2px 2px;
 }
 
-.notification-ok { float: right; margin: 6px 2px;
+.notification-ok { float: right; margin: 4px 2px;
 		text-align: center; position: relative; padding: 0px 5px; background-color: #f00;
 		white-space: nowrap;
 		cursor: pointer;
@@ -406,9 +407,19 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 
 /* reauthenticator panel */
 
+#to-config {
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    top: 3px;
+    padding: 2px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
 .reauthenticator {
 		position: absolute;
-		left: 10px;
+		left: 36px;
 		height: 32px;
 		width: 780px;
 		top: 5px;
@@ -433,9 +444,8 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 .reauthenticator-text {
 		color: #fff;
 		float: left;
-		margin-left: -4px;
 		height: 18px;
-		margin: 2px;
+		margin: 2px 2px 2px -4px;
 		text-align: center; position: relative !important; padding: 3px 8px; background-color: #000;
 		white-space: nowrap;
 		cursor: pointer;

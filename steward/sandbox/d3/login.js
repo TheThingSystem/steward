@@ -42,9 +42,17 @@ var showLogin = function() {
   tr.append("td").text("e.g., \'123456\'");
 
   tr = table.append("tr");
-  tr.append("td");
   td = tr.append("td")
+  	.attr("colspan", "3")
     .style("text-align", "center");
+  td.append("img")
+  	  .attr("src", "popovers/assets/create-account.svg")
+  	  .style("cursor", "pointer")
+  	  .on("click", function() { window.location = "../client.html"; });
+  td.append("img")
+  	  .attr("src", "popovers/assets/cancel-login.svg")
+  	  .style("cursor", "pointer")
+  	  .on("click", hideLogin);
   td.append("img")
   	  .attr("src", "popovers/assets/login.svg")
   	  .style("cursor", "pointer")
@@ -101,7 +109,13 @@ var showReauth = function() {
 
 var showSettings = function() {
   var btn, chkbox, div, div2, form, i, img, lbl, option, radio, select, settings, span, txtbox;
-
+  
+  if (document.getElementById('settings')) return;
+  
+  img = document.getElementById("to-config");
+  img.disabled = true;
+  img.style.opacity = 0.3;
+  
   div = document.createElement('div');
   div.setAttribute('id', 'settings');
   
@@ -270,7 +284,10 @@ var closeSettings = function(evt) {
   stack.push({ page: home });
   refreshActors(0);
 
-//  setTimeout(main, 500);
+  var img = document.getElementById("to-config");
+  img.disabled = false;
+  img.style.opacity = 1;
+  
   return false;
 }
 

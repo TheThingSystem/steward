@@ -86,6 +86,13 @@ var home = function(state) {
   names = allNames(message);
   tags = allTags(message);
   categories = allCategories(message);
+  
+  img = document.createElement('img');
+  img.setAttribute('id', 'to-config');
+  img.setAttribute('src', 'popovers/assets/gear.svg');
+  img.setAttribute('title', 'To configuration screen...');
+  img.setAttribute('onclick', 'javascript:showSettings()');
+  chart.appendChild(img);
 
   chart = document.getElementById('chart');
 
@@ -111,7 +118,7 @@ var home = function(state) {
   div.innerHTML = '<div class="big-instructions" style="padding-top: 0px;">We are ready.<br />'
                   + '<span style="color: #666;">Please send instructions.</span></div>'
                   + '<div class="small-instructions">'
-                  + '<span id="sName" style="color:' + place.status + '; cursor: pointer;" onclick=showSettings()>' + place.name + '</span>'
+                  + '<span id="sName" style="color:' + place.status + ';">' + place.name + '</span>'
                   + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
 
