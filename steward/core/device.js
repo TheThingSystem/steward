@@ -420,17 +420,12 @@ exports.validate_perform = function(perform, parameter) {
     , result = { invalid: [], requires: [] }
     ;
 
+  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
   if (perform !== 'set') {
     result.invalid.push('perform');
     return result;
   }
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (!params.name) result.requires.push('name');
 
