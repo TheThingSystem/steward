@@ -501,7 +501,7 @@ var place_info   = { name        : 'Home'
                    };
 
 var bootable = { ecobee         :
-                 { text         : 'If you have an Ecobee SmartSi thermostat, the steward can manage it for you.'
+                 { text         : 'If you have the Ecobee SmartSi thermostat, the steward can manage it for you.'
                  , instructions : 'Go to https://plus.google.com/communities/113042377519941328693 and ask for help, sorry!'
                  , site         : 'https://www.ecobee.com'
                  , icon         : ''
@@ -512,19 +512,21 @@ var bootable = { ecobee         :
                    }
                  }
                , 'flower power' :
-                 { text         : 'If you have a Parrot Flower Power, the steward can manage it for you.'
-                 , instructions : 'Enter your email and password.'
+                 { text         : 'If you have the Parrot Flower Power, the steward can manage it for you.'
+                 , instructions : 'Enter your OAuth info, along with your Flower Power email address and password. To get OAuth info, go to https://apiflowerpower.parrot.com/api_access/signup.'
                  , site         : 'http://www.parrot.com/flowerpower'
                  , icon         : ''
                  , name         : 'flower-power'
                  , actor        :'/device/gateway/flower-power/cloud'
                  , info         :
-                   { email      : ''
+                   { accessID   : ''
+                   , accessSecret : ''
+                   , email      : ''
                    , passphrase : ''
                    }
                  }
                , koubachi       :
-                 { text         : 'If you have a Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
+                 { text         : 'If you have the Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
                  , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'
                  , site         : 'https://mykoubachi.com'
                  , icon         : ''
@@ -549,7 +551,7 @@ var bootable = { ecobee         :
                    }
                  }
                , nest           :
-                 { text         : 'If you have a Nest thermostat, the steward can manage it for you.'
+                 { text         : 'If you have the Nest thermostat, the steward can manage it for you.'
                  , instructions : 'Enter your email address and password.'
                  , site         : 'https://home.nest.com'
                  , icon         : ''
@@ -561,7 +563,7 @@ var bootable = { ecobee         :
                    }
                  }
                , netatmo        :
-                 { text         : 'If you have a Netatmo weather station, the steward can manage it for you.'
+                 { text         : 'If you have the Netatmo weather station, the steward can manage it for you.'
                  , instructions : 'Enter your email and password.'
                  , site         : 'https://my.netatmo.com'
                  , icon         : ''
@@ -584,7 +586,7 @@ var bootable = { ecobee         :
                    }
                  }
                , tesla          :
-                 { text         : 'If you have a Tesla Model S, the steward can monitor it for you.'
+                 { text         : 'If you have the Tesla Model S, the steward can manage it for you.'
                  , instructions : 'Enter your email address and password.'
                  , site         : 'https://teslamotors.com/mytesla'
                  , icon         : ''
@@ -596,14 +598,16 @@ var bootable = { ecobee         :
                    }
                  }
                , wink           :
-                 { text         : 'If you have a Quirky smart device, the steward can monitor it for you.'
-                 , instructions : 'Enter your email and password.'
+                 { text         : 'If you have one or more Quirky smart devices, the steward can manage them for you.'
+                 , instructions : 'Enter your OAuth info, along with your Wink email and password. To get OAuth info, send an email to questions@quirkyinc.com.'
                  , site         : 'http://www.quirky.com'
                  , icon         : ''
                  , name         : 'netatmo'
                  , actor        :'/device/gateway/wink/cloud'
                  , info         :
-                   { email      : ''
+                   { clientID   : ''
+                   , clientSecret : ''
+                   , email      : ''
                    , passphrase : ''
                    }
                  }
