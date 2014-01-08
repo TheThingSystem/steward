@@ -276,7 +276,7 @@ var go = function(steward) {
     }
    }
     
-  ws.onclose = function(evt) { if (!readOnlyAcess) notify("Connection lost. Restart steward and refresh browser."); };
+  ws.onclose = function(evt) { if (!readOnlyAccess) notify("Connection lost. Restart steward and refresh browser."); };
   ws.onerror = function(evt) { notify(evt.reason); };
 
   
