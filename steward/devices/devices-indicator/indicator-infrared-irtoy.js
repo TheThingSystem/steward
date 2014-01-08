@@ -227,9 +227,9 @@ var fingerprints  =
   [ { vendor         : 'Dangerous Prototypes'
     , modelName      : 'TES42756P'
     , description    : 'USB Infrared Toy'
-    , manufacturer   : 'Dangerous Prototypes'
-    , vendorId       : ''
-    , productId      : ''
+    , manufacturer   : 'Microchip Technology, Inc.'
+    , vendorId       : 0x04d8
+    , productId      : 0xfd08
     , pnpId          : 'usb-Dangerous_Prototypes_CDC_'
     , deviceType     : '/device/indicator/irtoy/infrared'
     }
@@ -244,7 +244,7 @@ var scan = function() {
         if (!err) return scan1(serial, driver);
 
         scanning[driver.comName] = false;
-        return logger2.error('infrared-irtoy', { driver: driver.comName, diagnostic: err.message });        
+        return logger2.error('infrared-irtoy', { driver: driver.comName, diagnostic: err.message });
       };
     };
 
