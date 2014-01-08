@@ -92,7 +92,7 @@ IRToy.prototype.observe = function(self, data) {
   signal = data.toString('hex');
 
 
-// transform signal as appropriate!
+// TBD: transform signal as appropriate!
 
 
   self.info.signal = signal;
@@ -129,7 +129,7 @@ var validate_observe = function(observe, parameter) {
     }
   }
 
-// continue to validate signal here...
+// TBD: continue to validate signal here...
 
   return result;
 };
@@ -159,13 +159,13 @@ IRToy.prototype.perform = function(self, taskID, perform, parameter) {
   if ((!signal) || (signal.length === 0)) return false;
 
 
-// transform signal as appropriate!
+// TBD: transform signal as appropriate!
 
 
   this.serial.write(signal, function(err) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'write', diagnostic: err.message });
 
-// change this to debug prior to acceptance
+// TBD: change this to debug prior to acceptance
     this.serial.drain(function(err) {
       if (!!err) return logger.error('device/' + self.deviceID, { event: 'drain', diagnostic: err.message });
     });
@@ -206,7 +206,7 @@ var validate_perform = function(perform, parameter) {
     return result;
   }
 
-// continue to validate signal here...
+// TBD: continue to validate signal here...
 
   return result;
 };
