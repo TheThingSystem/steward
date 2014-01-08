@@ -95,8 +95,8 @@ Cloud.prototype.scan = function(self) {
                , lastSample      : new Date(plant.last_sample_utc).getTime()
                , needsWater      : plant.status.soil_moisture.status_key !== 'status_ok'                ? 'true' : 'false'
                , needsFertilizer : plant.status.fertilizer.status_key    !== 'status_ok'                ? 'true' : 'false'
-               , adviseChange    : plant.status.air_temperature.instruction_key.indexOf('_good') !== -1 ? 'true' : 'false'
-               , adviseLight     : plant.status.light.instruction_key.indexOf('_good') !== -1           ? 'true' : 'false'
+               , adviseChange    : plant.status.air_temperature.instruction_key.indexOf('_good') === -1 ? 'true' : 'false'
+               , adviseLight     : plant.status.light.instruction_key.indexOf('_good') === -1           ? 'true' : 'false'
                };
 
       udn = 'flower-power:plant:' + k;
