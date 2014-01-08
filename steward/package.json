@@ -31,6 +31,7 @@
     , "netmask"             : "1.0.4"
     , "noble"               : "git://github.com/sandeepmistry/noble.git"
     , "node-blink1"         : "0.1.0"
+    , "node-flower-power-cloud" : "git://github.com/TheThingSystem/node-flower-power-cloud.git"
     , "node-hid"            : "0.2.3"
     , "node-lsof"           : "git://github.com/TheThingSystem/node-lsof.git"
     , "node-netatmo"        : "git://github.com/TheThingSystem/node-netatmo.git"

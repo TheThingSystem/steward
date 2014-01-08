@@ -1,4 +1,4 @@
-// koubachi - interactive plant care: http://www.koubachi.com
+// Parrot Flower Power: http://www.parrot.com/flowerpower/
 
 var util        = require('util')
   , devices     = require('./../../core/device')
@@ -102,7 +102,7 @@ Plant.prototype.update = function(self, params) {
     updateP = true;
   }
 
-  color = ((self.info.needsWater === 'true') || (self.info.needsMist === 'true') || (self.info.needsFertilizer === 'true'))
+  color = ((self.info.needsMist === 'true') || (self.info.needsFertilizer === 'true'))
               ? 'orange' : ((self.info.adviseChange === 'true') || (self.info.adviseLight === 'true')) ? 'blue' : 'green';
   if (self.status !== color) {
     self.status = color;
@@ -115,33 +115,31 @@ Plant.prototype.update = function(self, params) {
 exports.start = function() {
   var colors, status;
 
-  steward.actors.device.climate.koubachi = steward.actors.device.climate.koubachi ||
-      { $info     : { type: '/device/climate/koubachi' } };
+  steward.actors.device.climate['flower-power'] = steward.actors.device.climate['flower-power'] ||
+      { $info     : { type: '/device/climate/flower-power' } };
 
-  steward.actors.device.climate.koubachi.soil =
-      { $info     : { type       : '/device/climate/koubachi/soil'
+  steward.actors.device.climate['flower-power'].soil =
+      { $info     : { type       : '/device/climate/flower-power/soil'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
                                    , status       : [ 'present' ]
                                    , placement    : true
                                    , lastSample   : 'timestamp'
-                                   , nextSample   : 'timestamp'
                                    , moisture     : 'millibars'
                                    , temperature  : 'celsius'
                                    , light        : 'lux'
-                                   , batteryLevel : 'percentage'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }
       };
-  devices.makers['/device/climate/koubachi/soil'] = Sensor;
+  devices.makers['/device/climate/flower-power/soil'] = Sensor;
 
   colors = [];
   for (status in devices.rainbow) if (devices.rainbow.hasOwnProperty(status)) colors.push(devices.rainbow[status].color);
 
-  steward.actors.device.climate.koubachi.plant =
-      { $info     : { type       : '/device/climate/koubachi/plant'
+  steward.actors.device.climate['flower-power'].plant =
+      { $info     : { type       : '/device/climate/flower-power/plant'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name            : true
@@ -149,7 +147,6 @@ exports.start = function() {
                                    , placement       : true
                                    , lastSample      : 'timestamp'
                                    , needsWater      : [ 'true', 'false' ]
-                                   , needsMist       : [ 'true', 'false' ]
                                    , needsFertilizer : [ 'true', 'false' ]
                                    , adviseChange    : true
                                    , adviseLight     : true
@@ -157,5 +154,5 @@ exports.start = function() {
                     }
       , $validate : { perform    : devices.validate_perform }
       };
-  devices.makers['/device/climate/koubachi/plant'] = Plant;
+  devices.makers['/device/climate/flower-power/plant'] = Plant;
 };

@@ -511,6 +511,18 @@ var bootable = { ecobee         :
                    { appkey     : ''
                    }
                  }
+               , 'flower power' :
+                 { text         : 'If you have a Parrot Flower Power, the steward can manage it for you.'
+                 , instructions : 'Enter your email and password.'
+                 , site         : 'http://www.parrot.com/flowerpower'
+                 , icon         : ''
+                 , name         : 'flower-power'
+                 , actor        :'/device/gateway/flower-power/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
+                   }
+                 }
                , koubachi       :
                  { text         : 'If you have a Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
                  , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'
