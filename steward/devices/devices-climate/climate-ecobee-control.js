@@ -118,6 +118,7 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!Sensor.operations[perform]) {
     if (Sensor.operations[perform](this, params)) {
+      setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
       return steward.performed(taskID);
     }
   }
