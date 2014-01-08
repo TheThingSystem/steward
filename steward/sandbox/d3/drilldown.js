@@ -905,10 +905,6 @@ var no_instructions = function(device) {
   return '';
 }
 
-var single_sensor_drilldown    = single_device_drilldown;
-var sensor_device_arcs         = single_device_arcs;
-
-
 var single_climate_drilldown = function(state) {
   var device, entry, instructions;
 
@@ -1551,23 +1547,19 @@ var deg2rad = function(deg) {
 };
 
 
-var single_presence_drilldown  = function(state) {
-  return single_device_drilldown(state);
-};
+var single_presence_drilldown  = single_device_drilldown;
 var presence_device_arcs       = single_device_arcs;
 
 
-var single_switch_drilldown    = function(state) {
-  return single_device_drilldown(state);
-};
+var single_sensor_drilldown    = single_climate_drilldown;
+var sensor_device_arcs         = climate_device_arcs;
 
+
+var single_switch_drilldown    = single_device_drilldown;;
 var switch_device_arcs         = single_device_arcs;
 
 
-var single_wearable_drilldown  = function(state) {
-  return single_device_drilldown(state);
-};
-
+var single_wearable_drilldown  = single_device_drilldown;
 var wearable_device_arcs       = single_device_arcs;
 
 
@@ -2223,7 +2215,9 @@ var entries = {
 
                     case 'sensor':
 // temporary
-                      if (quad[4] === 'sensortag') result.img = 'actors/' + quad[2] + '-generic.svg';
+                      if ((quad[4] === 'spotter') || (quad[4] === 'sensortag')) {
+                        result.img = 'actors/' + quad[2] + '-generic.svg';
+                      }
                       result.single = single_sensor_drilldown;
                       result.arcs = sensor_device_arcs;
                       result.instrux = no_instructions;

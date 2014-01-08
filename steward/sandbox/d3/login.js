@@ -583,6 +583,18 @@ var bootable = { ecobee         :
                    , passphrase : ''
                    }
                  }
+               , wink           :
+                 { text         : 'If you have a Quirky smart device, the steward can monitor it for you.'
+                 , instructions : 'Enter your email and password.'
+                 , site         : 'http://www.quirky.com'
+                 , icon         : ''
+                 , name         : 'netatmo'
+                 , actor        :'/device/gateway/wink/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
+                   }
+                 }
                , xively         :
                  { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
                  , instructions : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed.'

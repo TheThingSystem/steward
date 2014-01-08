@@ -34,3 +34,6 @@ zwscene.xml
 zwcfg_*.xml
 
 .node-xmlhttprequest-*
+
+gateway-wink-cloud.js
+sensor-wink-spotter.js
