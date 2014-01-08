@@ -277,9 +277,11 @@ p.actor-name {
 }
 
 #login form {
-		width: 420px;
-		margin: 20px 90px;
+		width: 470px;
+		margin: 20px 60px;
 }
+
+#login form img { margin: 0px 4px; }
 
 .form-container table { width: 600px; }
 table.short-form td { padding: 10px; font-size: 18px; text-align: left; }
@@ -377,7 +379,7 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 		position: absolute;
 		left: 100px;
 		height: 32px;
-		width: 650px;
+		width: 675px;
 		top: -32px;
 		z-index: 1000;
 		background-color: transparent;

@@ -59,7 +59,8 @@ body {
 var stack       = [];
 var ws2;          // Steward /manage socket
 var currDevice  = {actor: "", device: {}, entry: {}};   // To carry over actor from one request type to another
-var permissions = [];
+var loginInfo   = {clientID: "", permissions: []};
+var readOnlyAccess = false;
 
 var login = function(evt) {
   var form         = document.forms.loginForm
@@ -69,6 +70,7 @@ var login = function(evt) {
     ;
 
   loginStatus.innerHTML = '';
+  readOnlyAccess = false;
 
   if (!!code) code = code.replace(/^\s+|\s+$/g, '');
   if ((!code) || (code.length === 0)) {
@@ -81,8 +83,22 @@ var login = function(evt) {
   return false;
 };
 
+var switchToReadOnly = function() {
+  readOnlyAccess = true;
+  loginInfo.permissions = ["read-only"];
+  loginInfo.clientID = "";
+  if (ws2) ws2.close();
+  main();
+};
+
 var main = function(name, code) {
-  var steward = { hostname : window.location.hostname
+  var steward = (readOnlyAccess) ? 
+        { hostname : window.location.hostname
+				, port     : "8887"
+				, protocol : 'ws:'
+				, secure   : false
+				}                        :
+			  { hostname : window.location.hostname
 				, port     : window.location.port
 				, protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
 				, secure   : (window.location.protocol.indexOf('https:') === 0)
@@ -138,7 +154,10 @@ var go = function(steward) {
           if (message.error.permanent) {
             priorityNotify(message.error.diagnostic);
           } else {
-            notify(message.error.diagnostic);
+            if (readOnlyAccess && (/unknown api\:/.test(message.error.diagnostic)) && 
+              (/perform/.test(message.error.diagnostic))) {
+                notify("You have read-only access.");
+            } else notify(message.error.diagnostic);
           }
         }
         
@@ -207,29 +226,27 @@ var go = function(steward) {
     }
     
     if ((!!message.notice) && (!!message.notice.permissions)) {
-      permissions = message.notice.permissions;
+      loginInfo.permissions = message.notice.permissions;
       resetNotifications();
       showReauth();
     }
     
-    if (!!message.manage && message.manage.length > 0) {
+    if (!readOnlyAccess && !!message.manage && message.manage.length > 0) {
       for (i = 0; i < message.manage.length; i++) {
-        if (message.manage[i].level === "warning") {
-          if (message.manage[i].hasOwnProperty("meta") && message.manage[i].meta.hasOwnProperty("diagnostic")) {
-            if (message.manage[i].meta.diagnostic === "unauthorized" && message.manage[i].meta.event === "access") {
-                if (!document.URL.match("127.0.0.1")) {
-                  priorityNotify("You are not authorized to change settings. Authenticate via \"Change Login\" on home page.");
-                }
-              break;
-            }
-          }
+        if (message.manage[i].meta && message.manage[i].meta.hasOwnProperty("clientID")) {
+          loginInfo.clientID = message.manage[i].meta.clientID;
+          break;
         }
       }
     }
     
     if (message.hasOwnProperty("error")) {
       if (message.error.permanent) {
-        priorityNotify(message.error.diagnostic);
+        if (readOnlyAccess && message.error.diagnostic === "access control") {
+          priorityNotify("You are not authorized to change settings. Click \"Change Login\" to authenticate.");
+        } else {
+          priorityNotify(message.error.diagnostic);
+        }
       } else {
         notify(message.error.diagnostic);
       }
@@ -241,6 +258,7 @@ var go = function(steward) {
           update = message[".updates"][i];
           if (update.level === "alert") {
             notify("From " + update.name + ":" + update.message);
+            return;
           }
         }
     	state = stack.pop();
@@ -258,7 +276,7 @@ var go = function(steward) {
     }
    }
     
-  ws.onclose = function(evt) { notify("Connection lost. Restart steward and refresh browser."); };
+  ws.onclose = function(evt) { if (!readOnlyAcess) notify("Connection lost. Restart steward and refresh browser."); };
   ws.onerror = function(evt) { notify(evt.reason); };
 
   

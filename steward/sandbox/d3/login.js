@@ -1,4 +1,4 @@
-var showLogin = function() {
+var showLogin = function(changeLogin) {
   var chart, div, form, table, td, tr;
   
   if (!document.getElementById("logo")) {
@@ -49,10 +49,23 @@ var showLogin = function() {
   	  .attr("src", "popovers/assets/create-account.svg")
   	  .style("cursor", "pointer")
   	  .on("click", function() { window.location = "../client.html"; });
-  td.append("img")
+  if (changeLogin) {
+    if (!readOnlyAccess) {
+      td.append("img")
+  	    .attr("src", "popovers/assets/read-only.svg")
+  	    .style("cursor", "pointer")
+  	    .on("click", function() { hideLogin(); switchToReadOnly(); });
+  	}
+    td.append("img")
   	  .attr("src", "popovers/assets/cancel-login.svg")
   	  .style("cursor", "pointer")
   	  .on("click", hideLogin);
+  } else {
+    td.append("img")
+  	  .attr("src", "popovers/assets/read-only.svg")
+  	  .style("cursor", "pointer")
+  	  .on("click", function() { hideLogin(); switchToReadOnly(); });
+  }
   td.append("img")
   	  .attr("src", "popovers/assets/login.svg")
   	  .style("cursor", "pointer")
@@ -62,7 +75,9 @@ var showLogin = function() {
   	.attr("colspan", "3")
   	.style("text-align", "center")
   	.style("padding-bottom", "15px")
-    .attr("id", "loginStatus");
+    .attr("id", "loginStatus")
+    .html(function() { return (loginInfo.clientID !== '') ?
+                       '<font color="green">logged in with Client ID: ' + loginInfo.clientID + '</font>' : '' });
 
   d3.select("#login")
     .style("top", "-240px")
@@ -70,6 +85,8 @@ var showLogin = function() {
     .duration(600)
     .style("top", "120px");
     
+  if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
+  
 };
 
 var hideLogin = function() {
@@ -79,6 +96,7 @@ var hideLogin = function() {
     .duration(600)
     .style("top", "-240px")
     .remove();
+  if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', 'javascript:showLogin(true)');
 }
 
 var submitLogin = function(evt) {
@@ -87,21 +105,23 @@ var submitLogin = function(evt) {
 
 var showReauth = function() {
   var chart, div, div2;
-  if (!document.getElementById('reauthenticator') && (document.URL.indexOf("https://") === 0)) {
+  if (document.getElementById('reauthenticator')) document.getElementById('chart').removeChild(document.getElementById('reauthenticator'));
+  if (document.URL.indexOf("https://") === 0) {
     chart = document.getElementById("chart");
     div = document.createElement('div');
     div.setAttribute('class', 'reauthenticator');
     div.setAttribute('id', 'reauthenticator');
     chart.appendChild(div);
     div2 = document.createElement('div');
+    div2.setAttribute('id', 'relogin');
     div2.setAttribute('class', 'relogin');
     div2.innerHTML = "CHANGE&nbsp;LOGIN";
-    div2.setAttribute('onclick', 'javascript:showLogin()');
+    div2.setAttribute('onclick', 'javascript:showLogin(true)');
     div.appendChild(div2);
-    if (permissions.length > 0) {
+    if (loginInfo.permissions.length > 0) {
       div2 = document.createElement('div');
       div2.setAttribute('class', 'reauthenticator-text');
-      div2.innerText = "Authorized for " + permissions.join("/") + ".";
+      div2.innerText = "Authorized for " + loginInfo.permissions.join("/") + ".";
       div.appendChild(div2);
     }
   }
