@@ -566,7 +566,7 @@ var readyP = function() {
   }
 
   db = database.db;
-  db.get('SELECT value from deviceProps where deviceID=0', function(err, row) {
+  db.get('SELECT value FROM deviceProps WHERE deviceID=0', function(err, row) {
     if (!!err) logger.error('place/1', { event: 'SELECT deviceProps.value for deviceID=0', diagnostic: err.message });
     else if (row !== undefined) {
       params = null;

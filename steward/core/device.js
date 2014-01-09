@@ -312,6 +312,37 @@ Device.prototype.setInfo = function() {
   return true;
 };
 
+Device.prototype.getState = function(callback) {
+  var self = this;
+
+  db.get('SELECT value FROM deviceProps WHERE deviceID=$deviceID AND key="state"', { $deviceID : self.deviceID },
+         function(err, row) {
+    var state = null;
+
+    if (!!err) return callback(err);
+
+    if (row === undefined) return callback(null, null);
+    try { state = JSON.parse(row.value); } catch(ex) {
+      if (row.value.length > 0) logger.error('devices', { event: 'JSON.parse', data: row.value, diagnostic: ex.message });
+    }
+    callback(null, state);
+  });
+};
+
+Device.prototype.setState = function(state) {
+  var self = this;
+
+  db.serialize(function() {
+    db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key="state"', { $deviceID : self.deviceID });
+
+    db.run('REPLACE INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
+           { $deviceID : self.deviceID, $key: 'state', $value: JSON.stringify(state) });
+  });
+
+  return true;
+
+};
+
 Device.prototype.nv = function(v) {
   var b, h, r, u;
 

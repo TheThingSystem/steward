@@ -274,3 +274,31 @@ exports.value2key = function(values, value) {
   for (key in values) if ((values.hasOwnProperty(key)) && (values[key] === value)) return key;
   return null;
 };
+
+
+// http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript#14853974
+
+var array_cmp = exports.array_cmp = function(a, b) {
+    // if the other array is a falsy value, return
+    if (!b)
+        return (!a);
+    if (!a) return false;
+
+    // compare lengths - can save a lot of time
+    if (a.length != b.length)
+        return false;
+
+    for (var i = 0, l=a.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (a[i] instanceof Array && b[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!array_cmp(a[i],b[i]))
+                return false;
+        }
+        else if (a[i] != b[i]) {
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;
+        }
+    }
+    return true;
+};

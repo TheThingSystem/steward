@@ -54,7 +54,7 @@ var create = function(logger, ws, api, message, tag) {
     if (err)                                                return error(false, err.message);
     if (!deviceID)                                          return error(false, 'duplicate uuid');
 
-    db.run('INSERT INTO deviceProps(deviceID, key, value) values($deviceID, $key, $value)',
+    db.run('INSERT INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
            { $deviceID: deviceID, $key: 'info', $value: JSON.stringify(info) });
 
     results.result = { device: deviceID };

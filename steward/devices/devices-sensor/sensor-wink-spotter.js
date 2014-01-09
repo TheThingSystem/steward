@@ -17,13 +17,13 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
 
   self.info = {};
+  self.gateway = info.gateway;
   self.params = info.params;
   self.update(self, true);
 
   self.status = 'quiet';
   self.changed();
 
-  self.gateway = info.gateway;
   self.logger = sensor.logger;
   self.events = {};
   self.observations = {};
@@ -119,7 +119,7 @@ Spotter.prototype.update = function(self, firstP) {
   if (self.status != previous) self.changed(now);
 };
 
-Spotter.prototype.perform = function(self, taskID, perform, parameter) {/* jshint multistr: true */
+Spotter.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
@@ -156,8 +156,8 @@ exports.start = function() {
       { $info     : { type       : '/device/sensor/wink/spotter'
                     , observe    : [ 'brightness', 'loudness', 'motion' ]
                     , perform    : [ ]
-                    , properties : { name       : true
-                                   , status     : [ 'present', 'bright', 'loud', 'motion' ]
+                    , properties : { name         : true
+                                   , status       : [ 'quiet', 'bright', 'loud', 'motion' ]
                                    , lastSample   : 'timestamp'
                                    , temperature  : 'celsius'
                                    , humidity     : 'percentage'

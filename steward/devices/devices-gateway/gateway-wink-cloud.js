@@ -77,20 +77,36 @@ Cloud.prototype.scan = function(self) {
 
     if (!!err) return self.error(self, err);
 
-    f = { sensor_pod: function(device) {
-                        return { deviceType : '/device/sensor/wink/spotter'
-                               , device     : { url                          : null
-                                              , name                         : device.name
-                                              , manufacturer                 : 'Quirky'
-                                              , model        : { name        : device.type
-                                                               , description : ''
-                                                               , number      : ''
-                                                               }
-                                              , unit         : { serial      : device.id
-                                                               , udn         : udn
-                                                               }
-                                              }
-                               };
+    f = { sensor_pod  : function(device) {
+                          return { deviceType : '/device/sensor/wink/spotter'
+                                 , device     : { url                          : null
+                                                , name                         : device.name
+                                                , manufacturer                 : 'Quirky'
+                                                , model        : { name        : device.type
+                                                                 , description : ''
+                                                                 , number      : ''
+                                                                 }
+                                                , unit         : { serial      : device.id
+                                                                 , udn         : udn
+                                                                 }
+                                                }
+                                 };
+                      }
+
+        , cloud_clock : function(device) {
+                          return { deviceType : '/device/indicator/wink/nimbus'
+                                 , device     : { url                          : null
+                                                , name                         : device.name
+                                                , manufacturer                 : 'Quirky'
+                                                , model        : { name        : device.type
+                                                                 , description : ''
+                                                                 , number      : ''
+                                                                 }
+                                                , unit         : { serial      : device.id
+                                                                 , udn         : udn
+                                                                 }
+                                                }
+                                 };
                       }
         };
 
