@@ -218,7 +218,7 @@ exports.ssdp_discover = function(info, options, callback) {
     });
   }).on('error', function(err) {
     if (!!callback) return callback(err);
-    logger.error('http', { event: 'http.get', options: options, diagnostic: err.message });
+    logger.error('discovery', { event: 'http.get', options: options, diagnostic: err.message });
   });
 };
 
@@ -251,14 +251,17 @@ exports.upnp_subscribe = function(tag, baseurl, sid, path, cb) {
     response.on('data', function(chunk) {
       content += chunk.toString();
     }).on('end', function() {
-      if (response.statusCode !== 200) logger.warning(tag, { event: 'http', code: response.statusCode, content: content });
+      if (response.statusCode !== 200) {
+          logger[response.statusCode !== 402 ? 'warning' : 'debug']
+              (tag, { event: 'subscribe', code: response.statusCode, content: content });
+      }
       cb(null, 'end', response);
     }).on('close', function() {
-      logger.warning(tag, { event: 'http', diagnostic: 'premature eof' });
+      logger.warning(tag, { event: 'subscribe', diagnostic: 'premature eof' });
       cb(null, 'close', response);
     });
   }).on('error', function(err) {
-    logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
+    logger.error(tag, { event: 'subscribe', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'unknown' });
   }).end();
 };
@@ -300,7 +303,7 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
       var parser = new xml2js.Parser();
 
       if (response.statusCode !== 200) {
-        return logger.warning(tag, { event: 'http', code: response.statusCode, content: content });
+        return logger.warning(tag, { event: 'roundtrip', code: response.statusCode, content: content });
       }
 
       try { parser.parseString(content, function(err, data) {
@@ -322,11 +325,11 @@ exports.upnp_roundtrip = function(tag, baseurl, params) {
         cb(null, 'end', response, { results: results, faults: faults });
       }); } catch(ex) { logger.error(tag, { event: 'UPnP parse', diagnostic: ex.message }); }
     }).on('close', function() {
-      logger.warning(tag, { event: 'http', diagnostic: 'premature eof' });
+      logger.warning(tag, { event: 'roundtrip', diagnostic: 'premature eof' });
       cb(null, 'close', response);
     });
   }).on('error', function(err) {
-    logger.error(tag, { event: 'http', options: options, diagnostic: err.message });
+    logger.error(tag, { event: 'roundtrip', options: options, diagnostic: err.message });
     cb(err, 'error', { statusCode: 'unknown' });
   }).end(body);
 };

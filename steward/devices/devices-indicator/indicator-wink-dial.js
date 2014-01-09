@@ -75,13 +75,19 @@ Gauge.prototype.egress = function(self) {
 
   label = self.info.property.split('.');
   label = label[label.length - 1];
-  value = devices.expand('.[' + self.info.actor + '.' + self.info.property + '].');
-  if ((label.length + 1 + value.length) <= 8) value = label + ' ' + value;
+  if (self.info.property.indexOf('.[') !== -1) {
+    value = devices.expand(self.info.property, self.info.actor);
+    if (!value) return;
+  } else {
+    value = devices.expand('.[' + self.info.actor + '.' + self.info.property + '].');
+    if (!value) return;
+    if ((label.length + 1 + value.length) <= 8) value = label + ' ' + value;
+  }
 
   self.gateway.wink.setDial(self.params, { name                  : devices.expand('.[' + self.info.actor + '.name].')
                                          , label                 : value
                                          , labels                : [ value, '' ]
-                                         , position              : 100
+                                         , position              : 0
                                          , brightness            : 75
                                          , channel_configuration : { channel_id: 10 }
                                          }, function(err, params) {

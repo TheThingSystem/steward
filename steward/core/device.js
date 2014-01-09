@@ -534,13 +534,17 @@ exports.expand = function(line, defentity) {
     parts = line.substring(0, x).split('.');
     line = line.substring(x + 2);
 
-    if (parts[0] === '') entity = defentity;
-    else if (parts[0].indexOf('/') !== -1) {
-      who = parts[0].split('/');
-      entity = steward.actors[who[0]];
-      if (!!entity) entity = entity.$lookup(who[1]);
-    } else entity = id2device(parts[0]);
-
+    entity = null;
+    if (parts[0] === '') {
+      if (typeof defentity === 'string') parts[0] = defentity; else entity = defentity;
+    }
+    if (!entity) {
+      if (parts[0].indexOf('/') !== -1) {
+        who = parts[0].split('/');
+        entity = steward.actors[who[0]];
+        if (!!entity) entity = entity.$lookup(who[1]);
+      } else entity = id2device(parts[0]);
+    }
     if (!entity) {
       result += '.[';
       continue;
@@ -555,6 +559,7 @@ exports.expand = function(line, defentity) {
     field = '';
     for (p = 1; p < parts.length; p++) {
       part = parts[p];
+      if (!info) return null;
       if (!!info[part]) field = info[part]; else break;
       info = field;
     }
