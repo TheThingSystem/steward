@@ -125,6 +125,7 @@ exports.start = function() {
                     , properties : { name         : true
                                    , status       : [ 'present' ]
                                    , placement    : true
+                                   , location     : 'coordinates'
                                    , lastSample   : 'timestamp'
                                    , moisture     : 'millibars'
                                    , temperature  : 'celsius'

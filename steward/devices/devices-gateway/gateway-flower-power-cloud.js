@@ -83,6 +83,7 @@ Cloud.prototype.scan = function(self) {
 
       if (!!sensors[plant.sensor_serial]) {
         sensors[plant.sensor_serial].location_name = plant.location_name || plant.plant_nickname;
+        sensors[plant.sensor_serial].location = [ plant.latitude, plant.longitude ];
         sensors[plant.sensor_serial].samples = plant.samples;
       }
       if (!plant.status) plant.status = {};
@@ -138,7 +139,8 @@ Cloud.prototype.scan = function(self) {
       // sunlight is PPF (photons per square meter), convert to lux
       // according to http://www.apogeeinstruments.com/conversion-ppf-to-lux/
 
-      params = { placement    : sensors[k].location_name
+      params = { location     : utility.location_fuzz(sensors[k].location)
+               , placement    : sensors[k].location_name
                , lastSample   : new Date(sample.capture_ts).getTime()
                , moisture     : sample.vwc_percent >= 0 ? sample.vwc_percent * Math.pow(10, antoine - 2) : undefined
                , temperature  : sample.air_temperature_celsius

@@ -302,3 +302,17 @@ var array_cmp = exports.array_cmp = function(a, b) {
     }
     return true;
 };
+
+exports.location_fuzz = function(location) {
+  var i, j, l;
+
+  for (i = 0; i < location.length; i++) {
+    l = location[i] + '';
+    j = l.indexOf('.');
+    if ((j === -1) || ((l.length - j) <= 7)) continue;
+    l = parseFloat(l);
+    if (!isNaN(l)) location[i] = l.toFixed(6);
+  }
+
+  return location;
+};

@@ -289,7 +289,7 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
 };
 
 Place.prototype.perform = function(self, taskID, perform, parameter) {
-  var i, j, l, params, previous;
+  var params, previous;
 
   if (perform !== 'set') return false;
 
@@ -301,17 +301,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.physical) place1.info.physical = params.physical;
 // TBD: re-calculate location...
 
-  if (!!params.location) {
-    place1.info.location = params.location;
-    for (i = 0; i < place1.info.location.length; i++) {
-      l = place1.info.location[i] + '';
-      j = l.indexOf('.');
-      if ((j < 0) || ((l.length - j) <= 7)) continue;
-      l = parseFloat(l);
-      if (isNaN(l)) continue;
-      if (!isNaN(l)) place1.info.location[i] = l.toFixed(6);
-    }
-  }
+  if (!!params.location) place1.info.location = utility.location_fuzz(params.location);
 
 // TBD: look at all 'solar' events and set the timer accordingly...
 
