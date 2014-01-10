@@ -1188,6 +1188,39 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'location':
+        if (!!device.info.placement) {
+          arcs.splice(4, 0, { name   : prop
+                            , raw    : v
+                            , label  : prop.toUpperCase()
+                            , cooked : device.info.placement
+                            , value  : 0
+                            , index  : 0.30
+                            });
+          break;
+        }
+        if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
+          dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
+          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' mi')
+                               : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
+                               : place.name;
+          if ((dist >= 1) && (!!device.info.physical)) {
+            cooked = device.info.physical + ' (' + cooked + ')';
+            dist = 0;
+          }
+        } else {
+          cooked = v.toString();
+          dist = -1;
+        }
+        arcs.splice(4,0, { name   : prop
+                          , raw    : v
+                          , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
+                          , cooked : cooked
+                          , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
+                          , index  : 0.30
+                          });
+        break;
+
 
 // 5th ring
       case 'away':
