@@ -1,4 +1,4 @@
-// Wink: http://www.quirky.com
+// http://www.quirky.com/shop/596-Nimbus
 
 var util        = require('util')
   , devices     = require('./../../core/device')
@@ -93,7 +93,7 @@ Gauge.prototype.egress = function(self) {
                                          }, function(err, params) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDial', diagnostic: err.message});
 
-    self.update(self, params);
+    if (!!params) self.update(self, params);
   });
 };
 
@@ -111,7 +111,7 @@ Gauge.prototype.perform = function(self, taskID, perform, parameter) {
     self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
       if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
 
-      self.update(self, params);
+      if (!!params) self.update(self, params);
     });
   }
 

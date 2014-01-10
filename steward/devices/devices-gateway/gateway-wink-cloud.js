@@ -73,42 +73,9 @@ Cloud.prototype.scan = function(self) {
   if (!self.wink) return;
 
   self.wink.getDevices(function(err, results) {
-    var device, f, g, i, info, udn;
+    var device, deviceType, i, info, udn;
 
     if (!!err) return self.error(self, err);
-
-    f = { sensor_pod  : function(device) {
-                          return { deviceType : '/device/sensor/wink/spotter'
-                                 , device     : { url                          : null
-                                                , name                         : device.name
-                                                , manufacturer                 : 'Quirky'
-                                                , model        : { name        : device.type
-                                                                 , description : ''
-                                                                 , number      : ''
-                                                                 }
-                                                , unit         : { serial      : device.id
-                                                                 , udn         : udn
-                                                                 }
-                                                }
-                                 };
-                      }
-
-        , cloud_clock : function(device) {
-                          return { deviceType : '/device/indicator/wink/nimbus'
-                                 , device     : { url                          : null
-                                                , name                         : device.name
-                                                , manufacturer                 : 'Quirky'
-                                                , model        : { name        : device.type
-                                                                 , description : ''
-                                                                 , number      : ''
-                                                                 }
-                                                , unit         : { serial      : device.id
-                                                                 , udn         : udn
-                                                                 }
-                                                }
-                                 };
-                      }
-        };
 
     for (i = 0; i < results.length; i++) {
       device = results[i];
@@ -116,14 +83,26 @@ Cloud.prototype.scan = function(self) {
       udn = 'wink:' + device.type + ':' + device.id;
       if (!!devices.devices[udn]) continue;
 
-      g = f[device.type];
-      info = (!!g) && g(device);
-      if (!info) continue;
+      deviceType = { cloud_clock : '/device/indicator/wink/nimbus'
+                   , powerstrip  : '/device/switch/wink/pivot'
+                   , sensor_pod  : '/device/sensor/wink/spotter'
+                   }[device.type];
+      if (!deviceType) continue;
 
-      info.source = self.deviceID;
-      info.gateway = self;
-      info.params = device;
+      info =  { source: self.deviceID, gateway: self, params: device };
+      info.device = { url                          : null
+                    , name                         : device.name
+                    , manufacturer                 : 'Quirky'
+                    , model        : { name        : device.type
+                                     , description : ''
+                                     , number      : ''
+                                     }
+                    , unit         : { serial      : device.id
+                                     , udn         : udn
+                                     }
+                    };
       info.url = info.device.url;
+      info.deviceType = deviceType;
       info.id = info.device.unit.udn;
 
       logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  type: info.params.type });

@@ -252,7 +252,7 @@ exports.upnp_subscribe = function(tag, baseurl, sid, path, cb) {
       content += chunk.toString();
     }).on('end', function() {
       if (response.statusCode !== 200) {
-          logger[response.statusCode !== 402 ? 'warning' : 'debug']
+          logger[response.statusCode !== 412 ? 'warning' : 'debug']
               (tag, { event: 'subscribe', code: response.statusCode, content: content });
       }
       cb(null, 'end', response);

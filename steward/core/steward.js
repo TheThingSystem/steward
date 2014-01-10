@@ -2,6 +2,7 @@ exports.actors = {};
 exports.status  = {};
 
 var net         = require('net')
+  , os          = require('os')
   , pcap        = require('pcap')
   , util        = require('util')
   , devices     = require('./device')
@@ -329,7 +330,7 @@ var report = function(module, entry, now) {
 
 
 var loadedP = false;
-var ifaces = exports.ifaces = utility.clone(require('os').networkInterfaces());
+var ifaces = exports.ifaces = utility.clone(os.networkInterfaces());
 
 var listen = function(ifname, ifaddr) {
   return function(raw) {
@@ -491,7 +492,11 @@ exports.start = function() {
     logger.error('no network interfaces');
     if (errorP) {
       if ((!!process.getgid) && ((!process.getuid) || (process.getuid() !== 0))) {
-        console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
+        if (os.platform() === 'darwin') {
+          console.log('hint: $ sudo sh -c "chmod g+r /dev/bpf*; chgrp ' + process.getgid() + ' /dev/bpf*"');
+        } else {
+          console.log('hint: $ sudo sh -c ./run.sh');
+        }
       }
       process.exit(1);
     }

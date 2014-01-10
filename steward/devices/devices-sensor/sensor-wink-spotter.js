@@ -1,4 +1,4 @@
-// Wink: http://www.quirky.com
+// http://www.quirky.com/shop/609-Spotter-Multipurpose-Sensors
 
 var util        = require('util')
   , devices     = require('./../../core/device')
@@ -18,8 +18,7 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
 
   self.info = {};
   self.gateway = info.gateway;
-  self.params = info.params;
-  self.update(self, true);
+  self.update(self, info.params);
 
   self.status = 'quiet';
   self.changed();
@@ -46,27 +45,27 @@ util.inherits(Spotter, sensor.Device);
 Spotter.prototype.scan = function(self) {
   if (!self.gateway.wink) return;
 
-  self.gateway.wink.getDevice(self.params, function(err, device) {
+  self.gateway.wink.getDevice(self.params, function(err, params) {
     if (!!err) return self.logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
 
-    if (!device) return;
-
-    self.params = device;
-    self.update(self);
+    if (!!params) self.update(self, params);
   });
 };
 
-Spotter.prototype.update = function(self, firstP) {
-  var d, data, eventID, observation, now, param, params, previous, updateP;
+Spotter.prototype.update = function(self, params) {
+  var d, data, eventID, firstP, observation, now, prop, props, previous, updateP;
+
+  firstP = !self.params;
+  self.params = params;
 
   data = self.params.props.last_reading;
-  params = { lastSample   : 0
-           , temperature  : (typeof data.temperature === 'number') ? data.temperature     : undefined
-           , humidity     : (typeof data.humidity    === 'number') ? data.humidity        : undefined
-           , noise        : (typeof data.loudness    === 'number') ? data.loudness        : undefined
-           , light        : (typeof data.brightness  === 'number') ? data.brightness      : undefined
-           , batteryLevel : (typeof data.battery     === 'number') ? (data.battery * 100) : undefined
-           };
+  props = { lastSample   : 0
+          , temperature  : (typeof data.temperature === 'number') ? data.temperature     : undefined
+          , humidity     : (typeof data.humidity    === 'number') ? data.humidity        : undefined
+          , noise        : (typeof data.loudness    === 'number') ? data.loudness        : undefined
+          , light        : (typeof data.brightness  === 'number') ? data.brightness      : undefined
+          , batteryLevel : (typeof data.battery     === 'number') ? (data.battery * 100) : undefined
+          };
 
   updateP = false;
   if (self.params.name !== self.name) {
@@ -76,21 +75,21 @@ Spotter.prototype.update = function(self, firstP) {
 
   for (d in data) {
     if ((!data.hasOwnProperty(d)) || (d.indexOf('_updated_at') !== (d.length - 11)) || (typeof data[d] !== 'number')) continue;
-    if (data[d] > params.lastSample) params.lastSample = data[d];
+    if (data[d] > props.lastSample) props.lastSample = data[d];
   }
-  if (params.lastSample === 0) return;
-  params.lastSample *= 1000;
+  if (props.lastSample === 0) return;
+  props.lastSample *= 1000;
 
-  for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+  for (prop in props) {
+    if ((!props.hasOwnProperty(prop)) || (!props[prop]) || (self.info[prop] === props[prop])) continue;
 
-    self.info[param] = params[param];
+    self.info[prop] = props[prop];
     updateP = true;
   }
   if (updateP) {
-    self.info = params;
+    self.info = props;
     self.changed();
-    sensor.update(self.deviceID, params);
+    sensor.update(self.deviceID, props);
   }
 
   data = self.params.props.last_event;
@@ -126,11 +125,11 @@ Spotter.prototype.perform = function(self, taskID, perform, parameter) {
 
   if ((perform !== 'set') || (!params.name)) return false;
   if (!self.gateway.wink) return false;
-  self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, device) {
+
+  self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
     if (!!err) return self.logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
 
-    self.params = device;
-    self.update(self);
+    if (!!params) self.update(self, params);
   });
 
   return steward.performed(taskID);

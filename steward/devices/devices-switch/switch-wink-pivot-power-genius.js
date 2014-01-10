@@ -1,17 +1,17 @@
-// http://www.quirky.com/shop/596-Nimbus
+// http://www.quirky.com/shop/633-Pivot-Power-Genius
 
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , indicator   = require('./../device-indicator')
+  , plug        = require('./../device-switch')
   ;
 
 
-var logger = indicator.logger;
+var logger = plug.logger;
 
 
-var Nimbus = exports.Device = function(deviceID, deviceUID, info) {
+var Pivot = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
   self.whatami = info.deviceType;
@@ -19,7 +19,7 @@ var Nimbus = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.info = { gauges: [] };
+  self.info = { outlets: [] };
   self.gateway = info.gateway;
   self.update(self, info.params);
 
@@ -34,10 +34,10 @@ var Nimbus = exports.Device = function(deviceID, deviceUID, info) {
 
   setInterval(function() { self.scan(self); }, 60 * 1000);
 };
-util.inherits(Nimbus, indicator.Device);
+util.inherits(Pivot, plug.Device);
 
 
-Nimbus.prototype.scan = function(self) {
+Pivot.prototype.scan = function(self) {
   if (!self.gateway.wink) return;
 
   self.gateway.wink.getDevice(self.params, function(err, params) {
@@ -47,42 +47,40 @@ Nimbus.prototype.scan = function(self) {
   });
 };
 
-Nimbus.prototype.update = function(self, params) {
-  var d, dial, gauge, gauges, info, udn;
-
-  self.params = params;
+Pivot.prototype.update = function(self) {
+  var o, outlet, plug, plugs, info, udn;
 
   if (self.params.name !== self.name) {
     self.name = self.params.name;
     self.changed();
   }
 
-  gauges = [];
-  for (d in self.params.dials) if (self.params.dials.hasOwnProperty(d)) {
-    dial = self.params.dials[d];
+  plugs = [];
+  for (o in self.params.outlets) if (self.params.outlets.hasOwnProperty(o)) {
+    outlet = self.params.outlets[o];
 
-    udn = 'wink:' + dial.type + ':' + dial.id;
+    udn = 'wink:' + outlet.type + ':' + outlet.id;
     if (!!devices.devices[udn]) {
-      gauge = devices.devices[udn].device;
-      gauge.update(gauge, dial);
-      gauges.push('device/' + gauge.deviceID);
+      plug = devices.devices[udn].device;
+      plug.update(plug, outlet);
+      plugs.push('device/' + plug.deviceID);
       continue;
     }
 
-    info = { source: self.deviceID, gateway: self.gateway, params: dial };
+    info = { source: self.deviceID, gateway: self.gateway, params: outlet };
     info.device = { url                          : null
-                  , name                         : dial.name
+                  , name                         : outlet.name
                   , manufacturer                 : 'Quirky'
-                  , model        : { name        : dial.type
+                  , model        : { name        : outlet.type
                                    , description : ''
                                    , number      : ''
                                    }
-                  , unit         : { serial      : dial.id
+                  , unit         : { serial      : outlet.id
                                    , udn         : udn
                                    }
                   };
     info.url = info.device.url;
-    info.deviceType = '/device/indicator/wink/gauge';
+    info.deviceType = '/device/switch/wink/onoff';
     info.id = info.device.unit.udn;
 
     logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  type: info.params.type });
@@ -90,14 +88,14 @@ Nimbus.prototype.update = function(self, params) {
     self.changed();
   }
 
-  gauges.sort();
-  if (!utility.array_cmp(self.info.gauges, gauges)) {
-    self.info.gauges = gauges;
+  plugs.sort();
+  if (!utility.array_cmp(self.info.plugs, plugs)) {
+    self.info.plugs = plugs;
     self.changed();
   }
 };
 
-Nimbus.prototype.perform = function(self, taskID, perform, parameter) {
+Pivot.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
@@ -116,20 +114,20 @@ Nimbus.prototype.perform = function(self, taskID, perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device.indicator.wink = steward.actors.device.indicator.wink ||
-      { $info     : { type: '/device/indicator/wink' } };
+  steward.actors.device['switch'].wink = steward.actors.device['switch'].wink ||
+      { $info     : { type: '/device/switch/wink' } };
 
-  steward.actors.device.indicator.wink.nimbus =
-      { $info     : { type       : '/device/indicator/wink/nimbus'
+  steward.actors.device['switch'].wink.pivot =
+      { $info     : { type       : '/device/switch/wink/pivot'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
                                    , status     : [ 'present' ]
-                                   , gauges     : []
+                                   , plugs      : []
                                    }
                     }
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/indicator/wink/nimbus'] = Nimbus;
+  devices.makers['/device/switch/wink/pivot'] = Pivot;
 };
