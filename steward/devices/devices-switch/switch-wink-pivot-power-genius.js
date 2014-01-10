@@ -1,4 +1,4 @@
-// http://www.quirky.com/shop/633-Pivot-Power-Genius
+// http://www.quirky.com/shop/633-Strip-Power-Genius
 
 var util        = require('util')
   , devices     = require('./../../core/device')
@@ -11,7 +11,7 @@ var util        = require('util')
 var logger = plug.logger;
 
 
-var Pivot = exports.Device = function(deviceID, deviceUID, info) {
+var Strip = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
   self.whatami = info.deviceType;
@@ -34,10 +34,10 @@ var Pivot = exports.Device = function(deviceID, deviceUID, info) {
 
   setInterval(function() { self.scan(self); }, 60 * 1000);
 };
-util.inherits(Pivot, plug.Device);
+util.inherits(Strip, plug.Device);
 
 
-Pivot.prototype.scan = function(self) {
+Strip.prototype.scan = function(self) {
   if (!self.gateway.wink) return;
 
   self.gateway.wink.getDevice(self.params, function(err, params) {
@@ -47,7 +47,7 @@ Pivot.prototype.scan = function(self) {
   });
 };
 
-Pivot.prototype.update = function(self) {
+Strip.prototype.update = function(self) {
   var o, outlet, plug, plugs, info, udn;
 
   if (self.params.name !== self.name) {
@@ -95,7 +95,7 @@ Pivot.prototype.update = function(self) {
   }
 };
 
-Pivot.prototype.perform = function(self, taskID, perform, parameter) {
+Strip.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
@@ -117,8 +117,8 @@ exports.start = function() {
   steward.actors.device['switch'].wink = steward.actors.device['switch'].wink ||
       { $info     : { type: '/device/switch/wink' } };
 
-  steward.actors.device['switch'].wink.pivot =
-      { $info     : { type       : '/device/switch/wink/pivot'
+  steward.actors.device['switch'].wink.strip =
+      { $info     : { type       : '/device/switch/wink/strip'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
@@ -129,5 +129,5 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/switch/wink/pivot'] = Pivot;
+  devices.makers['/device/switch/wink/strip'] = Strip;
 };
