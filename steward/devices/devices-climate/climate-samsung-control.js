@@ -74,17 +74,25 @@ Thermostat.operations = {
       }
     };
 
-/*
     attempt_perform('hvac', function(value) {
       switch (value) {
         case 'off':
-        case 'cool':
-        case 'heat':
-// TBD: turn the unit on/off
+          self.hvac.onoff(false);
           break;
-
+        case 'on':
+          self.hvac.onoff(true);   
+          break;
+        case 'cool':
+          self.hvac.onoff(true);   
+          self.hvac.mode('Cool');
+          break;
+        case 'heat':
+          self.hvac.onoff(true);   
+          self.hvac.mode('Heat');
+          break;        
         case 'fan':
-// TBD: turn the fan on only
+          self.hvac.onoff(true);   
+          self.hvac.mode('Wind');
           break;
       }
     });
@@ -93,12 +101,18 @@ Thermostat.operations = {
       var time;
 
       switch (value) {
+        // Available options for convenient mode
+        // var modes = ['Off', 'Quiet', 'Sleep', 'Smart', 'SoftCool', 'TurboMode', 'WindMode1', 'WindMode2', 'WindMode3']
         case 'off':
-        case 'on':
-        case 'auto':
-// TBD: set the fan's mode
+          self.hvac.set_convenient_mode('Off');
           break;
-
+        case 'on':
+          self.hvac.set_convenient_mode('Quiet');        
+          break;
+        case 'auto':
+          self.hvac.set_convenient_mode('WindMode1');
+          break;
+    
         default:
           time = parseInt(value, 10);
           if (isNaN(time)) break;
@@ -111,10 +125,14 @@ Thermostat.operations = {
       var goalTemperature;
 
       goalTemperature = parseInt(value, 10);
-      if (isNaN(goalTemperature)) break;
-// TBD: set the desired temperature here...
+      if (isNaN(goalTemperature)) {
+        return;
+      }
+
+      // TODO UI says F, the unit works in C, which is this?
+      self.hvac.set_temperature(goalTemperature);
     });
-*/
+
     return performed;
   }
 };
@@ -126,7 +144,6 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!Thermostat.operations[perform]) {
     if (Thermostat.operations[perform](this, params)) {
-      setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
       return steward.performed(taskID);
     }
   }
@@ -159,7 +176,6 @@ var validate_perform = function(perform, parameter) {
         return result;
       }
 
-// if the HVAC unit does NOT has home/away, then delete this call to checkParam()
       checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
       checkParam('fan', params, result, true, { off: 1, on: 1, auto: 1 });
       checkParam('goalTemperature', params, result, true, {});
@@ -197,42 +213,7 @@ exports.start = function() {
 
 // TBD: when the hardware driver discovers a new HVAC unit, it will call us.
 // TBD: or if the low-level driver needs to be polled, then create a 'scan' function and call it periodically.
-/*
- function(aircon) {
 
-  if (connecting_to[aircon.options.ip]) { 
-    return; 
-  }
-
-  // Do we need to find get a token?
-  if (!known_tokens[aircon.options.ip]) {
-    connecting_to[aircon.options.ip] = true;
-
-    aircon.get_token(function(err, token) {
-      if (!!err) return console.log('get_token error: ' + err.message);
-
-      console.log('Token is ' + token);
-      known_tokens[aircon.options.ip] = token;
-      connecting_to[aircon.options.ip] = false;
-
-    }).on('waiting', function() {
-      console.log('Please power on the device within the next 30 seconds');
-    });
-
-    return;
-  }
-
-  connecting_to[aircon.options.ip] = true;
-  aircon.login(known_tokens[aircon.options.ip], function() {
-    aircon.onoff(true);
-
-    setTimeout(function() { aircon.onoff(false); }, 10 * 1000);
-  });
-
-
-})
-
-*/
   new samsung().on('discover', function(aircon) {
     // TODO This is done to avoid detecting ourselves listening for the SSDP response.
     // There should be a better way :(
@@ -260,8 +241,15 @@ exports.start = function() {
     info.id = info.device.unit.udn;
     if (!!devices.devices[info.id]) return;
 
-    logger2.info(info.device.name, info.device);
-    devices.discover(info);
+    // TODO: This needs to be either setup || load from DB if known, and save/read data from the store.
+
+    token = '98854465-6273-M559-N887-373832354144';
+
+    aircon.login(token, function () {
+      logger2.info(info.device.name, info.device);
+      devices.discover(info);
+    });
+
   }).on('error', function(err) {
     logger2.error('samsung', { diagnostic: err.message });
   }).logger = logger2;
