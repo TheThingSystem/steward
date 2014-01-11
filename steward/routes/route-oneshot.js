@@ -34,7 +34,7 @@ var logger = utility.logger('server');
 var requestID = 1;
 
 var find = function(query, tag) {
-  var e, id, x;
+  var e, g, id, x;
 
   if (!!query.id) {
     id = query.id;
@@ -182,9 +182,9 @@ var find = function(query, tag) {
                         }
            }[query.entity];
 
-  if (!f) return { error: { permanent: true, diagnostic: 'invalid parameters' } };
+  if (!!f) g = f();
 
-  return f();
+  return (g || { error: { permanent: true, diagnostic: 'invalid parameters' } });
 };
 
 var report = function(query, proplist) {
