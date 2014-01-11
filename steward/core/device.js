@@ -576,15 +576,10 @@ var scanning = {};
 
 exports.scan_usb = function(logger2, tag, fingerprints, callback) {
   serialport.list(function(err, info) {
-    var i, j, options;
+    var i, j;
 
-    var f = function(serial, driver) {
-      return function(err) {
-        if (!err) return callback(serial, driver);
-
-        scanning[driver.comName] = false;
-        return logger2.error(tag, { driver: driver.comName, diagnostic: err.message });
-      };
+    var f = function(comName) {
+      return function(err) { if (!!err) delete(scanning[comName]); };
     };
 
     if (!!err) return logger2.error(tag, { diagnostic: err.message });
@@ -607,9 +602,7 @@ exports.scan_usb = function(logger2, tag, fingerprints, callback) {
           if (!!scanning[info[i].comName]) continue;
           scanning[info[i].comName] = true;
 
-// cf., https://github.com/voodootikigod/node-serialport#serialport-path-options-openimmediately-callback
-          options = {};
-          new serialport.SerialPort(info[i].comName, options, true, f(this, info[i]));
+          callback(info[i], f(info[i].comName));
         }
       }
     }

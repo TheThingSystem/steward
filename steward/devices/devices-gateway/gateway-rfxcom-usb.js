@@ -2,7 +2,6 @@
 // RFXrec433 - USB 433.92MHz receiver: http://www.rfxcom.com/store/Receivers/12113
 
 var rfxcom      = require('rfxcom')
-  , serialport  = require('serialport')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -171,8 +170,6 @@ Gateway.prototype.lighting2 = function(self, evt) {
 };
  */
 
-var scanning      = {};
-
 var fingerprints  =
   [
     { vendor         : 'RFXCOM'
@@ -196,69 +193,42 @@ var fingerprints  =
   ];
 
 var scan = function() {
-  serialport.list(function(err, info) {
-    var i, j;
+  devices.scan_usb(logger2, 'rfxcom-usb', fingerprints, function(driver, callback) {
+    var comName, info, rfx, udn;
 
-    if (!!err) return logger2.error('rfxcom-usb', { diagnostic: err.message });
+    comName = driver.comName;
+    udn = 'rfxcom:' + driver.serialNumber;
+    if (!!devices.devices[udn]) return callback();
 
-    for (i = 0; i < info.length; i++) {
-      for (j = fingerprints.length - 1; j !== -1; j--) {
-        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
-              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
-                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
-                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
-          info[i].vendor = fingerprints[j].vendor;
-          info[i].modelName = fingerprints[j].modelName;
-          info[i].description = fingerprints[j].description;
-          info[i].deviceType = fingerprints[j].deviceType;
-          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
-          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
-          if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
-          if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
-          scan1(info[i]);
-        }
-      }
-    }
+    rfx = new rfxcom.RfxCom(comName, { debug: true, logger: logger2 });
+    callback();
+
+    info = { source: driver, rfx: rfx };
+    info.device = { url          : null
+                  , name         : driver.modelName + ' #' + driver.serialNumber
+                  , manufacturer : driver.manufacturer
+                  , model        : { name        : driver.modelName
+                                   , description : driver.description
+                                   , number      : driver.productId
+                                   }
+                  , unit         : { serial      : driver.serialNumber
+                                   , udn         : udn
+                                   }
+                  };
+    info.url = info.device.url;
+    info.deviceType = driver.deviceType;
+    info.id = info.device.unit.udn;
+    if (!!devices.devices[info.id]) return;
+
+    logger2.info(comName, { manufacturer : driver.manufacturer
+                          , vendorID     : driver.vendorId
+                          , productID    : driver.productId
+                          , serialNo     : driver.serialNumber
+                          });
+    devices.discover(info);
   });
 
   setTimeout(scan, 30 * 1000);
-};
-
-var scan1 = function(driver) {
-  var comName, info, rfx, udn;
-
-  comName = driver.comName;
-  if (!!scanning[comName]) return;
-  scanning[comName] = true;
-
-  udn = 'rfxcom:' + driver.serialNumber;
-  if (!!devices.devices[udn]) return;
-
-  rfx = new rfxcom.RfxCom(comName, { debug: true, logger: logger2 });
-
-  info = { source: driver, rfx: rfx };
-  info.device = { url          : null
-                , name         : driver.modelName + ' #' + driver.serialNumber
-                , manufacturer : driver.manufacturer
-                , model        : { name        : driver.modelName
-                                 , description : driver.description
-                                 , number      : driver.productId
-                                 }
-                , unit         : { serial      : driver.serialNumber
-                                 , udn         : udn
-                                 }
-                };
-  info.url = info.device.url;
-  info.deviceType = driver.deviceType;
-  info.id = info.device.unit.udn;
-  if (!!devices.devices[info.id]) return;
-
-  logger2.info(comName, { manufacturer : driver.manufacturer
-                        , vendorID     : driver.vendorId
-                        , productID    : driver.productId
-                        , serialNo     : driver.serialNumber
-                        });
-  devices.discover(info);
 };
 
 

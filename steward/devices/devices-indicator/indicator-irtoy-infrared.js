@@ -10,6 +10,7 @@ return;
 
 var util        = require('util')
   , devices     = require('./../../core/device')
+  , serialport  = require('serialport')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
@@ -38,11 +39,12 @@ var IRToy = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
+  self.status = 'ready';
+  self.changed();
+
 /*
  *  the second section innitializes the things specific to this device
  */
-  self.status = 'ready';
-  self.changed();
   self.serial = info.serial;
   self.info = { signal: null };
   self.events = {};
@@ -61,7 +63,7 @@ var IRToy = exports.Device = function(deviceID, deviceUID, info) {
   });
 
 /*
- *  the steward uses an internal pubsub mechanism is register events to observe, or invoke tasks to perform
+ *  the steward uses an internal pubsub mechanism to register events to observe, or invoke tasks to perform
  */
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     var params = {};
@@ -121,11 +123,11 @@ var validate_observe = function(observe, parameter) {
 
   if (observe !== 'recv') result.invalid.push('observe');
 
-  if (!!params.signal) {
-    try { signal = new Buffer(params.signal, 'hex'); } catch(ex) {
-      result.invalid.push('signal');
-      return result;
-    }
+  if ((!params.signal) || (params.signal.length === 0)) return result;
+
+  try { signal = new Buffer(params.signal, 'hex'); } catch(ex) {
+    result.invalid.push('signal');
+    return result;
   }
 
 // TBD: continue to validate signal here...
@@ -135,7 +137,7 @@ var validate_observe = function(observe, parameter) {
 
 
 /*
- * perform a task, there are two possibilities: set and perform
+ * perform a task, there are two possibilities: set and xmit
  *
  * set is used to set the steward's display name for the device, the only meaningful parameter is 'name'
  *
@@ -152,10 +154,9 @@ IRToy.prototype.perform = function(self, taskID, perform, parameter) {
     return false;
   }
 
-  if (perform !== 'xmit') return false;
+  if ((perform !== 'xmit') || (!params.signal) || (params.signal.length === 0)) return false;
 
-  try { signal = new Buffer(params.signal, 'hex'); } catch(ex) {}
-  if ((!signal) || (signal.length === 0)) return false;
+  try { signal = new Buffer(params.signal, 'hex'); } catch(ex) { return false;}
 
 
 // TBD: transform signal as appropriate!
@@ -196,7 +197,7 @@ var validate_perform = function(perform, parameter) {
     return result;
   }
 
-  if (!params.signal) {
+  if ((!params.signal) || (params.signal.length === 0)) {
     result.requires.push('signal');
     return result;
   }
@@ -212,12 +213,9 @@ var validate_perform = function(perform, parameter) {
 
 
 /*
- * the code that follows (upto, but not including, start) is the USB discovery code. the fingerprints[] array contains an
- * object that is used to identify the USB Infrared Toy on both Linux and Mac OS
- *
- * when a matching fingerprint is found, the array 'scanning' is checked to see if the serialport was successfully opened
- * (or is being opened). if not, serialport.SerialPort() is called to do the open. the function f() returns a function that is
- * invoked when the open completes (or fails). on success, scan1() is called to create the corresponding device in the steward
+ * the scan function calls a routine to scan for USB devices that match the fingerprint. for each device, the callback is
+ * invoked with the opened serial port an information about the device. the callback will be invoked at most once for each
+ * matching device.
  */
 
 var fingerprints  =
@@ -233,42 +231,48 @@ var fingerprints  =
   ];
 
 var scan = function() {
-  devices.scan_usb(logger2, 'irtoy-infrared', fingerprints, function(serial, driver) {
-    var comName, info, udn;
+/* 
+ * to determine what to put in options
+ * cf., https://github.com/voodootikigod/node-serialport#serialport-path-options-openimmediately-callback
+ */
+
+  var options = {};
+
+  devices.scan_usb(logger2, 'irtoy-infrared', fingerprints, options, function(driver, callback) {
+    var comName, info, serial, udn;
 
     comName = driver.comName;
-    logger2.info(driver.comName, { manufacturer : driver.manufacturer
-                                 , vendorID     : driver.vendorId
-                                 , productID    : driver.productId
-                                 , serialNo     : driver.serialNumber
-                                 });
-
     udn = 'irtoy:' + driver.serialNumber;
-    if (!!devices.devices[udn]) return;
+    if (!!devices.devices[udn]) return callback();
 
-    info = { source: driver, serial: serial };
-    info.device = { url          : null
-                  , name         : driver.modelName + ' #' + driver.serialNumber
-                  , manufacturer : driver.manufacturer
-                  , model        : { name        : driver.modelName
-                                   , description : driver.description
-                                   , number      : driver.productId
-                                   }
-                  , unit         : { serial      : driver.serialNumber
-                                   , udn         : udn
-                                   }
-                  };
-    info.url = info.device.url;
-    info.deviceType = driver.deviceType;
-    info.id = info.device.unit.udn;
-    if (!!devices.devices[info.id]) return;
+    serial = serialport.SerialPort(comName, options, false);
+    serial.open(function(err) {
+      if (!!err) return callback(err);
 
-    logger2.info(comName, { manufacturer : driver.manufacturer
-                          , vendorID     : driver.vendorId
-                          , productID    : driver.productId
-                          , serialNo     : driver.serialNumber
-                          });
-    devices.discover(info);
+      info = { source: driver, serial: serial };
+      info.device = { url          : null
+                    , name         : driver.modelName + ' #' + driver.serialNumber
+                    , manufacturer : driver.manufacturer
+                    , model        : { name        : driver.modelName
+                                     , description : driver.description
+                                     , number      : driver.productId
+                                     }
+                    , unit         : { serial      : driver.serialNumber
+                                     , udn         : udn
+                                     }
+                    };
+      info.url = info.device.url;
+      info.deviceType = driver.deviceType;
+      info.id = info.device.unit.udn;
+      if (!!devices.devices[info.id]) return;
+
+      logger2.info(comName, { manufacturer : driver.manufacturer
+                            , vendorID     : driver.vendorId
+                            , productID    : driver.productId
+                            , serialNo     : driver.serialNumber
+                            });
+      devices.discover(info);
+    });
   });
 
   setTimeout(scan, 30 * 1000);

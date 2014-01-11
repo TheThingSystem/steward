@@ -1,7 +1,7 @@
 // reelyActive radio-sensor reels -- http://reelyactive.com/corporate/technology.htm
 /* frame/packet decoding based on a pre-release of RA's BarnOwl library:
 
-   (c) reellyActive 2013, We believe in an open Internet of Things
+   (c) reelyActive 2013, We believe in an open Internet of Things
 
  */
 
