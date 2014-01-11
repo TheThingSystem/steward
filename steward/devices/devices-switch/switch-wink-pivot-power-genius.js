@@ -21,9 +21,9 @@ var Strip = exports.Device = function(deviceID, deviceUID, info) {
 
   self.info = { outlets: [] };
   self.gateway = info.gateway;
+  self.status = 'absent';
   self.update(self, info.params);
 
-  self.status = 'present';
   self.changed();
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
@@ -47,12 +47,21 @@ Strip.prototype.scan = function(self) {
   });
 };
 
-Strip.prototype.update = function(self) {
-  var o, outlet, plug, plugs, info, udn;
+Strip.prototype.update = function(self, params) {
+  var o, outlet, plug, plugs, info, status, udn, updateP;
+
+  self.params = params;
+  updateP = false;
 
   if (self.params.name !== self.name) {
     self.name = self.params.name;
     self.changed();
+  }
+
+  status = self.params.props.last_reading.connection ? 'present' : 'absent';
+  if (status !== self.status) {
+    self.status = status;
+    updateP = true;
   }
 
   plugs = [];
@@ -85,14 +94,16 @@ Strip.prototype.update = function(self) {
 
     logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  type: info.params.type });
     devices.discover(info);
-    self.changed();
+    updateP = true;
   }
 
   plugs.sort();
   if (!utility.array_cmp(self.info.plugs, plugs)) {
     self.info.plugs = plugs;
-    self.changed();
+    updateP = true;
   }
+
+  if (updateP) self.changed();
 };
 
 Strip.prototype.perform = function(self, taskID, perform, parameter) {
@@ -122,7 +133,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
-                                   , status     : [ 'present' ]
+                                   , status     : [ 'present', 'absent' ]
                                    , plugs      : []
                                    }
                     }

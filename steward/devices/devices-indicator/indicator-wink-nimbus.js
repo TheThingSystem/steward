@@ -21,9 +21,9 @@ var Nimbus = exports.Device = function(deviceID, deviceUID, info) {
 
   self.info = { gauges: [] };
   self.gateway = info.gateway;
+  self.status = 'absent';
   self.update(self, info.params);
 
-  self.status = 'present';
   self.changed();
 
   utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
@@ -48,13 +48,20 @@ Nimbus.prototype.scan = function(self) {
 };
 
 Nimbus.prototype.update = function(self, params) {
-  var d, dial, gauge, gauges, info, udn;
+  var d, dial, gauge, gauges, info, status, udn, updateP;
 
   self.params = params;
+  updateP = false;
 
   if (self.params.name !== self.name) {
     self.name = self.params.name;
-    self.changed();
+    updateP = true;
+  }
+
+  status = self.params.props.last_reading.connection ? 'present' : 'absent';
+  if (status !== self.status) {
+    self.status = status;
+    updateP = true;
   }
 
   gauges = [];
@@ -87,14 +94,16 @@ Nimbus.prototype.update = function(self, params) {
 
     logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  type: info.params.type });
     devices.discover(info);
-    self.changed();
+    updateP = true;
   }
 
   gauges.sort();
   if (!utility.array_cmp(self.info.gauges, gauges)) {
     self.info.gauges = gauges;
-    self.changed();
+    updateP = true;
   }
+
+  if (updateP) self.changed();
 };
 
 Nimbus.prototype.perform = function(self, taskID, perform, parameter) {
@@ -124,7 +133,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
-                                   , status     : [ 'present' ]
+                                   , status     : [ 'present', 'absent' ]
                                    , gauges     : []
                                    }
                     }

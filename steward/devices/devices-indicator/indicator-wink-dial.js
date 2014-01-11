@@ -58,8 +58,8 @@ Gauge.prototype.update = function(self, params) {
   var updateP;
 
   self.params = params;
-
   updateP = false;
+
   if (self.params.name !== self.name) {
     self.name = self.params.name;
     updateP = true;

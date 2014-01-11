@@ -8,8 +8,7 @@ return;
  *  this driver has lots of comments as it is intended as a template for future drivers involving a serial port
  */
 
-var serialport  = require('serialport')
-  , util        = require('util')
+var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
@@ -221,8 +220,6 @@ var validate_perform = function(perform, parameter) {
  * invoked when the open completes (or fails). on success, scan1() is called to create the corresponding device in the steward
  */
 
-var scanning      = {};
-
 var fingerprints  =
   [ { vendor         : 'Dangerous Prototypes'
     , modelName      : 'TES42756P'
@@ -236,78 +233,45 @@ var fingerprints  =
   ];
 
 var scan = function() {
-  serialport.list(function(err, info) {
-    var i, j, options;
+  devices.scan_usb(logger2, 'irtoy-infrared', fingerprints, function(serial, driver) {
+    var comName, info, udn;
 
-    var f = function(serial, driver) {
-      return function(err) {
-        if (!err) return scan1(serial, driver);
+    comName = driver.comName;
+    logger2.info(driver.comName, { manufacturer : driver.manufacturer
+                                 , vendorID     : driver.vendorId
+                                 , productID    : driver.productId
+                                 , serialNo     : driver.serialNumber
+                                 });
 
-        scanning[driver.comName] = false;
-        return logger2.error('infrared-irtoy', { driver: driver.comName, diagnostic: err.message });
-      };
-    };
+    udn = 'irtoy:' + driver.serialNumber;
+    if (!!devices.devices[udn]) return;
 
-    if (!!err) return logger2.error('infrared-irtoy', { diagnostic: err.message });
+    info = { source: driver, serial: serial };
+    info.device = { url          : null
+                  , name         : driver.modelName + ' #' + driver.serialNumber
+                  , manufacturer : driver.manufacturer
+                  , model        : { name        : driver.modelName
+                                   , description : driver.description
+                                   , number      : driver.productId
+                                   }
+                  , unit         : { serial      : driver.serialNumber
+                                   , udn         : udn
+                                   }
+                  };
+    info.url = info.device.url;
+    info.deviceType = driver.deviceType;
+    info.id = info.device.unit.udn;
+    if (!!devices.devices[info.id]) return;
 
-    for (i = 0; i < info.length; i++) {
-      for (j = fingerprints.length - 1; j !== -1; j--) {
-        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
-              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
-                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
-                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
-          info[i].vendor = fingerprints[j].vendor;
-          info[i].modelName = fingerprints[j].modelName;
-          info[i].description = fingerprints[j].description;
-          info[i].deviceType = fingerprints[j].deviceType;
-          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
-          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
-          if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
-          if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
-
-          if (!!scanning[info[i].comName]) continue;
-          scanning[info[i].comName] = true;
-
-// cf., https://github.com/voodootikigod/node-serialport#serialport-path-options-openimmediately-callback
-          options = {};
-          new serialport.SerialPort(info[i].comName, options, true, f(this, info[i]));
-        }
-      }
-    }
+    logger2.info(comName, { manufacturer : driver.manufacturer
+                          , vendorID     : driver.vendorId
+                          , productID    : driver.productId
+                          , serialNo     : driver.serialNumber
+                          });
+    devices.discover(info);
   });
 
   setTimeout(scan, 30 * 1000);
-};
-
-var scan1 = function(serial, driver) {
-  var comName, info, udn;
-
-  udn = 'irtoy:' + driver.serialNumber;
-  if (!!devices.devices[udn]) return;
-
-  info = { source: driver, serial: serial };
-  info.device = { url          : null
-                , name         : driver.modelName + ' #' + driver.serialNumber
-                , manufacturer : driver.manufacturer
-                , model        : { name        : driver.modelName
-                                 , description : driver.description
-                                 , number      : driver.productId
-                                 }
-                , unit         : { serial      : driver.serialNumber
-                                 , udn         : udn
-                                 }
-                };
-  info.url = info.device.url;
-  info.deviceType = driver.deviceType;
-  info.id = info.device.unit.udn;
-  if (!!devices.devices[info.id]) return;
-
-  logger2.info(comName, { manufacturer : driver.manufacturer
-                        , vendorID     : driver.vendorId
-                        , productID    : driver.productId
-                        , serialNo     : driver.serialNumber
-                        });
-  devices.discover(info);
 };
 
 

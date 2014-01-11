@@ -32,33 +32,24 @@ var OnOff = exports.Device = function(deviceID, deviceUID, info) {
 
     if ((request === 'perform') && (observe === 'set')) return self.perform(self, eventID, observe, parameter);
   });
-
-  setInterval(function() { self.scan(self); }, 60 * 1000);
 };
 util.inherits(OnOff, plug.Device);
 
 
-OnOff.prototype.scan = function(self) {
-  if (!self.gateway.wink) return;
-
-  self.gateway.wink.getDevice(self.params, function(err, params) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
-
-    if (!!params) self.update(self, params);
-  });
-};
-
-OnOff.prototype.update = function(self) {
+OnOff.prototype.update = function(self, params) {
   var status, updateP;
 
+  self.params = params;
   updateP = false;
+
   if (self.params.name !== self.name) {
     self.name = self.params.name;
     updateP = true;
   }
-  status = self.params.powered ? 'on' : 'off';
+
+  status = self.params.props.powered ? 'on' : 'off';
   if (status !== self.status) {
-    self.status = self.status;
+    self.status = status;
     updateP = true;
   }
 
@@ -127,7 +118,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name     : true
-                                   , status   : [ 'present' ]
+                                   , status   : [ 'on', 'off' ]
                                    , actor    : true
                                    , property : true
                                    }

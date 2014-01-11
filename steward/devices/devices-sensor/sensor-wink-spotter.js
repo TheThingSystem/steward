@@ -57,6 +57,7 @@ Spotter.prototype.update = function(self, params) {
 
   firstP = !self.params;
   self.params = params;
+  updateP = false;
 
   data = self.params.props.last_reading;
   props = { lastSample   : 0
@@ -67,7 +68,6 @@ Spotter.prototype.update = function(self, params) {
           , batteryLevel : (typeof data.battery     === 'number') ? (data.battery * 100) : undefined
           };
 
-  updateP = false;
   if (self.params.name !== self.name) {
     self.name = self.params.name;
     updateP = true;
@@ -86,16 +86,17 @@ Spotter.prototype.update = function(self, params) {
     self.info[prop] = props[prop];
     updateP = true;
   }
+
   if (updateP) {
     self.info = props;
     self.changed();
     sensor.update(self.deviceID, props);
+    updateP = false;
   }
 
   data = self.params.props.last_event;
   now = new Date();
   previous = self.status;
-  updateP = false;
   for (d in data) {
     if ((!data.hasOwnProperty(d)) || (d.indexOf('_occurred_at') !== (d.length - 12)) || (typeof data[d] !== 'number')) continue;
 
@@ -113,6 +114,7 @@ Spotter.prototype.update = function(self, params) {
     }
     updateP = true;
   }
+
   if (!updateP) self.status = 'quiet';
 
   if (self.status != previous) self.changed(now);

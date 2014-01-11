@@ -1,4 +1,5 @@
 var events      = require('events')
+  , serialport  = require('serialport')
   , stringify   = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
@@ -568,4 +569,49 @@ exports.expand = function(line, defentity) {
   result += line;
 
   return result;
+};
+
+
+var scanning = {};
+
+exports.scan_usb = function(logger2, tag, fingerprints, callback) {
+  serialport.list(function(err, info) {
+    var i, j, options;
+
+    var f = function(serial, driver) {
+      return function(err) {
+        if (!err) return callback(serial, driver);
+
+        scanning[driver.comName] = false;
+        return logger2.error(tag, { driver: driver.comName, diagnostic: err.message });
+      };
+    };
+
+    if (!!err) return logger2.error(tag, { diagnostic: err.message });
+
+    for (i = 0; i < info.length; i++) {
+      for (j = fingerprints.length - 1; j !== -1; j--) {
+        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
+              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
+                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
+                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
+          info[i].vendor = fingerprints[j].vendor;
+          info[i].modelName = fingerprints[j].modelName;
+          info[i].description = fingerprints[j].description;
+          info[i].deviceType = fingerprints[j].deviceType;
+          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
+          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
+          if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
+          if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
+
+          if (!!scanning[info[i].comName]) continue;
+          scanning[info[i].comName] = true;
+
+// cf., https://github.com/voodootikigod/node-serialport#serialport-path-options-openimmediately-callback
+          options = {};
+          new serialport.SerialPort(info[i].comName, options, true, f(this, info[i]));
+        }
+      }
+    }
+  });
 };
