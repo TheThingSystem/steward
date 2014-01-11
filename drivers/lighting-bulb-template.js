@@ -1,7 +1,7 @@
 // lighting bulb template -- start with this when each bulb can be managed independently (controller may be present, but hidden)
 // search for TBD to see what to change
 
-// load the module that knows how to discovery/communicate with a bulb
+// load the module that knows how to discover/communicate with the bulb
 var TBD         = require('TBD')
   , util        = require('util')
   , devices     = require('./../../core/device')
@@ -14,7 +14,7 @@ var TBD         = require('TBD')
 
 var logger = lighting.logger;
 
-// define the prototype that will be instantiated when a bulb is discovered
+// define the prototype that will be instantiated when the bulb is discovered
 // later, we will create a ...perform function, and a ...update function.
 var TBD = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
@@ -26,7 +26,7 @@ var TBD = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.bulb = info.bulb;
-// TBD: invoked by the lower-level bulb driver whenever a bulb changes state. You probably
+// TBD: invoked by the lower-level bulb driver whenever the bulb changes state. You probably
 // have to set the name of the event to whatever the bulb driver emits when its state changes.
   self.bulb.on('stateChange', function(state) { self.update(self, state); });
   self.update(self, self.bulb.state);
@@ -207,8 +207,7 @@ exports.start = function() {
          };
 // if multiple bulb types, update info.deviceType as appropriate
     info.url = info.device.url;
-    info.deviceType = 'TBD';
-    info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
+    info.deviceType = '/device/lighting/TBD/led';
     info.id = info.device.unit.udn;
     if (!!devices.devices[info.id]) return;
 

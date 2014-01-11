@@ -316,8 +316,7 @@ var scan = function () {
              , deviceType : steward.actors.device.gateway.TBD.$info.type
            };
       info.url = info.device.url;
-      info.deviceType = 'TBD';
-      info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
+      info.deviceType = '/device/gateway/TBD/lighting/';
       info.id = info.device.unit.udn;
       if (!!devices.devices[info.id]) return;
 
