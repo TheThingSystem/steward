@@ -73,6 +73,6 @@
     , "xmldom"		    : "0.1.x"
     , "xmlhttprequest"      : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
     , "yoctolib"            : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
-    , "node-samsung-airconditioner" : "git://github.com/TheThingSystem/node-samsung-airconditioner.git"
+    , "samsung-airconditioner" : "git://github.com/TheThingSystem/node-samsung-airconditioner.git"
   }
 }
