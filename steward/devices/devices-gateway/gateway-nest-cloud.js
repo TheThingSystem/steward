@@ -160,14 +160,15 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
              , leaf            : (!!station.leaf)                 ? 'on'      : 'off'
              };
   } else {
-    deviceType = '/device/climate/nest/smoke';
+    deviceType = '/device/sensor/nest/smoke';
     params = { smoke           : data.smoke_status ? 'detected' : 'absent'
-             , coStatus        : data.co_status    ? 'unsafe'   : 'safe'
-             , batteryLevel    : data.battery_level
+             , co              : data.co_status    ? 'detected' : 'absent'
+//           , batteryLevel    : data.battery_level
              };
   }
   params.lastSample = timestamp;
-  params.status     = online ? 'present' : 'absent';
+  params.status     = (!online) ? 'absent'
+                                : ((params.smoke === 'detected') || (params.coStatus === 'detected')) ? 'danger' : 'present';
 
   udn = 'nest:' + id;
   if (!!devices.devices[udn]) {
