@@ -84,7 +84,7 @@ Gauge.prototype.egress = function(self) {
     if ((label.length + 1 + value.length) <= 8) value = label + ' ' + value;
   }
 
-  self.gateway.wink.setDial(self.params, { name                  : devices.expand('.[' + self.info.actor + '.name].')
+  self.gateway.wink.setDial(self.params, { name                  : devices.expand('dial: .[' + self.info.actor + '.name].')
                                          , label                 : value
                                          , labels                : [ value, '' ]
                                          , position              : 0
@@ -108,6 +108,9 @@ Gauge.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.name) {
     if (!self.gateway.wink) return false;
 
+// short-ciruit round-trip time to cloud
+    self.name = params.name;
+    self.changed();
     self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
       if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
 

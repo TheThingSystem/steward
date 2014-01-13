@@ -188,7 +188,7 @@ var find = function(query, tag) {
 };
 
 var report = function(query, proplist) {
-  var data, i, prop, properties, s;
+  var data, i, prop, properties, s, v;
 
   data = '';
   properties = (!!query.properties) ? query.properties.split(',') : [ 'status' ];
@@ -201,9 +201,11 @@ var report = function(query, proplist) {
                    , coStatus : 'carbon monoxide level'
                    }[prop] || prop) + ' is ';
     }
-    data += device.expand('.[.' + prop + '].', proplist);
+    v = device.expand('.[.' + prop + '].', proplist);
 // TBD: this is really a UI thing, but it is rather convenient to place here...
-    data += { temperature : ' degrees celcius'
+    if (prop === 'temperature') v = Math.round(((v * 9) / 5) + 32);
+    data += v;
+    data += { temperature : ' degrees'
             , humidity    : ' percent'
             , co2         : ' parts per million'
             , noise       : ' decibels'

@@ -210,6 +210,10 @@ ModelS.prototype.scan = function(self) {
         didP = true;
         self.info.location[0] = data.latitude;
         self.info.location[1] = data.longitude;
+        if (!places.place1.info.location) delete(self.info.distance);
+        else self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
+                                                                               places.place1.info.location[0],
+                                                                               places.place1.info.location[1]));
       }
 
       if (self.info.heading !== data.heading) {
@@ -543,6 +547,7 @@ exports.start = function() {
 
                                    , location       : 'coordinates'
                                    , physical       : true
+                                   , distance       : 'kilometers'  // technically, it should be client-derived
                                    , heading        : 'degrees'
                                    , velocity       : 'meters/second'
                                    , odometer       : 'kilometers'

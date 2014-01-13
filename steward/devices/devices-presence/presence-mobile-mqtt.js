@@ -150,7 +150,10 @@ Mobile.prototype.balance = function(self, max) {
   d = [];
   for (i = 1, previous = self.info.locations[0].split(','); i < self.info.locations.length - 1; i++, previous = location) {
     location = self.info.locations[i].split(',');
-    d.push([ i, self.info.locations[i], getDistanceFromLatLonInKm(location[0], location[1], previous[0], previous[1]) ]);
+    d.push([ i
+           , self.info.locations[i],
+           , utility.getDistanceFromLatLonInKm(location[0], location[1], previous[0], previous[1])
+           ]);
   }
   d.sort(function(a,b) { return (b[2] - a[2]); });
   d.splice(0, q);
@@ -200,26 +203,6 @@ Mobile.prototype.reverseGeocode = function(self) {
     self.info.physical = geocache[key];
     self.changed();
   });
-};
-
-// from http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
-
-var getDistanceFromLatLonInKm = function (lat1, lon1, lat2, lon2) {
-  var R = 6371; // Radius of the earth in km
-  var dLat = deg2rad(lat2-lat1);  // deg2rad below
-  var dLon = deg2rad(lon2-lon1);
-  var a =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-    ;
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  var d = R * c; // Distance in km
-  return d;
-};
-
-var deg2rad = function(deg) {
-  return deg * (Math.PI/180);
 };
 
 
