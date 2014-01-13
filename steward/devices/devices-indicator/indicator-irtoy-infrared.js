@@ -231,7 +231,7 @@ var fingerprints  =
   ];
 
 var scan = function() {
-/* 
+/*
  * to determine what to put in options
  * cf., https://github.com/voodootikigod/node-serialport#serialport-path-options-openimmediately-callback
  */

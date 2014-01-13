@@ -691,6 +691,7 @@ var single_device_arcs = function(device) {
   color = statusColor(device);
   switch (device.status) {
     case 'red':
+    case 'danger':
     case 'error':
     case 'reset':
       arcs.push({ name   : 'status'
@@ -1057,7 +1058,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'SMOKE'
-                          , cooked : isNaN(v) ? v : v + '&sigma;'
+                          , cooked : (!isNaN(v)) ? v + '&sigma;' : (v !== 'absent') ? v.toUpperCase() : v
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });
@@ -1131,7 +1132,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CO'
-                          , cooked : isNaN(v) ? v : v + '&sigma;'
+                          , cooked : (!isNaN(v)) ? v + '&sigma;' : (v !== 'absent') ? v.toUpperCase() : v
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });

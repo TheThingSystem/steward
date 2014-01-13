@@ -211,6 +211,7 @@ var statusColor2 = function(entry) {
       return '#9b00c1';
 
     case 'absent':
+    case 'danger':
     case 'error':
     case 'reset':
     case 'red':
