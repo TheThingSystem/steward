@@ -128,6 +128,9 @@ Spotter.prototype.perform = function(self, taskID, perform, parameter) {
   if ((perform !== 'set') || (!params.name)) return false;
   if (!self.gateway.wink) return false;
 
+// short-ciruit round-trip time to cloud
+  self.name = params.name;
+  self.changed();
   self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
     if (!!err) return self.logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
 
