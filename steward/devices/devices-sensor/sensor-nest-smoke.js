@@ -77,7 +77,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name            : true
-                                   , status          : [ 'present', 'danger', 'absent' ]
+                                   , status          : [ 'safe', 'unsafe', 'absent' ]
                                    , lastSample      : 'timestamp'
                                    , smoke           : [ 'detected', 'absent' ]
                                    , coStatus        : [ 'detected', 'absent' ]

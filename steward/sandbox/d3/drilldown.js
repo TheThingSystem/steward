@@ -691,7 +691,7 @@ var single_device_arcs = function(device) {
   color = statusColor(device);
   switch (device.status) {
     case 'red':
-    case 'danger':
+    case 'unsafe':
     case 'error':
     case 'reset':
       arcs.push({ name   : 'status'

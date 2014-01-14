@@ -158,17 +158,17 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
                                      : (!!data.hvac_fan_state)    ? 'fan'     : 'off'
              , away            : (!!away)                         ? 'on'      : 'off'
              , leaf            : (!!station.leaf)                 ? 'on'      : 'off'
+             , status          : (online)                         ? 'present' : 'absent'
              };
   } else {
     deviceType = '/device/sensor/nest/smoke';
     params = { smoke           : data.smoke_status ? 'detected' : 'absent'
              , co              : data.co_status    ? 'detected' : 'absent'
 //           , batteryLevel    : data.battery_level
+             , status          : (!online)         ? 'absent'   : (data.smoke_status | data.co_status) ? 'unsafe' : 'safe'
              };
   }
   params.lastSample = timestamp;
-  params.status     = (!online) ? 'absent'
-                                : ((params.smoke === 'detected') || (params.coStatus === 'detected')) ? 'danger' : 'present';
 
   udn = 'nest:' + id;
   if (!!devices.devices[udn]) {

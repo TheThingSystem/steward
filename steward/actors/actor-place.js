@@ -1,4 +1,5 @@
 var fs          = require('fs')
+  , geocoder    = require('geocoder')
   , parser      = require('cron-parser')
   , suncalc     = require('suncalc')
   , util        = require('util')
@@ -155,6 +156,7 @@ var Place = exports.Place = function(info) {
   if (!self.info.pairing) self.info.pairing = 'on';
   if (self.info.pairing !== 'code') delete(self.info.pairingCode); else self.makecode();
   if (!self.info.strict) self.info.strict = 'on';
+  if (!self.info.displayUnits) self.info.displayUnits = 'customary';
 // temporary
   if (!!self.info.coordinates) {
     self.info.location = self.info.coordinates;
@@ -298,10 +300,60 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 // do not call self.setName()... there's no entry in the devices table!
   if (!!params.name) self.name = self.info.name = params.name;
 
-  if (!!params.physical) place1.info.physical = params.physical;
-// TBD: re-calculate location...
+  if ((!!params.location)
+         && ((!util.isArray(params.location)) || (params.location.length < 2)
+                 || ((isNaN(params.location[0])) || (params.location[0] <  -90) || (params.location[0] >  90))
+                 || ((isNaN(params.location[1])) || (params.location[0] < -180) || (params.location[0] > 180))
+                 || ((params.location[0] === '') || (params.location[1] === '')))) delete(params.location);
 
-  if (!!params.location) place1.info.location = utility.location_fuzz(params.location);
+  if (!!params.physical) {
+    place1.info.physical = params.physical;
+    if (!params.location) {
+      geocoder.geocode(place1.info.physical, function(err, result) {
+        var components, geometry, i;
+
+        if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
+                                                    , location   : place1.info.location
+                                                    , diagnostic : result.status });
+
+        geometry = result.results[0].geometry;
+        place1.info.location = [ geometry.location.lat, geometry.location.lng ];
+
+        components = result.results[0].address_components;
+        for (i = 0; i < components.length; i++) if (components[i].types.indexOf('country') !== -1) {
+          place1.info.displayUnits = components[i].long_name === 'United States' ? 'customary' : 'metric';
+          break;
+        }
+      });
+    }
+  }
+
+  if (!!params.location) {
+    place1.info.location = utility.location_fuzz(params.location);
+    if (!params.physical) {
+      geocoder.reverseGeocode(place1.info.location[0], place1.info.location[1], function(err, result) {
+        if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
+                                                    , location   : place1.info.location
+                                                    , diagnostic : result.status });
+
+        place1.info.physical = result.results[0].formatted_address;        
+        place1.info.displayUnits =
+            (result.results[result.results.length - 1].formatted_address === 'United States') ? 'customary' : 'metric';
+      });
+    }
+  }
+
+  if ((!!params.physical) && (!!params.location)) {
+    geocoder.reverseGeocode(place1.info.location[0], place1.info.location[1], function(err, result) {
+      if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
+                                                  , location   : place1.info.location
+                                                  , diagnostic : result.status });
+
+      place1.info.displayUnits =
+          (result.results[result.results.length - 1].formatted_address === 'United States') ? 'customary' : 'metric';
+      });
+
+  }
 
 // TBD: look at all 'solar' events and set the timer accordingly...
 
@@ -318,6 +370,11 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.strict) {
     if ({ off  : true
         , on   : true }[params.strict]) place1.info.strict = params.strict;
+  }
+
+  if (!!params.displayUnits) {
+    if ({ cusomtary : true
+        , metric    : true }[params.displayUnits]) place1.info.displayUnits = params.displayUnits;
   }
 
   self.setInfo();
@@ -475,6 +532,11 @@ var validate_perform = function(perform, parameter) {
          , on   : true }[params.strict]) result.invalid.push('strict');
   }
 
+  if (!!params.displayUnits) {
+    if (!{ customary : true
+         , metric    : true }[params.displayUnits]) result.invalid.push('displayUnits');
+  }
+
   return result;
 };
 
@@ -502,6 +564,7 @@ exports.start = function() {
                                    , pairing     : [ 'off', 'on', 'code' ]
                                    , pairingCode : true
                                    , strict      : [ 'off', 'on' ]
+                                   , displayUnits: [ 'customary', 'metric' ]
                                    , physical    : true
                                    , location    : 'coordinates'
                                    , remote      : true
