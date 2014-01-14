@@ -25,9 +25,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
 
   self.info = {};
-  for (param in info.params) {
-    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
-  }
+  for (param in info.params) if (info.params.hasOwnProperty(param)) self.info[param] = info.params[param];
   sensor.update(self.deviceID, info.params);
 
   self.status = 'waiting';
@@ -36,7 +34,6 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
                , humidity    : yapi.yFindHumidity(info.device.unit.serial + '.humidity')
                , pressure    : yapi.yFindPressure(info.device.unit.serial + '.pressure')
                };
-  self.info = {};
 
   if (self.meteo.module.isOnline()) {
      self.status = 'present';
@@ -121,7 +118,7 @@ Sensor.prototype.update = function(self, params, status) {
     updateP = true;
   }
   for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+    if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
 
     self.info[param] = params[param];
     updateP = true;

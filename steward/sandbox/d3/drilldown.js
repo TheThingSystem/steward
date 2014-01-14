@@ -964,7 +964,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'QUALITY'
-                          , cooked : isNaN(v) ? v : v + '&sigma;'
+                          , cooked : isNaN(v) ? v : (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.60
                           });
@@ -1058,7 +1058,8 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'SMOKE'
-                          , cooked : (!isNaN(v)) ? v + '&sigma;' : (v !== 'absent') ? v.toUpperCase() : v
+                          , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
+                                                 : (v !== 'absent') ? v.toUpperCase() : v
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });
@@ -1078,7 +1079,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'AIR FLOW'
-                          , cooked : isNaN(v) ? v : v + '&sigma;'
+                          , cooked : isNaN(v) ? v : (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                           , value  : clip2bars(-v, -5, 2.5)
                           , index  : 0.40
                           });
@@ -1132,7 +1133,9 @@ var climate_device_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'CO'
-                          , cooked : (!isNaN(v)) ? v + '&sigma;' : (v !== 'absent') ? v.toUpperCase() : v
+                          , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
+                                                 : (v !== 'absent') ? v.toUpperCase() : v
+
                           , value  : clip2bars(-v, -5, 1.5)
                           , index  : 0.40
                           });

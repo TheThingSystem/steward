@@ -25,14 +25,11 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
 
   self.info = {};
-  for (param in info.params) {
-    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
-  }
+  for (param in info.params) if (info.params.hasOwnProperty(param)) self.info[param] = info.params[param];
   sensor.update(self.deviceID, info.params);
 
   self.status = 'waiting';
   self.voc = yapi.yFindVoc(info.device.unit.serial + '.voc');
-  self.info = {};
 
   if (self.voc.isOnline()) {
      self.status = 'present';

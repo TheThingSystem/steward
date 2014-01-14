@@ -633,7 +633,7 @@ var onactors = function(message) {
             case 'hcho':
             case 'no2':
             case 'smoke':
-              if (!isNaN(v)) v += '&sigma;';
+              if (!isNaN(v)) v += (typeof v === 'string') ? '&sigma;' : 'ppm';
               break;
 
             case 'concentration':

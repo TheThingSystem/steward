@@ -1,4 +1,4 @@
-// Yocto-LIGHT: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-light
+// Yocto-4-20mA-Rx: http://www.yoctopuce.com/EN/products/usb-electrical-sensors/yocto-4-20ma-rx
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -6,12 +6,11 @@ var util        = require('util')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , hub         = require('./../devices-gateway/gateway-yoctopuce-hub')
-  , climate     = require('./../device-climate')
   , sensor      = require('./../device-sensor')
   ;
 
 
-var logger = climate.logger;
+var logger = sensor.logger;
 
 
 var Sensor = exports.Device = function(deviceID, deviceUID, info) {
@@ -29,12 +28,13 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   sensor.update(self.deviceID, info.params);
 
   self.status = 'waiting';
-  self.light = yapi.yFindLightSensor(info.device.unit.serial + '.lightSensor');
+  self.rx = yapi.yFindGenericSensor(info.device.unit.serial);
+  self.sensorQ = info.sensorQ;
 
-  if (self.light.isOnline()) {
-     self.status = 'present';
+  if (self.rx.isOnline()) {
+    self.status = 'present';
 
-    self.light.get_logicalName_async(function(ctx, led, result) {
+    self.rx.get_logicalName_async(function(ctx, led, result) {
       if (result === yapi.Y_LOGICALNAME_INVALID) {
         return logger.error('device/' + self.deviceID, { event: 'get_logicalName', diagnostic: 'logicalName invalid' });
       }
@@ -43,12 +43,6 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
 
       logger.info('device/' + self.deviceID, { event: 'get_logicalName', result: result });
       self.setName(result);
-    });
-
-    self.light.get_unit_async(function(ctx, led, result) {
-      if (result === yapi.Y_UNIT_INVALID) {
-        return logger.error('device/' + self.deviceID, { event: 'get_unit', diagnostic: 'unit invalid' });
-      }
     });
   } else self.status = 'absent';
   self.changed();
@@ -62,10 +56,10 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   setInterval(function() { self.scan(self); }, 45 * 1000);
   self.scan(self);
 };
-util.inherits(Sensor, climate.Device);
+util.inherits(Sensor, sensor.Device);
 
 Sensor.prototype.scan = function(self) {
-  var status = self.light.isOnline() ? 'present' : 'absent';
+  var status = self.rx.isOnline() ? 'present' : 'absent';
 
   if (self.status !== status) {
     self.status = status;
@@ -73,12 +67,16 @@ Sensor.prototype.scan = function(self) {
   }
   if (self.status !== 'present') return;
 
-  self.light.get_currentValue_async(function(ctx, led, result) {
+  self.rx.get_currentValue_async(function(ctx, led, result) {
+    var params;
+
     if (result === yapi.Y_LCURRENTVALUE_INVALID) {
       return logger.error('device/' + self.deviceID, { event: 'get_currentValue', diagnostic: 'currentValue invalid' });
     }
 
-    self.update(self, { lastSample: new Date().getTime(), light: result });
+    params = { lastSample : new Date().getTime() };
+    params[self.sensorQ] = result;
+    self.update(self, params);
   });
 };
 
@@ -109,7 +107,7 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (perform !== 'set') return false;
 
-  result = self.light.set_logicalName(params.name);
+  result = self.rx.set_logicalName(params.name);
   if (result === yapi.YAPI_SUCCESS) return self.setName(params.name, taskID);
 
   logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
@@ -117,23 +115,25 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 
-exports.start = function() {
-  steward.actors.device.climate.yoctopuce = steward.actors.device.climate.yoctopuce ||
-      { $info     : { type: '/device/climate/yoctopuce' } };
+exports.prime = function(sensorQ) {
+  steward.actors.device.sensor.yoctopuce = steward.actors.device.sensor.yoctopuce ||
+      { $info     : { type: '/device/sensor/yoctopuce' } };
 
-  steward.actors.device.climate.yoctopuce.light =
-      { $info     : { type       : '/device/climate/yoctopuce/light'
+  if (!!steward.actors.device.sensor.yoctopuce[sensorQ]) return;
+
+  steward.actors.device.sensor.yoctopuce[sensorQ] =
+      { $info     : { type       : '/device/sensor/yoctopuce/' + sensorQ
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
                                    , status     : [ 'present', 'absent' ]
                                    , lastSample : 'timestamp'
-                                   , light      : 'lux'
                                    }
                     }
       , $validate : {  perform   : hub.validate_perform }
       };
-  devices.makers['/device/climate/yoctopuce/light'] = Sensor;
-
-  hub.register('Yocto-Light', '/device/climate/yoctopuce/light');
+  steward.actors.device.sensor.yoctopuce[sensorQ].$info.properties[sensorQ] = 'ppm';
+  devices.makers['/device/sensor/yoctopuce/' + sensorQ] = Sensor;
 };
+
+exports.start = function() {};
