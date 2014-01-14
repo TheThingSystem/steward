@@ -336,7 +336,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
                                                     , location   : place1.info.location
                                                     , diagnostic : result.status });
 
-        place1.info.physical = result.results[0].formatted_address;        
+        place1.info.physical = result.results[0].formatted_address;
         place1.info.displayUnits =
             (result.results[result.results.length - 1].formatted_address === 'United States') ? 'customary' : 'metric';
       });

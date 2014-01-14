@@ -9,6 +9,7 @@ var url         = require('url')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , discovery   = require('./../../discovery/discovery-ssdp')
+  , sensors     = require('./../devices-sensor/sensor-yoctopuce-4-20mA-Rx')
   ;
 
 
@@ -77,13 +78,15 @@ Hub.prototype.addstation = function(module) {
     case 'YoctoHub-Wireless':
       return;
 
-    default:
-      if (!!products[productName]) break;
+    case 'Yocto-4-20mA-Rx':
       modules[serialNumber] = productName;
+      return self.addsensor(self, module, modelNumber, productName, serialNumber);
+
+    default:
+      modules[serialNumber] = productName;
+      if (!!products[productName]) break;
       return logger.warning('device/' + self.deviceID, { event: 'unknown module', result: productName });
   }
-
-  modules[serialNumber] = productName;
 
   info =  { source: self.deviceID, gateway: self, module: module };
   info.device = { url                          : null
@@ -105,6 +108,70 @@ Hub.prototype.addstation = function(module) {
   devices.discover(info);
   self.changed();
 };
+
+Hub.prototype.addsensor = function(self, module, modelNumber, productName, serialNumber) {
+  var i, info, name, parts, sensor, sensorID, sensorQ, value;
+
+  for (i = 1; i < 3; i++) {
+    sensorID = '.genericSensor' + i;
+    sensor = yapi.yFindGenericSensor(serialNumber + sensorID);
+
+    name = sensor.get_logicalName();
+    if (name === yapi.Y_LOGICALNAME_INVALID) {
+      logger.error('device/' + self.deviceID, { event      : 'get_logicalName'
+                                              , sensorID   : sensorID
+                                              , diagnostic : 'logicalName invalid' });
+      continue;
+    }
+
+    value  = sensor.get_currentValue();
+    if (value < 0) {
+      logger.warning('device/' + self.deviceID, { event        : 'addsensor'
+                                                , sensorID     : sensorID
+                                                , logicalName  : name
+                                                , currentValue : value
+                                                , diagnostic   : 'currentValue unusable' });
+      continue;
+    }
+
+    if ((!!name) && (name.length !== 0)) {
+      parts = name.split('-');
+      sensorQ = parts[parts.length - 1];
+    }
+    if (!sensorQ) {
+      logger.warning('device/' + self.deviceID, { event       : 'addsensor'
+                                                , sensorID    : sensorID
+                                                , logicalName : name
+                                                , diagnostic  : 'logicalName unusable' });
+      continue;
+    }
+    sensorQ = sensorQ.toLowerCase();
+
+    sensors.prime(sensorQ);
+
+    info =  { source: self.deviceID, gateway: self, module: module, sensorQ: sensorQ, params: {}  };
+    info.device = { url                          : null
+                  , name                         : name || productName
+                  , manufacturer                 : 'Yoctopuce'
+                  , model        : { name        : productName
+                                   , description : ''
+                                   , number      : modelNumber
+                                   }
+                  , unit         : { serial      : serialNumber + sensorID
+                                   , udn         : 'yoctopuce:' + serialNumber + sensorID
+                                   }
+                  };
+    info.url = info.device.url;
+    info.deviceType = '/device/sensor/yoctopuce/' + sensorQ;
+    info.id = info.device.unit.udn;
+    info.params[sensorQ] = value;
+
+    logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial, type: sensorQ });
+    devices.discover(info);
+    self.changed();
+  }
+};
+
 
 exports.validate_perform = function(perform, parameter) {
   var params = {}
