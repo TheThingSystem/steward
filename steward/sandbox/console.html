@@ -557,10 +557,10 @@ var onactors = function(message) {
 
       entity = entities[actorID];
       status = entity.status || '';
-      td_status = (status.indexOf(' ') !== -1)                                                                        ? 'group'
-                  : ((status === 'error')  || (status === 'red')    || (status === 'reset')|| (status === 'danger'))  ? 'alert'
+      td_status = (status.indexOf(' ') !== -1)                                                                       ? 'group'
+                  : ((status === 'error')  || (status === 'red')    || (status === 'reset')|| (status === 'unsafe')) ? 'alert'
                   : ((status === 'orange') || (status === 'indigo') || (status === 'absent'))                        ? 'warning'
-                  : ((status === 'blue')   || (status === 'busy')   || (status === 'waiting'))                        ? 'blue'
+                  : ((status === 'blue')   || (status === 'busy')   || (status === 'waiting'))                       ? 'blue'
                   : 'status';
       if (!!entity.updated) {
         if (status.length > 0) status += '<br/>';

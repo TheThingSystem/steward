@@ -203,7 +203,7 @@ var report = function(query, proplist) {
     }
     v = device.expand('.[.' + prop + '].', proplist);
 // TBD: this is really a UI thing, but it is rather convenient to place here...
-    if (prop === 'temperature') v = Math.round(((v * 9) / 5) + 32);
+    if ((places.place1.info.displayUnits === 'customary') && (prop === 'temperature')) v = Math.round(((v * 9) / 5) + 32);
     data += v;
     data += { temperature : ' degrees'
             , humidity    : ' percent'

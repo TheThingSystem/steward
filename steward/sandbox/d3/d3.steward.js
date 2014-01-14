@@ -454,7 +454,7 @@ d3.kelvin.solar = d3.kelvin.solar ||
 
 d3.rgb.status = d3.rgb.status ||
     { absent      : 'red'
-    , danger      : 'red'
+    , unsafe      : 'red'
     , connected   : 'lightblue'
     , idle        : 'yellow'
     , motion      : 'yellow'
