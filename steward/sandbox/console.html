@@ -650,7 +650,6 @@ var onactors = function(message) {
               break;
 
             case 'altitude':
-            case 'distance':
               if (!isNaN(v)) v = Math.round(v) + ' meters';
               break;
 
@@ -666,6 +665,7 @@ var onactors = function(message) {
               if ((v !== '0') && (!isNaN(v))) v = (v * 3.6).toFixed(0) + ' km/h / ' + (v * 2.23694).toFixed(0) + ' mph';
               break;
 
+            case 'distance':
             case 'odometer':
             case 'range':
               if (!isNaN(v)) v = v.toFixed(0) + ' km / ' + (v * 0.621371).toFixed(0) + ' mi';
