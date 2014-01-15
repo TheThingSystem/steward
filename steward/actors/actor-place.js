@@ -196,7 +196,7 @@ var Place = exports.Place = function(info) {
            };
   };
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (request === 'ping') {
       if (broker.has('beacon-egress')) broker.publish('beacon-egress', '.updates', self.proplist());
       return;

@@ -20,6 +20,7 @@
     , "eureka-dongle"       : "git://github.com/TheThingSystem/eureka-dongle.git"
     , "geocoder"            : "0.1.0"
     , "greenwave-gop"       : "git://github.com/TheThingSystem/node-greenwave-gop.git"
+    , "irobot"              : "git://github.com/TheThingSystem/irobot.git"
     , "json-stringify-safe" : "4.0.0"
     , "koubachi"            : "git://github.com/TheThingSystem/node-koubachi.git"
     , "line-reader"         : "0.2.3"

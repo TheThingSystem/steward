@@ -4,6 +4,7 @@ var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , sensor      = require('./../device-sensor')
   ;
 
@@ -27,10 +28,10 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   self.events = {};
   self.observations = {};
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'observe') {
+    if ((request === 'observe') && ({ brightness: true, loudness: true, motion: true }[observe])) {
       self.events[eventID] = { observe: observe };
       return;
     }
@@ -63,8 +64,8 @@ Spotter.prototype.update = function(self, params) {
   props = { lastSample   : 0
           , temperature  : (typeof data.temperature === 'number') ? data.temperature     : undefined
           , humidity     : (typeof data.humidity    === 'number') ? data.humidity        : undefined
-          , noise        : (typeof data.loudness    === 'number') ? data.loudness        : undefined
-          , light        : (typeof data.brightness  === 'number') ? data.brightness      : undefined
+//        , noise        : (typeof data.loudness    === 'number') ? data.loudness        : undefined
+//        , light        : (typeof data.brightness  === 'number') ? data.brightness      : undefined
           , batteryLevel : (typeof data.battery     === 'number') ? (data.battery * 100) : undefined
           };
 
@@ -140,7 +141,6 @@ Spotter.prototype.perform = function(self, taskID, perform, parameter) {
   return steward.performed(taskID);
 };
 
-
 var validate_observe = function(observe, parameter) {/* jshint unused: false */
   var result = { invalid: [], requires: [] };
 
@@ -165,8 +165,8 @@ exports.start = function() {
                                    , lastSample   : 'timestamp'
                                    , temperature  : 'celsius'
                                    , humidity     : 'percentage'
-                                   , noise        : 'decibels'
-                                   , light        : 'lux'
+//                                 , noise        : 'decibels'
+//                                 , light        : 'lux'
                                    , batteryLevel : 'percentage'
                                    }
                     }

@@ -5,6 +5,7 @@ var stringify   = require('json-stringify-safe')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , discovery   = require('./../../discovery/discovery-ssdp')
   , sensor      = require('./../device-sensor')
   ;
@@ -28,7 +29,7 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
   self.logger = sensor.logger;
   self.events = {};
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'observe') {
@@ -38,7 +39,7 @@ var WeMo_Motion = exports.Device = function(deviceID, deviceUID, info) {
     if ((request === 'perform') && (observe === 'set')) return self.perform(self, eventID, observe, parameter);
   });
 
-  utility.broker.subscribe('discovery', function(method, headers, content) {
+  broker.subscribe('discovery', function(method, headers, content) {
     if (method === 'notify') self.notify(self, headers, content);
   });
 

@@ -1,8 +1,83 @@
 ChangeLog
 =======
 
+## TBD - January 23, 2014
+## Commit - TBD
+
+### Steward
+- add HTTP/HTTPS /oneshot path for simplified debugging of the steward
+- have 'parameter' parameter default to {} rather than '' (a better default in nearly all cases)
+- additional results on a successful authentication to allow clients to better inform user
+- improved algorithm when scanning ARP traffic
+- improved algorithm when listening for SSDP traffic
+- fixed perform operation on task-type groups
+- more consistent logging tags
+- begin refactoring of USB scanning (perhaps a fool's errand)
+
+### Places
+- add displayUnits to allow clients to determine whether to display in metric or customary units
+
+### Things
+- all: normalize all validate_observe/observe/perform functions
+- some: rename some files to better reflect taxonomy hierarchy
+- UPnP:
+    - all: fix assignment of deviceTypes
+    - WeMo: better handling of the 412 error
+- device/climate:
+    - */control: immediately refresh state after a perform
+    - flower-power/*: support Parrot Flower Power (via cloud)
+    - nest/control: fix incorrect use of setting fan duration
+    - wink/spotter: support Quirky Spotter sensor
+- device/gateway:
+    - */cloud: remove extraneous alerts when discovering non-configured things
+    - flower-power/cloud: support Parrot Flower Power cloud service
+    - insteon/9761: use 'setNoDelay' on sockets
+    - reelyactive/hublet: support serialport access (in addition to UDP)
+    - wink/cloud: support Quirky Wink cloud service
+- device/indicator:
+    - wink/*: support Quirky Nimbus dials
+- device/lighting:
+    - heroric-robotics/*: add 'program' task
+    - hue/*: allow user to override configuration name for bulbs
+- device/motive:
+    - irobot/floor: initial support for iRobot floor robots
+    - tesla/model-s:
+        - add 'physical' property (refreshed at most once every 30 seconds)
+        - add 'distance' property (should be calculated by UI, but very useful)
+- device/presence:
+    - mqtt/mobile:
+        - remove 'staticmap' property (used for initial testing)
+        - add 'distance' property (should be calculated by UI, but very useful)
+- device/sensor:
+    - nest/smoke:
+        - moved from device/climate
+        - status now reflects safe/unsafe state
+    - yoctopuce/*: initial support for Yocto-4-20mA-Rx
+- device/switch:
+    - wemo/meter: support Belkin Insight Switch
+    - wink/*: support Quirky Pivot Power Strip
+
+### HTML5/D3 client
+- simpler algorithm when choosing an icon for a thing
+- fix on/off control for switches
+- better handling of login dropdown and reporting of permissions
+- fix bug where CIE1931 lighting popover was not showing the color map on non-Mac systems
+- support for all the new things
+
+### User management client
+- indicate whether the user needs to be logged in order to manage (necessary after the initial bootstrap)
+
+### Client examples
+- rename testing base from bootstrap.html to testing.html
+
+### Utilities
+- add list-arp.js to mimic steward's algorithm for scanning ARP traffic
+- add list-ssdp.js and list-notify.js to mimic steward's algorithm for listening for SSDP responses
+- run.sh reminds developers that the steward will restart in 10 seconds after failure
+- include developers' .jshintrc in repository
+
 ## Release 1.3 "Rudolf" - December 23, 2013
-## Commit - 62986813b4b6e745ad8d56e3d859f7f30bed4afd 
+## Commit - 62986813b4b6e745ad8d56e3d859f7f30bed4afd
 
 ### Steward
 - add subscriptions to steward status for /device/presence/mobile/* devices
@@ -12,7 +87,7 @@ ChangeLog
 - fix bugs in TSRP handling of lastSample
 - simplify taxonomy
 - added version reporting to steward startup
-    
+
 ### Things
 - place/1: new cron event "reboot" which fires 1 minute after startup
 - device/climate:

@@ -5,6 +5,7 @@ var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , presence    = require('./../device-presence')
   ;
 
@@ -33,7 +34,7 @@ var Tag = exports.Device = function(deviceID, deviceUID, info) {
 
   self.update(self, info.params.v, info.params.timestamp);
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'observe') {
@@ -178,7 +179,7 @@ Tag.prototype.examine2 = function(self, param, start) {
   return (-1);
 };
 
-var validate_observe = function(observe, parameter) {/* jshint unused: false */
+var validate_observe = function(observe, parameter) {
   var i, j, ranking, rankings;
 
   var params = {}

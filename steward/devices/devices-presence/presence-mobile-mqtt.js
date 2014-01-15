@@ -8,6 +8,7 @@ var geocoder    = require('geocoder')
   , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , presence    = require('./../device-presence')
   ;
 
@@ -58,10 +59,10 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
     self.changed();
   });
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') return self.perform(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, eventID, perform, parameter);
   });
 
   setInterval(function() { self.reverseGeocode(self); }, 60 * 1000);
@@ -120,6 +121,12 @@ Mobile.prototype.update = function(self, params, status) {
     if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
 
     self.info[param] = params[param];
+    if (param === 'location') {
+      if (!places.place1.info.location) delete(self.info.distance);
+      else self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
+                                                                             places.place1.info.location[0],
+                                                                             places.place1.info.location[1]));
+    }
     updateP = true;
   }
   if (updateP) self.changed();
@@ -219,6 +226,7 @@ exports.start = function() {
                                    , location  : 'coordinates'
                                    , accuracy  : 'meters'
                                    , physical  : true
+                                   , distance  : 'kilometers'  // technically, it should be client-derived
                                    , priority : utility.keys(winston.config.syslog.levels)
                                    }
                     }

@@ -4,6 +4,7 @@ var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , plug        = require('./../device-switch')
   ;
 
@@ -26,10 +27,10 @@ var Strip = exports.Device = function(deviceID, deviceUID, info) {
 
   self.changed();
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if ((request === 'perform') && (observe === 'set')) return self.perform(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, eventID, perform, parameter);
   });
 
   setInterval(function() { self.scan(self); }, 60 * 1000);
