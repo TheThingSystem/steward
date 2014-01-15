@@ -40,7 +40,6 @@ ChangeLog
     - heroric-robotics/*: add 'program' task
     - hue/*: allow user to override configuration name for bulbs
 - device/motive:
-    - irobot/floor: initial support for iRobot floor robots
     - tesla/model-s:
         - add 'physical' property (refreshed at most once every 30 seconds)
         - add 'distance' property (should be calculated by UI, but very useful)
