@@ -7,6 +7,7 @@ var geocoder    = require('geocoder')
   , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   , motive      = require('./../device-motive')
   ;
 
@@ -39,7 +40,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.newstate(self);
   self.gateway = info.gateway;
 
-  utility.broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please enable remote access from vehicle console');
       return;
@@ -459,6 +460,16 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   return steward.performed(taskID);
 };
 
+var validate_observe = function(observe, parameter) {/* jshint unused: false */
+  var result = { invalid: [], requires: [] };
+
+  if (observe.charAt(0) === '.') return result;
+
+  if (observe !== 'charger') result.invalid.push('observe');
+
+  return result;
+};
+
 var validate_perform = function(perform, parameter) {
   var deg
     , pct
@@ -559,7 +570,9 @@ exports.start = function() {
                                    , trunk          : [ 'open', 'closed' ]
                                    }
                     }
-      , $validate : { perform    : validate_perform }
+      , $validate : { observe    : validate_observe
+                    , perform    : validate_perform
+                    }
       };
   devices.makers['/device/motive/tesla/model-s'] = ModelS;
 };

@@ -36,10 +36,10 @@ var Gauge = exports.Device = function(deviceID, deviceUID, info) {
     for (i = 0; i < data.length; i++) if (data[i].whoami === self.info.actor) self.egress(self);
   });
 
-  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, eventID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if ((request === 'perform') && (observe === 'set')) return self.perform(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, eventID, perform, parameter);
   });
 
   self.getState(function(err, state) {

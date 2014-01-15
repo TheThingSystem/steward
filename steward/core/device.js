@@ -73,7 +73,7 @@ exports.start = function() {
 // cf., utility.start()
   utility.acquiring--;
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     var d, data, i, ids, info;
 
     if ((request !== 'ping') || (!broker.has('beacon-egress'))) return;
