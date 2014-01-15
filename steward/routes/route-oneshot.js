@@ -203,12 +203,32 @@ var report = function(query, proplist) {
     }
     v = device.expand('.[.' + prop + '].', proplist);
 // TBD: this is really a UI thing, but it is rather convenient to place here...
-    if ((places.place1.info.displayUnits === 'customary') && (prop === 'temperature')) v = Math.round(((v * 9) / 5) + 32);
+    if (places.place1.info.displayUnits === 'customary') {
+      v = { temperature     : Math.round(((v * 9) / 5) + 32)
+          , goalTemperature : Math.round(((v * 9) / 5) + 32)
+          , intTemperature  : Math.round(((v * 9) / 5) + 32)
+          , extTemperature  : Math.round(((v * 9) / 5) + 32)
+
+// meters/second -> miles/hour
+          , velocity        : Math.round(v * 2.23694) + ' miles per hour'
+
+// kilometers -> miles
+          , distance        : Math.round(v * 0.621371) + ' miles'
+          , odometer        : Math.round(v * 0.621371) + ' miles'
+          , range           : Math.round(v * 0.621371) + ' miles'
+
+// meters -> feet
+          , accuracy        : Math.round(v * 3.28084) + ' feet'
+          }[prop] || v;
+    }
     data += v;
-    data += { temperature : ' degrees'
-            , humidity    : ' percent'
-            , co2         : ' parts per million'
-            , noise       : ' decibels'
+    data += { temperature  : ' degrees'
+            , humidity     : ' percent'
+            , co2          : ' parts per million'
+            , noise        : ' decibels'
+            , pressure     : ' milli bars'
+            , batteryLevel : ' percent'
+            , heading      : ' degrees'
             }[prop] || '';
   }
 
@@ -280,6 +300,8 @@ var oneshot = function(request, response, query, tag) {
                           data += s + proplist.name + ': ' + report(query, proplist);
                         }
                       }
+
+                      if (data.length === 0) data = 'no information is available';
                     }
         }[query.behavior];
     if (!!f) f(); else data = { error: { permanent: true, diagnostic: 'invalid behavior: ' + query.behavior } };
