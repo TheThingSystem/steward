@@ -79,6 +79,8 @@ exports.start = function() {
 
 var securePort = 0;
 
+var logins = exports.logins = {};
+
 var start = function(port, secureP) {
   portfinder.getPort({ port: port }, function(err, portno) {
     var server;
@@ -128,6 +130,8 @@ var start = function(port, secureP) {
         meta.code = code;
         meta.message = message;
         logger.info(tag, meta);
+
+        delete(logins[tag]);
       });
 
       if (!routes[pathname]) {

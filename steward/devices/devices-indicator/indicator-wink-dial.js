@@ -6,6 +6,7 @@ var util        = require('util')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
   , indicator   = require('./../device-indicator')
+  , places      = require('./../actors/actor-place')
   ;
 
 
@@ -84,7 +85,7 @@ Gauge.prototype.egress = function(self) {
     if ((label.length + 1 + value.length) <= 8) value = label + ' ' + value;
   }
 
-  self.gateway.wink.setDial(self.params, { name                  : devices.expand('dial: .[' + self.info.actor + '.name].')
+  self.gateway.wink.setDial(self.params, { name                  : 'dial:' + self.deviceID
                                          , label                 : value
                                          , labels                : [ value, '' ]
                                          , position              : 0

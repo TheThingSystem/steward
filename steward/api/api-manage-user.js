@@ -242,7 +242,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 };
 
 var authenticate = exports.authenticate = function(logger, ws, api, message, tag) {
-  var client, clientID, date, i, meta, now, pair, params, results, user;
+  var client, clientID, date, i, meta, now, pair, params, results, stamp, user;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user authentication', message.requestID, permanent, diagnostic);
@@ -293,6 +293,11 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
     meta = ws.clientInfo;
     meta.event = 'login';
     logger.notice(tag, meta);
+
+    stamp = utility.clone(meta);
+    stamp.tag = tag;
+    stamp.timestamp = new Date();
+    server.logins[tag] = stamp;
 
     now = new Date();
 // http://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime
