@@ -850,7 +850,7 @@ var single_device_arcs = function(device) {
         arcs.splice(a0+1,0, { name   : prop
                            , raw    : v2
                            , label  : 'ACCURACY'
-                           , cooked : '&plusmn;' + v2 + ' meters'
+                           , cooked : '&plusmn; ' + v2 + 'm / ' + Math.round(v * 3.28084) + 'ft'
                            , value  : clip2bars(v2, 0, 100)
                            , index  : a1 - 0.10
                            });
