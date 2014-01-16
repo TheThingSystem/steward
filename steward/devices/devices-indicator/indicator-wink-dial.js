@@ -6,7 +6,6 @@ var util        = require('util')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
   , indicator   = require('./../device-indicator')
-  , places      = require('./../actors/actor-place')
   ;
 
 
