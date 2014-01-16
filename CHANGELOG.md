@@ -13,6 +13,7 @@ ChangeLog
 - fixed perform operation on task-type groups
 - more consistent logging tags
 - begin refactoring of USB scanning (perhaps a fool's errand)
+- remember logged-in users
 
 ### Places
 - add displayUnits to allow clients to determine whether to display in metric or customary units
