@@ -69,7 +69,7 @@ var resetNotifications = function() {
 }
 
 var home = function(state) {
-  var a, actor, b, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
+  var a, actor, b, categories, category, chart, device, devices, div, entry, i, img, message, nothing, p, prop, span, stage, tag;
   var actorHeight = 80, actorRow = 0, actorWidth = 58;
   
   var self = this;
@@ -123,10 +123,19 @@ var home = function(state) {
   chart.appendChild(div);
 
   div = document.createElement('div');
-  div.setAttribute('class', 'actors')
-  div.setAttribute('id', 'stage')
+  div.setAttribute('class', 'actors');
+  div.setAttribute('id', 'stage');
   div.setAttribute('onscroll', 'javascript:lastStageScroll = this.scrollTop;');
 
+  if (!devices.length) {
+    // Didn't find any things
+    nothing = document.createElement('div');
+    nothing.setAttribute('id', 'no-devices-placeholder');
+    nothing.innerHTML = '<h1>Did not discovere any devices</h1>'
+                        + '<p>If you were expecting something else, you might consider looking in the '
+                        + '<a href="/console.html">logs</a>';
+    div.appendChild(nothing);
+  }
   for (a = i = 0; i < devices.length; i++) {
     device = devices[i];
     entry = entries[device.deviceType] || entries.default(device.deviceType);
@@ -255,6 +264,10 @@ if (false) {
   self.onUpdate = function(updates) {
     var actorID, update;
     lastUpdated = [];
+    if (nothing && devices.length) {
+      nothing.parentNode && nothing.parentNode.removeChild(nothing);
+      nothing = null;
+    }
     
     for (var i = 0; i < updates.length; i++) {
       update = updates[i];
