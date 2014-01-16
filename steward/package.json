@@ -36,6 +36,7 @@
     , "node-hid"            : "0.2.3"
     , "node-lsof"           : "git://github.com/TheThingSystem/node-lsof.git"
     , "node-netatmo"        : "git://github.com/TheThingSystem/node-netatmo.git"
+    , "node-nma"            : "git://github.com/torkelsson/node-nma.git"
     , "node-prowl"          : "git://github.com/TheThingSystem/node-prowl.git"
     , "node-ssdp"           : "git://github.com/TheThingSystem/node-ssdp.git"
     , "node-ssh-fingerprint": "git://github.com/TheThingSystem/node-ssh-fingerprint.git"

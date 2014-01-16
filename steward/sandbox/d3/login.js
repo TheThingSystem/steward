@@ -574,6 +574,17 @@ var bootable = { ecobee         :
                    , passphrase : ''
                    }
                  }
+               , nma            :
+                 { text         : 'If you have a Notify my Android account, the steward can automatically update you with alerts, etc.'
+                 , instructions : 'Go to http://www.notifymyandroid.com, create an account, and generate an API key.'
+                 , site         : 'https://www.notifymyandroid.com/login.php'
+                 , icon         : ''
+                 , name         : 'nma'
+                 , actor        : '/device/indicator/nma/text'
+                 , info         :
+                   { apikey     : ''
+                   }
+                 }
                , prowl          :
                  { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
                  , instructions : 'Go to http://www.prowlapp.com, create an account, and generate an API key.'
