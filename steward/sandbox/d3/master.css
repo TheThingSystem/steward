@@ -244,6 +244,20 @@ form {
 
 #chart div.actors { position: absolute; top: 200px; left: 60px; height: 240px; width: 720px; overflow-x: hidden; }
 
+#chart div#no-devices-placeholder {
+    position: static;
+}
+
+#no-devices-placeholder h1 {
+    color: green;
+    text-align: center;
+}
+
+#no-devices-placeholder p {
+    text-align: center;
+    font-size: 1.4em;
+}
+
 p.actor-name {
     width: 100%;                   /* IE6 needs any width */
     overflow: hidden;              /* "overflow" value must be different from  visible"*/ 
