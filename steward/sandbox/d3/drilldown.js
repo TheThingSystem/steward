@@ -131,9 +131,9 @@ var home = function(state) {
     // Didn't find any things
     nothing = document.createElement('div');
     nothing.setAttribute('id', 'no-devices-placeholder');
-    nothing.innerHTML = '<h1>Did not discovere any devices</h1>'
-                        + '<p>If you were expecting something else, you might consider looking in the '
-                        + '<a href="/console.html">logs</a>';
+    nothing.innerHTML = '<h1>Did not discover any devices.</h1>'
+                        + '<p>If you were expecting something else, view the '
+                        + '<a href="/console.html">steward console</a> for details.';
     div.appendChild(nothing);
   }
   for (a = i = 0; i < devices.length; i++) {
@@ -260,14 +260,10 @@ if (false) {
     }
   }
   setTimeout(updateAgo, 1000);
-  
+
   self.onUpdate = function(updates) {
-    var actorID, update;
+    var actorID, update, refresh = false;
     lastUpdated = [];
-    if (nothing && devices.length) {
-      nothing.parentNode && nothing.parentNode.removeChild(nothing);
-      nothing = null;
-    }
     
     for (var i = 0; i < updates.length; i++) {
       update = updates[i];
@@ -289,10 +285,13 @@ if (false) {
       if (document.getElementById(actorID)) {
         document.getElementById(actorID).style.backgroundColor = statusColor(update);
         document.getElementById(actorID + '-label').style.color = statusColor(update);
+      } else {
+        refresh = true;
       }
       lastUpdated.push(update.updated);
     }
     lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
+    if (refresh) refreshActors(1);
   }
   
   function scrollDown(elem, top) {
