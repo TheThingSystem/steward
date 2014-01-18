@@ -28,6 +28,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.hvac = info.hvac;
+  self.info = {};
 
   self.hvac.on('stateChange', function(state) { 
     translated_state = {}
@@ -94,12 +95,11 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
       }
     }
 
-    logger2.info('device/' + self.deviceID, state);
+//    logger2.info('device/' + self.deviceID, state);
     logger2.info('device/' + self.deviceID, translated_state);
-
-    self.update(self, translated_state, self.status);
   });
-  self.update(self, self.hvac.state);
+
+  self.update(self, translated_state, self.status);
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
