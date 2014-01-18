@@ -155,6 +155,8 @@ exports.discover = function(info, callback) {
          { $deviceID : row.deviceID }, function(err) {
         if (err) logger.error('devices', { event: 'UPDATE device.deviceUID for ' + deviceUID, diagnostic: err.message });
       });
+
+      if (!!callback) callback(null, deviceUID);
       return;
     }
 
@@ -334,10 +336,14 @@ Device.prototype.setState = function(state) {
   var self = this;
 
   db.serialize(function() {
-    db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key="state"', { $deviceID : self.deviceID });
+    db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key="state"', { $deviceID : self.deviceID }, function(err) {
+      logger.error('db', { event: 'setState', data: state, diagnostic: err });
+    });
 
     db.run('REPLACE INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
-           { $deviceID : self.deviceID, $key: 'state', $value: JSON.stringify(state) });
+           { $deviceID : self.deviceID, $key: 'state', $value: JSON.stringify(state) }, function(err) {
+      logger.error('db', { event: 'setState', data: state, diagnostic: err });
+    });
   });
 
   return true;
