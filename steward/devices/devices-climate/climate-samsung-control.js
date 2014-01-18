@@ -294,6 +294,9 @@ exports.start = function() {
         return;
       }
 
+      if (!devices.devices[deviceID]) {
+        return;
+      }
       var thermostat = devices.devices[deviceID].device;
 
 
