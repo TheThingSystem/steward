@@ -97,9 +97,12 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
 
 //    logger2.info('device/' + self.deviceID, state);
     logger2.info('device/' + self.deviceID, translated_state);
+
+    self.update(self, translated_state, self.status);
+    self.changed();
   });
 
-  self.update(self, translated_state, self.status);
+  self.update(self, {}, 'present');
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
