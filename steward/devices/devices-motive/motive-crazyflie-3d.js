@@ -217,7 +217,7 @@ var validate_perform = function(perform, parameter) {
             } else result.requires.push(dof + '.degrees');
 
           };
-  
+
   var f = { set     : function() { if (!params.name) result.requires('name'); }
 
           , takeoff : function() { }

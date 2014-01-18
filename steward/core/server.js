@@ -334,7 +334,7 @@ var register = function(params, portno) {
 
       u = url.parse('http://' + content);
       rendezvous(params, portno, u);
-      if (responders < 5) register(params, portno);
+      if (responders < 15) register(params, portno);
     }).on('close', function() {
       logger.warning('register', { event:'close', diagnostic: 'premature eof', retry: '1 second' });
 
