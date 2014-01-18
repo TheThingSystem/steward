@@ -41,6 +41,48 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
 };
 util.inherits(Thermostat, climate.Device);
 
+Thermostat.prototype.setup = function (aircon) {
+  var self = this;
+  var logger2 = utility.logger('discovery');
+
+  var db = require('./../../core/database').db
+  db.on('trace', function(e) {
+    console.log(e);
+  });
+
+
+  var state = self.getState(function (err, state) {
+    if (!state) {
+      state = {};
+    }
+
+    if (!state.token) {
+      aircon.get_token(function(err, token) {
+        if (!!err) {
+          return logger2.info(self.name, 'Get Token error: ' + err.message);
+        }
+
+        logger2.info(self.name, "Token found:" + token);
+
+        state.token = token;
+
+        self.setState(state);
+
+        aircon.login(token, function () {
+          logger2.info(self.name, "Logged on");
+        });
+      }).on('waiting', function() {
+        self.alert('Please power on the device within the next 30 seconds');
+        logger2.info(self.name, 'Please power on the device within the next 30 seconds');
+      });
+    } else {
+      aircon.login(state.token, function () {
+        logger2.info(self.name, "Logged on");
+      });
+    }
+  });
+
+};
 
 Thermostat.prototype.update = function(self, params, status) {
   var param, updateP;
@@ -244,38 +286,11 @@ exports.start = function() {
       if (!deviceID) {
         return;
       }
-      /*
-      var db = require('./../../core/database').db
-      db.on('trace', function(e) {
-        console.log(e);
-      });
-      */
 
-      var state = devices.devices[deviceID].device.getState();
-      if (!state) {
-        state = {};
-      }
+      var thermostat = devices.devices[deviceID].device;
 
-      if (!state.token) {
-        aircon.get_token(function(err, token) {
-          if (!!err) return console.log('get_token error: ' + err.message);
 
-          state.token = token;
-
-          devices.devices[deviceID].device.setState(state);
-
-          aircon.login(token, function () {
-            logger2.info(info.device.name, info.device);
-          });
-        }).on('waiting', function() {
-          devices.devices[info.id].alert('Please power on the device within the next 30 seconds');
-        });
-      } else {
-        aircon.login(state.token, function () {
-          logger2.info(info.device.name, info.device);
-        });
-      }
-
+      thermostat.setup(aircon);
     });
 
   }).on('error', function(err) {
