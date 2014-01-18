@@ -18,6 +18,7 @@ var samsung     = require('samsung-airconditioner')
 // define the prototype that will be instantiated when the HVAC unit is discovered
 // later, we will create a ...perform function, and a ...update function.
 var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
+  var logger2 = utility.logger('discovery');  
   var self = this;
 
   self.whatami = info.deviceType;
