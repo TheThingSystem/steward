@@ -93,6 +93,9 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
       }
     }
 
+    logger2.info('device/' + self.deviceID, state);
+    logger2.info('device/' + self.deviceID, translated_state);
+
     self.update(self, translated_state, self.status);
   });
   self.update(self, self.hvac.state);
@@ -131,7 +134,7 @@ Thermostat.prototype.setup = function () {
           return logger2.info('device/' + self.deviceID, 'Get Token error: ' + err.message);
         }
 
-        logger2.info(self.name, "Token found:" + token);
+        logger2.info('device/' + self.deviceID, "Token found:" + token);
 
         state.token = token;
 
