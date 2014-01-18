@@ -27,9 +27,74 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.hvac = info.hvac;
-// TBD: invoked by the lower-level hvac driver whenever the hvac unit changes state. You probably
-// have to set the name of the event to whatever the hvac driver emits when its state changes.
-  self.hvac.on('stateChange', function(state) { self.update(self, state); });
+
+  self.hvac.on('stateChange', function(state) { 
+    translated_state = {}
+    for (key in state) {
+      switch (key) {
+        case "AC_FUN_POWER":
+          if (state[key] == 'On') {
+            translated_state['hvac'] = 'on';
+            translated_state['fan'] = 'on';
+          }
+          if (state[key] == 'Off') {
+            translated_state['hvac'] = 'off';
+            translated_state['fan'] = 'off';
+          }
+          break;
+        case "AC_FUN_OPMODE":
+          if (state[key] == 'Cool') {
+            translated_state['hvac'] = 'cool';
+          }
+          if (state[key] == 'Heat') {
+            translated_state['hvac'] = 'heat';
+          }
+          if (state[key] == 'Dry') {
+            translated_state['hvac'] = 'dry';
+          }
+          if (state[key] == 'Wind') {
+            translated_state['hvac'] = 'fan';
+          }
+          if (state[key] == "Auto") {
+            translated_state['hvac'] = 'on';
+          }            
+          break;
+        case "AC_FUN_TEMPSET":
+          state['goalTemperature'] = state[key];
+          break;    
+        case "AC_FUN_WINDLEVEL":
+          if (state[key] == "High") {
+            translated_state['fan'] = 'high';
+          }
+          if (state[key] == "Mid") {
+            translated_state['fan'] = 'mid';
+          }
+          if (state[key] == "Low") {
+            translated_state['fan'] = 'low';
+          }
+          if (state[key] == "Auto") {
+            translated_state['fan'] = 'auto';
+          }          
+          break;
+        case "AC_ADD_SPI":
+          break;
+        case "AC_FUN_TEMPNOW":
+          state['temperature'] = state[key];
+          break;
+        case "AC_ADD_AUTOCLEAN":
+          break;
+        case "AC_FUN_COMODE":
+          // Convience mode
+          // Smart, Quiet, Off, etc
+          break;
+        case "AC_FUN_DIRECTION":
+          // SwingUD, Fixed or Rotation
+          break;
+      }
+    }
+
+    self.update(self, translated_state);
+  });
   self.update(self, self.hvac.state);
   self.changed();
 
@@ -261,8 +326,8 @@ exports.start = function() {
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'
-                                   , hvac            : [ 'cool', 'heat', 'fan', 'off', 'on', ]
-                                   , fan             : [ 'on', 'off', 'auto', 'milliseconds' ]
+                                   , hvac            : [ 'cool', 'heat', 'fan', 'dry', 'off', 'on', ]
+                                   , fan             : [ 'on', 'off', 'high', 'mid', 'low', 'auto', 'milliseconds' ]
                                    , goalTemperature : 'celsius'
                                    }
                     }
