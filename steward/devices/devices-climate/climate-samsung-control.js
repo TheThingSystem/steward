@@ -239,15 +239,43 @@ exports.start = function() {
     info.url = info.device.url;
     info.deviceType = '/device/climate/samsung/control';
     info.id = info.device.unit.udn;
-    if (!!devices.devices[info.id]) return;
 
-    // TODO: This needs to be either setup || load from DB if known, and save/read data from the store.
+    devices.discover(info, function (err, deviceID) {
+      if (!deviceID) {
+        return;
+      }
+      /*
+      var db = require('./../../core/database').db
+      db.on('trace', function(e) {
+        console.log(e);
+      });
+      */
 
-    token = '98854465-6273-M559-N887-373832354144';
+      var state = devices.devices[deviceID].device.getState();
+      if (!state) {
+        state = {};
+      }
 
-    aircon.login(token, function () {
-      logger2.info(info.device.name, info.device);
-      devices.discover(info);
+      if (!state.token) {
+        aircon.get_token(function(err, token) {
+          if (!!err) return console.log('get_token error: ' + err.message);
+
+          state.token = token;
+
+          devices.devices[deviceID].device.setState(state);
+
+          aircon.login(token, function () {
+            logger2.info(info.device.name, info.device);
+          });
+        }).on('waiting', function() {
+          devices.devices[info.id].alert('Please power on the device within the next 30 seconds');
+        });
+      } else {
+        aircon.login(state.token, function () {
+          logger2.info(info.device.name, info.device);
+        });
+      }
+
     });
 
   }).on('error', function(err) {
