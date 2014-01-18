@@ -31,7 +31,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.info = {};
 
   self.hvac.on('stateChange', function(state) { 
-    translated_state = {}
+    var translated_state = {};
     for (key in state) {
       switch (key) {
         case "AC_FUN_POWER":
