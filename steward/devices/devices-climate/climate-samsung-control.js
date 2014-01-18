@@ -38,10 +38,12 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
+
+  self.setup();
 };
 util.inherits(Thermostat, climate.Device);
 
-Thermostat.prototype.setup = function (aircon) {
+Thermostat.prototype.setup = function () {
   var self = this;
   var logger2 = utility.logger('discovery');
 
@@ -57,7 +59,7 @@ Thermostat.prototype.setup = function (aircon) {
     }
 
     if (!state.token) {
-      aircon.get_token(function(err, token) {
+      self.hvac.get_token(function(err, token) {
         if (!!err) {
           self.update(self, {}, 'reset');
 
@@ -70,7 +72,7 @@ Thermostat.prototype.setup = function (aircon) {
 
         self.setState(state);
 
-        aircon.login(token, function () {
+        self.hvac.login(token, function () {
           self.update(self, {}, 'present');
           logger2.info('device/' + self.deviceID, "Logged on");
         });
@@ -79,7 +81,7 @@ Thermostat.prototype.setup = function (aircon) {
         logger2.info('device/' + self.deviceID, 'Please power on the device within the next 30 seconds');
       });
     } else {
-      aircon.login(state.token, function () {
+      self.hvac.login(state.token, function () {
         self.update(self, {}, 'present');
         logger2.info('device/' + self.deviceID, "Logged on");
       });
@@ -298,17 +300,6 @@ exports.start = function() {
 
     devices.discover(info, function (err, deviceID) {
       if (!!err) { logger2.error('samsung', { diagnostic: err.message });};
-      if (!deviceID) {
-        return;
-      }
-
-      if (!devices.devices[deviceID]) {
-        return;
-      }
-      var thermostat = devices.devices[deviceID].device;
-
-
-      thermostat.setup(aircon);
     });
 
   }).on('error', function(err) {
