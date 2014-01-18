@@ -83,7 +83,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         case "AC_FUN_TEMPNOW":
           // Have to store in F not C, despite other parts of the API working in C! 
           // Bug?
-          translated_state['temperature'] = (parseInt(state[key]) *  (9/5)) + 32;
+          translated_state['temperature'] = parseInt(state[key], 10);
           break;
         case "AC_ADD_AUTOCLEAN":
           break;
