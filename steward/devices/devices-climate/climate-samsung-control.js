@@ -1,6 +1,9 @@
 // climate control template -- start with this when an HVAC unit can be managed independently
 // search for TBD to see what to change
 
+exports.start = function() {};
+if (true) return;
+
 // load the module that knows how to discover/communicate with a bulb
 var samsung     = require('samsung-airconditioner')
   , util        = require('util')

@@ -156,7 +156,7 @@ exports.discover = function(info, callback) {
         if (err) logger.error('devices', { event: 'UPDATE device.deviceUID for ' + deviceUID, diagnostic: err.message });
       });
 
-      if (!!callback) callback(null, deviceUID);
+      if (!!callback) callback(null, deviceID);
       return;
     }
 

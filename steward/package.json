@@ -51,6 +51,7 @@
     , "rfxcom"              : "git://github.com/TheThingSystem/node-rfxcom.git"
     , "robosmart"           : "0.1.1"
     , "roku"                : "0.2.0"
+    , "samsung-airconditioner" : "git://github.com/TheThingSystem/node-samsung-airconditioner.git"
     , "sensortag"           : "0.1.1"
     , "serialport"          : "~1.1.0"
     , "soap"                : "0.2.7"
@@ -74,6 +75,5 @@
     , "xmldom"		    : "0.1.x"
     , "xmlhttprequest"      : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
     , "yoctolib"            : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
-    , "samsung-airconditioner" : "git://github.com/TheThingSystem/node-samsung-airconditioner.git"
   }
 }
