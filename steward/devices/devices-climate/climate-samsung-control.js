@@ -61,7 +61,7 @@ Thermostat.prototype.setup = function (aircon) {
         if (!!err) {
           self.update(self, {}, 'reset');
 
-          return logger2.info(self.name, 'Get Token error: ' + err.message);
+          return logger2.info('device/' + self.deviceID, 'Get Token error: ' + err.message);
         }
 
         logger2.info(self.name, "Token found:" + token);
@@ -72,16 +72,16 @@ Thermostat.prototype.setup = function (aircon) {
 
         aircon.login(token, function () {
           self.update(self, {}, 'present');
-          logger2.info(self.name, "Logged on");
+          logger2.info('device/' + self.deviceID, "Logged on");
         });
       }).on('waiting', function() {
         self.alert('Please power on the device within the next 30 seconds');
-        logger2.info(self.name, 'Please power on the device within the next 30 seconds');
+        logger2.info('device/' + self.deviceID, 'Please power on the device within the next 30 seconds');
       });
     } else {
       aircon.login(state.token, function () {
         self.update(self, {}, 'present');
-        logger2.info(self.name, "Logged on");
+        logger2.info('device/' + self.deviceID, "Logged on");
       });
     }
   });
@@ -162,7 +162,7 @@ Thermostat.operations = {
         default:
           time = parseInt(value, 10);
           if (isNaN(time)) break;
-// TBD: set the fan duration. adjust time from milliseconds to whatever
+          // TBD: set the fan duration. adjust time from milliseconds to whatever
           break;
       }
     });
@@ -179,7 +179,6 @@ Thermostat.operations = {
         return;
       }
 
-      // TODO UI says F, the unit works in C, which is this?
       self.hvac.set_temperature(goalTemperature);
     });
 
@@ -208,6 +207,14 @@ var checkParam = function(key, params, result, allowNumeric, map) {
 
     if (((!defined) && (!allowNumeric)) || ((!defined) && allowNumeric && isNaN(parseInt(params[key], 10)))) {
       result.invalid.push(key);
+    }
+
+    if (key == 'goalTemperature') {
+      var temperature = parseInt(params[key], 10);
+
+      if (temperature > 30 || temperature < 16) {
+        result.invalid.push(key);
+      }
     }
   }
 };
@@ -251,15 +258,14 @@ exports.start = function() {
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'
-                                   , hvac            : [ 'cool', 'heat', 'fan', 'off' ]
-                                   , fan             : [ 'on', 'auto', 'milliseconds' ]
+                                   , hvac            : [ 'cool', 'heat', 'fan', 'off', 'on', ]
+                                   , fan             : [ 'on', 'off', 'auto', 'milliseconds' ]
                                    , goalTemperature : 'celsius'
                                    }
                     }
         , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/climate/samsung/control'] = Thermostat;
-
 // TBD: when the hardware driver discovers a new HVAC unit, it will call us.
 // TBD: or if the low-level driver needs to be polled, then create a 'scan' function and call it periodically.
 
@@ -290,6 +296,7 @@ exports.start = function() {
     info.id = info.device.unit.udn;
 
     devices.discover(info, function (err, deviceID) {
+      if (!!err) { logger2.error('samsung', { diagnostic: err.message });};
       if (!deviceID) {
         return;
       }
