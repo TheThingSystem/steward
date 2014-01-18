@@ -45,10 +45,10 @@ Thermostat.prototype.setup = function (aircon) {
   var self = this;
   var logger2 = utility.logger('discovery');
 
-  var db = require('./../../core/database').db
-  db.on('trace', function(e) {
-    console.log(e);
-  });
+  // var db = require('./../../core/database').db
+  // db.on('trace', function(e) {
+  //   console.log(e);
+  // });
 
 
   var state = self.getState(function (err, state) {
@@ -59,6 +59,8 @@ Thermostat.prototype.setup = function (aircon) {
     if (!state.token) {
       aircon.get_token(function(err, token) {
         if (!!err) {
+          self.update(self, {}, 'reset');
+
           return logger2.info(self.name, 'Get Token error: ' + err.message);
         }
 
@@ -69,6 +71,7 @@ Thermostat.prototype.setup = function (aircon) {
         self.setState(state);
 
         aircon.login(token, function () {
+          self.update(self, {}, 'present');
           logger2.info(self.name, "Logged on");
         });
       }).on('waiting', function() {
@@ -77,6 +80,7 @@ Thermostat.prototype.setup = function (aircon) {
       });
     } else {
       aircon.login(state.token, function () {
+        self.update(self, {}, 'present');
         logger2.info(self.name, "Logged on");
       });
     }
@@ -171,6 +175,11 @@ Thermostat.operations = {
         return;
       }
 
+      console.log(goalTemperature);
+      if (goalTemperature > 30 || goalTemperature < 16)
+        return;
+      end
+
       // TODO UI says F, the unit works in C, which is this?
       self.hvac.set_temperature(goalTemperature);
     });
@@ -240,7 +249,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name            : true
-                                   , status          : [ 'present', 'absent' ]
+                                   , status          : [ 'present', 'absent', 'reset' ]
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'
