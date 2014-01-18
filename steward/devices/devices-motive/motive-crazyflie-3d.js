@@ -5,6 +5,7 @@ exports.start = function() {};
 if (true) return;
 
 var aerogel     = require('aerogel')
+  , underscore  = require('underscore')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -35,17 +36,43 @@ var QuadCopter = exports.device = function(deviceID, deviceUID, info) {
   self.info = { thrust: 0 };
 
   self.status = 'waiting';
+  self.changed();
+
   self.copter = new aerogel.Copter(driver);
-  self.copter.connect(info.url).then(function() { self.status = 'ready'; }).done();
   self.copter.on('stabilizer', function(data) {
-    self.info.thrust = devices.scaledLevel(data.thrust, self.thrust.min, self.thrust.max);
+    var stabilizer, thrust, updateP;
+
+    updateP = false;
+    thrust = devices.scaledLevel(Math.abs(data.thrust), self.thrust.min, self.thrust.max);
+    if (self.info.thrust !== thrust) {
+      self.info.thrust = thrust;
+      updateP = true;
+    }
+
     delete(data.thrust);
-    self.info.stabilizer = data;
+    stabilizer = f2(data);
+    if (!underscore.isEqual(self.info.stabilizer, stabilizer)) {
+      self.info.stabilizer = stabilizer;
+      updateP = true;
+    }
+
+    if (updateP) self.changed();
   }).on('accelerometer', function(data) {
-    self.info.acceleration = data;
+    var accelerometer = f2(data);
+
+    if (!underscore.isEqual(self.info.acceleration, accelerometer)) {
+      self.info.acceleration = accelerometer;
+      self.changed();
+    }
   }).on('gyroscope', function(data) {
-    self.info.orientation = data;
+    var gyroscope = f2(data);
+
+    if (!underscore.isEqual(self.info.orientation, gyroscope)) {
+      self.info.orientation = gyroscope;
+      self.changed();
+    }
   });
+  self.copter.connect(info.url).then(function() { self.status = 'ready'; self.changed(); }).done();
 
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -61,7 +88,14 @@ var QuadCopter = exports.device = function(deviceID, deviceUID, info) {
 };
 util.inherits(QuadCopter, motive.Device);
 
+var f2 = function(data) {
+  var prop, props;
 
+  props = {};
+  for (prop in data) if (data.hasOwnProperty(prop)) props[prop] = data[prop].toFixed(2);
+
+  return props;
+};
 
 
 QuadCopter.prototype.perform = function(self, taskID, perform, parameter) {
@@ -95,36 +129,44 @@ QuadCopter.prototype.perform = function(self, taskID, perform, parameter) {
                       self.copter.setRoll(0);
                       self.info.thrust = 40;
                       self.copter.setThrust(devices.scaledPercentage(self.info.thrust, self.thrust.min, self.thrust.max));
+
                       self.status = 'hovering';
+                      self.changed();
                     });
 
+                    self.changed();
                     return true;
                   }
 
       , hover   : function() {
-                    if (self.thrust <= 0) return false;
-
                     self.copter.hover();
+
                     self.status = 'hovering';
+                    self.changed();
                     return true;
                   }
 
       , land    : function() {
                     self.copter.land().then(function() {
-                      self.thrust = 0;
                       self.status = 'ready';
+                      self.changed();
                     });
+
                     self.status = 'landing';
+                    self.changed();
                     return true;
                   }
 
       , halt    : function() {
                     self.copter.land().then(function() {
-                      self.thrust = 0;
-                      self.status = 'down';
                       self.copter.shutdown();
+
+                      self.status = 'down';
+                      self.changed();
                     });
+
                     self.status = 'landing';
+                    self.changed();
                     return true;
                   }
 
@@ -149,6 +191,7 @@ QuadCopter.prototype.perform = function(self, taskID, perform, parameter) {
 
                     self.info.thrust = thrust;
                     self.copter.setThrust(devices.scaledPercentage(self.info.thrust, self.thrust.min, self.thrust.max));
+                    self.changed();
                   }
      }[perform];
   if (!f) return false;
@@ -205,14 +248,12 @@ var uris = {};
 
 var scan = function() {
   driver.findCopters().then(function(copters) {
-    var copter, i, info, uri;
+    var i, info, uri;
 
     for (i = 0; i < copters.length; i++) {
       uri = copters[i];
       if (!!uris[uri]) continue;
       uris[uri] = true;
-
-      copter = new aerogel.Copter(driver);
 
       info = { source: 'aerogel' };
       info.device = { url          : uri
@@ -227,7 +268,7 @@ var scan = function() {
                                      }
                     };
       info.url = info.device.url;
-      info.deviceType = '/device/motive/irobot/floor';
+      info.deviceType = '/device/motive/crazyflie/3d';
       info.id = info.device.unit.udn;
 
       if (!!devices.devices[info.id]) return;
@@ -237,7 +278,7 @@ var scan = function() {
     }
 
     setTimeout(scan, 30 * 1000);
-  });
+  }).done();
 };
 
 
@@ -260,7 +301,7 @@ exports.start = function() {
                     , properties : { name          : true
                                    , status        : [ 'waiting', 'busy', 'ready', 'hovering', 'landing', 'down' ]
                                    , stabilizer    : { roll: 'degrees',      pitch: 'degrees',     yaw: 'degrees/second' }
-                                   , accelerometer : { x: 'meters/second^2', y: 'meters/second^2', z: 'meters/second^2'  }
+                                   , acceleration  : { x: 'meters/second^2', y: 'meters/second^2', z: 'meters/second^2'  }
                                    , orientation   : { x: 'degrees/second',  y: 'degrees/second',  z: 'degrees/second'   }
                                    , thrust        : 'percentage'
                                    , batteryLevel  : 'percentage'
