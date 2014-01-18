@@ -484,11 +484,11 @@ exports.percentageValue = function(value, maximum) {
 
 
 exports.scaledPercentage = function(percentage, minimum, maximum) {
-  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * maximum) / 100), minimum, maximum);
+  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * (maximum - minimum) / 100)) + minimum, minimum, maximum);
 };
 
 exports.scaledLevel = function(level, minimum, maximum) {
-  return boundedValue(Math.round((boundedValue(level, minimum, maximum) * 100) / maximum), 0, 100);
+  return boundedValue(Math.round(((boundedValue(level, minimum, maximum) - minimum) * 100) / (maximum - minimum)), 0, 100);
 };
 
 exports.degreesValue = function(value, maximum) {

@@ -8,6 +8,7 @@
     }
   , "dependencies"          : {
       "MD5"                 : "1.0.3"
+    , "aerogel"             : "git://github.com/TheThingSystem/aerogel.git"
     , "airplay"             : "git://github.com/TheThingSystem/node-airplay.git"
     , "async"               : "0.2.9"
     , "axiscam"             : "0.0.4"
