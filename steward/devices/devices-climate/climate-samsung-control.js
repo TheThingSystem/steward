@@ -93,7 +93,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
       }
     }
 
-    self.update(self, translated_state);
+    self.update(self, translated_state, self.status);
   });
   self.update(self, self.hvac.state);
   self.changed();
