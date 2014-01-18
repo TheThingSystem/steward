@@ -176,9 +176,9 @@ Thermostat.operations = {
       }
 
       console.log(goalTemperature);
-      if (goalTemperature > 30 || goalTemperature < 16)
+      if (goalTemperature > 30 || goalTemperature < 16) {
         return;
-      end
+      }
 
       // TODO UI says F, the unit works in C, which is this?
       self.hvac.set_temperature(goalTemperature);
