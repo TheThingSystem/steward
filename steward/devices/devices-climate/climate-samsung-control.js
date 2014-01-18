@@ -79,7 +79,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         case "AC_ADD_SPI":
           break;
         case "AC_FUN_TEMPNOW":
-          state['temperature'] = state[key];
+          translated_state['temperature'] = state[key];
           break;
         case "AC_ADD_AUTOCLEAN":
           break;
