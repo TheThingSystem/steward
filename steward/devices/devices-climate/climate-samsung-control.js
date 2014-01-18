@@ -175,7 +175,6 @@ Thermostat.operations = {
         return;
       }
 
-      console.log(goalTemperature);
       if (goalTemperature > 30 || goalTemperature < 16) {
         return;
       }
