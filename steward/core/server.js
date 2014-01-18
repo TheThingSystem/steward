@@ -232,7 +232,10 @@ var start = function(port, secureP) {
         }
 
         logger.info(tag, { code: 200, type: ct, octets: data.length });
-        response.writeHead(200, { 'Content-Type': ct, 'Content-Length': data.length });
+        response.writeHead(200, { 'Content-Type'   : ct
+                                , 'Content-Length' : data.length
+                                , 'Cache-Control'  : 'max-age=86400, public'
+                                });
         response.end(request.method === 'GET' ? data : '');
       });
     });

@@ -88,6 +88,7 @@ var accessP = function(api, clientInfo, tag) {
   levels = { master   : access.level.read   | access.level.perform | access.level.write | access.level.manage
            , resident : access.level.read   | access.level.perform | access.level.write
            , guest    : access.level.read   | access.level.perform
+           , monitor  : access.level.read
            , device   : access.level.attach
            , cloud    : access.level.peer
            , none     : clientInfo.local ? access.level.read : access.level.none

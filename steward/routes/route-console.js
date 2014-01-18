@@ -88,6 +88,7 @@ var permissions = function(clientInfo) {
   if (!!user) perms = { master   : [ 'read', 'perform', 'write', 'manage' ]
                       , resident : [ 'read', 'perform', 'write'           ]
                       , guest    : [ 'read', 'perform'                    ]
+                      , monitor  : [ 'read',                              ]
                       }[user.userRole] || [];
 
   return perms;

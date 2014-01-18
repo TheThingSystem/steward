@@ -48,6 +48,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
     if (!{ master   : true
          , resident : true
          , guest    : true
+         , monitor  : true
          , device   : true
          , cloud    : true
          , none     : true }[message.role])                 return error(true,  'invalid role element');
@@ -613,7 +614,7 @@ exports.start = function() {
                                 , name       : true
                                 }
                    , optional : { comments   : true
-                                , role       : [ 'master', 'resident', 'guest', 'device', 'cloud' ]
+                                , role       : [ 'master', 'resident', 'guest', 'monitor', 'device', 'cloud' ]
                                 , clientName : true
                                 }
                    , response : {}
