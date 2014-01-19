@@ -106,7 +106,6 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
     'fan': 'off',
     'temperature': 24
   }, 'present');
-  self.hvac.get_temperature();
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
