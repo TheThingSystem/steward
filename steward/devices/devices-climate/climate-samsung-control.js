@@ -43,38 +43,38 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
 //   AC_SG_WIFI: 'Connected',
 //   AC_SG_INTERNET: 'Connected',
     var translated_state = {};
-    for (key in state) {
+    for (var key in state) {
       switch (key) {
         case "AC_FUN_POWER":
           if (state[key] == 'On') {
-            translated_state['hvac'] = 'on';
+            translated_state.hvac = 'on';
           }
           if (state[key] == 'Off') {
-            translated_state['hvac'] = 'off';
+            translated_state.hvac = 'off';
           }
           break;
         case "AC_FUN_OPMODE":
           if (state[key] == 'Cool') {
-            translated_state['hvac'] = 'cool';
+            translated_state.hvac = 'cool';
           }
           if (state[key] == 'Heat') {
-            translated_state['hvac'] = 'heat';
+            translated_state.hvac = 'heat';
           }
           if (state[key] == 'Dry') {
-            translated_state['hvac'] = 'dry';
+            translated_state.hvac = 'dry';
           }
           if (state[key] == 'Wind') {
-            translated_state['hvac'] = 'fan';
+            translated_state.hvac = 'fan';
           }
           if (state[key] == "Auto") {
-            translated_state['hvac'] = 'on';
+            translated_state.hvac = 'on';
           }            
           break;
         case "AC_FUN_TEMPSET":
-          state['goalTemperature'] = state[key];
+          translated_state.goalTemperature = state[key];
           break;    
         case 'AC_FUN_SLEEP':
-          translated_state['fan'] = parseInt(state[key], 10) * 1000 * 60;
+          translated_state.fan = parseInt(state[key], 10) * 1000 * 60;
           break;
         // TODO: this isn't what the hvac fan interace wants
         // case "AC_FUN_WINDLEVEL":
@@ -94,7 +94,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         case "AC_ADD_SPI":
           break;
         case "AC_FUN_TEMPNOW":
-          translated_state['temperature'] = parseInt(state[key], 10);
+          translated_state.temperature = parseInt(state[key], 10);
           break;
         case "AC_ADD_AUTOCLEAN":
           break;
@@ -142,7 +142,7 @@ Thermostat.prototype.setup = function () {
   // });
 
 
-  var state = self.getState(function (err, state) {
+  self.getState(function (err, state) {
     if (!state) {
       state = {};
     }
@@ -376,9 +376,9 @@ exports.start = function() {
     info = { source     : 'samsung'
            , hvac       : aircon
            , device     : { url          : null
-                          , name         : aircon.options.info["NICKNAME"]
+                          , name         : aircon.options.info.NICKNAME
                           , manufacturer : aircon.manufacturer || 'Samsung'
-                          , model        : { name        : aircon.options.info["MODELCODE"]
+                          , model        : { name        : aircon.options.info.MODELCODE
                                            , description : ''
                                            }
                           , unit         : { serial      : aircon.props.duid
@@ -392,8 +392,10 @@ exports.start = function() {
     info.deviceType = '/device/climate/samsung/control';
     info.id = info.device.unit.udn;
 
-    devices.discover(info, function (err, deviceID) {
-      if (!!err) { logger2.error('samsung', { diagnostic: err.message });};
+    devices.discover(info, function (err) {
+      if (!!err) { 
+        logger2.error('samsung', { diagnostic: err.message }); 
+      }
     });
 
   }).on('error', function(err) {
