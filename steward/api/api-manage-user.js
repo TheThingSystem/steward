@@ -231,9 +231,11 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
       results.result.users['user/' + user.userName] = props;
 
       if (treeP) results.result.users['user/' + user.userName].clients = user.clients;
-      for (i = 0; i < user.clients.length; i++) {
-        client = id2client(user, user.clients[i]);
-        results.result.clients['user/' + user.userName + '/' + client.clientID] = proplist2(null, client, user);
+      if (!!user.clients) {
+        for (i = 0; i < user.clients.length; i++) {
+          client = id2client(user, user.clients[i]);
+          results.result.clients['user/' + user.userName + '/' + client.clientID] = proplist2(null, client, user);
+        }
       }
     }
   }

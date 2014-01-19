@@ -81,15 +81,18 @@ var securePort = 0;
 
 var logins = exports.logins = {};
 
+var httpsT = 'http'
+  , wssT   = 'ws'
+  , wssP   = null
+  ;
+
 var start = function(port, secureP) {
   portfinder.getPort({ port: port }, function(err, portno) {
     var server;
 
     var crt     = __dirname + '/../sandbox/server.crt'
-      , httpsT  = 'http'
       , key     = __dirname + '/../db/server.key'
       , options = { port : portno }
-      , wssT  = 'ws'
       ;
 
     if (err) return logger.error('server', { event: 'portfinder.getPort ' + port, diagnostic: err.message });
@@ -101,6 +104,7 @@ var start = function(port, secureP) {
           options.cert = crt;
           httpsT = 'https';
           wssT = 'wss';
+          wssP = portno;
 
           exports.x509 = { key: key, crt: crt };
         } else return logger.error('no startup certificate', { cert: crt });
@@ -240,25 +244,24 @@ var start = function(port, secureP) {
       });
     });
 
-    if (!!mdns) {
-      mdns.createAdvertisement(mdns.tcp(wssT), portno, { name: 'steward', txtRecord: { uuid : steward.uuid } })
-          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT + ' ' + portno
-                                                            , diagnostic : err.message }); })
-          .start();
-      mdns.createAdvertisement(mdns.tcp(httpsT), portno, { name: 'steward', txtRecord : { uuid: steward.uuid } })
-          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT+ ' ' + portno
-                                                            , diagnostic : err.message }); })
-          .start();
-    }
+    if (!wssP) wssP = portno;
+    advertise();
 
     logger.info('listening on ' + wssT + '://*:' + portno);
 
     if (secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
-        var params;
+        var crt2, params;
         if (!existsP) return;
 
         params = require(__dirname + '/../db/' + steward.uuid).params;
+        crt2 = __dirname + '/../sandbox/cloud.crt';
+        fs.unlink(crt2, function(err) {
+          if ((!!err) && (err.code !== 'ENOENT')) logger.error('cloud', { event: 'fs.unlink', diagnostic: err.message });
+          fs.writeFile(crt2, new Buffer(params.server.ca), { mode: 0444 }, function(err) {
+            if (!!err) logger.error('cloud', { event: 'fs.writeFile', diagnostic: err.message });
+          });
+        });
         register(params, portno);
         subscribe(params);
       });
@@ -282,6 +285,34 @@ var start = function(port, secureP) {
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js$/, 10, -3, ' discovery', portno);
   });
+};
+
+var wssA
+  , httpsA
+  ;
+
+var advertise = exports.advertise = function() {
+  var txt;
+
+  if ((!mdns) || (!wssP)) return;
+
+  if (!places) places = require('./../actors/actor-place');
+  if (!!places.place1) name = places.place1.name;
+
+  txt = { uuid: steward.uuid };
+  if (!!name) txt.name = name;
+
+  if (!!wssA) wssA.stop();
+  wssA = mdns.createAdvertisement(mdns.tcp(wssT), wssP, { name: 'steward', txtRecord: txt })
+      .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT   + ' ' + wssP
+                                                        , diagnostic : err.message }); });
+  wssA.start();
+
+  if (!!httpsA) httpsA.stop();
+  httpsA = mdns.createAdvertisement(mdns.tcp(httpsT), wssP, { name: 'steward', txtRecord : txt })
+      .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT + ' ' + wssP
+                                                        , diagnostic : err.message }); });
+  httpsA.start();
 };
 
 

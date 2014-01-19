@@ -148,6 +148,7 @@ var Place = exports.Place = function(info) {
   self.name = info.name;
   self.status = 'red';
   self.changed();
+  server.advertise();
 
   self.info = utility.clone(info);
   delete(self.info.id);
@@ -183,6 +184,7 @@ var Place = exports.Place = function(info) {
       if (self.name !== name) {
         self.name = name;
         self.changed();
+        server.advertise();
       }
     }
     self.info.version = version;
@@ -298,7 +300,10 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
 // do not call self.setName()... there's no entry in the devices table!
-  if (!!params.name) self.name = self.info.name = params.name;
+  if (!!params.name) {
+    self.name = self.info.name = params.name;
+    server.advertise();
+  }
 
   if ((!!params.location)
          && ((!util.isArray(params.location)) || (params.location.length < 2)
