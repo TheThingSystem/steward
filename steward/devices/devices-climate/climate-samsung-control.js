@@ -149,7 +149,7 @@ Thermostat.prototype.setup = function () {
 
         self.hvac.login(token, function () {
           self.update(self, {}, 'present');
-          self.hvac.get_temperature();
+          self.hvac.status();
           logger2.info('device/' + self.deviceID, "Logged on");
         });
       }).on('waiting', function() {
@@ -159,7 +159,7 @@ Thermostat.prototype.setup = function () {
     } else {
       self.hvac.login(state.token, function () {
         self.update(self, {}, 'present');
-        self.hvac.get_temperature();
+        self.hvac.status();
         logger2.info('device/' + self.deviceID, "Logged on");
       });
     }
