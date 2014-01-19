@@ -37,11 +37,9 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         case "AC_FUN_POWER":
           if (state[key] == 'On') {
             translated_state['hvac'] = 'on';
-            translated_state['fan'] = 'on';
           }
           if (state[key] == 'Off') {
             translated_state['hvac'] = 'off';
-            translated_state['fan'] = 'off';
           }
           break;
         case "AC_FUN_OPMODE":
@@ -81,8 +79,6 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         case "AC_ADD_SPI":
           break;
         case "AC_FUN_TEMPNOW":
-          // Have to store in F not C, despite other parts of the API working in C! 
-          // Bug?
           translated_state['temperature'] = parseInt(state[key], 10);
           break;
         case "AC_ADD_AUTOCLEAN":
@@ -103,8 +99,14 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
     self.update(self, translated_state, self.status);
     self.changed();
   });
-
-  self.update(self, {}, 'present');
+  
+  // TODO: We should get this from polling
+  self.update(self, {
+    'hvac': 'off',
+    'fan': 'off',
+    'temperature': 24
+  }, 'present');
+  self.hvac.get_temperature();
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -148,6 +150,7 @@ Thermostat.prototype.setup = function () {
 
         self.hvac.login(token, function () {
           self.update(self, {}, 'present');
+          self.hvac.get_temperature();
           logger2.info('device/' + self.deviceID, "Logged on");
         });
       }).on('waiting', function() {
@@ -157,6 +160,7 @@ Thermostat.prototype.setup = function () {
     } else {
       self.hvac.login(state.token, function () {
         self.update(self, {}, 'present');
+        self.hvac.get_temperature();
         logger2.info('device/' + self.deviceID, "Logged on");
       });
     }
@@ -204,17 +208,17 @@ Thermostat.operations = {
         case 'on':
           self.hvac.onoff(true);   
           break;
-        case 'cool':
-          self.hvac.onoff(true);   
+        case 'cool':  
           self.hvac.mode('Cool');
           break;
         case 'heat':
-          self.hvac.onoff(true);   
           self.hvac.mode('Heat');
+          break;
+        case 'dry':
+          self.hvac.mode('Dry');         
           break;        
         case 'fan':
-          self.hvac.onoff(true);   
-          self.hvac.mode('Wind');
+          self.hvac.mode('wind');
           break;
       }
     });
@@ -226,13 +230,13 @@ Thermostat.operations = {
         // Available options for convenient mode
         // var modes = ['Off', 'Quiet', 'Sleep', 'Smart', 'SoftCool', 'TurboMode', 'WindMode1', 'WindMode2', 'WindMode3']
         case 'off':
-          self.hvac.set_convenient_mode('Off');
+          // self.hvac.set_convenient_mode('Off');
           break;
         case 'on':
-          self.hvac.set_convenient_mode('Quiet');        
+          // self.hvac.set_convenient_mode('Quiet');        
           break;
         case 'auto':
-          self.hvac.set_convenient_mode('WindMode1');
+          // self.hvac.set_convenient_mode('WindMode1');
           break;
 
         default:
