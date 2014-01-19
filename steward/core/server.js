@@ -292,7 +292,7 @@ var wssA
   ;
 
 var advertise = exports.advertise = function() {
-  var txt;
+  var name, txt;
 
   if ((!mdns) || (!wssP)) return;
 
