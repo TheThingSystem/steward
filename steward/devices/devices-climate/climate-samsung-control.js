@@ -21,6 +21,7 @@ var samsung     = require('samsung-airconditioner')
 // define the prototype that will be instantiated when the HVAC unit is discovered
 // later, we will create a ...perform function, and a ...update function.
 var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
+  var logger2 = utility.logger('discovery');  
   var self = this;
 
   self.whatami = info.deviceType;
@@ -30,59 +31,73 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.hvac = info.hvac;
+  self.info = {};
 
   self.hvac.on('stateChange', function(state) { 
-    translated_state = {}
-    for (key in state) {
+// { AC_FUN_ENABLE: 'Enable',
+//   AC_FUN_COMODE: 'Off',
+//   AC_FUN_SLEEP: '0',
+//   AC_FUN_WINDLEVEL: 'High',
+//   AC_FUN_DIRECTION: 'Fixed',
+//   AC_ADD_AUTOCLEAN: 'Off',
+//   AC_ADD_APMODE_END: '0',
+//   AC_ADD_STARTWPS: 'Direct',
+//   AC_ADD_SPI: 'Off',
+//   AC_SG_WIFI: 'Connected',
+//   AC_SG_INTERNET: 'Connected',
+    var translated_state = {};
+    for (var key in state) {
       switch (key) {
         case "AC_FUN_POWER":
           if (state[key] == 'On') {
-            translated_state['hvac'] = 'on';
-            translated_state['fan'] = 'on';
+            translated_state.hvac = 'on';
           }
           if (state[key] == 'Off') {
-            translated_state['hvac'] = 'off';
-            translated_state['fan'] = 'off';
+            translated_state.hvac = 'off';
           }
           break;
         case "AC_FUN_OPMODE":
           if (state[key] == 'Cool') {
-            translated_state['hvac'] = 'cool';
+            translated_state.hvac = 'cool';
           }
           if (state[key] == 'Heat') {
-            translated_state['hvac'] = 'heat';
+            translated_state.hvac = 'heat';
           }
           if (state[key] == 'Dry') {
-            translated_state['hvac'] = 'dry';
+            translated_state.hvac = 'dry';
           }
           if (state[key] == 'Wind') {
-            translated_state['hvac'] = 'fan';
+            translated_state.hvac = 'fan';
           }
           if (state[key] == "Auto") {
-            translated_state['hvac'] = 'on';
+            translated_state.hvac = 'on';
           }            
           break;
         case "AC_FUN_TEMPSET":
-          state['goalTemperature'] = state[key];
+          translated_state.goalTemperature = state[key];
           break;    
-        case "AC_FUN_WINDLEVEL":
-          if (state[key] == "High") {
-            translated_state['fan'] = 'high';
-          }
-          if (state[key] == "Mid") {
-            translated_state['fan'] = 'mid';
-          }
-          if (state[key] == "Low") {
-            translated_state['fan'] = 'low';
-          }
-          if (state[key] == "Auto") {
-            translated_state['fan'] = 'auto';
-          }          
+        case 'AC_FUN_SLEEP':
+          translated_state.fan = parseInt(state[key], 10) * 1000 * 60;
           break;
+        // TODO: this isn't what the hvac fan interace wants
+        // case "AC_FUN_WINDLEVEL":
+        //   if (state[key] == "High") {
+        //     translated_state['fan'] = 'high';
+        //   }
+        //   if (state[key] == "Mid") {
+        //     translated_state['fan'] = 'mid';
+        //   }
+        //   if (state[key] == "Low") {
+        //     translated_state['fan'] = 'low';
+        //   }
+        //   if (state[key] == "Auto") {
+        //     translated_state['fan'] = 'auto';
+        //   }          
+        //   break;
         case "AC_ADD_SPI":
           break;
         case "AC_FUN_TEMPNOW":
-          state['temperature'] = state[key];
+          translated_state.temperature = parseInt(state[key], 10);
           break;
         case "AC_ADD_AUTOCLEAN":
           break;
@@ -96,9 +111,18 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
       }
     }
 
-    self.update(self, translated_state);
+//    logger2.info('device/' + self.deviceID, state);
+    logger2.info('device/' + self.deviceID, translated_state);
+
+    self.update(self, translated_state, self.status);
+    self.changed();
   });
-  self.update(self, self.hvac.state);
+  
+  self.update(self, {
+    'hvac': 'off',
+    'fan': 0,
+    'temperature': 0
+  }, 'present');
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -121,7 +145,7 @@ Thermostat.prototype.setup = function () {
   // });
 
 
-  var state = self.getState(function (err, state) {
+  self.getState(function (err, state) {
     if (!state) {
       state = {};
     }
@@ -134,14 +158,16 @@ Thermostat.prototype.setup = function () {
           return logger2.info('device/' + self.deviceID, 'Get Token error: ' + err.message);
         }
 
-        logger2.info(self.name, "Token found:" + token);
+        logger2.info('device/' + self.deviceID, "Token found:" + token);
 
         state.token = token;
 
         self.setState(state);
 
         self.hvac.login(token, function () {
+        }).on('loginSuccess', function () {
           self.update(self, {}, 'present');
+          self.hvac.status();
           logger2.info('device/' + self.deviceID, "Logged on");
         });
       }).on('waiting', function() {
@@ -150,7 +176,9 @@ Thermostat.prototype.setup = function () {
       });
     } else {
       self.hvac.login(state.token, function () {
+      }).on('loginSuccess', function () {
         self.update(self, {}, 'present');
+        self.hvac.status();
         logger2.info('device/' + self.deviceID, "Logged on");
       });
     }
@@ -198,17 +226,17 @@ Thermostat.operations = {
         case 'on':
           self.hvac.onoff(true);   
           break;
-        case 'cool':
-          self.hvac.onoff(true);   
+        case 'cool':  
           self.hvac.mode('Cool');
           break;
         case 'heat':
-          self.hvac.onoff(true);   
           self.hvac.mode('Heat');
+          break;
+        case 'dry':
+          self.hvac.mode('Dry');         
           break;        
         case 'fan':
-          self.hvac.onoff(true);   
-          self.hvac.mode('Wind');
+          self.hvac.mode('wind');
           break;
       }
     });
@@ -219,19 +247,20 @@ Thermostat.operations = {
       switch (value) {
         // Available options for convenient mode
         // var modes = ['Off', 'Quiet', 'Sleep', 'Smart', 'SoftCool', 'TurboMode', 'WindMode1', 'WindMode2', 'WindMode3']
-        case 'off':
-          self.hvac.set_convenient_mode('Off');
-          break;
-        case 'on':
-          self.hvac.set_convenient_mode('Quiet');        
-          break;
-        case 'auto':
-          self.hvac.set_convenient_mode('WindMode1');
-          break;
+        // case 'off':
+        //   // self.hvac.set_convenient_mode('Off');
+        //   break;
+        // case 'on':
+        //   // self.hvac.set_convenient_mode('Quiet');        
+        //   break;
+        // case 'auto':
+        //   // self.hvac.set_convenient_mode('WindMode1');
+        //   break;
 
         default:
           time = parseInt(value, 10);
           if (isNaN(time)) break;
+          self.hvac.set_sleep_mode(time/1000/60);
           // TBD: set the fan duration. adjust time from milliseconds to whatever
           break;
       }
@@ -350,9 +379,9 @@ exports.start = function() {
     info = { source     : 'samsung'
            , hvac       : aircon
            , device     : { url          : null
-                          , name         : aircon.options.info["NICKNAME"]
+                          , name         : aircon.options.info.NICKNAME
                           , manufacturer : aircon.manufacturer || 'Samsung'
-                          , model        : { name        : aircon.options.info["MODELCODE"]
+                          , model        : { name        : aircon.options.info.MODELCODE
                                            , description : ''
                                            }
                           , unit         : { serial      : aircon.props.duid
@@ -366,8 +395,10 @@ exports.start = function() {
     info.deviceType = '/device/climate/samsung/control';
     info.id = info.device.unit.udn;
 
-    devices.discover(info, function (err, deviceID) {
-      if (!!err) { logger2.error('samsung', { diagnostic: err.message });};
+    devices.discover(info, function (err) {
+      if (!!err) { 
+        logger2.error('samsung', { diagnostic: err.message }); 
+      }
     });
 
   }).on('error', function(err) {
