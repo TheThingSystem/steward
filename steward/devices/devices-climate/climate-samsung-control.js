@@ -100,11 +100,10 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
     self.changed();
   });
   
-  // TODO: We should get this from polling
   self.update(self, {
     'hvac': 'off',
     'fan': 'off',
-    'temperature': 24
+    'temperature': 0
   }, 'present');
   self.changed();
 
@@ -148,6 +147,7 @@ Thermostat.prototype.setup = function () {
         self.setState(state);
 
         self.hvac.login(token, function () {
+        }).on('loginSuccess', function () {
           self.update(self, {}, 'present');
           self.hvac.status();
           logger2.info('device/' + self.deviceID, "Logged on");
@@ -158,6 +158,7 @@ Thermostat.prototype.setup = function () {
       });
     } else {
       self.hvac.login(state.token, function () {
+      }).on('loginSuccess', function () {
         self.update(self, {}, 'present');
         self.hvac.status();
         logger2.info('device/' + self.deviceID, "Logged on");
