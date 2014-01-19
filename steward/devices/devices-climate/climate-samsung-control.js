@@ -31,6 +31,17 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.info = {};
 
   self.hvac.on('stateChange', function(state) { 
+// { AC_FUN_ENABLE: 'Enable',
+//   AC_FUN_COMODE: 'Off',
+//   AC_FUN_SLEEP: '0',
+//   AC_FUN_WINDLEVEL: 'High',
+//   AC_FUN_DIRECTION: 'Fixed',
+//   AC_ADD_AUTOCLEAN: 'Off',
+//   AC_ADD_APMODE_END: '0',
+//   AC_ADD_STARTWPS: 'Direct',
+//   AC_ADD_SPI: 'Off',
+//   AC_SG_WIFI: 'Connected',
+//   AC_SG_INTERNET: 'Connected',
     var translated_state = {};
     for (key in state) {
       switch (key) {
@@ -62,20 +73,24 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         case "AC_FUN_TEMPSET":
           state['goalTemperature'] = state[key];
           break;    
-        case "AC_FUN_WINDLEVEL":
-          if (state[key] == "High") {
-            translated_state['fan'] = 'high';
-          }
-          if (state[key] == "Mid") {
-            translated_state['fan'] = 'mid';
-          }
-          if (state[key] == "Low") {
-            translated_state['fan'] = 'low';
-          }
-          if (state[key] == "Auto") {
-            translated_state['fan'] = 'auto';
-          }          
+        case 'AC_FUN_SLEEP':
+          translated_state['fan'] = parseInt(state[key], 10) * 1000 * 60;
           break;
+        // TODO: this isn't what the hvac fan interace wants
+        // case "AC_FUN_WINDLEVEL":
+        //   if (state[key] == "High") {
+        //     translated_state['fan'] = 'high';
+        //   }
+        //   if (state[key] == "Mid") {
+        //     translated_state['fan'] = 'mid';
+        //   }
+        //   if (state[key] == "Low") {
+        //     translated_state['fan'] = 'low';
+        //   }
+        //   if (state[key] == "Auto") {
+        //     translated_state['fan'] = 'auto';
+        //   }          
+        //   break;
         case "AC_ADD_SPI":
           break;
         case "AC_FUN_TEMPNOW":
@@ -102,7 +117,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   
   self.update(self, {
     'hvac': 'off',
-    'fan': 'off',
+    'fan': 0,
     'temperature': 0
   }, 'present');
   self.changed();
@@ -229,19 +244,20 @@ Thermostat.operations = {
       switch (value) {
         // Available options for convenient mode
         // var modes = ['Off', 'Quiet', 'Sleep', 'Smart', 'SoftCool', 'TurboMode', 'WindMode1', 'WindMode2', 'WindMode3']
-        case 'off':
-          // self.hvac.set_convenient_mode('Off');
-          break;
-        case 'on':
-          // self.hvac.set_convenient_mode('Quiet');        
-          break;
-        case 'auto':
-          // self.hvac.set_convenient_mode('WindMode1');
-          break;
+        // case 'off':
+        //   // self.hvac.set_convenient_mode('Off');
+        //   break;
+        // case 'on':
+        //   // self.hvac.set_convenient_mode('Quiet');        
+        //   break;
+        // case 'auto':
+        //   // self.hvac.set_convenient_mode('WindMode1');
+        //   break;
 
         default:
           time = parseInt(value, 10);
           if (isNaN(time)) break;
+          self.hvac.set_sleep_mode(time/1000/60);
           // TBD: set the fan duration. adjust time from milliseconds to whatever
           break;
       }
