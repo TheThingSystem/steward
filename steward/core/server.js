@@ -16,12 +16,23 @@ var fs          = require('fs')
   , utility     = require('./utility')
   , broker      = utility.broker
   ;
-if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
-  var mdns      = require('mdns');
-}
 
 
 var logger = utility.logger('server');
+
+if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
+  var mdns      = require('mdns');
+} else {
+if (false) {
+  var avahi     = require('avahi_pub');
+
+  if (!avahi.isSupported()) {
+    logger.info('failing Avahi advertisements (continuing)');
+    avahi = null;
+  }
+} else avahi = null;
+}
+
 
 var places = null;
 var routes = exports.routes = {};
@@ -294,6 +305,8 @@ var wssA
 var advertise = exports.advertise = function() {
   var name, txt;
 
+  if (!wssP) return;
+
   if ((!mdns) || (!wssP)) return;
 
   if (!places) places = require('./../actors/actor-place');
@@ -302,17 +315,33 @@ var advertise = exports.advertise = function() {
   txt = { uuid: steward.uuid };
   if (!!name) txt.name = name;
 
-  if (!!wssA) wssA.stop();
-  wssA = mdns.createAdvertisement(mdns.tcp(wssT), wssP, { name: 'steward', txtRecord: txt })
-      .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT   + ' ' + wssP
-                                                        , diagnostic : err.message }); });
-  wssA.start();
+  if (!!mdns) {
+    if (!!wssA) wssA.stop();
+    wssA = mdns.createAdvertisement(mdns.tcp(wssT), wssP, { name: 'steward', txtRecord: txt })
+        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT   + ' ' + wssP
+                                                          , diagnostic : err.message }); });
+    wssA.start();
 
-  if (!!httpsA) httpsA.stop();
-  httpsA = mdns.createAdvertisement(mdns.tcp(httpsT), wssP, { name: 'steward', txtRecord : txt })
-      .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT + ' ' + wssP
-                                                        , diagnostic : err.message }); });
-  httpsA.start();
+    if (!!httpsA) httpsA.stop();
+    httpsA = mdns.createAdvertisement(mdns.tcp(httpsT), wssP, { name: 'steward', txtRecord : txt })
+        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT + ' ' + wssP
+                                                          , diagnostic : err.message }); });
+    httpsA.start();
+    return;
+  }
+
+  if (!!avahi) {
+    txt = 'uuid ' + steward.uuid;
+    if (!!name) txt += ' name ' + name;
+
+    if (!!wssA) wssA.remove();
+// uuid=... name=...
+    wssA = avahi.publish({   name: 'steward', type: '_' + wssT + '._tcp',   port: wssP, data: txt });
+
+    if (!!httpsA) httpsA.remove();
+    httpsA = avahi.publish({ name: 'steward', type: '_' + httpsT + '._tcp', port: wssP, data: txt });
+  }
+
 };
 
 

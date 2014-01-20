@@ -12,6 +12,7 @@
     , "airplay"             : "git://github.com/TheThingSystem/node-airplay.git"
     , "async"               : "0.2.9"
     , "axiscam"             : "0.0.4"
+    , "avahi_pub"           : "git://github.com/D1plo1d/node_avahi_pub.git"
     , "blinkstick"          : "git://github.com/TheThingSystem/blinkstick-node.git"
     , "color-convert"       : "0.3.1"
     , "colors"              : "0.6.2"
