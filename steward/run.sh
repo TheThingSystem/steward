@@ -74,6 +74,7 @@ if [ ! -f db/server.key ]; then
 require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
                                    , keyfile  : 'db/server.key'
                                    , certfile : 'sandbox/server.crt'
+                                   , sha1file : 'sandbox/server.sha1'
                                    , destroy  : false }, function(err, data) {
   if (err) return console.log('keypair generation error: ' + err.message);
 
@@ -83,12 +84,9 @@ EOF
 
   if [ -f db/server.key ]; then 
     chmod 400 db/server.key
-    chmod 444 sandbox/server.crt
-
-    openssl x509 -sha1 -in sandbox/server.crt -noout -fingerprint > sandbox/server.sha1
-    chmod 444 sandbox/server.sha1
+    chmod 444 sandbox/server.crt sandbox/server.sha1
   else
-    rm -f db/server.key sandbox/server.crt
+    rm -f db/server.key sandbox/server.crt sandbox/server.sha1
     echo "unable to create self-signed server certificate" 1>&2
   fi
 fi

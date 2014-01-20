@@ -1,4 +1,5 @@
-var fs          = require('fs')
+var crypto      = require('crypto')
+  , fs          = require('fs')
   , http        = require('http')
   , https       = require('https')
   , mime        = require('mime')
@@ -9,7 +10,8 @@ var fs          = require('fs')
 //, ssh_keygen  = require('ssh-keygen')
 //, tls         = require('tls')
   , url         = require('url')
-  , util         = require('util')
+  , util        = require('util')
+  , x509keygen  = require('x509-keygen')
   , winston     = require('winston')
   , wsServer    = require('ws').Server
   , steward     = require('./steward')
@@ -271,6 +273,7 @@ var start = function(port, secureP) {
             if (!!err) logger.error('cloud', { event: 'fs.writeFile', diagnostic: err.message });
           });
         });
+        keycheck(params);
         register(params, portno);
         subscribe(params);
       });
@@ -341,6 +344,36 @@ var advertise = exports.advertise = function() {
 
 exports.vous = null;
 
+var keycheck = function (params) {
+  var crt  = __dirname + '/../sandbox/server2.crt'
+    , key  = __dirname + '/../db/server2.key'
+    , sha1 = __dirname + '/../sandbox/server2.sha1'
+    ;
+
+  if (!exports.vous) exports.vous = params.name;
+
+  x509keygen.x509_keygen({ subject    : '/CN=' + exports.vous
+                         , certfile   : crt
+                         , keyfile    : key
+                         , sha1file   : sha1
+                         , alternates : [ 'DNS: steward.local' ]
+                         , destroy    : false
+                         , logger     : logger
+                         }, function(err, data) {/* jshint unused: false */
+    if (!!err) return logger.error('register', { event: 'x509keygen', diagnostic: err.message });
+
+    fs.chmod(key, 0400, function(err) {
+      if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+    });
+    fs.chmod(crt, 0444, function(err) {
+      if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+    });
+    fs.chmod(sha1, 0444, function(err) {
+      if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+    });
+  });
+};
+
 var responders = 0;
 
 var register = function(params, portno) {
@@ -353,8 +386,6 @@ var register = function(params, portno) {
     if (responders > 0) responders--;
     setTimeout(function() { register(params, portno); }, secs * 1000);
   };
-
-  if (!exports.vous) exports.vous = params.name;
 
   u = url.parse(params.issuer);
   options = { host    : params.server.hostname
