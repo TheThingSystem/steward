@@ -14,6 +14,12 @@ ChangeLog
 - more consistent logging tags
 - begin refactoring of USB scanning (perhaps a fool's errand)
 - remember logged-in users
+- mDNS:
+    - use a different mDNS publishing package for linux, so it now works
+    - include steward name in mDNS advertisements
+- new authorized role: monitor (read-only access)
+- steward now listens for 15 simultaenous cloud connections
+  (needed to avoid overruns when HTML5/D3 client starts asking for icons)
 
 ### Places
 - add displayUnits to allow clients to determine whether to display in metric or customary units
@@ -58,17 +64,20 @@ ChangeLog
     - wink/*: support Quirky Pivot Power Strip
 
 ### HTML5/D3 client
+- fix issue #112 - thanks @JoeWagner
 - simpler algorithm when choosing an icon for a thing
 - fix on/off control for switches
 - better handling of login dropdown and reporting of permissions
 - fix bug where CIE1931 lighting popover was not showing the color map on non-Mac systems
 - support for all the new things
+- various small fixes
 
-### User management client
+### User management client (client.html)
 - indicate whether the user needs to be logged in order to manage (necessary after the initial bootstrap)
 
-### Client examples
-- rename testing base from bootstrap.html to testing.html
+### Developer clients
+- various small fixes for /console
+- rename bootstrap.html to testing.html
 
 ### Utilities
 - add list-arp.js to mimic steward's algorithm for scanning ARP traffic
