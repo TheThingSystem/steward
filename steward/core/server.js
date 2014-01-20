@@ -305,8 +305,6 @@ var advertise = exports.advertise = function() {
 
   if (!wssP) return;
 
-  if ((!mdns) || (!wssP)) return;
-
   if (!places) places = require('./../actors/actor-place');
   if (!!places.place1) name = places.place1.name;
 
@@ -333,13 +331,11 @@ var advertise = exports.advertise = function() {
     if (!!name) txt += ' name ' + name;
 
     if (!!wssA) wssA.remove();
-// uuid=... name=...
     wssA = avahi.publish({   name: 'steward', type: '_' + wssT + '._tcp',   port: wssP, data: txt });
 
     if (!!httpsA) httpsA.remove();
     httpsA = avahi.publish({ name: 'steward', type: '_' + httpsT + '._tcp', port: wssP, data: txt });
   }
-
 };
 
 
