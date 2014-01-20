@@ -352,24 +352,28 @@ var keycheck = function (params) {
 
   if (!exports.vous) exports.vous = params.name;
 
-  x509keygen.x509_keygen({ subject    : '/CN=' + exports.vous
-                         , certfile   : crt
-                         , keyfile    : key
-                         , sha1file   : sha1
-                         , alternates : [ 'DNS: steward.local' ]
-                         , destroy    : false
-                         , logger     : logger
-                         }, function(err, data) {/* jshint unused: false */
-    if (!!err) return logger.error('register', { event: 'x509keygen', diagnostic: err.message });
+  fs.exists(key, function(existsP) {
+    if (existsP) return;
 
-    fs.chmod(key, 0400, function(err) {
-      if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
-    });
-    fs.chmod(crt, 0444, function(err) {
-      if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
-    });
-    fs.chmod(sha1, 0444, function(err) {
-      if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+    x509keygen.x509_keygen({ subject    : '/CN=' + exports.vous
+                           , certfile   : crt
+                           , keyfile    : key
+                           , sha1file   : sha1
+                           , alternates : [ 'DNS: steward.local' ]
+                           , destroy    : false
+                           , logger     : logger
+                           }, function(err, data) {/* jshint unused: false */
+      if (!!err) return logger.error('register', { event: 'x509keygen', diagnostic: err.message });
+
+      fs.chmod(key, 0400, function(err) {
+        if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+      });
+      fs.chmod(crt, 0444, function(err) {
+        if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+      });
+      fs.chmod(sha1, 0444, function(err) {
+        if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+      });
     });
   });
 };
