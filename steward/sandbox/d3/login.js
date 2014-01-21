@@ -29,15 +29,18 @@ var showLogin = function(changeLogin) {
   tr.append("td")
   	.append("input")
   	  .attr("type", "text")
-  	  .attr("name", "userName");
+  	  .attr("name", "userName")
+  	  .attr("autocorrect", "off")
+  	  .attr("autocapitalize", "none");
   tr.append("td").text("e.g., \'root/1\'");
   
   tr = table.append("tr");
   tr.append("td").text("Login code:");
   tr.append("td")
   	.append("input")
-  	  .attr("type", "text")
+  	  .attr("type", function() { return (isMobile()) ? "number" : "text" })
   	  .attr("name", "userCode")
+  	  .attr("autocorrect", "off")
   	  .attr("onkeyup", "javascript:submitLogin(event)");
   tr.append("td").text("e.g., \'123456\'");
 
@@ -89,6 +92,11 @@ var showLogin = function(changeLogin) {
   
   function isRemoteAccess() {
     return (/\.taas\./.test(location.hostname));
+  }
+  
+  function isMobile() {
+    // looking only for iOS devices now
+    return ((/iPhone/.test(navigator.userAgent)) || (/iPad/.test(navigator.userAgent)));
   }
 };
 
