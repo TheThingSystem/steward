@@ -50,7 +50,7 @@ var showLogin = function(changeLogin) {
   	  .style("cursor", "pointer")
   	  .on("click", function() { window.location = "../client.html"; });
   if (changeLogin) {
-    if (!readOnlyAccess) {
+    if (!readOnlyAccess && !isRemoteAccess()) {
       td.append("img")
   	    .attr("src", "popovers/assets/read-only.svg")
   	    .style("cursor", "pointer")
@@ -60,7 +60,7 @@ var showLogin = function(changeLogin) {
   	  .attr("src", "popovers/assets/cancel-login.svg")
   	  .style("cursor", "pointer")
   	  .on("click", hideLogin);
-  } else {
+  } else if (!isRemoteAccess()) {
     td.append("img")
   	  .attr("src", "popovers/assets/read-only.svg")
   	  .style("cursor", "pointer")
@@ -87,6 +87,9 @@ var showLogin = function(changeLogin) {
     
   if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
   
+  function isRemoteAccess() {
+    return (/\.taas\./.test(location.hostname));
+  }
 };
 
 var hideLogin = function() {

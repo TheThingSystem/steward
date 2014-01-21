@@ -217,8 +217,10 @@ var listall = function(fromCreation) {
     var client, clientID, firstP, table, text, user, x, y;
     
     table = '';
-
-    users = message.result.users;
+    
+    if (message.hasOwnProperty('result') && message.result.hasOwnProperty('users')) {
+      users = message.result.users;
+    } else users = {};
     for (x in message.result.users) {
       if (!message.result.users.hasOwnProperty(x)) continue;
       user = message.result.users[x];
@@ -594,6 +596,13 @@ var go = function(steward, i) {
 };
 
 var main = function() {
+	// redirect https://127.0.0.1 to http
+	if (window.location.hostname === "127.0.0.1" && window.location.protocol === "https:") {
+		var newURL = "http://127.0.0.1:8887" + window.location.pathname;
+		window.location.href = newURL;
+		return;
+	}
+
   var steward = { hostname : window.location.hostname
                  , port     : window.location.port
                  , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
