@@ -186,7 +186,7 @@ var examine = function(event, requestID, results, tag) {
 
 
 exports.start = function() {
-  var ipaddr = '224.192.32.20'
+  var ipaddr = '224.0.9.1'
     , portno = 22601;
 
   dgram.createSocket('udp4').on('message', function(message, rinfo) {

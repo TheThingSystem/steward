@@ -43,12 +43,12 @@ require('dgram').createSocket('udp4').bind(22602, function() {
   var self = this;
 
   console.log('bound');
-  self.addMembership('224.192.32.20');
+  self.addMembership('224.0.9.1');
 
   instances = message.things['/device/sensor/arduino/mat'].instances;
   message.things['/device/sensor/arduino/mat'].instances = [];
   data = new Buffer(JSON.stringify(message));
-  self.send(data, 0, data.length, 22601, '224.192.32.20', function(err, bytes) {
+  self.send(data, 0, data.length, 22601, '224.0.9.1', function(err, bytes) {
     if (err) {
       console.log('error: ' + err.message);
 
@@ -60,7 +60,7 @@ require('dgram').createSocket('udp4').bind(22602, function() {
     message.things['/device/sensor/arduino/mat'].instances = instances;
     message.things['/device/sensor/arduino/mat'].prototype = {};
     data = new Buffer(JSON.stringify(message));
-    self.send(data, 0, data.length, 22601, '224.192.32.20', function(err, bytes) {
+    self.send(data, 0, data.length, 22601, '224.0.9.1', function(err, bytes) {
       if (err) console.log('error: ' + err.message); else console.log('wrote ' + bytes + ' octets');
       console.log(data.toString());
 
