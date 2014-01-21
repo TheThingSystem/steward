@@ -352,13 +352,18 @@ var keycheck = function (params) {
   if (!exports.vous) exports.vous = params.name;
 
   fs.exists(key, function(existsP) {
+    var alternates;
+
     if (existsP) return;
 
-    x509keygen.x509_keygen({ subject    : '/CN=' + exports.vous
+    alternates = [ 'DNS:steward.local', 'DNS:' + require('os').hostname(), 'IP:' + params.server.hostname ];
+    steward.forEachAddress(function(address) { alternates.push('IP:' + address); });
+
+    x509keygen.x509_keygen({ subject    : '/CN=' + params.name
                            , certfile   : crt
                            , keyfile    : key
                            , sha1file   : sha1
-                           , alternates : [ 'DNS: steward.local' ]
+                           , alternates : alternates
                            , destroy    : false
                            , logger     : logger
                            }, function(err, data) {/* jshint unused: false */
