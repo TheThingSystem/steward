@@ -48,10 +48,12 @@ var showLogin = function(changeLogin) {
   td = tr.append("td")
   	.attr("colspan", "3")
     .style("text-align", "center");
-  td.append("img")
-  	  .attr("src", "popovers/assets/create-account.svg")
-  	  .style("cursor", "pointer")
-  	  .on("click", function() { window.location = "../client.html"; });
+  if (!isRemoteAccess()) {
+    td.append("img")
+  	    .attr("src", "popovers/assets/create-account.svg")
+  	    .style("cursor", "pointer")
+  	    .on("click", function() { window.location = "../client.html"; });
+  }
   if (changeLogin) {
     if (!readOnlyAccess && !isRemoteAccess()) {
       td.append("img")
