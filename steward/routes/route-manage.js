@@ -98,6 +98,8 @@ var accessP = function(api, clientInfo, tag) {
       return false;
   }
 
+  if ((api.access !== access.level.none) && (levels === access.level.none)) return false;
+
   if (!places) places = require('./../actors/actor-place');
   if ((api.access !== access.level.none) && (places.place1.info.strict !== 'off') && (!(levels & api.access))) {
     logger.warning(tag, { event      : 'access'

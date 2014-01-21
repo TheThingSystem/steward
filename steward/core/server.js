@@ -192,7 +192,7 @@ var start = function(port, secureP) {
 /* NB: everything "interesting" should be via WebSockets, not HTML...
        if that changes, we can add an exception list here.
 
-      if ((places.place1.info.strict !== 'off') && (!steward.readP(meta))) {
+      if (!steward.readP(meta)) {
         delete(meta.method);
 
         meta.event = 'access';

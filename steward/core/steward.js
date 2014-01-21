@@ -426,7 +426,14 @@ exports.clientInfo = function(connection, secureP) {
 };
 
 // NB: this is the access policy for read-only access
+var places = null;
+
 exports.readP = function(clientInfo) {
+  if ((!clientInfo.local) && (!clientInfo.userID)) return false;
+
+  if (!places) places = require('./../actors/actor-place');
+  if ((!!places) && (places.place1.info.strict === 'off')) return true;
+
   return (clientInfo.loopback || (clientInfo.subnet && clientInfo.secure) || (!!clientInfo.userID));
 };
 
