@@ -80,7 +80,7 @@ var consoleX2 = function(logger, ws, data, tag) {/* jshint unused: false */
 var permissions = function(clientInfo) {
   var perms, user;
 
-  perms = [];
+  perms = [ 'read' ];
   user = users.id2user(clientInfo.userID);
   if (!!user) perms = { master   : [ 'read', 'perform', 'write', 'manage' ]
                       , resident : [ 'read', 'perform', 'write'           ]
