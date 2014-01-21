@@ -504,6 +504,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     currDevice.device = device;
     entry = entries[device.deviceType] || entries.default(device.deviceType);
     currDevice.entry = entry;
+    if (readOnlyAccess) instructions = '';
     div.innerHTML = '<div style="width: 155px; height: 155px; position: relative; left: 62px; overflow: hidden;"><img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /></div>'
                     + '<div id="toPopover" class="big-instructions">'
                     + '<span class="actor-name" id="actor-big-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
@@ -511,7 +512,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
                     + '</div>';
   }
   chart.appendChild(div);
-  if (document.getElementById("toPopover")) {
+  if (document.getElementById("toPopover") && !readOnlyAccess) {
     document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(currDevice.device , currDevice.entry);');
   }
   
@@ -1730,7 +1731,7 @@ var multiple_drilldown = function(name, members) {
       break;
 
     default:
-      device_drilldown(name, devices, arcs, 'touch a thing to manage it');
+      device_drilldown(name, devices, arcs, 'touch a thing to learn more');
       break;
   }
   
