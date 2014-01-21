@@ -356,7 +356,11 @@ var keycheck = function (params) {
 
     if (existsP) return;
 
-    alternates = [ 'DNS:steward.local', 'DNS:' + require('os').hostname(), 'IP:' + params.server.hostname ];
+    alternates = [ 'DNS:' + params.name
+                 , 'DNS:steward.local'
+                 , 'DNS:' + require('os').hostname()
+                 , 'IP:'  + params.server.hostname
+                 ];
     steward.forEachAddress(function(address) { alternates.push('IP:' + address); });
 
     x509keygen.x509_keygen({ subject    : '/CN=' + params.name
