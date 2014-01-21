@@ -968,7 +968,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
                                    , firmware    : firmware
                                    }
                   };
-    info.url = null;
+    info.url = info.device.url;
     info.deviceType = '/device/gateway/insteon/';
     info.deviceType += { '032e' : 'hub'
                        , '032f' : 'hub'
@@ -1113,7 +1113,7 @@ var scan1 = function(driver) {
                                    , firmware    : firmware
                                    }
                   };
-    info.url = null;
+    info.url = info.device.url;
     info.deviceType = '/device/gateway/insteon/';
     switch (productCode) {
       case '0315': info.deviceType += 'usb';       break;
@@ -1141,7 +1141,7 @@ exports.start = function() {
   steward.actors.device.gateway.insteon.hub =
       { $info     : { type       : '/device/gateway/insteon/hub'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'waiting', 'ready', 'reset' ]
                                    }
@@ -1156,6 +1156,7 @@ exports.start = function() {
   devices.makers['/device/gateway/insteon/smartlinc'] = Gateway;
 
   steward.actors.device.gateway.insteon.usb = utility.clone(steward.actors.device.gateway.insteon.hub);
+  steward.actors.device.gateway.insteon.usb.$info.perform = [];
   steward.actors.device.gateway.insteon.usb.$info.type = '/device/gateway/insteon/usb';
   devices.makers['/device/gateway/insteon/usb'] = Gateway;
 

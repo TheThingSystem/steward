@@ -301,6 +301,9 @@ var validate_perform = function(perform, parameter) {
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   switch (perform) {
+    case 'wake':
+      return true;
+
     case 'set':
       if (!parameter) {
         result.requires.push('parameter');
@@ -378,6 +381,7 @@ exports.start = function() {
                                    , 'flush'
                                    , 'next'
                                    , 'previous'
+                                   , 'wake'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused', 'busy', 'error' ]
@@ -403,7 +407,7 @@ exports.start = function() {
   steward.actors.device.gateway.sonos.bridge =
       { $info     : { type       : '/device/gateway/sonos/bridge'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name    : true
                                    , status  : [ 'present' ]
                                    }

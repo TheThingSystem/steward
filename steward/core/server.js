@@ -1,5 +1,4 @@
-var crypto      = require('crypto')
-  , fs          = require('fs')
+var fs          = require('fs')
   , http        = require('http')
   , https       = require('https')
   , mime        = require('mime')

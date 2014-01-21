@@ -503,7 +503,7 @@ exports.start = function() {
   steward.actors.device.gateway['heroic-robotics'].pixelpusher =
       { $info     : { type       : '/device/gateway/heroic-robotics/pixelpusher'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready', 'absent' ]
                                    , nodeID : 'array'

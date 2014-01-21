@@ -194,9 +194,7 @@ exports.start = function() {
                                                }
                                 }
                   };
-
       info.url = info.device.url;
-
       info.deviceType = '/device/media/appletv/video';
       info.id = info.device.unit.udn;
       if (!!devices.devices[info.id]) return;
@@ -223,6 +221,7 @@ exports.start = function() {
                     , perform    : [ 'play'
                                    , 'stop'
                                    , 'pause'
+                                   , 'wake'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused' ]

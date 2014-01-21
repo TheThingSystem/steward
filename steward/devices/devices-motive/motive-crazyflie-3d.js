@@ -256,7 +256,7 @@ var scan = function() {
       uris[uri] = true;
 
       info = { source: 'aerogel' };
-      info.device = { url          : uri
+      info.device = { url          : null
                     , name         : ''
                     , manufacturer : 'Bitcraze'
                     , model        : { name        : 'Crazyflie'

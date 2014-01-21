@@ -126,6 +126,7 @@ Floor.prototype.perform = function(self, taskID, perform, parameter) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   f = { set    : function() { return self.setName(params.name);                  }
+      , wake   : function() { return self.wake();                                }
 
       , halt   : function() { return self.robot.halt();                          }
       , cover  : function() { return self.robot.demo(irobot.demos.Cover);        }
@@ -212,6 +213,7 @@ var validate_perform = function(perform, parameter) {
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   var f = { set    : function() { if (!params.name) result.requires('name'); }
+          , wake   : function() { }
 
           , halt   : function() { }
           , cover  : function() { }
@@ -315,6 +317,7 @@ if (true) return;
                                    , 'move'    // relativeHeading, velocity
                                    , 'motors'  // array
                                    , 'led'     // color: { model }, brightness: percentage
+                                   , 'wake'
                                    ]
                     , properties : { name           : true
                                    , status         : [ 'waiting', 'idle', 'moving', 'charging' ]

@@ -100,12 +100,12 @@ exports.start = function() {
   steward.actors.device.media.roku.video =
       { $info     : { type       : '/device/media/roku/video'
                     , observe    : [ ]
-                    , perform    : [
-                                     'play'
+                    , perform    : [ 'play'
                                    , 'stop'
                                    , 'pause'
                                    , 'next'
                                    , 'previous'
+                                   , 'wake'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle' ]

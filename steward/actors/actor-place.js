@@ -295,9 +295,11 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
 Place.prototype.perform = function(self, taskID, perform, parameter) {
   var params, previous;
 
-  if (perform !== 'set') return false;
-
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  if (perform === 'wake') return devices.wake(params);
+
+  if (perform !== 'set') return false;
 
 // do not call self.setName()... there's no entry in the devices table!
   if (!!params.name) {
@@ -495,17 +497,17 @@ var validate_perform = function(perform, parameter) {
   var params = {}
     , result = { invalid: [], requires: [] };
 
+  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (perform === 'wake') {
+    if (!params.ipaddress) result.requires.push('ipaddress');
+    return result;
+  }
+
   if (perform !== 'set') {
     result.invalid.push('perform');
     return result;
   }
-
-  if (!parameter) {
-    result.requires.push('parameter');
-    return result;
-  }
-
-  try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if ((!params.name) && (!params.physical) && (!params.location)) result.requires.push('name');
 
@@ -562,7 +564,7 @@ exports.start = function() {
   steward.actors.place =
       { $info     : { type       : '/place'
                     , observe    : [ 'cron', 'solar' ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name        : true
                                    , status      : colors
                                    , version     : true

@@ -349,6 +349,7 @@ var listen = function(ifname, ifaddr) {
     }
     discovered1(ifname, ifaddr, arp);
     discovered2(ifname, ifaddr, arp);
+    devices.arp(ifname, ifaddr, arp);
   };
 };
 

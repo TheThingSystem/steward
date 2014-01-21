@@ -180,6 +180,8 @@ exports.validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
+  if (perform === 'wake') return result;
+
   if (perform !== 'set') {
     result.invalid.push('perform');
     return result;
@@ -205,7 +207,7 @@ exports.start = function() {
   steward.actors.device.gateway.yoctopuce.ethernet =
       { $info     : { type       : '/device/gateway/yoctopuce/ethernet'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready' ]
                                    }

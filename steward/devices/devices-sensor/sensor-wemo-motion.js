@@ -66,6 +66,9 @@ WeMo_Motion.prototype.perform = function(self, taskID, perform, parameter) {/* j
 </u:ChangeFriendlyName>';
       break;
 
+    case 'wake':
+      return self.wake();
+
     default:
       return false;
   }
@@ -150,7 +153,7 @@ exports.start = function() {
   steward.actors.device.sensor.wemo.motion =
       { $info     : { type       : '/device/sensor/wemo/motion'
                     , observe    : [ 'motion' ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name       : true
                                    , status     : [ 'waiting', 'busy', 'motion', 'quiet' ]
                                    , lastSample : 'timestamp'

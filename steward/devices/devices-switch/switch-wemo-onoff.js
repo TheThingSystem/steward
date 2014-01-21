@@ -147,6 +147,9 @@ WeMo_OnOff.prototype.perform = function(self, taskID, perform, parameter) {/* js
 </u:SetBinaryState>';
       break;
 
+    case 'wake':
+      return self.wake();
+
     case 'set':
       if (!params.name) return false;
       action = '"urn:Belkin:service:basicevent:1#ChangeFriendlyName"';
@@ -278,6 +281,8 @@ var validate_perform = function(perform, parameter) {
 
   if (perform === 'off') return result;
 
+  if (perform === 'wake') return result;
+
   if (perform === 'set') {
     if (!params.name) result.requires.push('name');
     return result;
@@ -296,7 +301,7 @@ exports.start = function() {
   steward.actors.device['switch'].wemo.onoff =
       { $info     : { type       : '/device/switch/wemo/onoff'
                     , observe    : [ ]
-                    , perform    : [ 'off', 'on' ]
+                    , perform    : [ 'off', 'on', 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'waiting', 'busy', 'on', 'off' ]
                                    }

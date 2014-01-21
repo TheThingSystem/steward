@@ -127,7 +127,9 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   state = {};
-  if (id === null) {
+  if (!id) {
+    if (perform === 'wake') return self.wake();
+
     if ((perform !== 'set') || (!params.name)) return false;
     state.name = params.name;
 
@@ -582,6 +584,8 @@ var validate_perform_hue = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
+  if (perform === 'wake') return result;
+
   if (perform !== 'set') {
     result.invalid.push('perform');
     return result;
@@ -736,7 +740,7 @@ exports.start = function() {
   steward.actors.device.gateway.hue.bridge =
       { $info     : { type       : '/device/gateway/hue/bridge'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready', 'reset', 'busy' ]
                                    }
