@@ -9,13 +9,10 @@ var stringify   = require('json-stringify-safe')
 
 
 var logger = utility.logger('server');
-var places = null;
 
 
 var consoleX = function(ws, tag) {
   var meta;
-
-  if (!places) places = require('./../actors/actor-place');
 
   ws.on('message', function(data, flags) {
     var message;
@@ -35,7 +32,7 @@ var consoleX = function(ws, tag) {
   broker.subscribe('beacon-egress', function(category, datum) {
     var data = {};
 
-    if ((!!places) && (places.place1.info.strict !== 'off') && (!steward.readP(ws.clientInfo))) return;
+    if (!steward.readP(ws.clientInfo)) return;
 
     if (!util.isArray(datum)) datum = [ datum ];
     data[category] = datum;
@@ -44,7 +41,7 @@ var consoleX = function(ws, tag) {
     try { ws.send(stringify(data), function(err) { if (err) try { ws.terminate(); } catch(ex) {} }); } catch(ex) {}
   });
 
-  if ((!places) || (places.place1.info.strict === 'off') || (steward.readP(ws.clientInfo))) {
+  if (steward.readP(ws.clientInfo)) {
     try {
       ws.send(stringify({ notice: { permissions: permissions(ws.clientInfo) } }));
       ws.send(stringify(utility.signals));
@@ -70,7 +67,7 @@ var consoleX = function(ws, tag) {
 var consoleX2 = function(logger, ws, data, tag) {/* jshint unused: false */
   try { ws.send(data); } catch(ex) { console.log(ex); }
 
-  if ((!places) || (places.place1.info.strict === 'off') || (steward.readP(ws.clientInfo))) {
+  if (steward.readP(ws.clientInfo)) {
     try {
       ws.send(stringify({ notice: { permissions: permissions(ws.clientInfo) } }));
       ws.send(stringify(utility.signals));
@@ -88,6 +85,7 @@ var permissions = function(clientInfo) {
   if (!!user) perms = { master   : [ 'read', 'perform', 'write', 'manage' ]
                       , resident : [ 'read', 'perform', 'write'           ]
                       , guest    : [ 'read', 'perform'                    ]
+                      , monitor  : [ 'read',                              ]
                       }[user.userRole] || [];
 
   return perms;

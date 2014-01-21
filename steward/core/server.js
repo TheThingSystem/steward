@@ -9,19 +9,29 @@ var fs          = require('fs')
 //, ssh_keygen  = require('ssh-keygen')
 //, tls         = require('tls')
   , url         = require('url')
-  , util         = require('util')
+  , util        = require('util')
+  , x509keygen  = require('x509-keygen')
   , winston     = require('winston')
   , wsServer    = require('ws').Server
   , steward     = require('./steward')
   , utility     = require('./utility')
   , broker      = utility.broker
   ;
-if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
-  var mdns      = require('mdns');
-}
 
 
 var logger = utility.logger('server');
+
+if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
+  var mdns      = require('mdns');
+} else {
+  var avahi     = require('avahi_pub');
+
+  if (!avahi.isSupported()) {
+    logger.info('failing Avahi publisher (continuing)');
+    avahi = null;
+  }
+}
+
 
 var places = null;
 var routes = exports.routes = {};
@@ -81,15 +91,18 @@ var securePort = 0;
 
 var logins = exports.logins = {};
 
+var httpsT = 'http'
+  , wssT   = 'ws'
+  , wssP   = null
+  ;
+
 var start = function(port, secureP) {
   portfinder.getPort({ port: port }, function(err, portno) {
     var server;
 
     var crt     = __dirname + '/../sandbox/server.crt'
-      , httpsT  = 'http'
       , key     = __dirname + '/../db/server.key'
       , options = { port : portno }
-      , wssT  = 'ws'
       ;
 
     if (err) return logger.error('server', { event: 'portfinder.getPort ' + port, diagnostic: err.message });
@@ -101,6 +114,7 @@ var start = function(port, secureP) {
           options.cert = crt;
           httpsT = 'https';
           wssT = 'wss';
+          wssP = portno;
 
           exports.x509 = { key: key, crt: crt };
         } else return logger.error('no startup certificate', { cert: crt });
@@ -178,7 +192,7 @@ var start = function(port, secureP) {
 /* NB: everything "interesting" should be via WebSockets, not HTML...
        if that changes, we can add an exception list here.
 
-      if ((places.place1.info.strict !== 'off') && (!steward.readP(meta))) {
+      if (!steward.readP(meta)) {
         delete(meta.method);
 
         meta.event = 'access';
@@ -232,30 +246,33 @@ var start = function(port, secureP) {
         }
 
         logger.info(tag, { code: 200, type: ct, octets: data.length });
-        response.writeHead(200, { 'Content-Type': ct, 'Content-Length': data.length });
+        response.writeHead(200, { 'Content-Type'   : ct
+                                , 'Content-Length' : data.length
+                                , 'Cache-Control'  : 'max-age=86400, public'
+                                });
         response.end(request.method === 'GET' ? data : '');
       });
     });
 
-    if (!!mdns) {
-      mdns.createAdvertisement(mdns.tcp(wssT), portno, { name: 'steward', txtRecord: { uuid : steward.uuid } })
-          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT + ' ' + portno
-                                                            , diagnostic : err.message }); })
-          .start();
-      mdns.createAdvertisement(mdns.tcp(httpsT), portno, { name: 'steward', txtRecord : { uuid: steward.uuid } })
-          .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT+ ' ' + portno
-                                                            , diagnostic : err.message }); })
-          .start();
-    }
+    if (!wssP) wssP = portno;
+    advertise();
 
     logger.info('listening on ' + wssT + '://*:' + portno);
 
     if (secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
-        var params;
+        var crt2, params;
         if (!existsP) return;
 
         params = require(__dirname + '/../db/' + steward.uuid).params;
+        crt2 = __dirname + '/../sandbox/cloud.crt';
+        fs.unlink(crt2, function(err) {
+          if ((!!err) && (err.code !== 'ENOENT')) logger.error('cloud', { event: 'fs.unlink', diagnostic: err.message });
+          fs.writeFile(crt2, new Buffer(params.server.ca), { mode: 0444 }, function(err) {
+            if (!!err) logger.error('cloud', { event: 'fs.writeFile', diagnostic: err.message });
+          });
+        });
+        keycheck(params);
         register(params, portno);
         subscribe(params);
       });
@@ -281,8 +298,84 @@ var start = function(port, secureP) {
   });
 };
 
+var wssA
+  , httpsA
+  ;
+
+var advertise = exports.advertise = function() {
+  var name, txt;
+
+  if (!wssP) return;
+
+  if (!places) places = require('./../actors/actor-place');
+  if (!!places.place1) name = places.place1.name;
+
+  txt = { uuid: steward.uuid };
+  if (!!name) txt.name = name;
+
+  if (!!mdns) {
+    if (!!wssA) wssA.stop();
+    wssA = mdns.createAdvertisement(mdns.tcp(wssT), wssP, { name: 'steward', txtRecord: txt })
+        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + wssT   + ' ' + wssP
+                                                          , diagnostic : err.message }); });
+    wssA.start();
+
+    if (!!httpsA) httpsA.stop();
+    httpsA = mdns.createAdvertisement(mdns.tcp(httpsT), wssP, { name: 'steward', txtRecord : txt })
+        .on('error', function(err) { logger.error('mdns', { event      : 'createAdvertisement steward ' + httpsT + ' ' + wssP
+                                                          , diagnostic : err.message }); });
+    httpsA.start();
+    return;
+  }
+
+  if (!!avahi) {
+    txt = 'uuid ' + steward.uuid;
+    if (!!name) txt += ' name ' + name;
+
+    if (!!wssA) wssA.remove();
+    wssA = avahi.publish({   name: 'steward', type: '_' + wssT + '._tcp',   port: wssP, data: txt });
+
+    if (!!httpsA) httpsA.remove();
+    httpsA = avahi.publish({ name: 'steward', type: '_' + httpsT + '._tcp', port: wssP, data: txt });
+  }
+};
+
 
 exports.vous = null;
+
+var keycheck = function (params) {
+  var crt  = __dirname + '/../sandbox/server2.crt'
+    , key  = __dirname + '/../db/server2.key'
+    , sha1 = __dirname + '/../sandbox/server2.sha1'
+    ;
+
+  if (!exports.vous) exports.vous = params.name;
+
+  fs.exists(key, function(existsP) {
+    if (existsP) return;
+
+    x509keygen.x509_keygen({ subject    : '/CN=' + exports.vous
+                           , certfile   : crt
+                           , keyfile    : key
+                           , sha1file   : sha1
+                           , alternates : [ 'DNS: steward.local' ]
+                           , destroy    : false
+                           , logger     : logger
+                           }, function(err, data) {/* jshint unused: false */
+      if (!!err) return logger.error('register', { event: 'x509keygen', diagnostic: err.message });
+
+      fs.chmod(key, 0400, function(err) {
+        if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+      });
+      fs.chmod(crt, 0444, function(err) {
+        if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+      });
+      fs.chmod(sha1, 0444, function(err) {
+        if (!!err) logger.error('registrar', { event: 'fs.chmod', diagnostic: err.message });
+      });
+    });
+  });
+};
 
 var responders = 0;
 
@@ -296,8 +389,6 @@ var register = function(params, portno) {
     if (responders > 0) responders--;
     setTimeout(function() { register(params, portno); }, secs * 1000);
   };
-
-  if (!exports.vous) exports.vous = params.name;
 
   u = url.parse(params.issuer);
   options = { host    : params.server.hostname
@@ -331,7 +422,7 @@ var register = function(params, portno) {
 
       u = url.parse('http://' + content);
       rendezvous(params, portno, u);
-      if (responders < 5) register(params, portno);
+      if (responders < 15) register(params, portno);
     }).on('close', function() {
       logger.warning('register', { event:'close', diagnostic: 'premature eof', retry: '1 second' });
 

@@ -48,6 +48,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
     if (!{ master   : true
          , resident : true
          , guest    : true
+         , monitor  : true
          , device   : true
          , cloud    : true
          , none     : true }[message.role])                 return error(true,  'invalid role element');
@@ -230,9 +231,11 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
       results.result.users['user/' + user.userName] = props;
 
       if (treeP) results.result.users['user/' + user.userName].clients = user.clients;
-      for (i = 0; i < user.clients.length; i++) {
-        client = id2client(user, user.clients[i]);
-        results.result.clients['user/' + user.userName + '/' + client.clientID] = proplist2(null, client, user);
+      if (!!user.clients) {
+        for (i = 0; i < user.clients.length; i++) {
+          client = id2client(user, user.clients[i]);
+          results.result.clients['user/' + user.userName + '/' + client.clientID] = proplist2(null, client, user);
+        }
       }
     }
   }
@@ -613,7 +616,7 @@ exports.start = function() {
                                 , name       : true
                                 }
                    , optional : { comments   : true
-                                , role       : [ 'master', 'resident', 'guest', 'device', 'cloud' ]
+                                , role       : [ 'master', 'resident', 'guest', 'monitor', 'device', 'cloud' ]
                                 , clientName : true
                                 }
                    , response : {}

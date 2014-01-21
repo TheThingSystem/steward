@@ -180,6 +180,9 @@ exports.start = function() {
 
   try {
     mdns.createBrowser(mdns.tcp('airplay')).on('serviceUp', function(service) {
+      if (service.name.indexOf('XBMC') === 0) return;
+//    if ((!!service.txtRecord.model) && (service.txtRecord.model.indexOf('Xbmc,') === 0)) return;
+
       var model = service.txtRecord.model.match(/([\d]*),([\d]*)/).slice(1).join('.');
       var info =  { source  : 'mdns'
                   , device  : { url          : 'http://' + service.host + ':' + service.port + '/'
@@ -194,9 +197,7 @@ exports.start = function() {
                                                }
                                 }
                   };
-
       info.url = info.device.url;
-
       info.deviceType = '/device/media/appletv/video';
       info.id = info.device.unit.udn;
       if (!!devices.devices[info.id]) return;
@@ -223,6 +224,7 @@ exports.start = function() {
                     , perform    : [ 'play'
                                    , 'stop'
                                    , 'pause'
+                                   , 'wake'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused' ]

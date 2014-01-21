@@ -186,6 +186,7 @@ var scan = function(portno) {
     onmessage(message, { id          : rinfo.family.toLowerCase() + ':' + rinfo.address + ':' + rinfo.port
                        , address     : rinfo.address
                        , description : 'reel-to-Ethernet hublet'
+                       , url         : 'udp://' + rinfo.address + ':' + rinfo.port
                        });
   }).on('listening', function() {
     var address = this.address();
@@ -229,7 +230,7 @@ var onmessage = function(message, reel) {
   if (!!devices.devices[udn]) return update(udn, data, timestamp);
 
   info = { params: { data: data, timestamp: timestamp }};
-  info.device = { url          : null
+  info.device = { url          : reel.url
                 , name         : reel.description + ' (' + reel.address + ')'
                 , manufacturer : 'reelyActive'
                 , model        : { name        : 'reelyActive hublet'
@@ -268,7 +269,7 @@ exports.start = function() {
   steward.actors.device.gateway.reelyactive.hublet =
       { $info     : { type       : '/device/gateway/reelyactive/hublet'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready' ]
                                    }

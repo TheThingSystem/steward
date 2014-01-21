@@ -44,7 +44,7 @@ PROGMEM prog_char *loopPacket8= "},\"uptime\":";
 PROGMEM prog_char *loopPacket9= "}]}}}";
 
 unsigned int port = 22601;
-// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.20'.
+// All TSRP transmissions are via UDP to port 22601 on multicast address '224.0.9.1'.
 #define WLAN_SSID       NULL          // cannot be longer than 32 characters!
 #define WLAN_PASS       "..."
 #define WLAN_SECURITY   WLAN_SEC_WPA2
@@ -79,7 +79,7 @@ void setup() {
   pinMode(DUST_SENSOR, INPUT);
 
   Adafruit_CC3000 *wifi = CC3000_setup(WLAN_SSID, WLAN_PASS, WLAN_SECURITY);
-  uint32_t ip   = wifi->IP2U32(224,192,32,20);
+  uint32_t ip   = wifi->IP2U32(224,0,9,1);
   uint16_t port = 22601;
   unsigned long timeout = millis() + 15000;
   for (udp = wifi->connectUDP(ip, port); !udp.connected(); ) {

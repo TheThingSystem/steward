@@ -35,9 +35,9 @@ PROGMEM prog_char *loopPacket7 = ",\"humidity\":";
 PROGMEM prog_char *loopPacket8 = "},\"uptime\":";
 PROGMEM prog_char *loopPacket9 = "\"}]}}}";
 
-// All TSRP transmissions are via UDP to port 22601 on multicast address '224.192.32.20'.
+// All TSRP transmissions are via UDP to port 22601 on multicast address '224.0.9.1'.
 EthernetUDP udp;
-IPAddress ip(224,192,32,20);
+IPAddress ip(224,0,9,1);
 unsigned int port = 22601;   
 
 void setup() {

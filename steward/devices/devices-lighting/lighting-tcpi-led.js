@@ -273,7 +273,7 @@ exports.start = function() {
   steward.actors.device.gateway['greenwave-gop'].lighting =
       { $info     : { type       : '/device/gateway/greenwave-gop/lighting'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready', 'error' ]
                                    }

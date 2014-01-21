@@ -68,7 +68,7 @@ if (true) return;
   steward.actors.device.media.axis.camera =
       { $info     : { type       : '/device/media/axis/camera'
                     , observe    : [ 'motion' ]
-                    , perform    : [ 'capture' ]
+                    , perform    : [ 'capture', 'wake' ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'busy' ]
                                    }
@@ -101,7 +101,6 @@ if (true) return;
                                            }
                           }
            };
-
     info.url = info.device.url;
     info.deviceType = info.device.model.name;
     info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';

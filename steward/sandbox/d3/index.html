@@ -92,6 +92,13 @@ var switchToReadOnly = function() {
 };
 
 var main = function(name, code) {
+	// redirect https://127.0.0.1 to http
+	if (window.location.hostname === "127.0.0.1" && window.location.protocol === "https:") {
+		var newURL = "http://127.0.0.1:8887" + window.location.pathname;
+		window.location.href = newURL;
+		return;
+	}
+
   var steward = (readOnlyAccess) ? 
         { hostname : window.location.hostname
 				, port     : "8887"

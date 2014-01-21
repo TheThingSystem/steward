@@ -69,7 +69,7 @@ var resetNotifications = function() {
 }
 
 var home = function(state) {
-  var a, actor, b, categories, category, chart, device, devices, div, entry, i, img, message, p, prop, span, stage, tag;
+  var a, actor, b, categories, category, chart, device, devices, div, entry, i, img, message, nothing, p, prop, span, stage, tag;
   var actorHeight = 80, actorRow = 0, actorWidth = 58;
   
   var self = this;
@@ -123,10 +123,19 @@ var home = function(state) {
   chart.appendChild(div);
 
   div = document.createElement('div');
-  div.setAttribute('class', 'actors')
-  div.setAttribute('id', 'stage')
+  div.setAttribute('class', 'actors');
+  div.setAttribute('id', 'stage');
   div.setAttribute('onscroll', 'javascript:lastStageScroll = this.scrollTop;');
 
+  if (!devices.length) {
+    // Didn't find any things
+    nothing = document.createElement('div');
+    nothing.setAttribute('id', 'no-devices-placeholder');
+    nothing.innerHTML = '<h1>Did not discover any devices.</h1>'
+                        + '<p>If you were expecting something else, view the '
+                        + '<a href="/console.html">steward console</a> for details.';
+    div.appendChild(nothing);
+  }
   for (a = i = 0; i < devices.length; i++) {
     device = devices[i];
     entry = entries[device.deviceType] || entries.default(device.deviceType);
@@ -251,9 +260,9 @@ if (false) {
     }
   }
   setTimeout(updateAgo, 1000);
-  
+
   self.onUpdate = function(updates) {
-    var actorID, update;
+    var actorID, update, refresh = false;
     lastUpdated = [];
     
     for (var i = 0; i < updates.length; i++) {
@@ -276,10 +285,13 @@ if (false) {
       if (document.getElementById(actorID)) {
         document.getElementById(actorID).style.backgroundColor = statusColor(update);
         document.getElementById(actorID + '-label').style.color = statusColor(update);
+      } else {
+        refresh = true;
       }
       lastUpdated.push(update.updated);
     }
     lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
+    if (refresh) refreshActors(1);
   }
   
   function scrollDown(elem, top) {
@@ -492,6 +504,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     currDevice.device = device;
     entry = entries[device.deviceType] || entries.default(device.deviceType);
     currDevice.entry = entry;
+    if (readOnlyAccess) instructions = '';
     div.innerHTML = '<div style="width: 155px; height: 155px; position: relative; left: 62px; overflow: hidden;"><img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /></div>'
                     + '<div id="toPopover" class="big-instructions">'
                     + '<span class="actor-name" id="actor-big-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
@@ -499,7 +512,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
                     + '</div>';
   }
   chart.appendChild(div);
-  if (document.getElementById("toPopover")) {
+  if (document.getElementById("toPopover") && !readOnlyAccess) {
     document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(currDevice.device , currDevice.entry);');
   }
   
@@ -1718,7 +1731,7 @@ var multiple_drilldown = function(name, members) {
       break;
 
     default:
-      device_drilldown(name, devices, arcs, 'touch a thing to manage it');
+      device_drilldown(name, devices, arcs, 'touch a thing to learn more');
       break;
   }
   

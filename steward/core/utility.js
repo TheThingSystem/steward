@@ -288,7 +288,7 @@ var array_cmp = exports.array_cmp = function(a, b) {
     if (a.length != b.length)
         return false;
 
-    for (var i = 0, l=a.length; i < l; i++) {
+    for (var i = 0, l = a.length; i < l; i++) {
         // Check if we have nested arrays
         if (a[i] instanceof Array && b[i] instanceof Array) {
             // recurse into the nested arrays

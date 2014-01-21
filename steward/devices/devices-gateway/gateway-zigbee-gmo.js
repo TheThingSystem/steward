@@ -267,7 +267,7 @@ if (true) return;
   steward.actors.device.gateway.zigbee.gmo =
       { $info     : { type       : '/device/gateway/zigbee/gmo'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready' ]
                                    }

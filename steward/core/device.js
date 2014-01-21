@@ -3,6 +3,7 @@ var events      = require('events')
   , stringify   = require('json-stringify-safe')
   , url         = require('url')
   , util        = require('util')
+  , wakeonlan   = require('wake_on_lan')
   , steward     = require('./steward')
   , utility     = require('./utility')
   , broker      = utility.broker
@@ -121,6 +122,41 @@ exports.review = function() {
   return states;
 };
 
+var arptab = {};
+
+exports.arp = function(ifname, ifaddr, arp) {/* jshint unused: false */
+  if ((arp.sender_pa !== '0.0.0.0')
+        && (arp.sender_pa !== '255.255.255.255')
+        && (arp.sender_ha !== '00:00:00:00:00:00')
+        && (arp.sender_ha !== 'ff:ff:ff:ff:ff:ff')) arptab[arp.sender_pa] = arp.sender_ha;
+
+  if ((arp.target_pa !== '0.0.0.0')
+        && (arp.target_pa !== '255.255.255.255')
+        && (arp.target_ha !== '00:00:00:00:00:00')
+        && (arp.target_ha !== 'ff:ff:ff:ff:ff:ff')) arptab[arp.target_pa] = arp.target_ha;
+};
+
+exports.wake = function(params) {
+  var macaddress;
+
+  if ((!params) || (!params.ipaddress)) return false;
+
+  if (!arptab[params.ipaddress]) {
+    logger.warning('no MAC address for ' + params.ipaddress);
+    return false;
+  }
+  macaddress = arptab[params.ipaddress].toUpperCase();
+
+  wakeonlan.wake(macaddress, { ipaddress: params.ipaddress }, function(err) {
+    if (!!err) return logger.error('unable to wake ' + macaddress + ' for ' + params.ipaddress);
+
+   logger.notice('woke ' + macaddress + ' for ' + params.ipaddress);
+  });
+
+  return true;
+};
+
+
 exports.discover = function(info, callback) {
   var deviceType, deviceUID;
 
@@ -141,6 +177,10 @@ exports.discover = function(info, callback) {
   }
 
   db.get('SELECT deviceID FROM devices WHERE deviceUID=$deviceUID', { $deviceUID: deviceUID }, function(err, row) {
+    var deviceMAC;
+
+    if (!!info.ipaddress) deviceMAC = arptab[info.ipaddress];
+
     if (err) {
       logger.error('devices', { event: 'SELECT device.deviceUID for ' + deviceUID, diagnostic: err.message });
     } else if (row !== undefined) {
@@ -151,16 +191,19 @@ exports.discover = function(info, callback) {
       devices[deviceUID].proplist = Device.prototype.proplist;
       logger.info('found ' + info.device.name, { deviceType: deviceType });
 
-      db.run('UPDATE devices SET updated=datetime("now") WHERE deviceID=$deviceID',
-         { $deviceID : row.deviceID }, function(err) {
+      db.run('UPDATE devices SET deviceIP=$deviceIP, deviceMAC=$deviceMAC, updated=datetime("now") WHERE deviceID=$deviceID',
+         { $deviceIP: info.ipaddress, $deviceMAC: deviceMAC, $deviceID : row.deviceID }, function(err) {
         if (err) logger.error('devices', { event: 'UPDATE device.deviceUID for ' + deviceUID, diagnostic: err.message });
       });
+
+      if (!!callback) callback(null, row.deviceID);
       return;
     }
 
-    db.run('INSERT INTO devices(deviceUID, deviceType, deviceName, created) '
-           + 'VALUES($deviceUID, $deviceType, $deviceName, datetime("now"))',
-           { $deviceUID: deviceUID, $deviceType: deviceType, $deviceName: info.device.name }, function(err) {
+    db.run('INSERT INTO devices(deviceUID, deviceType, deviceName, deviceIP, deviceMAC, created) '
+           + 'VALUES($deviceUID, $deviceType, $deviceName, $deviceIP, $deviceMAC, datetime("now"))',
+           { $deviceUID: deviceUID, $deviceType: deviceType, $deviceName: info.device.name, $deviceIP: info.ipaddress,
+             $deviceMAC: deviceMAC }, function(err) {
       var deviceID;
 
       if (err) {
@@ -406,32 +449,36 @@ Device.prototype.alert = function(message) {
   }
 };
 
+Device.prototype.wake = function() {
+  return exports.wake(devices[this.deviceUID].discovery);
+};
+
 
 var Sigma = function() {
-    var self = this;
+  var self = this;
 
-    if (!(self instanceof Sigma)) return new Sigma();
+  if (!(self instanceof Sigma)) return new Sigma();
 
-    self.n = 0;
-    self.sum = 0;
-    self.sumsq = 0;
+  self.n = 0;
+  self.sum = 0;
+  self.sumsq = 0;
 };
 
 Sigma.prototype.add = function(v) {
-    var self = this;
+  var self = this;
 
-    var mu, sigma, sigmas;
+  var mu, sigma, sigmas;
 
-    self.n++;
-    self.sum += v;
-    self.sumsq += v * v;
+  self.n++;
+  self.sum += v;
+  self.sumsq += v * v;
 
-    if (self.n < 2) return 0;
+  if (self.n < 2) return 0;
 
-    mu = self.sum / self.n;
-    sigma = Math.sqrt((self.sumsq - (self.sum * self.sum / self.n)) / (self.n - 1));
-    sigmas = (v - mu) / sigma;
-    return (isNaN(sigmas) ? 0 : sigmas.toFixed(2));
+  mu = self.sum / self.n;
+  sigma = Math.sqrt((self.sumsq - (self.sum * self.sum / self.n)) / (self.n - 1));
+  sigmas = (v - mu) / sigma;
+  return (isNaN(sigmas) ? 0 : sigmas.toFixed(2));
 };
 
 
@@ -439,6 +486,8 @@ exports.perform = function(self, taskID, perform, parameter) {
   var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  if (perform === 'wake') return self.wake();
 
   if (perform !== 'set') return false;
 
@@ -453,6 +502,11 @@ exports.validate_perform = function(perform, parameter) {
     ;
 
   try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (perform === 'wake') {
+    if (!params.ipaddress) result.requires.push('ipaddress');
+    return result;
+  }
 
   if (perform !== 'set') {
     result.invalid.push('perform');
@@ -484,11 +538,11 @@ exports.percentageValue = function(value, maximum) {
 
 
 exports.scaledPercentage = function(percentage, minimum, maximum) {
-  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * maximum) / 100), minimum, maximum);
+  return boundedValue(Math.round((boundedValue(percentage, 0, 100) * (maximum - minimum) / 100)) + minimum, minimum, maximum);
 };
 
 exports.scaledLevel = function(level, minimum, maximum) {
-  return boundedValue(Math.round((boundedValue(level, minimum, maximum) * 100) / maximum), 0, 100);
+  return boundedValue(Math.round(((boundedValue(level, minimum, maximum) - minimum) * 100) / (maximum - minimum)), 0, 100);
 };
 
 exports.degreesValue = function(value, maximum) {

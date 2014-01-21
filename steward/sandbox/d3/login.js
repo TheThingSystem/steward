@@ -29,15 +29,18 @@ var showLogin = function(changeLogin) {
   tr.append("td")
   	.append("input")
   	  .attr("type", "text")
-  	  .attr("name", "userName");
+  	  .attr("name", "userName")
+  	  .attr("autocorrect", "off")
+  	  .attr("autocapitalize", "none");
   tr.append("td").text("e.g., \'root/1\'");
   
   tr = table.append("tr");
   tr.append("td").text("Login code:");
   tr.append("td")
   	.append("input")
-  	  .attr("type", "text")
+  	  .attr("type", function() { return (isMobile()) ? "number" : "text" })
   	  .attr("name", "userCode")
+  	  .attr("autocorrect", "off")
   	  .attr("onkeyup", "javascript:submitLogin(event)");
   tr.append("td").text("e.g., \'123456\'");
 
@@ -45,12 +48,14 @@ var showLogin = function(changeLogin) {
   td = tr.append("td")
   	.attr("colspan", "3")
     .style("text-align", "center");
-  td.append("img")
-  	  .attr("src", "popovers/assets/create-account.svg")
-  	  .style("cursor", "pointer")
-  	  .on("click", function() { window.location = "../client.html"; });
+  if (!isRemoteAccess()) {
+    td.append("img")
+  	    .attr("src", "popovers/assets/create-account.svg")
+  	    .style("cursor", "pointer")
+  	    .on("click", function() { window.location = "../client.html"; });
+  }
   if (changeLogin) {
-    if (!readOnlyAccess) {
+    if (!readOnlyAccess && !isRemoteAccess()) {
       td.append("img")
   	    .attr("src", "popovers/assets/read-only.svg")
   	    .style("cursor", "pointer")
@@ -60,7 +65,7 @@ var showLogin = function(changeLogin) {
   	  .attr("src", "popovers/assets/cancel-login.svg")
   	  .style("cursor", "pointer")
   	  .on("click", hideLogin);
-  } else {
+  } else if (!isRemoteAccess()) {
     td.append("img")
   	  .attr("src", "popovers/assets/read-only.svg")
   	  .style("cursor", "pointer")
@@ -87,6 +92,14 @@ var showLogin = function(changeLogin) {
     
   if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
   
+  function isRemoteAccess() {
+    return (/\.taas\./.test(location.hostname));
+  }
+  
+  function isMobile() {
+    // looking only for iOS devices now
+    return ((/iPhone/.test(navigator.userAgent)) || (/iPad/.test(navigator.userAgent)));
+  }
 };
 
 var hideLogin = function() {
