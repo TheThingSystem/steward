@@ -25,7 +25,7 @@ ChangeLog
 ### TAAS (Things as a Service)
 - new taas-server implementation
 - better steward certificates when registered with a TAAS cloud
-- added node-taas-client, a node.js API for TAAS (and loal access)
+- added node-taas-client, a node.js API for TAAS (and local access)
 
 ### TSRP (Thing Simple Reporting Protocol)
 - use "official" multicast address: 224.0.9.1
