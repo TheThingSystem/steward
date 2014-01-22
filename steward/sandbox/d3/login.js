@@ -527,7 +527,6 @@ var savePlace = function(evt) {
                          , perform   : "set"
                          , parameter : JSON.stringify(place_info) || ''
                          });
-  console.log("Sending: " + val);
   wsSend(val);
 }
 
