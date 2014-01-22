@@ -71,7 +71,8 @@ function dragmove(d) {
 			});
 			break;
 		case "temperature-knob":
-        	var tempFRange = {min: 40, max: 100};
+      var isMetric = isPlaceMetric();
+      var tempFRange = {min: 40, max: 100};
 			max = 340;
 			min = 0;
 			d3.select(this).style("left", function() { 
@@ -82,15 +83,18 @@ function dragmove(d) {
 				var pct = bx2/(max - min);
 				var fahr = (pct * (tempFRange.max - tempFRange.min)) + tempFRange.min;
 				var cels = ((fahr - 32) * 5) / 9;
-				d3.select("#temperature-readout").html(fahr.toFixed(1) + "&deg;F").style("left", bx2 - 5 + "px");
+				d3.select("#temperature-readout")
+				  .html(function() { return (isMetric) ? cels.toFixed(1) + "&deg;C" : fahr.toFixed(1) + "&deg;F" })
+				  .style("left", bx2 - 5 + "px");
 				newPerform.parameter.goalTemperature = cels;
 				
 				return bx2 + "px";
 			});
 			break;
 		case "temperature-knob-motive":
-        	var tempFRange = {min: 40, max: 100};
-        	var offset = parseInt(d3.select("#temperature-motive").style("left"), 10);
+      var isMetric = isPlaceMetric();
+      var tempFRange = {min: 40, max: 100};
+      var offset = parseInt(d3.select("#temperature-motive").style("left"), 10);
 			max = 116;
 			min = 0;
 			d3.select(this).style("left", function() { 
@@ -101,7 +105,9 @@ function dragmove(d) {
 				var pct = bx2/(max - min);
 				var fahr = (pct * (tempFRange.max - tempFRange.min)) + tempFRange.min;
 				var cels = ((fahr - 32) * 5) / 9;
-				d3.select("#temperature-readout-motive").html(fahr.toFixed(1) + "&deg;F").style("left", bx2 - 5 + offset + "px");
+				d3.select("#temperature-readout-motive")
+				  .html(function() { return (isMetric) ? cels.toFixed(1) + "&deg;C" : fahr.toFixed(1) + "&deg;F" })
+				  .style("left", bx2 - 5 + offset + "px");
 				newPerform.parameter.hvac = cels;
 				newPerform.perform = "hvac";
 				
@@ -158,10 +164,12 @@ var showPop = function(device) {
 
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/climate/":
-	    if (!device.deviceType.match("/control")) {
+	  if (!device.deviceType.match("/control")) {
 		  w = 485, h = 497, t = 290, l = 133;
-		  break;
+		} else {
+		  w = 598, h = 497, t = 100, l = 83;
 		}
+		  break;
 	case "/device/lighting/":
 		w = 485, h = 497, t = 100, l = 133;
 		break;
@@ -754,28 +762,28 @@ var showPop = function(device) {
 		 div.append("div")
 		   .attr("class", "label")
 		   .append("img")
-		     .attr("id", "button-one")
+		     .attr("id", "button-one-climate")
 			 .attr("src", function() {return (device.info.hvac === "off") ? "popovers/assets/off-button.svg" : "popovers/assets/off-button-off.svg"} )
 			 .attr("height", "22px")
 			 .on("click", function() {climateTogglehvac(event, "off")});
 		 div.append("div")
 		   .attr("class", "label")
 		   .append("img")
-		     .attr("id", "button-two")
+		     .attr("id", "button-two-climate")
 			 .attr("src", function() {return (device.info.hvac === "fan") ? "popovers/assets/fan-button.svg" : "popovers/assets/fan-button-off.svg"} )
 			 .attr("height", "22px")
 			 .on("click", function() {climateTogglehvac(event, "fan")});
 		 div.append("div")
 		   .attr("class", "label")
 		   .append("img")
-		     .attr("id", "button-three")
+		     .attr("id", "button-three-climate")
 			 .attr("src", function() {return (device.info.hvac === "cool") ? "popovers/assets/cool-button.svg" : "popovers/assets/cool-button-off.svg"} )
 			 .attr("height", "22px")
 			 .on("click", function() {climateTogglehvac(event, "cool")});
 		 div.append("div")
 		   .attr("class", "label")
 		   .append("img")
-		     .attr("id", "button-four")
+		     .attr("id", "button-four-climate")
 			 .attr("src", function() {return (device.info.hvac === "heat") ? "popovers/assets/heat-button.svg" : "popovers/assets/heat-button-off.svg"} )
 			 .attr("height", "22px")
 			 .on("click", function() {climateTogglehvac(event, "heat")});
@@ -791,10 +799,10 @@ var showPop = function(device) {
      
      function climateTogglehvac(event, type) {
        elem = event.target;
-       document.getElementById("button-one").src = "popovers/assets/off-button-off.svg";
-       document.getElementById("button-two").src = "popovers/assets/fan-button-off.svg";
-       document.getElementById("button-three").src = "popovers/assets/cool-button-off.svg";
-       document.getElementById("button-four").src = "popovers/assets/heat-button-off.svg";
+       document.getElementById("button-one-climate").src = "popovers/assets/off-button-off.svg";
+       document.getElementById("button-two-climate").src = "popovers/assets/fan-button-off.svg";
+       document.getElementById("button-three-climate").src = "popovers/assets/cool-button-off.svg";
+       document.getElementById("button-four-climate").src = "popovers/assets/heat-button-off.svg";
        elem.src = "popovers/assets/" + type + "-button.svg";
        newPerform.parameter.hvac = type;
        sendData();
@@ -824,7 +832,7 @@ var showPop = function(device) {
          .attr("id", "temperature-readout")
          .attr("class", "temperature-readout medium-label")
          .style("left", (goalTempLeft(device.info.goalTemperature) - 10) + "px")
-         .text((((parseInt(device.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F");
+         .text(function() { return (isPlaceMetric()) ? device.info.goalTemperature.toFixed(1) + "°C" : (((parseInt(device.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F" });
          
      var timedFan = (device.info.fan && (device.info.fan !== "auto") && (device.info.fan !== "on"));
      div = pop.append("div")
@@ -1477,7 +1485,6 @@ var ColorPickerMgr = {
 };
 
 var updatePopover = function(device, update) {
-
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/climate/":
 	  if (device.deviceType.match("/control")) updateThermostatPop();
@@ -1508,13 +1515,13 @@ var updatePopover = function(device, update) {
 
   function updateThermostatPop() {
     if (update.info.hasOwnProperty("hvac")) {
-      d3.select("#button-one")
+      d3.select("#button-one-climate")
         .attr("src", function() {return (update.info.hvac === "off")  ? "popovers/assets/off-button.svg"  : "popovers/assets/off-button-off.svg"} );
-      d3.select("#button-two")
+      d3.select("#button-two-climate")
         .attr("src", function() {return (update.info.hvac === "fan")  ? "popovers/assets/fan-button.svg"  : "popovers/assets/fan-button-off.svg"} );
-      d3.select("#button-three")
+      d3.select("#button-three-climate")
         .attr("src", function() {return (update.info.hvac === "cool") ? "popovers/assets/cool-button.svg" : "popovers/assets/cool-button-off.svg"} );
-      d3.select("#button-four")
+      d3.select("#button-four-climate")
         .attr("src", function() {return (update.info.hvac === "heat") ? "popovers/assets/heat-button.svg" : "popovers/assets/heat-button-off.svg"} );
     }
     if (update.info.hasOwnProperty("goalTemperature")) {
@@ -1526,7 +1533,7 @@ var updatePopover = function(device, update) {
         .transition()
         .duration(600)
         .style("left", (goalTempLeft(update.info.goalTemperature) - 10) + "px")
-        .text((((parseInt(update.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F");
+        .text(function() { return (isPlaceMetric()) ? update.info.goalTemperature.toFixed(1) + "°C" : (((parseInt(update.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F" });
     }
     var timedFan = (update.info.hasOwnProperty("fan") && (update.info.fan !== "auto") && (update.info.fan !== "on"));
     if (timedFan) {
@@ -1736,10 +1743,12 @@ function hueBrightTop(value) {
 
 function goalTempLeft(goalTempC) {
   var result = 0;
-  var goalTempF = ((parseFloat(goalTempC) * 9) / 5) + 32;
+  var isMetric = isPlaceMetric();
   var elemEdges = {min: 0, max: 340};
-  var tempFRange = {min: 40, max: 100};
-  result = (goalTempF / (tempFRange.max + tempFRange.min)) * elemEdges.max;
+  
+  var tempRange = (isMetric) ? {min: 4, max: 38} : {min: 40, max: 100};
+  var goalTemp = (isMetric) ? goalTempC : ((parseFloat(goalTempC) * 9) / 5) + 32;
+  result = (goalTemp / (tempRange.max + tempRange.min)) * elemEdges.max;
   return result;
 };
      
@@ -1763,7 +1772,7 @@ function drawTemperatureArc(pop, temp) {
       .attr("id", "thermostat-wrapper");
     div.append("img")
       .attr("id", "thermostat-knob")
-      .attr("src", "popovers/assets/thermostat.no.ring.svg")
+      .attr("src", function () { return (isPlaceMetric()) ? "popovers/assets/thermostat.celsius.svg" : "popovers/assets/thermostat.fahrenheit.svg" })
       .attr("width", "310px");
   }
   var canvas = div.append("svg")
@@ -1820,18 +1829,19 @@ function levelLeft(level) {
        
 function motiveGoalTempLeft(info) {
   var result = 0;
+  var isMetric = isPlaceMetric();
   var elemEdges = {min: 0, max: 115};
-  var tempFRange = {min: 40, max: 100};
-  var goalTempF = motiveGoalTempF(info);
-  if (isNaN(goalTempF)) return elemEdges.min;
+  var tempRange = (isMetric) ? {min: 4, max: 38} : {min: 40, max: 100};
+  var goalTemp = motiveGoalTemp(info);
+  if (isNaN(goalTemp)) return elemEdges.min;
   
-  if (goalTempF <= tempFRange.min) return elemEdges.min;
-  if (goalTempF >= tempFRange.max) return elemEdges.max;
-  result = (goalTempF / (tempFRange.max + tempFRange.min)) * elemEdges.max;
+  if (goalTemp <= tempRange.min) return elemEdges.min;
+  if (goalTemp >= tempRange.max) return elemEdges.max;
+  result = (goalTemp / (tempRange.max + tempRange.min)) * elemEdges.max;
   return result;
 }
      
-function motiveGoalTempF(info) {
+function motiveGoalTemp(info) {
   var goalTemp;
   var intTemperature = (info.hasOwnProperty("intTemperature")) ? parseInt(info.intTemperature, 10) : "- -";
   if (info.hvac === "off" || info.hvac === "on") {
@@ -1839,19 +1849,27 @@ function motiveGoalTempF(info) {
   } else {
     goalTemp = parseInt(info.hvac, 10);
   }
-  if (!isNaN(goalTemp)) goalTemp = ((goalTemp * 9) / 5) + 32;
+  if (!isNaN(goalTemp)) {
+    goalTemp = (isPlaceMetric()) ? goalTemp : ((goalTemp * 9) / 5) + 32;
+  }
   return goalTemp;
 }
 
 function motiveGoalTempText(info) {
-  var temp = motiveGoalTempF(info);
-  if (temp > 100) temp = "> 100"; 
-  if (temp < 40) temp = "< 40"; 
+  var temp = motiveGoalTemp(info);
+  var isMetric = isPlaceMetric();
+  var tempRange = (isMetric) ? {min: 4, max: 38} : {min: 40, max: 100};
+  if (temp > tempRange.max) temp = "> " + tempRange.max; 
+  if (temp < tempRange.min) temp = "< " + tempRange.min; 
   if (isNaN(temp)) {
     return "";
   } else {
-    return temp.toFixed(1) + "°F";
+    return temp.toFixed(1) + ((isMetric) ? "°C" : "°F");
   }
+}
+
+function isPlaceMetric() {
+  return (place_info.displayUnits === "metric");
 }
 
 function sendData(device) {

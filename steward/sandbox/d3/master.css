@@ -328,6 +328,17 @@ hr { border: 0; color: #333; background-color: #333; height: 4px; clear: both; m
 
 }
 
+#units-form {
+        position: relative;
+        top: 30px;
+        left: 50px;
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+        color: #fff;
+        font-weight: normal;
+
+}
+
 #cloud-form {
         position: relative;
         top: 30px;
@@ -379,12 +390,16 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 		clear: both;
 }
 
+#units-instructions {
+		font-size: 11pt;
+}
+
 #cloud-instructions {
-		font-size: 10pt;
+		font-size: 9pt;
 }
 
 #lan-instructions {
-		font-size: 10pt;
+		font-size: 11pt;
 }
 
 /* notification panel */

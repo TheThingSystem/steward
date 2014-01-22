@@ -193,10 +193,32 @@ var showSettings = function() {
   div2.setAttribute('style', 'margin-bottom: 20px');
   div2.appendChild(labeledBox('LONGITUDE', 'longitude', '', 20, ''));
   form.appendChild(div2);
-  form.appendChild(document.createElement('hr'));
   
   div.appendChild(form);
 
+  form = document.createElement('form');
+  form.setAttribute('id', 'units-form');
+
+  div2 = document.createElement('div');
+  div2.setAttribute('class', 'big-instructions');
+  div2.innerHTML = "Display Units";
+  form.appendChild(div2);
+
+  select = document.createElement('select');
+  select.setAttribute('id', 'displayUnits');
+  select = addDisplayUnits(select);
+  form.appendChild(select);
+
+  span = document.createElement('span')
+  span.setAttribute('id', 'units-instructions');
+  span.innerHTML = "&larr; " + "Preferred unit of measurement for display";
+  form.appendChild(span);
+  
+  div.appendChild(form);
+  document.body.appendChild(div);
+
+  form.appendChild(document.createElement('hr'));
+  
   form = document.createElement('form');
   form.setAttribute('id', 'strict-form');
 
@@ -267,6 +289,7 @@ var showSettings = function() {
   document.getElementById("physical").addEventListener('change', function(evt) {place_info.physical = evt.target.value; savePlace(event); });
   document.getElementById("latitude").addEventListener('change', function(evt) {place_info.location[0] = evt.target.value; savePlace(event); });
   document.getElementById("longitude").addEventListener('change', function(evt) {place_info.location[1] = evt.target.value; savePlace(event); });
+  document.getElementById("displayUnits").addEventListener('change', pickDisplayUnits);
   document.getElementById("strictLAN").addEventListener('change', pickStrict);
   document.getElementById("bootableChoice").addEventListener('change', pickBootable);
 
@@ -287,6 +310,25 @@ var showSettings = function() {
     option = document.createElement('option');
     option.setAttribute('value', 'off');
     option.innerHTML = 'no';
+    optgroup.appendChild(option);
+    return select;
+  }
+  
+  // Populate select element with display unit choices
+  function addDisplayUnits(select) {
+    var optgroup, option;
+    
+    optgroup = document.createElement('optgroup');
+    optgroup.setAttribute('label', 'Display Units');
+    select.appendChild(optgroup);
+    
+    option = document.createElement('option');
+    option.setAttribute('value', 'customary');
+    option.innerHTML = 'customary';
+    optgroup.appendChild(option);
+    option = document.createElement('option');
+    option.setAttribute('value', 'metric');
+    option.innerHTML = 'metric';
     optgroup.appendChild(option);
     return select;
   }
@@ -326,6 +368,11 @@ var closeSettings = function(evt) {
 
 var pickStrict = function(evt) {
   place_info.strict = evt.target.value || '';
+  savePlace();
+}
+
+var pickDisplayUnits = function(evt) {
+  place_info.displayUnits = evt.target.value || '';
   savePlace();
 }
 
@@ -470,6 +517,7 @@ var fillPlaceFields = function() {
 	  document.getElementById("latitude").value = place_info.location[0] = place.info.location[0] || "";
 	  document.getElementById("longitude").value = place_info.location[1] = place.info.location[1] || "";
   }
+  document.getElementById("displayUnits").value = place_info.displayUnits = place.info.displayUnits || "";
   document.getElementById("strictLAN").value = place_info.strict = place.info.strict || "";
 }
 
@@ -479,6 +527,7 @@ var savePlace = function(evt) {
                          , perform   : "set"
                          , parameter : JSON.stringify(place_info) || ''
                          });
+  console.log("Sending: " + val);
   wsSend(val);
 }
 
@@ -510,6 +559,7 @@ var addCloud = function(evt) {
 var place_info   = { name        : 'Home'
                    , physical    : ''
                    , location    : [ 39.50000, -98.35000 ]
+                   , displayUnits: 'customary'
                    , strict      : 'on'
                    };
 
