@@ -325,6 +325,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
         geometry = result.results[0].geometry;
         place1.info.location = [ geometry.location.lat, geometry.location.lng ];
+        if (!!params.displayUnits) return;
 
         components = result.results[0].address_components;
         for (i = 0; i < components.length; i++) if (components[i].types.indexOf('country') !== -1) {
@@ -344,13 +345,15 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
                                                     , diagnostic : result.status });
 
         place1.info.physical = result.results[0].formatted_address;
+        if (!!params.displayUnits) return;
+
         place1.info.displayUnits =
             (result.results[result.results.length - 1].formatted_address === 'United States') ? 'customary' : 'metric';
       });
     }
   }
 
-  if ((!!params.physical) && (!!params.location)) {
+  if ((!!params.physical) && (!!params.location) && (!params.displayUnits)) {
     geocoder.reverseGeocode(place1.info.location[0], place1.info.location[1], function(err, result) {
       if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
                                                   , location   : place1.info.location
