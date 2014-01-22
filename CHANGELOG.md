@@ -1,7 +1,7 @@
 ChangeLog
 =======
 
-## TBD - January 23, 2014
+## TBD - January 24, 2014
 ## Commit - TBD
 
 ### Steward
@@ -18,8 +18,17 @@ ChangeLog
     - use a different mDNS publishing package for linux, so it now works
     - include steward name in mDNS advertisements
 - new authorized role: monitor (read-only access)
+- numerous security tweaks found through edge-testing
 - steward now listens for 15 simultaenous cloud connections
   (needed to avoid overruns when HTML5/D3 client starts asking for icons)
+
+### TAAS (Things as a Service)
+- new taas-server implementation
+- better steward certificates when registered with a TAAS cloud
+- added node-taas-client, a node.js API for TAAS (and loal access)
+
+### TSRP (Thing Simple Reporting Protocol)
+- use "official" multicast address: 224.0.9.1
 
 ### Places
 - add displayUnits to allow clients to determine whether to display in metric or customary units
@@ -27,6 +36,7 @@ ChangeLog
 ### Things
 - all: normalize all validate_observe/observe/perform functions
 - some: rename some files to better reflect taxonomy hierarchy
+- some: support wake-on-LAN if IP/LAN-based
 - UPnP:
     - all: fix assignment of deviceTypes
     - WeMo: better handling of the 412 error
@@ -46,6 +56,8 @@ ChangeLog
 - device/lighting:
     - heroric-robotics/*: add 'program' task
     - hue/*: allow user to override configuration name for bulbs
+- device/media:
+    - appletv/video: do not recognize XBMC "masquerading" as an AppleTV
 - device/motive:
     - tesla/model-s:
         - add 'physical' property (refreshed at most once every 30 seconds)
