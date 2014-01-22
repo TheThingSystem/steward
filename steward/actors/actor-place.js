@@ -380,7 +380,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
   }
 
   if (!!params.displayUnits) {
-    if ({ cusomtary : true
+    if ({ customary : true
         , metric    : true }[params.displayUnits]) place1.info.displayUnits = params.displayUnits;
   }
 
