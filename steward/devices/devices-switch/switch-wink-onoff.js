@@ -111,7 +111,6 @@ var validate_perform = function(perform, parameter) {
 };
 
 
-
 exports.start = function() {
   steward.actors.device['switch'].wink = steward.actors.device['switch'].wink ||
       { $info     : { type: '/device/switch/wink' } };
@@ -122,7 +121,6 @@ exports.start = function() {
                     , perform    : [ ]
                     , properties : { name     : true
                                    , status   : [ 'on', 'off' ]
-                                   , actor    : true
                                    , property : true
                                    }
                     }
