@@ -63,7 +63,7 @@ util.inherits(ModelS, motive.Device);
 ModelS.prototype.newstate = function(self, enabled) {
   var status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'ready' : 'reset');
 
-  if (status === 'asleep') status = 'waiting';
+  if ((self.status === null) || (status === 'asleep')) status = 'waiting';
   if (self.status == status) return;
   self.status = status;
   self.changed();
@@ -76,7 +76,9 @@ ModelS.prototype.refresh = function(self) {
 
   tesla.wake_up(self.vehicle.id, function(data) {
     if (utility.toType(data) === 'error') {
-      logger.error('device/' + self.deviceID, { event: 'wake_up', diagnostic: data.message });
+      if (data.message.indexOf('503:') !== 0) {
+        logger.error('device/' + self.deviceID, { event: 'wake_up', diagnostic: data.message });
+      }
       return self.scan(self);
     }
 
@@ -118,6 +120,7 @@ ModelS.prototype.scan = function(self) {
         if (!!self.timer) clearTimeout(self.timer);
         self.timer = setTimeout(function() { self.refresh(self); }, 600 * 1000);
       }
+      if (data.message.indexOf('503:') === 0) return;
       return logger.error('device/' + self.deviceID, { event: 'mobile_enabled', diagnostic: data.message });
     }
 
@@ -130,6 +133,7 @@ ModelS.prototype.scan = function(self) {
       var didP, doors, sunroof;
 
       if (utility.toType(data) === 'error') {
+        if (data.message.indexOf('503:') === 0) return;
         return logger.error('device/' + self.deviceID, { event: 'get_vehicle_state', diagnostic: data.message });
       }
 
@@ -167,6 +171,7 @@ ModelS.prototype.scan = function(self) {
       var didP, hvac;
 
       if (utility.toType(data) === 'error') {
+        if (data.message.indexOf('503:') === 0) return;
         return logger.error('device/' + self.deviceID, { event: 'get_climate_state', diagnostic: data.message });
       }
 
@@ -197,6 +202,7 @@ ModelS.prototype.scan = function(self) {
       var didP, speed;
 
       if (utility.toType(data) === 'error') {
+        if (data.message.indexOf('503:') === 0) return;
         return logger.error('device/' + self.deviceID, { event: 'get_drive_state', diagnostic: data.message });
       }
 
@@ -244,6 +250,7 @@ ModelS.prototype.scan = function(self) {
       var charger, didP, event, eventID;
 
       if (utility.toType(data) === 'error') {
+        if (data.message.indexOf('503:') === 0) return;
         return logger.error('device/' + self.deviceID, { event: 'get_charge_state', diagnostic: data.message });
       }
       if ((!self.vehicle_speed) && (typeof data.charging_state === 'undefined')) {
