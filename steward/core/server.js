@@ -30,7 +30,8 @@ if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
     if (!avahi.isSupported()) {
       logger.info('failing Avahi publisher (continuing)');
       avahi = null;
-    } catch(ex) {}
+    }
+  } catch(ex) {}
 }
 
 
