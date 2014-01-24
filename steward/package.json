@@ -69,7 +69,7 @@
     , "wake_on_lan"             : "0.0.3"
     , "winston"                 : "0.6.2"
     , "ws"                      : "git://github.com/TheThingSystem/ws.git"
-    , "x509-keygen"             : "0.0.2"
+    , "x509-keygen"             : "0.2.2"
     , "xml2js"                  : "0.2.7"
     , "xml2json"                : "0.3.2"
     , "xmlbuilder"              : "0.4.x"

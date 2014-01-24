@@ -89,6 +89,7 @@ EOF
   else
     rm -f db/server.key sandbox/server.crt sandbox/server.sha1
     echo "unable to create self-signed server certificate" 1>&2
+    exit 1
   fi
 fi
 
