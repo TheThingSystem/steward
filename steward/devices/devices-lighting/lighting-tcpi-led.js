@@ -79,7 +79,8 @@ GreenWaveGOP.prototype.addchild = function(self, device) {
   deviceUID = self.deviceUID + '/bulbs/' + led;
   whatami = { CFL : '/device/lighting/tcpi/cfl'
             }[device.prodtype] || '/device/lighting/tcpi/bulb';
-  if ((whatami === '/device/lighting/tcpi/bulb') && (device.colorid === '0')) whatami = '/device/lighting/tcpi/downlight';
+// TBD: see issue #125
+//  if ((whatami === '/device/lighting/tcpi/bulb') && (device.colorid === '0')) whatami = '/device/lighting/tcpi/downlight';
   self.bulbs[led] = { whatami  : whatami
                      , type    : whatami
                      , name    : device.name
