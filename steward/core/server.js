@@ -24,12 +24,13 @@ var logger = utility.logger('server');
 if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
   var mdns      = require('mdns');
 } else {
-  var avahi     = require('avahi_pub');
+  try {
+    var avahi     = require('avahi_pub');
 
-  if (!avahi.isSupported()) {
-    logger.info('failing Avahi publisher (continuing)');
-    avahi = null;
-  }
+    if (!avahi.isSupported()) {
+      logger.info('failing Avahi publisher (continuing)');
+      avahi = null;
+    } catch(ex) {}
 }
 
 
