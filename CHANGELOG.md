@@ -1,8 +1,8 @@
 ChangeLog
 =======
 
-## TBD - January 24, 2014
-## Commit - TBD
+## Release 1.4 "Resolutions" - January 24, 2014
+## Commit - 9ca2c07b2d7b8e470b5cfe94d697449b5579af8f
 
 ### Steward
 - add HTTP/HTTPS /oneshot path for simplified debugging of the steward
