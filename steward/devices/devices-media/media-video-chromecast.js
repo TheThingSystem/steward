@@ -26,7 +26,7 @@ var logger = media.logger;
 var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = info.deviceType;
+  self.whatami = '/device/media/chromecast/video';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
