@@ -575,7 +575,7 @@ exports.traverse = function(actors, prefix, depth) {
 exports.expand = function(line, defentity) {
   var entity, field, info, p, part, parts, result, who, x;
 
-  if (!line) return line;
+  if (typeof line !== 'string') return line;
   result = '';
   while ((x = line.indexOf('.[')) >= 0) {
     if (x > 0) result += line.substring(0, x);
