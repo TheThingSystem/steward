@@ -1,6 +1,9 @@
 // +++ under development
 // iRobot series of robots for the floor
 
+exports.start = function() {};
+if (true) return;
+
 var irobot      = require('irobot')
   , util        = require('util')
   , devices     = require('./../../core/device')

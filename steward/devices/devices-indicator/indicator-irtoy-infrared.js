@@ -1,7 +1,8 @@
+// +++ under development
 // USB Infrared Toy - http://dangerousprototypes.com/docs/USB_Infrared_Toy
 
 exports.start = function() {};
-return;
+if (true) return;
 
 
 /*

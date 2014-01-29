@@ -71,11 +71,12 @@ if [ ! -f db/server.key ]; then
   rm -f sandbox/server.crt sandbox/server.sha1
 
   node <<EOF
-require('x509-keygen').x509_keygen({ subject  : '/CN=steward'
-                                   , keyfile  : 'db/server.key'
-                                   , certfile : 'sandbox/server.crt'
-                                   , sha1file : 'sandbox/server.sha1'
-                                   , destroy  : false }, function(err, data) {
+require('x509-keygen').x509_keygen({ subject    : '/CN=steward'
+                                   , keyfile    : 'db/server.key'
+                                   , certfile   : 'sandbox/server.crt'
+                                   , sha1file   : 'sandbox/server.sha1'
+                                   , alternates : [ 'DNS:' + require('os').hostname(), 'DNS:steward.local' ]
+                                   , destroy    : false }, function(err, data) {
   if (err) return console.log('keypair generation error: ' + err.message);
 
   console.log('keypair generated.');
@@ -88,6 +89,7 @@ EOF
   else
     rm -f db/server.key sandbox/server.crt sandbox/server.sha1
     echo "unable to create self-signed server certificate" 1>&2
+    exit 1
   fi
 fi
 

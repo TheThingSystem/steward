@@ -72,7 +72,7 @@ var QuadCopter = exports.device = function(deviceID, deviceUID, info) {
       self.changed();
     }
   });
-  self.copter.connect(info.url).then(function() { self.status = 'ready'; self.changed(); }).done();
+  self.copter.connect(info.radio).then(function() { self.status = 'ready'; self.changed(); }).done();
 
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -255,7 +255,7 @@ var scan = function() {
       if (!!uris[uri]) continue;
       uris[uri] = true;
 
-      info = { source: 'aerogel' };
+      info = { source: 'aerogel', radio: uri };
       info.device = { url          : null
                     , name         : ''
                     , manufacturer : 'Bitcraze'

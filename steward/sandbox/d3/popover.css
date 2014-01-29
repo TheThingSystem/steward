@@ -52,10 +52,10 @@
 	{ position: absolute; top: 0px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
 	
 	#actor { position: absolute; top: 14px; left: 15px; }
-	#button-one { position: absolute; top: 24px; left: 317px; }
-	#button-two { position: absolute; top: 24px; left: 383px; }
-	#button-three { position: absolute; top: 24px; left: 449px; }
-	#button-four { position: absolute; top: 24px; left: 515px; }
+	#button-one-climate { position: absolute; top: 24px; left: 317px; }
+	#button-two-climate { position: absolute; top: 24px; left: 383px; }
+	#button-three-climate { position: absolute; top: 24px; left: 449px; }
+	#button-four-climate { position: absolute; top: 24px; left: 515px; }
 
 	
 #on-off-slider-wrapper { position: absolute; top: 25px; left: 290px; }

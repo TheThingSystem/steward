@@ -83,6 +83,7 @@ var accessP = function(api, clientInfo, tag) {
 
   if (clientInfo.loopback) return true;
 
+  if (!places) places = require('./../actors/actor-place');
   user = users.id2user(clientInfo.userID);
   role = (!!user) ? user.userRole : 'none';
   levels = { master   : access.level.read   | access.level.perform | access.level.write | access.level.manage
@@ -91,7 +92,8 @@ var accessP = function(api, clientInfo, tag) {
            , monitor  : access.level.read
            , device   : access.level.attach
            , cloud    : access.level.peer
-           , none     : clientInfo.local ? access.level.read : access.level.none
+           , none     : !clientInfo.local ? access.level.none
+                                          : (places.place1.info.strict === 'off') ? access.level.perform : access.level.read
            }[role];
   if (!levels) {
       logger.warning(tag, { event: 'access', diagnostic: 'unknown authorization role', role: role });
@@ -100,7 +102,6 @@ var accessP = function(api, clientInfo, tag) {
 
   if ((api.access !== access.level.none) && (levels === access.level.none)) return false;
 
-  if (!places) places = require('./../actors/actor-place');
   if ((api.access !== access.level.none) && (places.place1.info.strict !== 'off') && (!(levels & api.access))) {
     logger.warning(tag, { event      : 'access'
                         , diagnostic : 'unauthorized'

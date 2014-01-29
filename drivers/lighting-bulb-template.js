@@ -54,6 +54,7 @@ TBD.prototype.update = function(self, state) {
  */
 };
 
+
 // handle the calls from the steward to change things.
 // set: set the internal name of the bulb.
 // off: turn the bulb off.

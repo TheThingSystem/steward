@@ -890,6 +890,7 @@ var go = function(steward, i) {
       if (!!steward.primer) return ws2.send(JSON.stringify(steward.primer));
 
       ws2.send(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 1, options: { depth: 'all' }}));
+      ws2.send(JSON.stringify({ path: '/api/v1/actor/list/',    requestID: 2, options: { depth: 'all'  }}));
     };
 
     ws2.onmessage = function(event) {

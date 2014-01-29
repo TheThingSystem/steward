@@ -760,6 +760,16 @@ exports.start = function() {
   manage.apis.push({ prefix   : '/api/v1/group/create'
                    , route    : create
                    , access   : manage.access.level.write
+                   , required : { uuid       : true
+                                , name       : true
+                                , members    : 'array'
+                                }
+                   , optional : { comments   : true
+                                , parentID   : true
+                                , type       : [ 'group', 'event', 'task' ]
+                                , operators  : [ 'operators', 'or', 'not' ]
+                                }
+                   , response : {}
                    });
   manage.apis.push({ prefix   : '/api/v1/group/list'
                    , options  : { depth: 'flat' }

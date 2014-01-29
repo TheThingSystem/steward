@@ -1,6 +1,9 @@
 // +++ under development
 // Axis network cameras - http://www.axis.com/products/video/camera/
 
+exports.start = function() {};
+if (true) return;
+
 var mdns
   , utility     = require('./../../core/utility')
   ;
@@ -58,8 +61,6 @@ util.inherits(Axis_Camera, media.Device);
 
 
 exports.start = function() {
-if (true) return;
-
   var discovery = utility.logger('discovery');
 
   steward.actors.device.media.axis = steward.actors.device.media.axis ||
@@ -74,47 +75,49 @@ if (true) return;
                                    }
                     }
       };
-  devices.makers['urn:axis-com:service:BasicService:1'] = Axis_Camera;
 
-// AXIS supports both mDNS and UPnP
-  new mdns.Browser('_axis-video._tcp').on('serviceUp', function(service) {
-    var info, modelName, modelNumber, serialNo, x;
+  try {
+    mdns.createBrowser(mdns.tcp('axis-video')).on('serviceUp', function(service) {
+      var info, modelName, modelNumber, serialNo, x;
 
-    modelName = service.name;
-    x = modelName.indexOf('-');
-    if (x > 0) modelName = modelName.substr(0, x).trim();
-    x = modelName.indexOf(' ');
-    if (x > 0) modelNumber = modelName.substr(x + 1);
+      modelName = service.name;
+      x = modelName.indexOf('-');
+      if (x > 0) modelName = modelName.substr(0, x).trim();
+      x = modelName.indexOf(' ');
+      if (x > 0) modelNumber = modelName.substr(x + 1);
 
-    serialNo = service.txtRecord.macaddress;
+      serialNo = service.txtRecord.macaddress;
 
-    info = { source     : 'mdns'
-           , device     : { url          : 'http://' + service.host + ':' + service.port + '/'
-                          , name         : service.name
-                          , manufacturer : 'AXIS'
-                          , model        : { name        : modelName
-                                           , description : modelName + ' Network Camera'
-                                           , number      : modelNumber
-                                           }
-                          , unit         : { serial      : serialNo
-                                           , udn         : 'uuid:Upnp-BasicDevice-1_0-' + serialNo
-                                           }
-                          }
-           };
-    info.url = info.device.url;
-    info.deviceType = info.device.model.name;
-    info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
-    info.deviceType3 = 'urn:axis-com:service:BasicService:1';
-    info.id = info.device.unit.udn;
-    if (!!devices.devices[info.id]) return;
+      info = { source     : 'mdns'
+             , device     : { url          : 'http://' + service.addresses[0] + ':' + service.port + '/'
+                            , name         : service.name
+                            , manufacturer : 'AXIS'
+                            , model        : { name        : modelName
+                                             , description : modelName + ' Network Camera'
+                                             , number      : modelNumber
+                                             }
+                            , unit         : { serial      : serialNo
+                                             , udn         : 'uuid:Upnp-BasicDevice-1_0-' + serialNo
+                                             }
+                            }
+             };
+      info.url = info.device.url;
+      info.deviceType = '/device/media/axis/camera';
+      info.id = info.device.unit.udn;
+      if (!!devices.devices[info.id]) return;
 
-    logger.info('mDNS ' + info.device.name, { url: info.url });
-    devices.discover(info);
-  }).on('serviceDown', function(service) {
-    discovery.debug('_axis-video._tcp', { event: 'down', name: service.name, host: service.host });
-  }).on('serviceChanged', function(service) {
-    discovery.debug('_axis-video._tcp', { event: 'changed', name: service.name, host: service.host });
-  }).on('error', function(err) {
-    discovery.error('_axis-video._tcp', { event: 'mdns', diagnostic: err.message });
-  }).start();
+      logger.info('mDNS ' + info.device.name, { url: info.url });
+      devices.discover(info);
+    }).on('serviceDown', function(service) {
+      discovery.debug('_axis-video._tcp', { event: 'down', name: service.name, host: service.host });
+    }).on('serviceChanged', function(service) {
+      discovery.debug('_axis-video._tcp', { event: 'changed', name: service.name, host: service.host });
+    }).on('error', function(err) {
+      discovery.error('_axis-video._tcp', { event: 'mdns', diagnostic: err.message });
+    }).start();
+  } catch(ex) {
+      discovery.error('_axis-video._tcp', { event: 'browse', diagnostic: ex.message });
+  }
+
+  devices.makers['urn:axis-com:service:BasicService:1'] = '/device/ignore';
 };

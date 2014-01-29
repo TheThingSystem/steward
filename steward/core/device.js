@@ -175,6 +175,7 @@ exports.discover = function(info, callback) {
     if (!!callback) callback({ message: 'no maker registered for ' + info.deviceType }, null);
     return;
   }
+  if (typeof makers[deviceType] !== 'function') return;
 
   db.get('SELECT deviceID FROM devices WHERE deviceUID=$deviceUID', { $deviceUID: deviceUID }, function(err, row) {
     var deviceMAC;
@@ -575,6 +576,7 @@ exports.traverse = function(actors, prefix, depth) {
 exports.expand = function(line, defentity) {
   var entity, field, info, p, part, parts, result, who, x;
 
+  if (typeof line !== 'string') return line;
   result = '';
   while ((x = line.indexOf('.[')) >= 0) {
     if (x > 0) result += line.substring(0, x);

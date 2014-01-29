@@ -378,7 +378,7 @@ exports.start = function() {
     var info;
     info = { source     : 'samsung'
            , hvac       : aircon
-           , device     : { url          : null
+           , device     : { url          : 'tcp://' + aircon.ip + ':2878'
                           , name         : aircon.options.info.NICKNAME
                           , manufacturer : aircon.manufacturer || 'Samsung'
                           , model        : { name        : aircon.options.info.MODELCODE

@@ -24,12 +24,14 @@ var logger = utility.logger('server');
 if ((process.arch !== 'arm') || (process.platform !== 'linux')) {
   var mdns      = require('mdns');
 } else {
-  var avahi     = require('avahi_pub');
+  try {
+    var avahi     = require('avahi_pub');
 
-  if (!avahi.isSupported()) {
-    logger.info('failing Avahi publisher (continuing)');
-    avahi = null;
-  }
+    if (!avahi.isSupported()) {
+      logger.info('failing Avahi publisher (continuing)');
+      avahi = null;
+    }
+  } catch(ex) {}
 }
 
 
@@ -352,13 +354,22 @@ var keycheck = function (params) {
   if (!exports.vous) exports.vous = params.name;
 
   fs.exists(key, function(existsP) {
+    var alternates;
+
     if (existsP) return;
 
-    x509keygen.x509_keygen({ subject    : '/CN=' + exports.vous
+    alternates = [ 'DNS:' + params.name
+                 , 'DNS:steward.local'
+                 , 'DNS:' + require('os').hostname()
+                 , 'IP:'  + params.server.hostname
+                 ];
+    steward.forEachAddress(function(address) { alternates.push('IP:' + address); });
+
+    x509keygen.x509_keygen({ subject    : '/CN=' + params.name
                            , certfile   : crt
                            , keyfile    : key
                            , sha1file   : sha1
-                           , alternates : [ 'DNS: steward.local' ]
+                           , alternates : alternates
                            , destroy    : false
                            , logger     : logger
                            }, function(err, data) {/* jshint unused: false */
