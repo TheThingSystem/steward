@@ -94,6 +94,9 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  devices.makers['urn:roku-com:device:player:1-0'] = '/dev/ignore';
+if (true) return;
+
   steward.actors.device.media.roku = steward.actors.device.media.roku ||
       { $info     : { type: '/device/media/roku' } };
 

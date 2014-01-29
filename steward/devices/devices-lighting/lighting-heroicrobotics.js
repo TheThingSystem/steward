@@ -477,8 +477,7 @@ var scan = function() {
            , deviceType : steward.actors.device.lighting['heroic-robotics'].$info.type
            };
     info.url = info.device.url;
-    info.deviceType = info.device.model.name;
-    info.deviceType2 = 'urn:schemas-upnp-org:device:Basic:1';
+    info.deviceType = '/device/gateway/heroic-robotics/pixelpusher';
     info.id = info.device.unit.udn;
     if (!!devices.devices[info.id]) {
       device = devices.devices[info.id].device;
@@ -512,7 +511,7 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['Heroic Robotics PixelPusher'] = PixelPusher;
+  devices.makers['/device/gateway/heroic-robotics/pixelpusher'] = PixelPusher;
 
   steward.actors.device.lighting['heroic-robotics'] = steward.actors.device.lighting['heroic-robotics'] ||
       { $info     : { type: '/device/lighting/heroic-robotics' } };

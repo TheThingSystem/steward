@@ -175,6 +175,7 @@ exports.discover = function(info, callback) {
     if (!!callback) callback({ message: 'no maker registered for ' + info.deviceType }, null);
     return;
   }
+  if (typeof makers[deviceType] !== 'function') return;
 
   db.get('SELECT deviceID FROM devices WHERE deviceUID=$deviceUID', { $deviceUID: deviceUID }, function(err, row) {
     var deviceMAC;

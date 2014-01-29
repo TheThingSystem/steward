@@ -271,7 +271,7 @@ var apprentices =
           [ { title             : 'Air Sensors'
             , uuid              : '749070ee-08a9-430d-8e5a-812e40a297f1:event:air-sensors'
             , text              : 'Please chooose one or more things to monitor for CO<sub>2</sub>.'
-            , deviceType        : '^/device/climate/[^/]+/sensor$'
+            , deviceType        : '^/device/climate/[^/]+/meteo$'
             , mustHave          : [ 'co2' ]
             , operator          : 'or'
             , '.condition'      : { operator: 'greater-than', operand1: '.[.co2].', operand2: 2499 }

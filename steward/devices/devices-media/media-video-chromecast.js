@@ -26,7 +26,7 @@ var logger = media.logger;
 var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/media/chromecast/video';
+  self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -192,6 +192,41 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var discovery = utility.logger('discovery');
+
+  try {
+    mdns.createBrowser(mdns.tcp('googlecast')).on('serviceUp', function(service) {
+      var info =  { source  : 'mdns'
+                  , device  : { url          : 'http://' + service.host + ':' + service.port + '/'
+                              , name         : service.name
+                              , manufacturer : 'Google'
+                              , model        : { name        : service.txtRecord.md
+                                               , description : ''
+                                               , number      : service.txtRecord.ve
+                                               }
+                              , unit         : { serial      : service.txtRecord.id
+                                               , udn         : 'uuid:' + service.txtRecord.id
+                                               }
+                                }
+                  };
+      info.url = info.device.url;
+      info.deviceType = '/device/media/chromecast/video';
+      info.id = info.device.unit.udn;
+      if (!!devices.devices[info.id]) return;
+
+      discovery.info('mDNS ' + info.device.name, { url: info.url });
+      devices.discover(info);
+    }).on('serviceDown', function(service) {
+      discovery.debug('_googlecast._tcp', { event: 'down', name: service.name, host: service.host });
+    }).on('serviceChanged', function(service) {
+      discovery.debug('_googlecast._tcp', { event: 'changed', name: service.name, host: service.host });
+    }).on('error', function(err) {
+      discovery.error('_googlecast._tcp', { event: 'mdns', diagnostic: err.message });
+    }).start();
+  } catch(ex) {
+      discovery.error('_googlecast._tcp', { event: 'browse', diagnostic: ex.message });
+  }
+
   steward.actors.device.media.chromecast = steward.actors.device.media.chromecast ||
       { $info     : { type: '/device/media/chromecast' } };
 
@@ -215,5 +250,6 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['Eureka Dongle'] = Chromecast;
+  devices.makers['/device/media/chromecast/video'] = Chromecast;
+  devices.makers['Eureka Dongle'] = '/device/ignore';
 };
