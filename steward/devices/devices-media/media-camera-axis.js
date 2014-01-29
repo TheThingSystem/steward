@@ -89,7 +89,7 @@ exports.start = function() {
       serialNo = service.txtRecord.macaddress;
 
       info = { source     : 'mdns'
-             , device     : { url          : 'http://' + service.host + ':' + service.port + '/'
+             , device     : { url          : 'http://' + service.addresses[0] + ':' + service.port + '/'
                             , name         : service.name
                             , manufacturer : 'AXIS'
                             , model        : { name        : modelName

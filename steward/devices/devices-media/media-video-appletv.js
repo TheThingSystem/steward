@@ -113,10 +113,7 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!AppleTV.operations[perform]) {
-    result.invalid.push('perform');
-    return result;
-  }
+  if (!!AppleTV.operations[perform]) return result;
 
   if (perform === 'set') {
     if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
@@ -185,7 +182,7 @@ exports.start = function() {
 
       var model = service.txtRecord.model.match(/([\d]*),([\d]*)/).slice(1).join('.');
       var info =  { source  : 'mdns'
-                  , device  : { url          : 'http://' + service.host + ':' + service.port + '/'
+                  , device  : { url          : 'http://' + service.addresses[0] + ':' + service.port + '/'
                               , name         : service.name
                               , manufacturer : 'APPLE'
                               , model        : { name        : service.name

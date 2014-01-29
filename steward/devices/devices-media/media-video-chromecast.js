@@ -1,22 +1,11 @@
 // Chromecast (Eureka Dongle) media player: www.google.com/chromecast
 
-var mdns
-  , utility     = require('./../../core/utility')
-  ;
-
-try {
-  mdns          = require('mdns');
-} catch(ex) {
-  exports.start = function() {};
-
-  return utility.logger('devices').info('failing video-chromecast media (continuing)', { diagnostic: ex.message });
-}
-
 var Dongle      = require('eureka-dongle')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , media       = require('./../device-media')
+  , utility     = require('./../../core/utility')
   ;
 
 
@@ -26,7 +15,7 @@ var logger = media.logger;
 var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = info.deviceType;
+  self.whatami = '/device/media/chromecast/video';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -44,10 +33,7 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
   self.info = { track : { title: '', position: 0, duration: 0} };
 
   self.chromecast.on('error', function(err) {
-    logger.error('device/' + self.deviceID, {
-        event: 'ramp failure'
-      , msg: err.message
-    });
+    logger.error('device/' + self.deviceID, { event: 'ramp failure', msg: err.message });
     self.status = 'error';
     self.changed();
   });
@@ -114,11 +100,12 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Chromecast, media.Device);
 
 
-Chromecast.operations = {
-  'stop' : function(self, params) {/* jshint unused: false */
+Chromecast.operations =
+{ stop  : function(self, params) {/* jshint unused: false */
     self.chromecast.stop('YouTube');
   }
-, 'play' : function(self, params) {/* jshint unused: false */
+
+, play  : function(self, params) {/* jshint unused: false */
     if ((self.status === 'paused') || (self.status === 'idle')) {
       self.chromecast.resume();
       self.status = 'playing';
@@ -128,6 +115,7 @@ Chromecast.operations = {
       self.chromecast.start('YouTube', params.url);
     }
   }
+
 , pause : function(self, params) {/* jshint unused: false */
     if (self.status !== 'paused') {
       self.chromecast.pause();
@@ -174,10 +162,7 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Chromecast.operations[perform]) {
-    result.invalid.push('perform');
-    return result;
-  }
+  if (!!Chromecast.operations[perform]) return result;
 
   if (perform === 'set') {
     if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
@@ -192,41 +177,6 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var discovery = utility.logger('discovery');
-
-  try {
-    mdns.createBrowser(mdns.tcp('googlecast')).on('serviceUp', function(service) {
-      var info =  { source  : 'mdns'
-                  , device  : { url          : 'http://' + service.host + ':' + service.port + '/'
-                              , name         : service.name
-                              , manufacturer : 'Google'
-                              , model        : { name        : service.txtRecord.md
-                                               , description : ''
-                                               , number      : service.txtRecord.ve
-                                               }
-                              , unit         : { serial      : service.txtRecord.id
-                                               , udn         : 'uuid:' + service.txtRecord.id
-                                               }
-                                }
-                  };
-      info.url = info.device.url;
-      info.deviceType = '/device/media/chromecast/video';
-      info.id = info.device.unit.udn;
-      if (!!devices.devices[info.id]) return;
-
-      discovery.info('mDNS ' + info.device.name, { url: info.url });
-      devices.discover(info);
-    }).on('serviceDown', function(service) {
-      discovery.debug('_googlecast._tcp', { event: 'down', name: service.name, host: service.host });
-    }).on('serviceChanged', function(service) {
-      discovery.debug('_googlecast._tcp', { event: 'changed', name: service.name, host: service.host });
-    }).on('error', function(err) {
-      discovery.error('_googlecast._tcp', { event: 'mdns', diagnostic: err.message });
-    }).start();
-  } catch(ex) {
-      discovery.error('_googlecast._tcp', { event: 'browse', diagnostic: ex.message });
-  }
-
   steward.actors.device.media.chromecast = steward.actors.device.media.chromecast ||
       { $info     : { type: '/device/media/chromecast' } };
 
@@ -250,6 +200,5 @@ exports.start = function() {
                     }
       , $validate : { perform    : validate_perform }
       };
-  devices.makers['/device/media/chromecast/video'] = Chromecast;
-  devices.makers['Eureka Dongle'] = '/device/ignore';
+  devices.makers['Eureka Dongle'] = Chromecast;
 };

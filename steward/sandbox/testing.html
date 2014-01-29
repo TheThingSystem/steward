@@ -8,6 +8,7 @@
 var actors;
 
 var testing = function(steward, ws) {
+return perform_task(ws, 39);
   list_actors(ws, '', { depth : 'all' }, function(message) {
     if ((!message.result) && (!message.error)) return false;
     if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
