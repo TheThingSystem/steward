@@ -1,6 +1,5 @@
 var stringify  = require('json-stringify-safe')
   , clone      = require('./../core/utility').clone
-  , devices    = require('./../core/device')
   , steward    = require('./../core/steward')
   , manage     = require('./../routes/route-manage')
   ;
@@ -203,7 +202,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       continue;
     }
 
-    p = devices.expand(message.parameter);
+    p = message.parameter;
     if ((!!actor.$validate) && (!!actor.$validate.perform)) {
       v = actor.$validate.perform(message.perform, p);
       if ((v.invalid.length > 0) || (v.requires.length > 0)) {

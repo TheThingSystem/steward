@@ -67,70 +67,62 @@ Thermostat.prototype.update = function(self, params, status) {
   }
 };
 
-Thermostat.operations = {
-  set: function(sensor, params) {
+Thermostat.operations =
+{ set: function(self, params) {
+         var serial = self.serial;
+         var nest = self.gateway.nest;
 
-    var serial = sensor.serial;
-    var nest = sensor.gateway.nest;
-    var performed = false;
+         devices.attempt_perform('name', params, function(value) {
+           self.setName(value);
+         });
 
-    var attempt_perform = function(key, fn) {
-      if (typeof params[key] !== 'undefined') {
-        fn(params[key]);
-        performed = true;
-      }
-    };
+         devices.attempt_perform('away', params, function(value) {
+           if (value === 'on') {
+             nest.setAway();
+           } else {
+             nest.setHome();
+           }
+         });
 
+         devices.attempt_perform('hvac', params, function(value) {
+           switch (value) {
+             case 'off':
+             case 'cool':
+             case 'heat':
+               nest.setTargetTemperatureType(serial, value);
+               break;
 
-    attempt_perform('away', function(value) {
-      if (value === 'on') {
-        nest.setAway();
-      } else {
-        nest.setHome();
-      }
-    });
+             case 'fan':
+               nest.setFanModeOn(serial);
+               break;
+           }
+         });
 
-    attempt_perform('hvac', function(value) {
-      switch (value) {
-        case 'off':
-        case 'cool':
-        case 'heat':
-          nest.setTargetTemperatureType(serial, value);
-          break;
+         devices.attempt_perform('fan', params, function(value) {
+           var time;
 
-        case 'fan':
-          nest.setFanModeOn(serial);
-          break;
-      }
-    });
+           switch (value) {
+             case 'off':
+             case 'on':
+             case 'auto':
+               nest.setFanMode(serial, value);
+               break;
 
-    attempt_perform('fan', function(value) {
-      var time;
+             default:
+               time = parseInt(value, 10);
+               if (isNaN(time)) break;
+               nest.setFanMode(serial, 'on', time);
+               break;
+           }
+         });
 
-      switch (value) {
-        case 'off':
-        case 'on':
-        case 'auto':
-          nest.setFanMode(serial, value);
-          break;
+         devices.attempt_perform('goalTemperature', params, function(value) {
+           var goalTemperature;
 
-        default:
-          time = parseInt(value, 10);
-          if (isNaN(time)) break;
-          nest.setFanMode(serial, 'on', time);
-          break;
-      }
-    });
-
-    attempt_perform('goalTemperature', function(value) {
-      var goalTemperature;
-
-      goalTemperature = parseInt(value, 10);
-      if (!isNaN(goalTemperature)) nest.setTemperature(serial, goalTemperature);
-    });
-
-    return performed;
-  }
+           goalTemperature = parseInt(value, 10);
+           if (!isNaN(goalTemperature)) nest.setTemperature(serial, goalTemperature);
+         });
+       }
 };
 
 Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
@@ -138,25 +130,11 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(e) { params = {}; }
 
-  if (!!Thermostat.operations[perform]) {
-    if (Thermostat.operations[perform](this, params)) {
-      setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
-      return steward.performed(taskID);
-    }
-  }
+  if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
-  return devices.perform(self, taskID, perform, parameter);
-};
-
-var checkParam = function(key, params, result, allowNumeric, map) {
-  if (typeof params[key] !== 'undefined') {
-
-    var defined = typeof map[params[key]] !== 'undefined';
-
-    if (((!defined) && (!allowNumeric)) || ((!defined) && allowNumeric && isNaN(parseInt(params[key], 10)))) {
-      result.invalid.push(key);
-    }
-  }
+  Thermostat.operations[perform](this, params);
+  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -166,23 +144,19 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Thermostat.operations[perform]) {
-    if (perform === 'set') {
-      if (!params) {
-        result.requires.push('parameter');
-        return result;
-      }
+  if (!Thermostat.operations[perform]) return devices.validate_perform(perform, parameter);
 
-      checkParam('away', params, result, false, { on: 1, off: 1 });
-      checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
-      checkParam('fan', params, result, true, { off: 1, on: 1, auto: 1 });
-      checkParam('goalTemperature', params, result, true, {});
-    }
-    return result;
-  }
+  if (!params) return result;
 
-  return devices.validate_perform(perform, parameter);
+  devices.validate_param('name',            params, result, false, {                                   });
+  devices.validate_param('away',            params, result, false, { off:  1, on:  1                   });
+  devices.validate_param('hvac',            params, result, false, { off:  1, fan: 1, heat: 1, cool: 1 });
+  devices.validate_param('fan',             params, result, true,  { off:  1, on:  1, auto: 1          });
+  devices.validate_param('goalTemperature', params, result, true,  {                                   });
+
+  return result;
 };
+
 
 exports.start = function() {
   steward.actors.device.climate.nest = steward.actors.device.climate.nest ||

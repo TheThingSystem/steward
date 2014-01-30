@@ -1,4 +1,5 @@
-var events      = require('events')
+var arp         = require('arp-a')
+  , events      = require('events')
   , serialport  = require('serialport')
   , stringify   = require('json-stringify-safe')
   , url         = require('url')
@@ -96,6 +97,12 @@ exports.start = function() {
     }
     if (data.length > 0) broker.publish('beacon-egress', '.updates', data);
   });
+
+  arp.table(function(err, entry) {
+    if (!!err) return logger.error('devices', { event: 'arp', diagnostic: err.message });
+
+    if (!!entry) arptab[entry.ip] = entry.mac;
+  });
 };
 
 
@@ -135,6 +142,8 @@ exports.arp = function(ifname, ifaddr, arp) {/* jshint unused: false */
         && (arp.target_ha !== '00:00:00:00:00:00')
         && (arp.target_ha !== 'ff:ff:ff:ff:ff:ff')) arptab[arp.target_pa] = arp.target_ha;
 };
+
+exports.ip2mac = function(ipaddr) { return arptab[ipaddr]; };
 
 exports.wake = function(params) {
   var macaddress;
@@ -483,6 +492,13 @@ Sigma.prototype.add = function(v) {
 };
 
 
+exports.attempt_perform = function(key, params, fn) {
+  if (typeof params[key] === 'undefined') return;
+
+  fn(params[key]);
+  return true;
+};
+
 exports.perform = function(self, taskID, perform, parameter) {
   var params;
 
@@ -495,6 +511,21 @@ exports.perform = function(self, taskID, perform, parameter) {
   if (!!params.name) return self.setName(params.name);
 
   return false;
+};
+
+exports.validate_param = function(key, params, result, numericP, map) {
+  var value;
+
+  if (typeof params[key] === 'undefined') return;
+  value = params[key];
+
+  if ((typeof map[value] !== 'undefined') || (typeof numericP === 'undefined')) return;
+
+  if (typeof numericP === 'boolean') {
+    if (numericP) numericP = function(value) { return !isNaN(parseInt(value, 10)); };
+  }
+
+  if ((typeof numericP === 'function') && (!numericP(value))) result.invalid.push(key);
 };
 
 exports.validate_perform = function(perform, parameter) {

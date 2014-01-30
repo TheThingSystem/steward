@@ -23,5 +23,5 @@ var Media = exports.Device = function() {
 util.inherits(Media, devices.Device);
 
 
-exports.validPosition = function(pos)  { return ((  0 <= pos)                ); };
-exports.validVolume   = function(vol)  { return ((  0 <= vol) && (vol <= 100)); };
+exports.validPosition = function(pos)  { return ((!isNaN(pos)) && (  0 <= pos)                ); };
+exports.validVolume   = function(vol)  { return ((!isNaN(vol)) && (  0 <= vol) && (vol <= 100)); };

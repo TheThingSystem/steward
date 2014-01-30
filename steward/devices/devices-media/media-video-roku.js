@@ -40,27 +40,31 @@ var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Roku_Video, media.Device);
 
 
-Roku_Video.operations = {
-  'stop' : function(device, params) {/* jshint unused: false */
-    device.press(Roku.BACK);
-    device.delay(500);
-  }
-, 'previous' : function(device, params) {/* jshint unused: false */
-    device.press(Roku.REV);
-  }
-, 'play' : function(device, params) {/* jshint unused: false */
-    if (params.url) {
-      device.launch(params.url);
-    } else {
-      device.press(Roku.PLAY);
-    }
-  }
-, 'pause' : function(device, params) {/* jshint unused: false */
-    device.press(Roku.PLAY);
-  }
-, 'next' : function(device, params) {/* jshint unused: false */
-    device.press(Roku.FWD);
-  }
+Roku_Video.operations =
+{ stop     : function(device, params) {/* jshint unused: false */
+              device.press(Roku.BACK);
+              device.delay(500);
+             }
+
+, previous : function(device, params) {/* jshint unused: false */
+               device.press(Roku.REV);
+             }
+
+, play     : function(device, params) {/* jshint unused: false */
+               if (params.url) {
+                 device.launch(params.url);
+               } else {
+                 device.press(Roku.PLAY);
+               }
+             }
+
+, pause :    function(device, params) {/* jshint unused: false */
+               device.press(Roku.PLAY);
+             }
+
+, next :     function(device, params) {/* jshint unused: false */
+               device.press(Roku.FWD);
+             }
 };
 
 
@@ -84,19 +88,13 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Roku_Video.operations[perform]) {
-    result.invalid.push('perform');
-    return result;
-  }
+  if (!!Roku_Video.operations[perform]) return result;
 
   return devices.validate_perform(perform, parameter);
 };
 
 
 exports.start = function() {
-  devices.makers['urn:roku-com:device:player:1-0'] = '/dev/ignore';
-if (true) return;
-
   steward.actors.device.media.roku = steward.actors.device.media.roku ||
       { $info     : { type: '/device/media/roku' } };
 
