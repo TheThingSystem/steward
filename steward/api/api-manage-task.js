@@ -314,7 +314,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       continue;
     }
 
-    p = devices.expand(task.parameter);
+    p = task.parameter;
     if ((!!actor.$validate) && (!!actor.$validate.perform)) {
       v = actor.$validate.perform(task.perform, p);
       if ((v.invalid.length > 0) || (v.requires.length > 0)) {

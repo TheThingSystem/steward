@@ -42,6 +42,7 @@ var Chromecast = exports.Device = function(deviceID, deviceUID, info) {
     data = data[1];
     var status = data.status || {};
     var changed = false;
+
     var applyIf = function(k, k2, fi, topP) {
       var v0, v1;
 
@@ -102,57 +103,59 @@ util.inherits(Chromecast, media.Device);
 
 Chromecast.operations =
 { stop  : function(self, params) {/* jshint unused: false */
-    self.chromecast.stop('YouTube');
-  }
+            self.chromecast.stop('YouTube');
+          }
 
 , play  : function(self, params) {/* jshint unused: false */
-    if ((self.status === 'paused') || (self.status === 'idle')) {
-      self.chromecast.resume();
-      self.status = 'playing';
-      self.changed();
-    }
-    if (params.url) {
-      self.chromecast.start('YouTube', params.url);
-    }
-  }
+            if ((self.status === 'paused') || (self.status === 'idle')) {
+              self.chromecast.resume();
+              self.status = 'playing';
+              self.changed();
+            }
+            if (params.url) {
+              self.chromecast.start('YouTube', params.url);
+            }
+          }
 
 , pause : function(self, params) {/* jshint unused: false */
-    if (self.status !== 'paused') {
-      self.chromecast.pause();
-      self.status = 'paused';
-      self.changed();
-    }
-  }
+            if (self.status !== 'paused') {
+              self.chromecast.pause();
+              self.status = 'paused';
+              self.changed();
+            }
+          }
+
+
+, set   : function(self, params) {
+            devices.attempt_perform('name', params, function(value) {
+              self.setName(value);
+            });
+
+            devices.attempt_perform('position', params, function(value) {
+              value = parseFloat(value);
+              if (media.validPosition(value)) self.chromecast.resume( value / 1000);
+            });
+
+            devices.attempt_perform('volume', params, function(value) {
+              if (media.validVolume(value)) self.chromecast.volume(value);
+            });
+
+            devices.attempt_perform('muted', params, function(value) {
+              self.chromecast.muted(value === 'on');
+            });
+          }
 };
 
 
 Chromecast.prototype.perform = function(self, taskID, perform, parameter) {
-  var params, position, volume;
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (!!Chromecast.operations[perform]) {
-    Chromecast.operations[perform](self, params);
+  if (!Chromecast.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
-    return steward.performed(taskID);
-  }
-
-  if (perform === 'set') {
-    if (!!params.position) {
-      position = parseFloat(params.position);
-      if (isNaN(position)) {
-        position = 0;
-      }
-
-      self.chromecast.resume(position/1000);
-    }
-
-    if ((!!params.volume) && (media.validVolume(params.volume))) self.chromecast.volume(volume / 100);
-
-    if (!!params.muted) self.chromecast.muted(params.muted === 'on');
-  }
-
-  return devices.perform(self, taskID, perform, parameter);
+  Chromecast.operations[perform](self, params);
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -162,17 +165,14 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Chromecast.operations[perform]) return result;
+  if (!Chromecast.operations[perform]) return devices.validate_perform(perform, parameter);
 
-  if (perform === 'set') {
-    if ((!!params.position) && (!media.validPosition(params.position))) result.invalid.push('position');
-    if ((!!params.volume)   && (!media.validVolume(params.volume)))     result.invalid.push('volume');
-    if ((!!params.muted)    && (params.muted !== 'on') && (params.muted !== 'off')) result.invalid.push('volume');
+  devices.validate_param('name',     params, result, false,               {                 });
+  devices.validate_param('position', params, result, media.validPosition, {                 });
+  devices.validate_param('volume',   params, result, media.validVolume,   {                 });
+  devices.validate_param('muted',    params, result, false,               { off:  1, on:  1 });
 
-    if (result.invalid.length > 0) return result;
-  }
-
-  return devices.validate_perform(perform, parameter);
+  return result;
 };
 
 
@@ -186,6 +186,7 @@ exports.start = function() {
                     , perform    : [ 'play'
                                    , 'stop'
                                    , 'pause'
+                                   , 'wake'
                                    ]
                     , properties : { name    : true
                                    , status  : [ 'idle', 'playing', 'paused', 'error' ]

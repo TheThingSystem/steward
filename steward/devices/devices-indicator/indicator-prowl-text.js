@@ -109,6 +109,7 @@ Prowl.prototype.perform = function(self, taskID, perform, parameter) {
     return true;
   }
   if (perform !== 'growl') return false;
+  params.message = devices.expand(params.message, 'device/' + self.deviceID);
 
   if ((!params.priority) || (!params.message) || (params.message.length === 0)) return false;
 

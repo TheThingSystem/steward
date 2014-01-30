@@ -533,7 +533,7 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.appKey) result.requires.push('appKey');
-  else if ((typeof info.apikey !== 'string') || (info.apikey.length < 32)) result.invalid.push('apikey');
+  else if ((typeof info.appKey !== 'string') || (info.appKey.length < 32)) result.invalid.push('appKey');
 
   return result;
 };

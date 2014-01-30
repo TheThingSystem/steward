@@ -237,9 +237,9 @@ var scan = function () {
       info = { source     : 'mdns'
              , controller : controller
              , device     : { url          : url.format(controller.options)
-                            , name         : controller.params.host
+                            , name         : controller.params.name
                             , manufacturer : ''
-                            , model        : { name        : controller.params.host
+                            , model        : { name        : controller.params.name
                                              , description : ''
                                              , number      : ''
                                              }

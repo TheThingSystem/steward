@@ -536,7 +536,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       continue;
     }
 
-    p = devices.expand(message.parameter);
+    p = message.parameter;
     if ((!!actor.$validate) && (!!actor.$validate.perform)) {
       v = actor.$validate.perform(message.perform, p);
       if ((v.invalid.length > 0) || (v.requires.length > 0)) {
@@ -555,7 +555,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
 };
 
 var perform2 = function(logger, ws, message, group /*, tag */) {
-  var device, i, parameter, performance, performances, results, task, uuid;
+  var device, i, performance, performances, results, task, uuid;
 
   steward.prepare('group/' + group.groupID);
 
@@ -587,8 +587,7 @@ var perform2 = function(logger, ws, message, group /*, tag */) {
     for (device in performance.devices) {
       if (!performance.devices.hasOwnProperty(device)) continue;
 
-      parameter = devices.expand(performance.parameter);
-      broker.publish('actors', 'perform', performance.taskID, device, performance.perform, parameter);
+      broker.publish('actors', 'perform', performance.taskID, device, performance.perform, performance.parameter);
     }
   }
 

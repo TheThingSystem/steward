@@ -68,47 +68,37 @@ Sensor.prototype.update = function(self, params, status) {
   }
 };
 
-Sensor.operations = {
-  set: function(sensor, params) {
+Sensor.operations =
+{ set: function(self, params) {
+         var ecobee = self.gateway.ecobee;
 
-    var ecobee = sensor.gateway.ecobee;
-    var performed = false;
+         devices.attempt_perform('name', params, function(value) {
+           self.setName(value);
+         });
 
-    var attempt_perform = function(key, fn) {
-      if (typeof params[key] !== 'undefined') {
-        fn(params[key]);
-        performed = true;
-      }
-    };
+         devices.attempt_perform('away', params, function(value) {
+           ecobee.setAway(ecobee, self, value);
+         });
 
+         switch (params.hvac) {
+           case 'off':
+           case 'cool':
+           case 'heat':
+             devices.attempt_perform('goalTemperature', function(params, value) {
+               var goalTemperature  = parseInt(value, 10);
 
-    attempt_perform('away', function(value) {
-      ecobee.setAway(ecobee, sensor, value);
-    });
+               if (!isNaN(goalTemperature)) ecobee.setHold(ecobee, self, params.hvac, goalTemperature);
+             });
+             break;
 
-    attempt_perform('hvac', function(mode) {
-      switch (mode) {
-        case 'off':
-        case 'cool':
-        case 'heat':
-          attempt_perform('goalTemperature', function(value) {
-            var goalTemperature  = parseInt(value, 10);
-
-            if (!isNaN(goalTemperature)) ecobee.setHold(ecobee, sensor, mode, goalTemperature);
-          });
-          break;
-
-        case 'fan':
-          if (!params.fan) params.fan = 'on';
-          attempt_perform('fan', function(value) {
-            ecobee.setHold(ecobee, sensor, mode, value);
-          });
-          break;
-      }
-    });
-
-    return performed;
-  }
+           case 'fan':
+             if (!params.fan) params.fan = 'on';
+             devices.attempt_perform('fan', params, function(value) {
+               ecobee.setHold(ecobee, self, params.hvac, value);
+             });
+             break;
+         }
+       }
 };
 
 Sensor.prototype.perform = function(self, taskID, perform, parameter) {
@@ -116,25 +106,11 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (!!Sensor.operations[perform]) {
-    if (Sensor.operations[perform](this, params)) {
-      setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
-      return steward.performed(taskID);
-    }
-  }
+  if (!Sensor.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
-  return devices.perform(self, taskID, perform, parameter);
-};
-
-var checkParam = function(key, params, result, allowNumeric, map) {
-  if (typeof params[key] !== 'undefined') {
-
-    var defined = typeof map[params[key]] !== 'undefined';
-
-    if (((!defined) && (!allowNumeric)) || ((!defined) && allowNumeric && isNaN(parseInt(params[key], 10)))) {
-      result.invalid.push(key);
-    }
-  }
+  Sensor.operations[perform](this, params);
+  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -144,23 +120,19 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Sensor.operations[perform]) {
-    if (perform === 'set') {
-      if (!params) {
-        result.requires.push('parameter');
-        return result;
-      }
+  if (!Sensor.operations[perform]) return devices.validate_perform(perform, parameter);
 
-      checkParam('away', params, result, false, { on: 1, off: 1 });
-      checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
-      checkParam('fan', params, result, true, { on: 1, auto: 1 });
-      checkParam('goalTemperature', params, result, true, {});
-    }
-    return result;
-  }
+  if (!params) return result;
 
-  return devices.validate_perform(perform, parameter);
+  devices.validate_param('name',            params, result, false, {                                   });
+  devices.validate_param('away',            params, result, false, { off:  1, on:  1                   });
+  devices.validate_param('hvac',            params, result, false, { off:  1, fan: 1, heat: 1, cool: 1 });
+  devices.validate_param('fan',             params, result, true,  { off:  1, on:  1, auto: 1          });
+  devices.validate_param('goalTemperature', params, result, true,  {                                   });
+
+  return result;
 };
+
 
 exports.start = function() {
   steward.actors.device.climate.ecobee = steward.actors.device.climate.ecobee ||

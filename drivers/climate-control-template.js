@@ -62,70 +62,61 @@ Thermostat.prototype.update = function(self, params, status) {
   }
 };
 
-Thermostat.operations = {
-  set: function(self, params) {
-
-    var performed = false;
-
-    var attempt_perform = function(key, fn) {
-      if (typeof params[key] !== 'undefined') {
-        fn(params[key]);
-        performed = true;
-      }
-    };
-
+Thermostat.operations =
+{ set: function(self, params) {
+         devices.attempt_perform('name', params, function(value) {
+           self.setName(value);
+         });
 
 // if the HVAC unit does NOT has home/away, then delete this call to attempt_perform()
-    attempt_perform('away', function(value) {
-      if (value === 'on') {
+         devices.attempt_perform('away', params, function(value) {
+           if (value === 'on') {
 // TBD: turn on away mode here...
-      } else {
+           } else {
 // TBD: turn on home mode here...
-      }
-    });
+           }
+         });
 
-    attempt_perform('hvac', function(value) {
-      switch (value) {
-        case 'off':
-        case 'cool':
-        case 'heat':
+         devices.attempt_perform('hvac', params, function(value) {
+           switch (value) {
+             case 'off':
+             case 'cool':
+             case 'heat':
 // TBD: turn the unit on/off
-          break;
+               break;
 
-        case 'fan':
+             case 'fan':
 // TBD: turn the fan on only
-          break;
-      }
-    });
+               break;
+           }
+         });
 
-    attempt_perform('fan', function(value) {
-      var time;
+         devices.attempt_perform('fan', params, function(value) {
+           var time;
 
-      switch (value) {
-        case 'off':
-        case 'on':
-        case 'auto':
+           switch (value) {
+             case 'off':
+             case 'on':
+             case 'auto':
 // TBD: set the fan's mode
-          break;
+               break;
 
-        default:
-          time = parseInt(value, 10);
-          if (isNaN(time)) break;
+             default:
+               time = parseInt(value, 10);
+               if (isNaN(time)) break;
 // TBD: set the fan duration. adjust time from milliseconds to whatever
-          break;
-      }
-    });
+               break;
+           }
+         });
 
-    attempt_perform('goalTemperature', function(value) {
-      var goalTemperature;
+         devices.attempt_perform('goalTemperature', params, function(value) {
+           var goalTemperature;
 
-      goalTemperature = parseInt(value, 10);
-      if (isNaN(goalTemperature)) break;
+           goalTemperature = parseInt(value, 10);
+          if (isNaN(goalTemperature)) return;
 // TBD: set the desired temperature here...
-    });
-
-    return performed;
-  }
+         });
+       }
 };
 
 Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
@@ -133,25 +124,11 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(e) { params = {}; }
 
-  if (!!Thermostat.operations[perform]) {
-    if (Thermostat.operations[perform](this, params)) {
-      setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
-      return steward.performed(taskID);
-    }
-  }
+  if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
-  return devices.perform(self, taskID, perform, parameter);
-};
-
-var checkParam = function(key, params, result, allowNumeric, map) {
-  if (typeof params[key] !== 'undefined') {
-
-    var defined = typeof map[params[key]] !== 'undefined';
-
-    if (((!defined) && (!allowNumeric)) || ((!defined) && allowNumeric && isNaN(parseInt(params[key], 10)))) {
-      result.invalid.push(key);
-    }
-  }
+  Thermostat.operations[perform](this, params);
+  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -161,23 +138,18 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Thermostat.operations[perform]) {
-    if (perform === 'set') {
-      if (!params) {
-        result.requires.push('parameter');
-        return result;
-      }
+  if (!Thermostat.operations[perform]) return devices.validate_perform(perform, parameter);
 
+  if (!params) return result;
+
+  devices.validate_param('name',            params, result, false, {                                   });
 // if the HVAC unit does NOT has home/away, then delete this call to checkParam()
-      checkParam('away', params, result, false, { on: 1, off: 1 });
-      checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
-      checkParam('fan', params, result, true, { off: 1, on: 1, auto: 1 });
-      checkParam('goalTemperature', params, result, true, {});
-    }
-    return result;
-  }
+  devices.validate_param('away',            params, result, false, { off:  1, on:  1                   });
+  devices.validate_param('hvac',            params, result, false, { off:  1, fan: 1, heat: 1, cool: 1 });
+  devices.validate_param('fan',             params, result, true,  { off:  1, on:  1, auto: 1          });
+  devices.validate_param('goalTemperature', params, result, true,  {                                   });
 
-  return devices.validate_perform(perform, parameter);
+  return result;
 };
 
 

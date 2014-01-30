@@ -138,7 +138,7 @@ var validate_perform = function(perform, parameter) {
   }
 
   if (!!params.actor) {
-    if ((typeof params.actor !== 'string') || (params.actor.spit('/').length !== 2)) result.invalid.push('actor');
+    if ((typeof params.actor !== 'string') || (params.actor.split('/').length !== 2)) result.invalid.push('actor');
   }
   if ((!!params.property) && (typeof params.property !== 'string')) result.invalid.push('property');
 

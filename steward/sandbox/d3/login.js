@@ -570,7 +570,7 @@ var bootable = { ecobee         :
                  , name         : 'ecobee'
                  , actor        : '/device/gateway/ecobee/cloud'
                  , info         :
-                   { appkey     : ''
+                   { appKey     : ''
                    }
                  }
                , 'flower power' :
