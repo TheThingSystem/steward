@@ -205,7 +205,7 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
 };
 
 var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
-  var allP, client, i, id, props, results, suffix, treeP, user, uuid;
+  var allP, client, i, id, masterP, props, results, suffix, treeP, user, uuid, who;
 
   if (!exports.db) return manage.error(ws, tag, 'user listing', message.requestID, false, 'database not ready');
 
@@ -213,6 +213,9 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
   treeP = allP || (message.options.depth === 'tree');
   suffix = message.path.slice(api.prefix.length + 1);
   if (suffix.length === 0) suffix = null;
+
+  user = id2user(ws.clientInfo.userID);
+  masterP = (!!user) && (user.userRole === 'master') && ws.clientInfo.secure;
 
   results = { requestID: message.requestID, result: { steward: {}, users: {} } };
   results.result.steward.uuid = steward.uuid;
@@ -234,7 +237,21 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
       if (!!user.clients) {
         for (i = 0; i < user.clients.length; i++) {
           client = id2client(user, user.clients[i]);
-          results.result.clients['user/' + user.userName + '/' + client.clientID] = proplist2(null, client, user);
+          who = 'user/' + user.userName + '/' + client.clientID;
+          results.result.clients[who] = proplist2(null, client, user);
+          if (!masterP) continue;
+if(true) continue;
+
+          results.result.clients[who].otpURL =
+                         client.clientAuthAlg
+                       + '/' + encodeURIComponent(client.clientAuthParams.issuer + ':' + client.clientAuthParams.name)
+                       + '?secret=' + encodeURIComponent(client.clientAuthKey)
+                       + '&issuer=' + encodeURIComponent(client.clientAuthParams.issuer)
+                       + '&digits=' + encodeURIComponent(client.clientAuthParams.length);
+          results.result.clients[who].authenticatorURL =
+                         'https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=' + client.clientAuthAlg
+                        + '/' + encodeURIComponent(client.clientAuthParams.name)
+                        + '%3Fsecret=' + encodeURIComponent(client.clientAuthKey);
         }
       }
     }

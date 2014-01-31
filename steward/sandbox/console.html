@@ -683,6 +683,8 @@ var onactors = function(message) {
               if (!isNaN(v)) v = '&plusmn;' + v.toFixed(2) + ' meters';
               break;
 
+            case 'gauges':
+            case 'plugs':
             case 'rankings':
             case 'review':
             case 'sensors':
