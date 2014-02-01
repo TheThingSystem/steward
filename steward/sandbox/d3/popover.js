@@ -832,7 +832,7 @@ var showPop = function(device) {
          .attr("id", "temperature-readout")
          .attr("class", "temperature-readout medium-label")
          .style("left", (goalTempLeft(device.info.goalTemperature) - 10) + "px")
-         .text(function() { return (isPlaceMetric()) ? device.info.goalTemperature.toFixed(1) + "°C" : (((parseInt(device.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F" });
+         .text(function() { return renderTemperature(device.info.goalTemperature); });
          
      var timedFan = (device.info.fan && (device.info.fan !== "auto") && (device.info.fan !== "on"));
      div = pop.append("div")
@@ -1532,8 +1532,8 @@ var updatePopover = function(device, update) {
       d3.select("#temperature-readout")
         .transition()
         .duration(600)
-        .style("left", (goalTempLeft(update.info.goalTemperature) - 10) + "px")
-        .text(function() { return (isPlaceMetric()) ? update.info.goalTemperature.toFixed(1) + "°C" : (((parseInt(update.info.goalTemperature, 10) * 9) / 5) + 32).toFixed(1) + "°F" });
+        .style("left", (goalTempLeft(update.info.goalTemperature) - 10) + "px")       
+        .text(function() { return renderTemperature(update.info.goalTemperature); });
     }
     var timedFan = (update.info.hasOwnProperty("fan") && (update.info.fan !== "auto") && (update.info.fan !== "on"));
     if (timedFan) {
@@ -1748,7 +1748,7 @@ function goalTempLeft(goalTempC) {
   
   var tempRange = (isMetric) ? {min: 4, max: 38} : {min: 40, max: 100};
   var goalTemp = (isMetric) ? goalTempC : ((parseFloat(goalTempC) * 9) / 5) + 32;
-  result = (goalTemp / (tempRange.max + tempRange.min)) * elemEdges.max;
+  result = ((goalTemp - tempRange.min) / (tempRange.max - tempRange.min)) * elemEdges.max;
   return result;
 };
      
@@ -1762,7 +1762,7 @@ function fanTimeTop(value) {
 
 function drawTemperatureArc(pop, temp) {
   var div;
-  var colorRange = {temp  :  [7.2, 12.8, 18.3, 23.9, 29.4, 35],
+  var colorRange = {temp  :  [4.0, 11.6, 16.9, 22.8, 28.5, 35],
 	            color :  ["#529dcc", "#43be93", "#0ea74b", "#b2cb25", "#f47f1f", "#ee3324"]};
   if (document.getElementById("thermostat-wrapper")) {
   	document.getElementById("thermostat-wrapper").removeChild(document.getElementById("tempArcCanvas"));
@@ -1829,15 +1829,15 @@ function levelLeft(level) {
        
 function motiveGoalTempLeft(info) {
   var result = 0;
+  var goalTemp = (isPlaceMetric()) ? motiveGoalTemp(info) : asFahrenheit(motiveGoalTemp(info));
   var isMetric = isPlaceMetric();
   var elemEdges = {min: 0, max: 115};
   var tempRange = (isMetric) ? {min: 4, max: 38} : {min: 40, max: 100};
-  var goalTemp = motiveGoalTemp(info);
   if (isNaN(goalTemp)) return elemEdges.min;
   
   if (goalTemp <= tempRange.min) return elemEdges.min;
   if (goalTemp >= tempRange.max) return elemEdges.max;
-  result = (goalTemp / (tempRange.max + tempRange.min)) * elemEdges.max;
+  result = ((goalTemp - tempRange.min) / (tempRange.max - tempRange.min)) * elemEdges.max;
   return result;
 }
      
@@ -1849,27 +1849,33 @@ function motiveGoalTemp(info) {
   } else {
     goalTemp = parseInt(info.hvac, 10);
   }
-  if (!isNaN(goalTemp)) {
-    goalTemp = (isPlaceMetric()) ? goalTemp : ((goalTemp * 9) / 5) + 32;
-  }
   return goalTemp;
 }
 
 function motiveGoalTempText(info) {
   var temp = motiveGoalTemp(info);
+  var rangeTemp = (isPlaceMetric()) ? motiveGoalTemp(info) : asFahrenheit(motiveGoalTemp(info));
   var isMetric = isPlaceMetric();
   var tempRange = (isMetric) ? {min: 4, max: 38} : {min: 40, max: 100};
-  if (temp > tempRange.max) temp = "> " + tempRange.max; 
-  if (temp < tempRange.min) temp = "< " + tempRange.min; 
+  if (rangeTemp > tempRange.max) temp = "> " + tempRange.max; 
+  if (rangeTemp < tempRange.min) temp = "< " + tempRange.min; 
   if (isNaN(temp)) {
     return "";
   } else {
-    return temp.toFixed(1) + ((isMetric) ? "°C" : "°F");
+    return renderTemperature(temp);
   }
 }
 
 function isPlaceMetric() {
   return (place_info.displayUnits === "metric");
+}
+
+function asFahrenheit(celsius) {
+  return ((celsius * 9) / 5) + 32;
+}
+
+function renderTemperature(temperature) {
+  return isPlaceMetric() ? parseInt(temperature, 10).toFixed(1) + "°C" : asFahrenheit(parseInt(temperature, 10)).toFixed(1) + "°F";
 }
 
 function sendData(device) {
