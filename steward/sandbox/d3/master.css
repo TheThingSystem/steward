@@ -532,9 +532,9 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 #apprentice-backdrop .panes-right { position: relative; float: right; }
 
 #apprentice-backdrop .display-pane { position: relative;
-		height: 34px; width: 332px; background:url('popovers/assets/display.svg') no-repeat; margin: 20px 0px;
+		height: 34px; width: 332px; color: #69cef6; background:url('popovers/assets/display.svg') no-repeat; margin: 20px 0px;
         font-family: "Roadgeek 2005 Series D";
-        font-size: 18px;
+        font-size: 15px;
         line-height: 36px;
         font-weight: normal;
         text-transform: uppercase;
@@ -542,17 +542,33 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 		cursor: pointer;
  }
 
-#apprentice-backdrop .label { padding: 0px 0px 0px 20px ; color: #69cef6; line-height: 36px; text-transform: uppercase; }
-#apprentice-backdrop .label-disabled { padding: 0px 0px 0px 20px ; color: #666; }
+#apprentice-backdrop .label { padding: 0px 0px 0px 65px ; color: #69cef6; font-size: 15px; line-height: 36px; text-transform: uppercase; }
+#apprentice-backdrop .label-disabled { padding: 0px 0px 0px 65px ; color: #666; }
 
-#apprentice-backdrop .state { padding: 0px 20px 0px 0px ; color: #fcb040; float: right; text-transform: uppercase; }
+#apprentice-backdrop .state { padding: 0px 20px 0px 0px ; color: #fcb040; font-size: 15px; float: right; text-transform: uppercase; }
 #apprentice-backdrop .state-disabled { padding: 0px 20px 0px 0px ; color: #666; float: right; }
+
+#apprentice-backdrop .small-label { 
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: normal;
+        color: #fff;
+        text-transform: uppercase;
+        position: absolute;
+        z-index: 5;
+}
+    
+#apprentice-backdrop .on-off-slider { top: 8px; left: 9px; }
+#apprentice-backdrop .on-off-knob { top: 8px; left: 9px; z-index: 10 }
+#apprentice-backdrop .on-label { top: 10px; left: 16px; color: #4bff69; text-transform: uppercase; display: none; }
+#apprentice-backdrop .off-label { top: 10px; left: 28px; color: #ff4b4b; text-transform: uppercase; display: none; }
+
 
 .apprentice-actors { position: absolute; top: 40px; left: 60px; height: 160px; width: 720px; overflow-x: hidden; }
 
-#apprentice-backdrop .actor-home  {
+.apprentice-actor-home  {
 		position: absolute; 
-		top: 0px; 
 		text-align: center; 
 		width: 50px; 
 		height: 68px; }

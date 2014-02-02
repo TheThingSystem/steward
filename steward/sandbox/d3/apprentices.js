@@ -1,3 +1,5 @@
+var onOffSliderPane = { "min": 7, "max": 38 };
+
 var goApprentices = function(local) {
   var backdrop;
 
@@ -24,7 +26,7 @@ var goApprentices = function(local) {
 }
 
 var finishApprentices = function() {
-  var backdrop, div, div2, i, panesList;
+  var backdrop, div, div2, i, panesDiv, panesList;
   backdrop = d3.select('#apprentice-backdrop');
 
   div = backdrop.append('div')
@@ -37,97 +39,123 @@ var finishApprentices = function() {
   div.append('div')
     .attr('class', 'apprentice-instructions')
     .html(apprentices.home.text);
-
-  // TO-DO: Reduce following to d3 data loop(s)
-  panesList = div.append('div')
+  
+  panesList = livingPanes();
+  
+  var divLeft, divRight;
+  panesDiv = div.append('div')
     .attr('class', 'panes');
-  div = panesList.append('div')
-    .attr('class', 'panes-left');
-  div2 = div.append('div')
-    .attr('class', 'display-pane')
-    .on('click', function() { goPaneDetail(0); });
-  div2.append('span')
-    .attr('class', 'label-disabled')
-    .attr('id', 'pane0');
-  div2.append('span')
-    .attr('class', 'state-disabled')
-    .attr('id', 'state0');
-  div2 = div.append('div')
-    .attr('class', 'display-pane')
-    .on('click', function() { goPaneDetail(2); });
-  div2.append('span')
-    .attr('class', 'label-disabled')
-    .attr('id', 'pane2');
-  div2.append('span')
-    .attr('class', 'state-disabled')
-    .attr('id', 'state2');
-  div2 = div.append('div')
-    .attr('class', 'display-pane')
-    .on('click', function() { goPaneDetail(4); });
-  div2.append('span')
-    .attr('class', 'label-disabled')
-    .attr('id', 'pane4');
-  div2.append('span')
-    .attr('class', 'state-disabled')
-    .attr('id', 'state4');
-  div = panesList.append('div')
-    .attr('class', 'panes-right');
-  div2 = div.append('div')
-    .attr('class', 'display-pane')
-    .on('click', function() { goPaneDetail(1); });
-  div2.append('span')
-    .attr('class', 'label-disabled')
-    .attr('id', 'pane1');
-  div2.append('span')
-    .attr('class', 'state-disabled')
-    .attr('id', 'state1');
-  div2 = div.append('div')
-    .attr('class', 'display-pane')
-    .on('click', function() { goPaneDetail(3); });
-  div2.append('span')
-    .attr('class', 'label-disabled')
-    .attr('id', 'pane3');
-  div2.append('span')
-    .attr('class', 'state-disabled')
-    .attr('id', 'state3');
-  div2 = div.append('div')
-    .attr('class', 'display-pane')
-    .on('click', function() { goPaneDetail(5); });
-  div2.append('span')
-    .attr('class', 'label-disabled')
-    .attr('id', 'pane5');
-  div2.append('span')
-    .attr('class', 'state-disabled')
-    .attr('id', 'state5');
+  divLeft = panesDiv.append('div')
+    .attr('class', 'panes-left')
+  divRight = panesDiv.append('div')
+    .attr('class', 'panes-right')
+  for (i = 0; i < panesList.length; i++) {
+    div = (i % 2 === 0) ? divLeft.append('div') : divRight.append('div');
+		div.attr('class', 'display-pane')
+			.attr('onclick', function() { return 'javascript:goPaneDetail(' + i + ');'; });
+		div.append('div')
+		  .attr('class', 'small-label on-label')
+      .attr('id', function() { return 'paneLabelOn' + i })
+      .html('on')
+      .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
+		div.append('div')
+		  .attr('class', 'small-label off-label')
+      .attr('id', function() { return 'paneLabelOff' + i })
+		  .html('off')
+      .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
+     div.append("div")
+         .attr("class", "on-off-slider")
+         .append("img")
+           .attr("src", "popovers/assets/slider.on-off.svg")
+           .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
+     div.append("div")
+         .attr("class", "on-off-knob")
+         .attr("id", function() { return 'on-off-knob' + i })
+         .style("left", function() { return onOffSliderPane.min + "px" })
+         .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; })
+         .append("img")
+           .attr("src", "popovers/assets/knob.small.svg");
+		div.append('span')
+			.attr('class', 'label-disabled')
+			.attr('id', function() { return 'pane' + i });
+		div.append('span')
+			.attr('class', 'state-disabled')
+			.attr('id', function() { return 'state' + i });
+  }
 
   updatePanesList();
 };
 
 var updatePanesList = function() {
-  var i, panes;
-  panes = apprentices.home.panes;
-  for (i = 0; i < panes.length; i++) {
-    if (panes[i].status !== "ignore") {
-      d3.select('#pane' + i)
-        .attr('class', 'label')
-        .html(panes[i].title);
-      d3.select('#state' + i)
-        .attr('class', 'state')
-        .html(panes[i].status);
-    } else {
-      d3.select('#label' + i)
-        .attr('class', 'label-disabled')
-        .html('');
-      d3.select('#state' + i)
-        .attr('class', 'state-disabled')
-        .html('');
-    }
+  var i, panesList;
+  panesList = livingPanes();
+  for (i = 0; i < panesList.length; i++) {
+		d3.select('#pane' + i)
+			.attr('class', 'label')
+			.html(panesList[i].title);
+		d3.select('#state' + i)
+			.attr('class', 'state')
+			.html(panesList[i].status);
+		if (panesList[i].status === "configured") {
+			if (panesList[i].active) {
+				endLeft = onOffSliderPane.max;
+				d3.select('#paneLabelOn' + i)
+					.style('display', 'block');
+				d3.select('#paneLabelOff' + i)
+					.style('display', 'none');
+			} else {
+				endLeft = onOffSliderPane.min;
+				d3.select('#paneLabelOn' + i)
+					.style('display', 'none');
+				d3.select('#paneLabelOff' + i)
+					.style('display', 'block');
+			}
+		  
+			d3.select('#on-off-knob' + i)
+				.transition().each('end', sendApprData())
+				.duration(600)
+				.style('left', endLeft + 'px');
+				
+		} else {
+			d3.select('#paneLabelOn' + i)
+				.style('display', 'none');
+			d3.select('#paneLabelOff' + i)
+				.style('display', 'none');
+		}
   }
 }
 
+var togglePaneOnOff = function(i, evt) {
+	var endLeft;
+	var panesList = livingPanes();
+	evt.stopPropagation();
+	if (panesList[i].status !== "configured") return;
+	if (panesList[i].active) {
+		panesList[i].active = false;
+		endLeft = onOffSliderPane.min;
+		d3.select('#paneLabelOn' + i)
+			.style('display', 'none');
+		d3.select('#paneLabelOff' + i)
+			.style('display', 'block');
+	} else {
+		panesList[i].active = true;
+		endLeft = onOffSliderPane.max;
+		d3.select('#paneLabelOn' + i)
+			.style('display', 'block');
+		d3.select('#paneLabelOff' + i)
+			.style('display', 'none');
+	}
+	
+	d3.select('#on-off-knob' + i)
+		.transition().each('end', sendApprData())
+		.duration(600)
+		.style('left', endLeft + 'px');
+}
+
 var goPaneDetail = function(n) {
-  var div, div2, div3, div4, events, tasks;
+  var div, div2, div3, div4, events, panes, tasks;
   var actorWidth = 58, actorHeight = 80, paneWidth = 802, maxIcons = 12;
+  panes = livingPanes();
   
   div = d3.select('#pane' + n);
   if (div.attr('class') === 'label-disabled') return;
@@ -138,14 +166,14 @@ var goPaneDetail = function(n) {
     .append('div')
     .attr('id', 'sub-pane-one');
 
-  if (apprentices.home.panes[n].observations.hasOwnProperty('events')) {
-    events = apprentices.home.panes[n].observations.events[0];
+  if (panes[n].observations.hasOwnProperty('events')) {
+    events = panes[n].observations.events[0];
     div.append('div')
       .attr('class', 'form-heading')
       .style('margin-top', '0px')
       .style('top', '-100px')
       .style('text-transform', 'capitalize')
-      .html(apprentices.home.panes[n].title);
+      .html(panes[n].title);
     div.append('div')
       .attr('class', 'form-heading')
       .style('margin-top', '0px')
@@ -165,8 +193,9 @@ var goPaneDetail = function(n) {
   div4 = div3.selectAll('div')
     .data(events.actors)
     .enter().append('div')
-      .attr('class', 'actor-home')
-      .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px';})
+      .attr('class', 'apprentice-actor-home')
+      .style('top', function(d, i) { return (actorHeight * (Math.floor(i / maxIcons))) + 'px';})
+      .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px'})
       .on('click', function(d, i) { toggleEvent(i, n) });
   div4.append('p')
      .attr('class', 'actor-name')
@@ -180,7 +209,9 @@ var goPaneDetail = function(n) {
      .style('background-color', function(d, i) { return (events.actors[i].selected) ? '#00ba00' : '#666';});
   }
 
-  tasks = apprentices.home.panes[n].performances.tasks[0];
+// TODO: NEEDS FIXING FOR STATUS LIGHTS
+  tasks = (panes[n].performances.hasOwnProperty('tasks')) ? panes[n].performances.tasks[0] : 
+    (panes[n].performances.hasOwnProperty('task')) ? panes[n].performances.task[0] : [];
   div2 = div.append('div')
     .attr('id', 'sub-pane-two');
   div2.append('div')
@@ -202,8 +233,9 @@ var goPaneDetail = function(n) {
   div4 = div3.selectAll('div')
     .data(tasks.actors)
     .enter().append('div')
-      .attr('class', 'actor-home')
-      .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px';})
+      .attr('class', 'apprentice-actor-home')
+      .style('top', function(d, i) { return (actorHeight * (Math.floor(i / maxIcons))) + 'px';})
+      .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px'})
       .on('click', function(d, i) { toggleTask(i, n) });
   div4.append('p')
      .attr('class', 'actor-name')
@@ -212,7 +244,7 @@ var goPaneDetail = function(n) {
      .html(function(d, i) { return actors[tasks.actors[i].device].name });
   div4.append('img')
      .attr('id', function(d, i) { return 'img_' + actor2ID(tasks.actors[i].device); })
-     .attr('src', function(d, i) { var entry = entries[actors[tasks.actors[i].device].deviceType] || entries['default'];
+     .attr('src', function(d, i) { var entry = entries[actors[tasks.actors[i].device].deviceType] || entries.default(actors[tasks.actors[i].device].deviceType);
             return entry.img;})
      .style('background-color', function(d, i) { return (tasks.actors[i].selected) ? '#00ba00' : '#666';});
 
@@ -220,8 +252,10 @@ var goPaneDetail = function(n) {
     .attr('class', 'action-button-group');
   div3.append('img')
     .attr('class', 'action-button')
-    .attr('src', 'popovers/assets/activate.svg')
-    .on('click', function() { goApprentices(true); });
+    .attr('id', 'activator')
+    .attr('src', function() { return (panes[n].active) ? 'popovers/assets/deactivate.svg' : 'popovers/assets/activate.svg'; })
+    .style('opacity', function() { return (panes[n].status === 'configured') ? 1.0 : 0.4; })
+    .attr('onclick', function() { return 'javascript:toggleActivate(' + n + ', event);'; });
   div3.append('img')
     .attr('class', 'action-button')
     .attr('src', 'popovers/assets/done.svg')
@@ -235,7 +269,9 @@ var goPaneDetail = function(n) {
       .style('color', newColor);
     d3.select('#img_' + actor2ID(device))
       .style('background-color', newColor);
-    checkPane(apprentices.home.panes[n]);
+    checkPane(panes[n]);
+    updatePanesList();
+    checkActivator(n);
   }
 
   function toggleTask(i, n) {
@@ -246,10 +282,20 @@ var goPaneDetail = function(n) {
       .style('color', newColor);
     d3.select('#img_' + actor2ID(device))
       .style('background-color', newColor);
-    checkPane(apprentices.home.panes[n]);
+    checkPane(panes[n]);
+    updatePanesList();
+    checkActivator(n);
   }
 }
 
+var livingPanes = function() {
+  var panes = [];
+  var allPanes = apprentices.home.panes;
+  for (var i = 0; i < allPanes.length; i++) {
+    if (allPanes[i].status !== "ignore") panes.push(allPanes[i]);
+  }
+  return panes;
+}
 
 var apprentices =
 { home                          :
@@ -456,7 +502,7 @@ var apprentices =
         , tasks                 :
           [ { title             : 'Lights at late night'
             , uuid              : 'e745eb62-ff24-444d-9a57-75b390fc3166:task:lights at late night'
-            , text              : 'Please choose one or more lights to turnoff off late at night.'
+            , text              : 'Please choose one or more lights to turn off late at night.'
             , deviceType        : '^/device/lighting/[^/]+/[^/]+$'
             , mustHave          : [ ]
             , operator          : 'and'
@@ -476,7 +522,9 @@ var apprentices =
 
 
 var prepare = function(apprentice, actors, activities) {
-  var d, event, group, i, j, k, l, m, n, pane, suffixes, task, uuid;
+  var again, d, event, group, i, j, k, l, m, n, pane, suffixes, task, uuid;
+  
+  again = false;
 
   d = organize(activities);
 
@@ -524,7 +572,12 @@ var prepare = function(apprentice, actors, activities) {
 
     checkPane(pane);
 
-    setup(pane, d);
+    again = setup(pane, d);
+  }
+  if (again) {
+    setTimeout(function() { refreshActors(4) }, 0);
+  } else {
+    finishApprentices();
   }
 };
 
@@ -679,15 +732,16 @@ var setup = function(pane, d) {
   event = setup_observations(pane.observations, d);
   task = setup_performances(pane, pane.observations, pane.performances, d);
 
-  if ((!event) || (!task)) return;
+  if ((!event) || (!task)) return true;
 
-console.log('create activity ' + pane.uuid + ' event=' + event + ' task=' + task);
+//console.log('[setup] create activity ' + pane.uuid + ' event=' + event + ' task=' + task);
   wsSend(JSON.stringify({ path      : '/api/v1/activity/create/' + pane.uuid
                         , requestID : ++rID
                         , name      : pane.title
                         , event     : event
                         , task      : task
                         }));
+  return false;
 };
 
 var setup_observations = function(observations, d) {
@@ -705,7 +759,7 @@ var setup_observations = function(observations, d) {
         continue;
       }
 
-console.log('create group ' + event.uuid);
+//console.log('[setup_observations] create group ' + event.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + event.uuid
                             , requestID : ++rID
                             , name      : event.title
@@ -715,7 +769,7 @@ console.log('create group ' + event.uuid);
                             }));
     }
     if (members.length === observations.events.length) {
-console.log('create group ' + observations.uuid);
+//console.log('[setup_observations] create group ' + observations.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + observations.uuid
                             , requestID : ++rID
                             , name      : observations.title
@@ -735,7 +789,7 @@ console.log('create group ' + observations.uuid);
       event = observations.event[i];
       if (!!d.events[event.uuid]) continue;
 
-console.log('create event ' + event.uuid);
+//console.log('[setup_observations] create event ' + event.uuid);
        wsSend(JSON.stringify({ path      : '/api/v1/event/create/' + event.uuid
                              , requestID : ++rID
                              , name      : event.title
@@ -751,7 +805,7 @@ console.log('create event ' + event.uuid);
   event = observations.event;
   if (!!d.events[event.uuid]) return d.events[event.uuid].id;
 
-console.log('create event ' + event.uuid);
+//console.log('[setup_observations] create event ' + event.uuid);
   wsSend(JSON.stringify({ path      : '/api/v1/event/create/' + event.uuid
                         , requestID : ++rID
                         , name      : event.title
@@ -776,7 +830,7 @@ var setup_performances = function(pane, observations, performances, d) {
         continue;
       }
 
-console.log('create group ' + task.uuid);
+//console.log('[setup_performances] create group ' + task.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + task.uuid
                             , requestID : ++rID
                             , name      : task.title
@@ -786,7 +840,7 @@ console.log('create group ' + task.uuid);
                             }));
     }
     if (members.length === performances.tasks.length) {
-console.log('create group ' + performances.uuid);
+//console.log('[setup_performances] create group ' + performances.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + performances.uuid
                             , requestID : ++rID
                             , name      : performances.title
@@ -818,7 +872,7 @@ console.log('create group ' + performances.uuid);
         uuid2 = pane.uuid + suffix;
         if (!!d.activities[uuid2]) continue;
 
-console.log('create activity ' + uuid2 + ' event=' + d.events[event.uuid].id + ' task=' + d.groups[uuid1].id);
+//console.log('[setup_performances] create activity ' + uuid2 + ' event=' + d.events[event.uuid].id + ' task=' + d.groups[uuid1].id);
         wsSend(JSON.stringify({ path      : '/api/v1/activity/create/' + uuid2
                               , requestID : ++rID
                               , name      : event.title
@@ -828,7 +882,7 @@ console.log('create activity ' + uuid2 + ' event=' + d.events[event.uuid].id + '
         continue;
       }
 
-console.log('create group ' + uuid1);
+//console.log('[setup_performances] create group ' + uuid1);
        wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + uuid1
                              , requestID : ++rID
                              , name      : event.title
@@ -844,7 +898,7 @@ console.log('create group ' + uuid1);
   task = performances.task;
   if (!!d.tasks[task.uuid]) return d.tasks[task.uuid].id;
 
-console.log('create task ' + task.uuid);
+//console.log('[setup_performances] create task ' + task.uuid);
   wsSend(JSON.stringify({ path      : '/api/v1/task/create/' + task.uuid
                         , requestID : ++rID
                         , name      : task.title
@@ -857,3 +911,22 @@ console.log('create task ' + task.uuid);
 var parameterize = function(s) { return ((typeof s !== 'string') ? JSON.stringify(s) : s); };
 
 if (!Array.isArray) Array.isArray = function(a) { return Object.prototype.toString.call(a) === '[object Array]'; };
+
+var checkActivator = function(n) {
+  d3.select('#activator')
+    .style('opacity', function() { return (livingPanes()[n].status === 'configured') ? 1.0 : 0.4; });
+}
+
+var toggleActivate = function(n, evt) {
+  var panesList = livingPanes();
+  if (panesList[n].status === 'configured') {
+    panesList[n].active = (panesList[n].active === true) ? false : true;
+    d3.select('#activator')
+      .attr('src', function() { return (panesList[n].active) ? 'popovers/assets/deactivate.svg' : 'popovers/assets/activate.svg'; });
+    updatePanesList();
+  }
+}
+
+var sendApprData = function() {
+console.log('Sending apprentice data...');
+};
