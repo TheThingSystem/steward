@@ -92,6 +92,8 @@ var showLogin = function(changeLogin) {
     
   if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
   
+  document.loginForm.userName.focus();
+  
   function isRemoteAccess() {
     return (/\.taas\./.test(location.hostname));
   }
