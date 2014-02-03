@@ -174,40 +174,39 @@ var go = function(steward) {
         
 	    switch (requestID) {
 	      case "0": // Draw entire page & start listening for updates		  
-			  state = stack.pop();
-			  state.message = message;
-			  stack.push(state);
-			  (state.page)(state);
-			  break;
+					state = stack.pop();
+					state.message = message;
+					stack.push(state);
+					(state.page)(state);
+					break;
 	      case "1": // Redraw page while updates already flowing
-			  state = stack.pop();
-			  state.message = message;
-			  stack.push(state);
-			  (state.page)(state);
-			  break;
+					state = stack.pop();
+					state.message = message;
+					stack.push(state);
+					(state.page)(state);
+					break;
 	      case "2":  // Perform from popover
-			  if (failure) notify("Setting the device property failed.");
-			  break;
+					if (failure) notify("Setting the device property failed.");
+					break;
 	      case "3":  // Perform from settings
-			  if (failure) notify("Sending new settings to the steward failed.");
-			  break;
-		  case "4":  // Apprentice actors
+					if (failure) notify("Sending new settings to the steward failed.");
+					break;
+		    case "4":  // Apprentice actors
 		      apprenticeActors = message;
 		      setTimeout(function() {
                 wsSend(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 5, options: { depth: 'all' }}));}, 0); 
               break;
-          case "5":  // Apprentice activities (to come)
+        case "5":  // Apprentice activities (to come)
               prepare(apprentices.home, apprenticeActors, message);
-              finishApprentices();
               break;
 	      case "7":  // Remote login
-			  onlogin(message);
-			  stack.push({ page: home });
-			  refreshActors(0);
-			  break;
-	      default:
-			  break;
-	    }
+					onlogin(message);
+					stack.push({ page: home });
+					refreshActors(0);
+					break;
+					default:
+					break;
+				}
       } catch(e) {
 	    console.log(e);
 	  }
