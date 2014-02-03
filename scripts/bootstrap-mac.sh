@@ -16,8 +16,6 @@ if [ ! -d /usr/local/Cellar ]; then
   brew install git
 else
   brew update
-
-  brew upgrade git
 fi
 
 brew install libusb-compat
