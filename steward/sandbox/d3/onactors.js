@@ -194,6 +194,7 @@ var statusColor2 = function(entry) {
     case 'paused':
     case 'playing':
     case 'present':
+    case 'safe':
     case 'quiet':
     case 'ready':
     case 'green':
