@@ -19,7 +19,7 @@ var ifApply = function(cb) {
   }
 };
 
-ifApply(function(ifname, ifaddr) {
+ifApply(function(ifname, ipaddr) {
   dgram.createSocket('udp4').on('message', function(message, rinfo) {
     console.log(JSON.stringify(rinfo));
     console.log(message.toString());

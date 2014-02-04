@@ -1,8 +1,6 @@
 // climate control template -- start with this when an HVAC unit can be managed independently
-// search for TBD to see what to change
 
 exports.start = function() {};
-if (true) return;
 
 // load the module that knows how to discover/communicate with a bulb
 var samsung     = require('samsung-airconditioner')
@@ -15,13 +13,12 @@ var samsung     = require('samsung-airconditioner')
   ;
 
 
-// var logger = climate.logger;
+var logger = climate.logger;
 
 
 // define the prototype that will be instantiated when the HVAC unit is discovered
 // later, we will create a ...perform function, and a ...update function.
 var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
-  var logger2 = utility.logger('discovery');  
   var self = this;
 
   self.whatami = info.deviceType;
@@ -33,7 +30,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.hvac = info.hvac;
   self.info = {};
 
-  self.hvac.on('stateChange', function(state) { 
+  self.hvac.on('stateChange', function(state) {
 // { AC_FUN_ENABLE: 'Enable',
 //   AC_FUN_COMODE: 'Off',
 //   AC_FUN_SLEEP: '0',
@@ -50,10 +47,10 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
       switch (key) {
         case "AC_FUN_POWER":
           if (state[key] == 'On') {
-            translated_state.hvac = 'on';
+            translated_state.power = 'on';
           }
           if (state[key] == 'Off') {
-            translated_state.hvac = 'off';
+            translated_state.power = 'off';
           }
           break;
         case "AC_FUN_OPMODE":
@@ -70,12 +67,12 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
             translated_state.hvac = 'fan';
           }
           if (state[key] == "Auto") {
-            translated_state.hvac = 'on';
-          }            
+            translated_state.hvac = 'auto';
+          }
           break;
         case "AC_FUN_TEMPSET":
           translated_state.goalTemperature = state[key];
-          break;    
+          break;
         case 'AC_FUN_SLEEP':
           translated_state.fan = parseInt(state[key], 10) * 1000 * 60;
           break;
@@ -92,7 +89,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
         //   }
         //   if (state[key] == "Auto") {
         //     translated_state['fan'] = 'auto';
-        //   }          
+        //   }
         //   break;
         case "AC_ADD_SPI":
           break;
@@ -111,15 +108,15 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
       }
     }
 
-//    logger2.info('device/' + self.deviceID, state);
-    logger2.info('device/' + self.deviceID, translated_state);
+    logger.info('device/' + self.deviceID, translated_state);
 
     self.update(self, translated_state, self.status);
     self.changed();
   });
-  
+
   self.update(self, {
     'hvac': 'off',
+    'power': 'off',
     'fan': 0,
     'temperature': 0
   }, 'present');
@@ -135,15 +132,9 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
 };
 util.inherits(Thermostat, climate.Device);
 
+
 Thermostat.prototype.setup = function () {
   var self = this;
-  var logger2 = utility.logger('discovery');
-
-  // var db = require('./../../core/database').db
-  // db.on('trace', function(e) {
-  //   console.log(e);
-  // });
-
 
   self.getState(function (err, state) {
     if (!state) {
@@ -155,10 +146,10 @@ Thermostat.prototype.setup = function () {
         if (!!err) {
           self.update(self, {}, 'reset');
 
-          return logger2.info('device/' + self.deviceID, 'Get Token error: ' + err.message);
+          return logger.info('device/' + self.deviceID, 'Get Token error: ' + err.message);
         }
 
-        logger2.info('device/' + self.deviceID, "Token found:" + token);
+        logger.info('device/' + self.deviceID, "Token found:" + token);
 
         state.token = token;
 
@@ -168,18 +159,18 @@ Thermostat.prototype.setup = function () {
         }).on('loginSuccess', function () {
           self.update(self, {}, 'present');
           self.hvac.status();
-          logger2.info('device/' + self.deviceID, "Logged on");
+          logger.info('device/' + self.deviceID, "Logged on");
         });
       }).on('waiting', function() {
         self.alert('Please power on the device within the next 30 seconds');
-        logger2.info('device/' + self.deviceID, 'Please power on the device within the next 30 seconds');
+        logger.info('device/' + self.deviceID, 'Please power on the device within the next 30 seconds');
       });
     } else {
       self.hvac.login(state.token, function () {
       }).on('loginSuccess', function () {
         self.update(self, {}, 'present');
         self.hvac.status();
-        logger2.info('device/' + self.deviceID, "Logged on");
+        logger.info('device/' + self.deviceID, "Logged on");
       });
     }
   });
@@ -206,83 +197,82 @@ Thermostat.prototype.update = function(self, params, status) {
   }
 };
 
-Thermostat.operations = {
-  set: function(self, params) {
+Thermostat.operations =
+{ set: function(self, params) {
+         devices.attempt_perform('name', params, function(value) {
+           self.setName(value);
+         });
 
-    var performed = false;
+        devices.attempt_perform('power', params, function(value) {
+          switch (value) {
+            case 'off':
+              self.hvac.onoff(false);
+              break;
+            case 'on':
+              self.hvac.onoff(true);
+              break;
+          }
+        });
 
-    var attempt_perform = function(key, fn) {
-      if (typeof params[key] !== 'undefined') {
-        fn(params[key]);
-        performed = true;
+        devices.attempt_perform('hvac', params, function(value) {
+          switch (value) {
+            case 'auto':
+              self.hvac.mode('Auto');
+              break;
+            case 'cool':
+              self.hvac.mode('Cool');
+              break;
+            case 'heat':
+              self.hvac.mode('Heat');
+              break;
+            case 'dry':
+              self.hvac.mode('Dry');
+              break;
+            case 'fan':
+              self.hvac.mode('Wind');
+              break;
+          }
+        });
+
+        devices.attempt_perform('fan', params, function(value) {
+          var time;
+
+          switch (value) {
+            // Available options for convenient mode
+            // var modes = ['Off', 'Quiet', 'Sleep', 'Smart', 'SoftCool', 'TurboMode', 'WindMode1', 'WindMode2', 'WindMode3']
+            // case 'off':
+            //   // self.hvac.set_convenient_mode('Off');
+            //   break;
+            // case 'on':
+            //   // self.hvac.set_convenient_mode('Quiet');
+            //   break;
+            // case 'auto':
+            //   // self.hvac.set_convenient_mode('WindMode1');
+            //   break;
+
+            default:
+              time = parseInt(value, 10);
+              if (isNaN(time)) break;
+              self.hvac.set_sleep_mode(time/1000/60);
+              break;
+          }
+        });
+
+        devices.attempt_perform('goalTemperature', params, function(value) {
+          var goalTemperature;
+
+          goalTemperature = parseInt(value, 10);
+          if (isNaN(goalTemperature)) {
+            return;
+          }
+
+          if (goalTemperature > 30 || goalTemperature < 16) {
+            return;
+          }
+
+          self.hvac.set_temperature(goalTemperature);
+        });
       }
-    };
-
-    attempt_perform('hvac', function(value) {
-      switch (value) {
-        case 'off':
-          self.hvac.onoff(false);
-          break;
-        case 'on':
-          self.hvac.onoff(true);   
-          break;
-        case 'cool':  
-          self.hvac.mode('Cool');
-          break;
-        case 'heat':
-          self.hvac.mode('Heat');
-          break;
-        case 'dry':
-          self.hvac.mode('Dry');         
-          break;        
-        case 'fan':
-          self.hvac.mode('wind');
-          break;
-      }
-    });
-
-    attempt_perform('fan', function(value) {
-      var time;
-
-      switch (value) {
-        // Available options for convenient mode
-        // var modes = ['Off', 'Quiet', 'Sleep', 'Smart', 'SoftCool', 'TurboMode', 'WindMode1', 'WindMode2', 'WindMode3']
-        // case 'off':
-        //   // self.hvac.set_convenient_mode('Off');
-        //   break;
-        // case 'on':
-        //   // self.hvac.set_convenient_mode('Quiet');        
-        //   break;
-        // case 'auto':
-        //   // self.hvac.set_convenient_mode('WindMode1');
-        //   break;
-
-        default:
-          time = parseInt(value, 10);
-          if (isNaN(time)) break;
-          self.hvac.set_sleep_mode(time/1000/60);
-          // TBD: set the fan duration. adjust time from milliseconds to whatever
-          break;
-      }
-    });
-
-    attempt_perform('goalTemperature', function(value) {
-      var goalTemperature;
-
-      goalTemperature = parseInt(value, 10);
-      if (isNaN(goalTemperature)) {
-        return;
-      }
-
-      if (goalTemperature > 30 || goalTemperature < 16) {
-        return;
-      }
-
-      self.hvac.set_temperature(goalTemperature);
-    });
-
-    return performed;
-  }
 };
 
 Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
@@ -290,32 +280,11 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(e) { params = {}; }
 
-  if (!!Thermostat.operations[perform]) {
-    if (Thermostat.operations[perform](this, params)) {
-      return steward.performed(taskID);
-    }
-  }
+  if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
-  return devices.perform(self, taskID, perform, parameter);
-};
-
-var checkParam = function(key, params, result, allowNumeric, map) {
-  if (typeof params[key] !== 'undefined') {
-
-    var defined = typeof map[params[key]] !== 'undefined';
-
-    if (((!defined) && (!allowNumeric)) || ((!defined) && allowNumeric && isNaN(parseInt(params[key], 10)))) {
-      result.invalid.push(key);
-    }
-
-    if (key == 'goalTemperature') {
-      var temperature = parseInt(params[key], 10);
-
-      if (temperature > 30 || temperature < 16) {
-        result.invalid.push(key);
-      }
-    }
-  }
+  Thermostat.operations[perform](this, params);
+  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -325,21 +294,16 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Thermostat.operations[perform]) {
-    if (perform === 'set') {
-      if (!params) {
-        result.requires.push('parameter');
-        return result;
-      }
+  if (!Thermostat.operations[perform]) return devices.validate_perform(perform, parameter);
 
-      checkParam('hvac', params, result, false, { heat: 1, cool: 1, fan: 1, off: 1 });
-      checkParam('fan', params, result, true, { off: 1, on: 1, auto: 1 });
-      checkParam('goalTemperature', params, result, true, {});
-    }
-    return result;
-  }
+  if (!params) return result;
 
-  return devices.validate_perform(perform, parameter);
+  devices.validate_param('power',           params, result, false, { off: 1, on:  1 });
+  devices.validate_param('hvac',            params, result, false, { off: 1, fan: 1, heat: 1, cool: 1, auto: 1 });
+  devices.validate_param('fan',             params, result, true,  { off: 1, on:  1, auto: 1 });
+  devices.validate_param('goalTemperature', params, result, true,  { });
+
+  return result;
 };
 
 
@@ -358,24 +322,25 @@ exports.start = function() {
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'
-                                   , hvac            : [ 'cool', 'heat', 'fan', 'dry', 'off', 'on', ]
-                                   , fan             : [ 'on', 'off', 'high', 'mid', 'low', 'auto', 'milliseconds' ]
+                                   , power           : [ 'on', 'off' ]
+                                   , hvac            : [ 'cool', 'heat', 'fan', 'off', 'dry', 'auto' ]
+                                   , fan             : [ 'on', 'auto', 'milliseconds', 'off', 'high', 'mid', 'low' ]
                                    , goalTemperature : 'celsius'
                                    }
                     }
         , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/climate/samsung/control'] = Thermostat;
-// TBD: when the hardware driver discovers a new HVAC unit, it will call us.
-// TBD: or if the low-level driver needs to be polled, then create a 'scan' function and call it periodically.
 
   new samsung().on('discover', function(aircon) {
+    var info;
+
     // TODO This is done to avoid detecting ourselves listening for the SSDP response.
     // There should be a better way :(
     if (!aircon.options.duid) {
       return;
     }
-    var info;
+
     info = { source     : 'samsung'
            , hvac       : aircon
            , device     : { url          : 'tcp://' + aircon.ip + ':2878'
@@ -394,13 +359,10 @@ exports.start = function() {
     info.url = info.device.url;
     info.deviceType = '/device/climate/samsung/control';
     info.id = info.device.unit.udn;
+    if (!!devices.devices[info.id]) return;
 
-    devices.discover(info, function (err) {
-      if (!!err) { 
-        logger2.error('samsung', { diagnostic: err.message }); 
-      }
-    });
-
+    logger2.info(info.device.name, info.device);
+    devices.discover(info);
   }).on('error', function(err) {
     logger2.error('samsung', { diagnostic: err.message });
   }).logger = logger2;
