@@ -173,6 +173,9 @@ var showPop = function(device) {
 	case "/device/lighting/":
 		w = 485, h = 497, t = 100, l = 133;
 		break;
+	case "/device/media/":
+		w = 598, h = 497, t = 100, l = 83;
+		break;
 	case "/device/motive/":
 		w = 598, h = 407, t = 170, l = 80;
 		break;
@@ -183,8 +186,11 @@ var showPop = function(device) {
 	case "/device/wearable/":
 		w = 420, h = 340, t = 215, l = 165;
 		break;
+	case "/device/sensor/":
+		w = 485, h = 497, t = 290, l = 133;
+		break
 	default:
-		w = 598, h = 497, t = 100, l = 83;
+		w = 485, h = 497, t = 290, l = 133;
 		break
   }
 

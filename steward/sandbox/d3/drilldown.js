@@ -1073,7 +1073,7 @@ var climate_device_arcs = function(device) {
                           , label  : 'SMOKE'
                           , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                                                  : (v !== 'absent') ? v.toUpperCase() : v
-                          , value  : clip2bars(-v, -5, 1.5)
+                          , value  : clip2bars((isNaN(v)) ? ((v === 'absent') ? -5 : 1.5) : -v, -5, 1.5)
                           , index  : 0.40
                           });
         break;
@@ -1149,7 +1149,7 @@ var climate_device_arcs = function(device) {
                           , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                                                  : (v !== 'absent') ? v.toUpperCase() : v
 
-                          , value  : clip2bars(-v, -5, 1.5)
+                          , value  : clip2bars((isNaN(v)) ? ((v === 'absent') ? -5 : 1.5) : -v, -5, 1.5)
                           , index  : 0.40
                           });
         break;
