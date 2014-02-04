@@ -332,7 +332,7 @@ exports.start = function() {
       };
   devices.makers['/device/climate/samsung/control'] = Thermostat;
 
-  new samsung().on('discover', function(aircon) {
+  new samsung({ logger: logger2 }).on('discover', function(aircon) {
     var info;
 
     // TODO This is done to avoid detecting ourselves listening for the SSDP response.
@@ -365,5 +365,5 @@ exports.start = function() {
     devices.discover(info);
   }).on('error', function(err) {
     logger2.error('samsung', { diagnostic: err.message });
-  }).logger = logger2;
+  });
 };
