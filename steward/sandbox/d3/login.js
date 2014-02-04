@@ -601,6 +601,17 @@ var bootable = { ecobee         :
                    , credentials: ''
                    }
                  }
+               , lockitron      :
+                 { text         : 'If you have a Lockitron account, the steward can let you lock and unlock your locks'
+                 , instructions : 'Go to https://api.lockitron.com, create an account, and generate an accessToken.'
+                 , site         : 'https://api.lockitron.com/'
+                 , icon         : ''
+                 , name         : 'lockitron'
+                 , actor        : '/device/gateway/lockitron/cloud'
+                 , info         :
+                   { accessToken: ''
+                   }
+                 }
                , mqtt           :
                  { text         : 'If you have an account on an MQTT broker, the steward can automatically upload measurements.'
                  , instructions : 'Enter a URL, e.g., "mqtts://broker/topic" and your username/password for the broker'
