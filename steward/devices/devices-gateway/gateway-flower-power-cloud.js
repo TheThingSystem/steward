@@ -1,6 +1,6 @@
 // Parrot Flower Power: http://www.parrot.com/flowerpower/
 
-var CloudAPI    = require('node-flower-power-cloud')
+var CloudAPI    = require('flower-power-cloud')
   , util        = require('util')
   , validator   = require('validator')
   , devices     = require('./../../core/device')

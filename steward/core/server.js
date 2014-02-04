@@ -497,6 +497,10 @@ var rendezvous = function(params, portno, u) {
 
     retry(1);
   }).on('error', function(err) {
+    if (err.errno === 'EMFILE') {
+      logger.alert('rendezvous', { event: 'error', server: u.host, diagnostic: err.message });
+      return process.exit(2);
+    }
     logger.error('rendezvous', { event: 'error', server: u.host, diagnostic: err.message });
 
     retry(10);
