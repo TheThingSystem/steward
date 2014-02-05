@@ -8,7 +8,7 @@ var util        = require('util')
   ;
 
 
-// var logger = motive.logger;
+var logger = motive.logger;
 
 
 var Lock = exports.Device = function(deviceID, deviceUID, info) {
@@ -22,13 +22,19 @@ var Lock = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
+  self.serial = info.device.unit.serial;
+
   self.info = {};
+  if (!!info.params.status) {
+    self.status = info.params.status;
+    delete(info.params.status);
+  } else self.status = 'present';
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
 
-  self.status = 'present';
   self.changed();
+  self.gateway = info.gateway;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -58,26 +64,34 @@ Lock.prototype.update = function(self, params, status) {
 
 
 Lock.prototype.perform = function(self, taskID, perform, parameter) {
-  var f, params;
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  f = null;
   switch (perform) {
     case 'set':
       return self.setName(params.name, taskID);
 
-/* NOT YET
     case 'lock':
-      break;
-
     case 'unlock':
       break;
- */
 
     default:
       return false;
   }
+
+  if (!self.gateway.lockitron) return false;
+
+  self.gateway.lockitron.roundtrip('GET', '/locks/' + self.serial + '/' + perform, null, function(err, results) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: perform, diagnostic: err.message });
+
+    try {
+      self.state = results.data.activity.updated_current === 'lock' ? 'locked' : 'unlocked';
+      self.changed();
+    } catch(ex) {
+      logger.error('device/' + self.deviceID, { event: perform, diagnostic: ex.message, results: results });
+    }
+  });
 
   return steward.performed(taskID);
 };
@@ -95,13 +109,11 @@ var validate_perform = function(perform, parameter) {
       break;
 
     case 'lock':
-      break;
-
     case 'unlock':
       break;
 
     default:
-      result.requires.push('perform');
+      result.invalid.push('perform');
       break;
   }
 
@@ -118,7 +130,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'lock', 'unlock' ]
                     , properties : { name       : true
-                                   , status     : [ 'locked', 'unlocked', 'absent' ]
+                                   , status     : [ 'locked', 'unlocked' ]
                                    , location   : 'coordinates'
                                    , lastSample : 'timestamp'
                                    }

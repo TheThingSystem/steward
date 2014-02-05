@@ -504,7 +504,7 @@ var validate_perform = function(perform, parameter) {
       break;
 
     default:
-      result.requires.push('perform');
+      result.invalid.push('perform');
       break;
   }
 

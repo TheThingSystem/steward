@@ -70,21 +70,25 @@ Cloud.prototype.scan = function(self) {
   if (!self.lockitron) return;
 
   self.lockitron.roundtrip('GET', '/locks', null, function(err, results) {
-    var i, info, lock, params, sensor, udn;
+    var i, info, lock, now, params, sensor, status, udn;
 
     if (!!err) { self.lockitron = null; return self.error(self, 'roundtrip', err); }
 
+    now = new Date().getTime();
     for (i = 0; i < results.length; i++) {
       lock = results[i].lock;
       udn = 'lockitron:' + lock.id;
 
-      params = { status: lock.status === 'lock' ? 'locked' : 'unlocked' };
+      params = { lastSample : now };
       if ((!!lock.latitude) && (!!lock.longitude)) params.location = [ lock.atitude, lock.longitude ];
+      status = lock.status === 'lock' ? 'locked' : 'unlocked';
+
       if (!!devices.devices[udn]) {
         sensor = devices.devices[udn].device;
-        return sensor.update(sensor, params);
+        return sensor.update(sensor, params, status);
       }
 
+      params.status = status;
       info =  { source: self.deviceID, gateway: self, params: params };
       info.device = { url                          : null
                     , name                         : lock.name
