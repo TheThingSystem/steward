@@ -354,7 +354,7 @@ var keycheck = function (params) {
   if (!exports.vous) exports.vous = params.name;
 
   fs.exists(key, function(existsP) {
-    var alternates;
+    var alternates, i, label, x;
 
     if (existsP) return;
 
@@ -364,6 +364,11 @@ var keycheck = function (params) {
                  , 'IP:'  + params.server.hostname
                  ];
     steward.forEachAddress(function(address) { alternates.push('IP:' + address); });
+    for (i = 0; i < params.labels.length; i++) {
+      label = params.labels[i];
+      x = label.lastIndexOf('.');
+      if (x !== -1) alternates.push('DNS:' + label.substring(0, x + 1) + params.name);
+    }
 
     x509keygen.x509_keygen({ subject    : '/CN=' + params.name
                            , certfile   : crt
