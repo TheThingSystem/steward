@@ -769,6 +769,18 @@ var single_device_arcs = function(device) {
                 });
       break;
 
+    case 'locked':
+    case 'unlocked':
+      arcs.push({ name   : 'status'
+                , raw    : device.status
+                , color  : color
+                , label  : 'STATUS'
+                , cooked : device.status
+                , value  : device.status === 'locked' ? 0.5 : 0.0
+                , index  : 0.60
+                });
+        break;
+
     case 'present':
       break;
 
@@ -1073,7 +1085,7 @@ var climate_device_arcs = function(device) {
                           , label  : 'SMOKE'
                           , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                                                  : (v !== 'absent') ? v.toUpperCase() : v
-                          , value  : clip2bars(-v, -5, 1.5)
+                          , value  : clip2bars((isNaN(v)) ? ((v === 'absent') ? -5 : 1.5) : -v, -5, 1.5)
                           , index  : 0.40
                           });
         break;
@@ -1149,7 +1161,7 @@ var climate_device_arcs = function(device) {
                           , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                                                  : (v !== 'absent') ? v.toUpperCase() : v
 
-                          , value  : clip2bars(-v, -5, 1.5)
+                          , value  : clip2bars((isNaN(v)) ? ((v === 'absent') ? -5 : 1.5) : -v, -5, 1.5)
                           , index  : 0.40
                           });
         break;
@@ -1573,6 +1585,26 @@ var motive_device_arcs = function(device) {
     }
   }
 
+  if (arcs.length > 0) return arcs;
+
+  now = new Date().getTime();
+  delta = clip2bars(now - (new Date(device.updated).getTime()), 0, 86400 * 1000);
+  arcs.push({ name   : 'updated'
+            , raw    : device.updated
+            , label  : 'TIME'
+            , cooked : d3.timestamp.ago(device.updated)
+            , value  : delta
+            , index  : 0.70
+            });
+  arcs.push({ name   : 'status'
+            , raw    : device.status
+            , color  : statusColor(device)
+            , label  : 'STATUS'
+            , cooked : device.status
+            , value  : device.status === 'locked' ? 0.5 : 0.0
+            , index  : 0.60
+            });
+
   return arcs;
 };
 
@@ -1861,343 +1893,6 @@ function textColor(bgColor, arcVal) {
 
 var entries = {
 // actors
-/* DEPRECATED
-                '/device/climate/arduino/sensor'            : { img     : 'actors/sensor-generic.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              }
-              , '/device/climate/arduino/ventilation'       : { img     : 'actors/sensor-generic.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              }
-              , '/device/climate/datasensinglab/air-quality': { img     : 'actors/sensor-air-quality.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/climate/grove/air-quality'         : { img     : 'actors/sensor-air-quality.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/climate/koubachi/plant'            : { img     : 'actors/sensor-plant.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/climate/koubachi/soil'             : { img     : 'actors/sensor-soil.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/climate/ecobee/control'            : { img     : 'actors/control-thermostat.svg'
-                                                              , single  : single_thermostat_drilldown
-                                                              , arcs    : thermostat_device_arcs
-                                                              , instrux : single_thermostat_instructions
-                                                              , pop     : 'thermostat_pop'
-                                                              }
-              , '/device/climate/nest/control'              : { img     : 'actors/control-thermostat.svg'
-                                                              , single  : single_thermostat_drilldown
-                                                              , arcs    : thermostat_device_arcs
-                                                              , instrux : single_thermostat_instructions
-                                                              , pop     : 'thermostat_pop'
-                                                              }		
-              , '/device/climate/nest/smoke'                : { img     : 'actors/sensor-smoke.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : no_instructions
-                                                              }		
-              , '/device/climate/netatmo/meteo'             : { img     : 'actors/sensor-meteo.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : single_climate_instructions
-                                                              , pop     : 'history_pop'
-                                                              }
-              , '/device/climate/oregon-scientific/meteo'  : { img     : 'actors/sensor-meteo.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : single_climate_instructions
-                                                              , pop     : 'history_pop'
-                                                              }
-              , '/device/climate/owl/monitor'               : { img     : 'actors/sensor-climate.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              }			
-              , '/device/climate/owl/meteo'                 : { img     : 'actors/sensor-climate.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : single_climate_instructions
-                                                              , instrux : single_device_instructions
-                                                              }			
-              , '/device/climate/yoctopuce/co2'             : { img     : 'actors/sensor-co2.svg'
-                                                              , single  : single_climate_drilldown
-                                                              , arcs    : climate_device_arcs
-                                                              , instrux : single_climate_instructions
-                                                              , pop     : 'history_pop'
-                                                              }
-              , '/device/climate/yoctopuce/light'           : { img     : 'actors/sensor-light.svg'
-                                                               , single  : single_climate_drilldown
-                                                               , arcs    : climate_device_arcs
-                                                               , instrux : single_climate_instructions
-                                                               , pop     : 'history_pop'
-                                                              }
-              , '/device/climate/yoctopuce/meteo'           : { img     : 'actors/sensor-meeto.svg'
-                                                               , single  : single_climate_drilldown
-                                                               , arcs    : climate_device_arcs
-                                                               , instrux : single_climate_instructions
-                                                               , pop     : 'history_pop'
-                                                              }
-              , '/device/climate/yoctopuce/voc'             : { img     : 'actors/sensor-voc.svg'
-                                                               , single  : single_climate_drilldown
-                                                               , arcs    : climate_device_arcs
-                                                               , instrux : single_climate_instructions
-                                                               , pop     : 'history_pop'
-                                                              }
-              , '/device/lighting/blink1/led'               : { img     : 'actors/lighting-led.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/blinkstick/led'           : { img     : 'actors/lighting-led.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/heroic-robotics/rgb'      : { img     : 'actors/lighting-lightstrip.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/heroic-robotics/rgb16'    : { img     : 'actors/lighting-lightstrip.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/heroic-robotics/rgbow'    : { img     : 'actors/lighting-lightstrip.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/hue/uplight'              : { img     : 'actors/lighting-uplight.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/hue/bulb'                 : { img     : 'actors/lighting-bulb.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              , norename: true
-                                                              }
-              , '/device/lighting/hue/downlight'              : { img     : 'actors/lighting-downlight.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/hue/lightstrip'           : { img     : 'actors/lighting-lightstrip.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/insteon/bulb'             : { img     : 'actors/lighting-bulb.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/robosmart/bulb'           : { img     : 'actors/lighting-bulb.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/tabu/bulb'                : { img     : 'actors/lighting-bulb.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/tcpi/cfl'                 : { img     : 'actors/lighting-cfl.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/tcpi/downight'            : { img     : 'actors/lighting-downlight.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/tcpi/bulb'                : { img     : 'actors/lighting-bulb.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/yoctopuce/color'          : { img     : 'actors/lighting-led.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/lighting/yoctopuce/powercolor'     : { img     : 'actors/lighting-led.svg'
-                                                              , single  : single_lighting_drilldown
-                                                              , arcs    : lighting_device_arcs
-                                                              , instrux : single_lighting_instructions
-                                                              , pop     : 'lighting_pop'
-                                                              }
-              , '/device/media/appletv/video'               : { img     : 'actors/media-video.svg'
-                                                              , single  : single_media_drilldown
-                                                              , arcs    : media_device_arcs
-                                                              , instrux : single_media_instructions
-                                                              , pop     : 'media_pop'
-                                                              }
-              , '/device/media/chromecast/video'            : { img     : 'actors/media-video.svg'
-                                                              , single  : single_media_drilldown
-                                                              , arcs    : media_device_arcs
-                                                              , instrux : single_media_instructions
-                                                              , pop     : 'media_pop'
-                                                              }
-              , '/device/media/roku/video'                  : { img     : 'actors/media-video.svg'
-                                                              , single  : single_media_drilldown
-                                                              , arcs    : media_device_arcs
-                                                              , instrux : single_media_instructions
-                                                              , pop     : 'media_pop'
-                                                              }
-              , '/device/media/sonos/audio'                 : { img     : 'actors/media-audio.svg'
-                                                              , single  : single_media_drilldown
-                                                              , arcs    : media_device_arcs
-                                                              , instrux : single_media_instructions
-                                                              , pop     : 'media_pop'
-                                                              }
-              , '/device/motive/tesla/model-s'              : { img     : 'actors/motive-automotive.svg'
-                                                              , single  : single_motive_drilldown
-                                                              , arcs    : motive_device_arcs
-                                                              , instrux : single_motive_instructions
-                                                              , pop     : 'motive_pop'
-                                                              }
-              , '/device/presence/ble/fob'                  : { img     : 'actors/presence-fob.svg'
-                                                              , single  : single_presence_drilldown
-                                                              , arcs    : presence_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'presence_pop'
-                                                              }
-              , 'device/presence/hone/fob'                  : { img     : 'actors/presence-fob.svg'
-                                                              , single  : single_presence_drilldown
-                                                              , arcs    : presence_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'presence_pop'
-                                                              }
-              , '/device/presence/inrange/fob'              : { img     : 'actors/presence-fob.svg'
-                                                              , single  : single_presence_drilldown
-                                                              , arcs    : presence_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'presence_pop'
-                                                              }
-              , '/device/presence/mqttitude/mobile'         : { img     : 'actors/presence-mobile.svg'
-                                                              , single  : single_presence_drilldown
-                                                              , arcs    : presence_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'presence_pop'
-                                                              }
-              , '/device/presence/reelyactive/tag'          : { img     : 'actors/presence-fob.svg'
-                                                              , single  : single_presence_drilldown
-                                                              , arcs    : presence_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'presence_pop'
-                                                              }
-              , '/device/sensor/arduino/seated-mat'         : { img     : 'actors/sensor-generic.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/sensor/grove/water'                : { img     : 'actors/sensor-water.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                             }
-              , '/device/sensor/owl/electricity'            : { img     : 'actors/sensor-meter.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                             }
-              , '/device/sensor/owl/solarpanels'           : { img     : 'actors/sensor-meter.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                             }
-              , '/device/sensor/texas-instruments/sensortag': { img     : 'actors/sensor-motion.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/sensor/wemo/motion'                : { img     : 'actors/sensor-motion.svg'
-                                                              , single  : single_sensor_drilldown
-                                                              , arcs    : sensor_device_arcs
-                                                              , instrux : no_instructions
-                                                              }
-              , '/device/switch/insteon/dimmer'             : { img     : 'actors/switch-dimmer.svg'
-                                                              , single  : single_switch_drilldown
-                                                              , arcs    : switch_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              , pop     : 'switch_pop'
-                                                              }
-              , '/device/switch/zwave/dimmer'               : { img     : 'actors/switch-dimmer.svg'
-                                                              , single  : single_switch_drilldown
-                                                              , arcs    : switch_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              , pop     : 'switch_pop'
-                                                              }
-              , '/device/switch/insteon/onoff'              : { img     : 'actors/switch-onoff.svg'
-                                                              , single  : single_switch_drilldown
-                                                              , arcs    : switch_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              , pop     : 'switch_pop'
-                                                              }
-              , '/device/switch/wemo/onoff'                 : { img     : 'actors/switch-onoff.svg'
-                                                              , single  : single_switch_drilldown
-                                                              , arcs    : switch_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              , pop     : 'switch_pop'
-                                                              }
-              , '/device/switch/zwave/onoff'                : { img     : 'actors/switch-onoff.svg'
-                                                              , single  : single_switch_drilldown
-                                                              , arcs    : switch_device_arcs
-                                                              , instrux : single_device_instructions
-                                                              , pop     : 'switch_pop'
-                                                              }
-              , '/device/wearable/ble/watch'                : { img     : 'actors/wearable-watch.svg'
-                                                              , single  : single_wearable_drilldown
-                                                              , arcs    : wearable_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'wearable_pop'
-                                                              }
-              , '/device/wearable/cookoo/watch'             : { img     : 'actors/wearable-watch.svg'
-                                                              , single  : single_wearable_drilldown
-                                                              , arcs    : wearable_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'wearable_pop'
-                                                              }
-              , '/device/wearable/metawatch/watch'          : { img     : 'actors/wearable-watch.svg'
-                                                              , single  : single_wearable_drilldown
-                                                              , arcs    : wearable_device_arcs
-                                                              , instrux : single_presence_instructions
-                                                              , pop     : 'wearable_pop'
-                                                              }
-             , default
-*/
 
 // defaults for unknown device types
                default                                      : function(deviceType) {

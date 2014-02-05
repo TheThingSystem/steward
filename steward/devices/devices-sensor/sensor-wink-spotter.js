@@ -62,11 +62,11 @@ Spotter.prototype.update = function(self, params) {
 
   data = self.params.props.last_reading;
   props = { lastSample   : 0
-          , temperature  : (typeof data.temperature === 'number') ? data.temperature     : undefined
-          , humidity     : (typeof data.humidity    === 'number') ? data.humidity        : undefined
-//        , noise        : (typeof data.loudness    === 'number') ? data.loudness        : undefined
-//        , light        : (typeof data.brightness  === 'number') ? data.brightness      : undefined
-          , batteryLevel : (typeof data.battery     === 'number') ? (data.battery * 100) : undefined
+          , temperature  : (typeof data.temperature === 'number') ? data.temperature                : undefined
+          , humidity     : (typeof data.humidity    === 'number') ? data.humidity                   : undefined
+//        , noise        : (typeof data.loudness    === 'number') ? data.loudness                   : undefined
+//        , light        : (typeof data.brightness  === 'number') ? data.brightness                 : undefined
+          , batteryLevel : (typeof data.battery     === 'number') ? (data.battery * 100).toFixed(2) : undefined
           };
 
   if (self.params.name !== self.name) {

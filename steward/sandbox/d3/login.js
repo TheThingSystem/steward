@@ -92,6 +92,8 @@ var showLogin = function(changeLogin) {
     
   if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
   
+  document.loginForm.userName.focus();
+  
   function isRemoteAccess() {
     return (/\.taas\./.test(location.hostname));
   }
@@ -597,6 +599,17 @@ var bootable = { ecobee         :
                  , info         :
                    { appkey     : ''
                    , credentials: ''
+                   }
+                 }
+               , lockitron      :
+                 { text         : 'If you have a Lockitron account, the steward can let you lock and unlock your locks'
+                 , instructions : 'Go to https://api.lockitron.com, create an account, and generate an accessToken.'
+                 , site         : 'https://api.lockitron.com/'
+                 , icon         : ''
+                 , name         : 'lockitron'
+                 , actor        : '/device/gateway/lockitron/cloud'
+                 , info         :
+                   { accessToken: ''
                    }
                  }
                , mqtt           :

@@ -191,9 +191,11 @@ var statusColor2 = function(entry) {
   switch(entry.status) {
     case 'idle':
     case 'on':
+    case 'locked':
     case 'paused':
     case 'playing':
     case 'present':
+    case 'safe':
     case 'quiet':
     case 'ready':
     case 'green':
@@ -208,6 +210,7 @@ var statusColor2 = function(entry) {
 
     case 'waiting':
     case 'indigo':
+    case 'unlocked':
       return '#9b00c1';
 
     case 'absent':

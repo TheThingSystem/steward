@@ -142,6 +142,9 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
       }
       return true;
 
+    case 'wake':
+      return self.wake();
+
     case 'play':
       param0 = (!!params.url) && (params.url.length) ? params.url : null;
       break;

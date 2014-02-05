@@ -32,7 +32,6 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.vehicle.lastSample = { timestamp: 0 };
   self.vehicle.streamingP = false;
   self.vehicle.updatingP = false;
-  self.events = {};
 
   self.info = {};
 
@@ -40,7 +39,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.newstate(self);
   self.gateway = info.gateway;
 
-  broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please enable remote access from vehicle console');
       return;
@@ -48,11 +47,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
 
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'observe') {
-      if (observe === 'charger') self.events[eventID] = { observe: observe, parameter: parameter };
-      return;
-    }
-    if (request === 'perform') return self.perform(self, eventID, observe, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   self.refresh(self);
@@ -247,7 +242,7 @@ ModelS.prototype.scan = function(self) {
     });
 
     tesla.get_charge_state(self.vehicle.id, function(data) {
-      var charger, didP, event, eventID;
+      var charger, didP;
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
@@ -266,16 +261,6 @@ ModelS.prototype.scan = function(self) {
       if (self.info.charger != charger) {
         didP = true;
 
-        if (!!self.info.charger) {
-          for (eventID in self.events) {
-            if (!self.events.hasOwnProperty(eventID)) continue;
-            event = self.events[eventID];
-
-            if ((event.observe === 'charger') && ((event.parameter === charger) || (event.parameter === ''))) {
-              steward.observed(eventID);
-            }
-          }
-        }
         self.info.charger = charger;
       }
 
@@ -467,16 +452,6 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   return steward.performed(taskID);
 };
 
-var validate_observe = function(observe, parameter) {/* jshint unused: false */
-  var result = { invalid: [], requires: [] };
-
-  if (observe.charAt(0) === '.') return result;
-
-  if (observe !== 'charger') result.invalid.push('observe');
-
-  return result;
-};
-
 var validate_perform = function(perform, parameter) {
   var deg
     , pct
@@ -529,7 +504,7 @@ var validate_perform = function(perform, parameter) {
       break;
 
     default:
-      result.requires.push('perform');
+      result.invalid.push('perform');
       break;
   }
 
@@ -543,7 +518,7 @@ exports.start = function() {
 
   steward.actors.device.motive.tesla['model-s'] =
       { $info     : { type       : '/device/motive/tesla/model-s'
-                    , observe    : [ 'charger' ]
+                    , observe    : [ ]
                     , perform    : [ 'doors'    // door_lock / door_unlock
                                    , 'lights'   // flash_lights
                                    , 'horn'     // honk_horn
@@ -577,8 +552,7 @@ exports.start = function() {
                                    , trunk          : [ 'open', 'closed' ]
                                    }
                     }
-      , $validate : { observe    : validate_observe
-                    , perform    : validate_perform
+      , $validate : { perform    : validate_perform
                     }
       };
   devices.makers['/device/motive/tesla/model-s'] = ModelS;

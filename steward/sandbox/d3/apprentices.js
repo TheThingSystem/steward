@@ -204,7 +204,7 @@ var goPaneDetail = function(n) {
      .html(function(d, i) { return actors[events.actors[i].device].name });
   div4.append('img')
      .attr('id', function(d, i) { return 'img_' + actor2ID(events.actors[i].device); })
-     .attr('src', function(d, i) { var entry = entries[actors[events.actors[i].device].deviceType] || entries['default'];
+     .attr('src', function(d, i) { var entry = entries[actors[events.actors[i].device].deviceType] || entries.default(actors[events.actors[i].device].deviceType);
             return entry.img;})
      .style('background-color', function(d, i) { return (events.actors[i].selected) ? '#00ba00' : '#666';});
   }
@@ -582,7 +582,7 @@ var prepare = function(apprentice, actors, activities) {
 };
 
 var checkPane = function(pane) {
-	var event, i, items, j, task;
+	var event, events, i, j, task, tasks;
 	var result = "incomplete";
 	
 	if (!!pane.observations.events) for (i = 0; i < pane.observations.events.length; i++) {
@@ -593,11 +593,10 @@ var checkPane = function(pane) {
 			} else if (!hasHowMany(event.actors.length, event.howMany)) {
 				result = "ignore";
 			} else {
-				items = 0;
+				events = 0;
 				for (j = 0; j < event.actors.length; j++) {
-					if (event.actors[j].hasOwnProperty("selected") && event.actors[j].selected) items++;
+					if (event.actors[j].hasOwnProperty("selected") && event.actors[j].selected) events++;
 				}
-				if (hasHowMany(items, event.howMany)) result = "configured";
 			}
 		}
 	}
@@ -611,15 +610,20 @@ var checkPane = function(pane) {
 				} else if (!hasHowMany(task.actors.length, task.howMany)) {
 					result = "ignore";
 				} else {
-					items = 0;
+					tasks = 0;
 					for (j = 0; j < task.actors.length; j++) {
-						if (task.actors[j].hasOwnProperty("selected") && task.actors[j].selected) items++;
+						if (task.actors[j].hasOwnProperty("selected") && task.actors[j].selected) tasks++;
 					}
-					if (hasHowMany(items, task.howMany)) result = "configured";
 				}
 			}
 		}
 	}
+	
+	if (event && task) {
+	  if ((hasHowMany(events, event.howMany)) && (hasHowMany(tasks, task.howMany))) {
+	    result = "configured";
+	  }
+	} else if ((event && hasHowMany(events, event.howMany)) || (task && hasHowMany(tasks, task.howMany))) result = "configured";
 
 	pane.status = result;
 
