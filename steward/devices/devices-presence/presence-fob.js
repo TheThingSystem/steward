@@ -142,4 +142,11 @@ exports.start = function() {
   steward.actors.device.presence.inrange.fob.$info.type = '/device/presence/inrange/fob';
   devices.makers['/device/presence/inrange/fob'] = Fob;
   register('/device/presence/inrange/fob', 'Philips AEA1000', [ '1802', '1803' ]);
+
+  steward.actors.device.presence.chipolo = utility.clone(steward.actors.device.presence.ble);
+  steward.actors.device.presence.chipolo.$info.type = '/device/presence/chipolo';
+  steward.actors.device.presence.chipolo.fob = utility.clone(steward.actors.device.presence.ble.fob);
+  steward.actors.device.presence.chipolo.fob.$info.type = '/device/presence/chipolo/fob';
+  devices.makers['/device/presence/chipolo/fob'] = Fob;
+  register('/device/presence/chipolo/fob', 'Chipolo', [ '451085d6f8334f7783d44f9438894ed5' ]);
 };

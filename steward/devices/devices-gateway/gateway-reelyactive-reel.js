@@ -53,7 +53,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
 
   if (data.indexOf('78') === 0) return self.updateReelceiver(self, data, timestamp);
 
-  if ((data.indexOf('04') !== 0) || (data.length < 12)) return;
+  if ((data.indexOf('04') !== 0) || (data.length < 16)) return;
 
   prevID = -1;
   v = [];
