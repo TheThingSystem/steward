@@ -121,7 +121,7 @@ Cloud.prototype.scan = function(self) {
   if (!self.lockitron) return;
 
   self.lockitron.roundtrip('GET', '/locks', null, function(err, results) {
-    var entry, i, info, lock, now, params, sensor, status, udn;
+    var entry, i, info, lock, now, params, status, udn;
 
     if (!!err) { self.lockitron = null; return self.error(self, 'roundtrip', err); }
 
@@ -136,7 +136,7 @@ Cloud.prototype.scan = function(self) {
 
       if (!!devices.devices[udn]) {
         lock = devices.devices[udn].device;
-        return lock.update(sensor, params, status);
+        return lock.update(lock, params, status);
       }
 
       params.status = status;
