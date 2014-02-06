@@ -101,7 +101,12 @@ exports.start = function() {
   arp.table(function(err, entry) {
     if (!!err) return logger.error('devices', { event: 'arp', diagnostic: err.message });
 
-    if (!!entry) arptab[entry.ip] = entry.mac;
+    if (!entry) return;
+
+    if ((entry.ip !== '0.0.0.0')
+            && (entry.ip !== '255.255.255.255')
+            && (entry.mac !== '00:00:00:00:00:00')
+            && (entry.mac !== 'ff:ff:ff:ff:ff:ff')) arptab[entry.ip] = entry.mac;
   });
 };
 
@@ -141,6 +146,15 @@ exports.arp = function(ifname, ifaddr, arp) {/* jshint unused: false */
         && (arp.target_pa !== '255.255.255.255')
         && (arp.target_ha !== '00:00:00:00:00:00')
         && (arp.target_ha !== 'ff:ff:ff:ff:ff:ff')) arptab[arp.target_pa] = arp.target_ha;
+};
+
+exports.prime = function(ipaddr, macaddr) {
+  if (macaddr.indexOf(':') === -1) macaddr = macaddr.match(/.{2}/g).join(':');
+
+  if ((ipaddr !== '0.0.0.0')
+        && (ipaddr !== '255.255.255.255')
+        && (macaddr !== '00:00:00:00:00:00')
+        && (macaddr !== 'ff:ff:ff:ff:ff:ff')) arptab[ipaddr] = macaddr;
 };
 
 exports.ip2mac = function(ipaddr) { return arptab[ipaddr]; };

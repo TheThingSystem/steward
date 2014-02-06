@@ -165,7 +165,7 @@ exports.start = function() {
   steward.actors.device.climate.nest.control =
       { $info     : { type       : '/device/climate/nest/control'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name            : true
                                    , status          : [ 'present', 'absent' ]
                                    , lastSample      : 'timestamp'

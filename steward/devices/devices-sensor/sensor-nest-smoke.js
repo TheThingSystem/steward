@@ -28,7 +28,7 @@ var Protect = exports.Device = function(deviceID, deviceUID, info) {
   if (!!info.params.status) {
     self.status = info.params.status;
     delete(info.params.status);
-  } else self.status = 'present';
+  } else self.status = 'absent';
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
@@ -75,7 +75,7 @@ exports.start = function() {
   steward.actors.device.sensor.nest.smoke =
       { $info     : { type       : '/device/sensor/nest/smoke'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name            : true
                                    , status          : [ 'safe', 'unsafe', 'absent' ]
                                    , lastSample      : 'timestamp'

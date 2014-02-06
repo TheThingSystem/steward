@@ -23,7 +23,9 @@ var test = function(ifname, macaddr, ipaddr) {
   oui = macaddr.substr(0, 6);
   if ((!pairings[oui]) || (!pairings[oui].callback)) return;
        if (!pairings[oui].macaddrs) pairings[oui].macaddrs = {};
+/* always trigger callback (e.g., for nest protect activity)
   else if (!!pairings[oui].macaddrs[macaddr]) return;
+ */
 
   pairings[oui].macaddrs[macaddr] = { ifname: ifname, ipaddr: ipaddr };
   (pairings[oui].callback)(ipaddr, macaddr, 'MAC ' + macaddr + ': ' + ipaddr);

@@ -7,6 +7,7 @@ var events      = require('events')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -37,7 +38,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
 
   nest.logger = utility.logfnx(logger, 'device/' + self.deviceID);
 
-  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+  broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var macaddr;
 
     if (request === 'attention') {
@@ -47,6 +48,12 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
         self.alert('discovered Nest device at ' + newaddrs[macaddr]);
         macaddrs[macaddr] = true;
       }
+
+      return;
+    }
+
+    if (request === 'scan') {
+      if (actor === self.whatami) self.scan(self);
 
       return;
     }
@@ -137,6 +144,7 @@ Cloud.prototype.scan = function(self) {
       station = data.topaz[id];
       station.type          = 'Nest Protect';
       station.model_version = station.model;
+      station.local_ip      = station.wifi_ip_address;
       station.mac_address   = station.wifi_mac_address;
       station.name          = where[station.structure_id][station.where_id];
 
@@ -146,7 +154,9 @@ Cloud.prototype.scan = function(self) {
 };
 
 Cloud.prototype.addstation = function(self, id, station, name, away, data, timestamp, online) {
-  var deviceType, info, params, sensor, udn;
+  var deviceType, info, params, sensor, status, udn;
+
+  devices.prime(station.local_ip, station.mac_address);
 
   if (data.current_temperature) {
     deviceType = '/device/climate/nest/control';
@@ -158,26 +168,28 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
                                      : (!!data.hvac_fan_state)    ? 'fan'     : 'off'
              , away            : (!!away)                         ? 'on'      : 'off'
              , leaf            : (!!station.leaf)                 ? 'on'      : 'off'
-             , status          : (online)                         ? 'present' : 'absent'
+             , lastSample      : timestamp
              };
+    status = online ? 'present' : 'absent';
   } else {
     deviceType = '/device/sensor/nest/smoke';
     params = { smoke           : data.smoke_status ? 'detected' : 'absent'
              , co              : data.co_status    ? 'detected' : 'absent'
 //           , batteryLevel    : data.battery_level
-             , status          : (!online)         ? 'absent'   : (data.smoke_status | data.co_status) ? 'unsafe' : 'safe'
+             , lastSample      : timestamp
              };
+    status = (!online) ? 'absent' : (data.smoke_status | data.co_status) ? 'unsafe' : 'safe';
   }
-  params.lastSample = timestamp;
 
   udn = 'nest:' + id;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
-    return sensor.update(sensor, params, online ? 'present' : 'absent');
+    return sensor.update(sensor, params, status);
   }
 
+  params.status = status;
   info =  { source: self.deviceID, gateway: self, params: params };
-  info.device = { url                          : null
+  info.device = { url                          : 'tcp://' + station.local_ip
                 , name                         : name + ': ' + data.name
                 , manufacturer                 : 'Nest Labs'
                 , model        : { name        : station.type
@@ -250,6 +262,8 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var later = new Date().getTime();
+
   steward.actors.device.gateway.nest = steward.actors.device.gateway.nest ||
       { $info     : { type: '/device/gateway/nest' } };
 
@@ -270,6 +284,13 @@ exports.start = function() {
   devices.makers['/device/gateway/nest/cloud'] = Cloud;
 
   require('./../../discovery/discovery-mac').pairing([ '18:b4:30' ], function(ipaddr, macaddr, tag) {
+    var now = new Date().getTime();
+
+    if (now >= later) {
+      later = now + (5 * 1000);
+      broker.publish('actors', 'scan', '', '/device/gateway/nest/cloud');
+    }
+
     if ((!!macaddrs[macaddr]) || (ipaddr === '0.0.0.0')) return;
 
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });

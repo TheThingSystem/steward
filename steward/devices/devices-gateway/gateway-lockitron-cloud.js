@@ -128,12 +128,12 @@ Cloud.prototype.scan = function(self) {
     now = new Date().getTime();
     for (i = 0; i < results.length; i++) {
       entry = results[i].lock;
-      udn = 'lockitron:' + entry.id;
 
       params = { lastSample : now };
       if ((!!entry.latitude) && (!!entry.longitude)) params.location = [ entry.atitude, entry.longitude ];
       status = entry.status === 'lock' ? 'locked' : 'unlocked';
 
+      udn = 'lockitron:' + entry.id;
       if (!!devices.devices[udn]) {
         lock = devices.devices[udn].device;
         return lock.update(lock, params, status);
