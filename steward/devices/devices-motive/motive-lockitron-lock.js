@@ -62,6 +62,30 @@ Lock.prototype.update = function(self, params, status) {
   if (updateP) self.changed();
 };
 
+Lock.prototype.webhook = function(self, event, data) {
+  var activity, f;
+
+  try {
+    activity = data.activity;
+
+    f = { error  : function() {
+                     logger.error('device/' + self.deviceID, { event: event, diagnostic: activity.kind });
+                   }
+        , notice : function() {
+                     if (activity.kind.indexOf('lock-updated-') !== 0) {
+                       return logger.warning('device/' + self.deviceID, { event: event, data: data });
+                     }
+
+                     self.state = activity.updated_current === 'lock' ? 'locked' : 'unlocked';
+                     self.changed();
+                   }
+        }[activity.status];
+    if (!f) throw new Error('unknown activity status');
+    f();
+  } catch(ex) {
+    logger.error('device/' + self.deviceID, { event: event, diagnostic: ex.message, data: data });
+  }
+};
 
 Lock.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
@@ -84,13 +108,7 @@ Lock.prototype.perform = function(self, taskID, perform, parameter) {
 
   self.gateway.lockitron.roundtrip('GET', '/locks/' + self.serial + '/' + perform, null, function(err, results) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: perform, diagnostic: err.message });
-
-    try {
-      self.state = results.data.activity.updated_current === 'lock' ? 'locked' : 'unlocked';
-      self.changed();
-    } catch(ex) {
-      logger.error('device/' + self.deviceID, { event: perform, diagnostic: ex.message, results: results });
-    }
+    self.webhook(self, perform, results.data);
   });
 
   return steward.performed(taskID);

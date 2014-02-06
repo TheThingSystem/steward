@@ -29,6 +29,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'accessToken' ];
   self.changed();
   self.timer = null;
+  self.webhookP = false;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -58,6 +59,56 @@ Cloud.prototype.login = function(self) {
   if (!!self.timer) clearInterval(self.timer);
   self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
   self.scan(self);
+  if (!!self.webhookP) return;
+  self.webhookP = true;
+
+  self.lookup('lockitron', function(err, options) {
+    if (!!err) logger.warning('device/' + self.deviceID, { event: 'lookup', diagnostic: err.message });
+
+    logger.info('device/' + self.deviceID, { event  : 'listen'
+                                           , remote : 'tcp://' + options.ipaddr + ':' + options.portno
+                                           , proxy  : options.proxy
+                                           });
+  }, function(request, response) {
+    var body = '';
+
+    if (request.method !== 'POST') {
+      logger.info('device/' + self.deviceID, { event: 'request', method: request.method });
+
+      response.writeHead(405, { Allow: 'POST' });
+      return response.end();
+    }
+
+    request.setEncoding('utf8');
+    request.on('data', function(chunk) {
+      body += chunk.toString();
+    }).on('close', function() {
+      logger.warning('device/' + self.deviceID, { event:'close', diagnostic: 'premature eof' });
+      console.log('https error: premature close');
+    }).on('clientError', function(err, socket) {/* jshint unused: false */
+      logger.warning('device/' + self.deviceID, { event:'clientError', diagnostic: err.message });
+    }).on('end', function() {
+      var json, lock, udn;
+
+      var loser = function (message) {
+        logger.error('device/' + self.deviceID, { event: 'request', diagnostic: message });
+
+        response.writeHead(200, { 'content-type': 'text/plain; charset=utf8', 'content-length' : message.length });
+        response.end(message);
+      };
+
+      try { json = JSON.parse(body); } catch(ex) { return loser(ex.message); }
+      if (!json.data) return loser('webhook missing data parameter');
+      if (!json.data.lock) return loser('webhook missing data.lock parameter');
+      response.writeHead(200, {'content-length' : 0 });
+      response.end();
+
+      udn = 'lockitron:' + json.data.lock.id;
+      if (!devices.devices[udn]) return;
+      lock = devices.devices[udn].device;
+      lock.webhook(lock, 'webhook', json.data);
+    });
+  });
 };
 
 Cloud.prototype.error = function(self, event, err) {
@@ -70,34 +121,34 @@ Cloud.prototype.scan = function(self) {
   if (!self.lockitron) return;
 
   self.lockitron.roundtrip('GET', '/locks', null, function(err, results) {
-    var i, info, lock, now, params, sensor, status, udn;
+    var entry, i, info, lock, now, params, sensor, status, udn;
 
     if (!!err) { self.lockitron = null; return self.error(self, 'roundtrip', err); }
 
     now = new Date().getTime();
     for (i = 0; i < results.length; i++) {
-      lock = results[i].lock;
-      udn = 'lockitron:' + lock.id;
+      entry = results[i].lock;
+      udn = 'lockitron:' + entry.id;
 
       params = { lastSample : now };
-      if ((!!lock.latitude) && (!!lock.longitude)) params.location = [ lock.atitude, lock.longitude ];
-      status = lock.status === 'lock' ? 'locked' : 'unlocked';
+      if ((!!entry.latitude) && (!!entry.longitude)) params.location = [ entry.atitude, entry.longitude ];
+      status = entry.status === 'lock' ? 'locked' : 'unlocked';
 
       if (!!devices.devices[udn]) {
-        sensor = devices.devices[udn].device;
-        return sensor.update(sensor, params, status);
+        lock = devices.devices[udn].device;
+        return lock.update(sensor, params, status);
       }
 
       params.status = status;
       info =  { source: self.deviceID, gateway: self, params: params };
       info.device = { url                          : null
-                    , name                         : lock.name
+                    , name                         : entry.name
                     , manufacturer                 : 'Lockitron'
                     , model        : { name        : 'Lockitron'
                                      , description : ''
                                      , number      : ''
                                      }
-                    , unit         : { serial      : lock.id
+                    , unit         : { serial      : entry.id
                                      , udn         : udn
                                      }
                     };

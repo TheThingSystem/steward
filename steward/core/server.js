@@ -264,9 +264,10 @@ var start = function(port, secureP) {
     if (secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
         var crt2, params;
-        if (!existsP) return;
 
+        if (!existsP) return;
         params = require(__dirname + '/../db/' + steward.uuid).params;
+
         crt2 = __dirname + '/../sandbox/cloud.crt';
         fs.unlink(crt2, function(err) {
           if ((!!err) && (err.code !== 'ENOENT')) logger.error('cloud', { event: 'fs.unlink', diagnostic: err.message });
