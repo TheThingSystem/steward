@@ -1,6 +1,6 @@
-// prowl - iOS Push Notifications: http://prowlapp.com
+// nma - Notify My Android Notifications: http://notifymyandroid.com
 
-var nmaer     	= require('node-nma')
+var nmaer     	= require('notify-my-android')
   , util        = require('util')
   , winston     = require('winston')
   , serialize   = require('winston/lib/winston/common').serialize
