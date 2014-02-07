@@ -1,6 +1,6 @@
 // nma - Notify My Android Notifications: http://notifymyandroid.com
 
-var nmaer     	= require('notify-my-android')
+var nmaer       = require('notify-my-android')
   , util        = require('util')
   , winston     = require('winston')
   , serialize   = require('winston/lib/winston/common').serialize
@@ -73,7 +73,7 @@ var NMA = exports.Device = function(deviceID, deviceUID, info) {
       parameter = datum.message;
       if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
 
-      self.nma.notify('the thing system', self.prefix2 + category, parameter, self.growl);
+      self.nma.notify('steward', self.prefix2 + category, parameter, self.growl);
     }
   });
 
@@ -109,6 +109,7 @@ NMA.prototype.perform = function(self, taskID, perform, parameter) {
     return true;
   }
   if (perform !== 'growl') return false;
+  params.message = devices.expand(params.message, 'device/' + self.deviceID);
 
   if ((!params.priority) || (!params.message) || (params.message.length === 0)) return false;
 
@@ -132,9 +133,10 @@ var validate_create = function(info) {
 
 var validate_perform = function(perform, parameter) {
   var params = {}
-    , result = { invalid: [], requires: [] };
+    , result = { invalid: [], requires: [] }
+    ;
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
   if (perform === 'set') {
     if (!params.apikey) params.apikey = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
