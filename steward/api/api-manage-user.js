@@ -11,6 +11,7 @@ var fs          = require('fs')
   ;
 
 
+var places  = null;
 var users   = {};
 var clients = {};
 var keys    = { x509: { key: '', crt: '' }, ssh: { key: '', pub: ''} };
@@ -219,10 +220,11 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 
   results = { requestID: message.requestID, result: { steward: {}, users: {} } };
   results.result.steward.uuid = steward.uuid;
-  if (allP) {
-    results.result.users = {};
-    results.result.clients = {};
-  }
+  if (!places) places = require('./../actors/actor-place');
+  if (places.place1.info.strict === 'off') results.result.steward.developer = true;
+
+  if (treeP) results.result.users = {};
+  if (allP) results.result.clients = {};
   for (uuid in users) {
     if (!users.hasOwnProperty(uuid)) continue;
 
@@ -234,25 +236,25 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
       results.result.users['user/' + user.userName] = props;
 
       if (treeP) results.result.users['user/' + user.userName].clients = user.clients;
-      if (!!user.clients) {
-        for (i = 0; i < user.clients.length; i++) {
-          client = id2client(user, user.clients[i]);
-          who = 'user/' + user.userName + '/' + client.clientID;
-          results.result.clients[who] = proplist2(null, client, user);
-          if (!masterP) continue;
+      if ((!allP) || (!user.clients)) continue;
+
+      for (i = 0; i < user.clients.length; i++) {
+        client = id2client(user, user.clients[i]);
+        who = 'user/' + user.userName + '/' + client.clientID;
+        results.result.clients[who] = proplist2(null, client, user);
+        if (!masterP) continue;
 if(true) continue;
 
-          results.result.clients[who].otpURL =
-                         client.clientAuthAlg
-                       + '/' + encodeURIComponent(client.clientAuthParams.issuer + ':' + client.clientAuthParams.name)
-                       + '?secret=' + encodeURIComponent(client.clientAuthKey)
-                       + '&issuer=' + encodeURIComponent(client.clientAuthParams.issuer)
-                       + '&digits=' + encodeURIComponent(client.clientAuthParams.length);
-          results.result.clients[who].authenticatorURL =
-                         'https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=' + client.clientAuthAlg
-                        + '/' + encodeURIComponent(client.clientAuthParams.name)
-                        + '%3Fsecret=' + encodeURIComponent(client.clientAuthKey);
-        }
+        results.result.clients[who].otpURL =
+                       client.clientAuthAlg
+                     + '/' + encodeURIComponent(client.clientAuthParams.issuer + ':' + client.clientAuthParams.name)
+                     + '?secret=' + encodeURIComponent(client.clientAuthKey)
+                     + '&issuer=' + encodeURIComponent(client.clientAuthParams.issuer)
+                     + '&digits=' + encodeURIComponent(client.clientAuthParams.length);
+        results.result.clients[who].authenticatorURL =
+                       'https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=' + client.clientAuthAlg
+                      + '/' + encodeURIComponent(client.clientAuthParams.name)
+                      + '%3Fsecret=' + encodeURIComponent(client.clientAuthKey);
       }
     }
   }
@@ -458,6 +460,15 @@ var prime = function(logger, ws, api, message, tag) {
   return true;
 };
 
+
+exports.count = function() {
+  var n, uuid;
+
+  n = 0;
+  for (uuid in users) if (users.hasOwnProperty(uuid)) n++;
+
+  return n;
+};
 
 var name2user = exports.name2user = function(name) {
   var uuid;

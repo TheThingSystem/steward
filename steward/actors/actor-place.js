@@ -497,7 +497,8 @@ var validate_observe = function(observe, parameter) {
 };
 
 var validate_perform = function(perform, parameter) {
-  var params = {}
+  var didP
+    , params = {}
     , result = { invalid: [], requires: [] };
 
   try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
@@ -512,13 +513,17 @@ var validate_perform = function(perform, parameter) {
     return result;
   }
 
-  if ((!params.name) && (!params.physical) && (!params.location)) result.requires.push('name');
+  didP = !!params.name;
 
   if (!!params.physical) {
+    didP = true;
+
 // NB: there is no meaningful test that doesn't require an asynchronous dive...
   }
 
   if (!!params.location) {
+    didP = true;
+
     if ((!util.isArray(params.location)) || (params.location.length < 2)) result.invalid.push('location');
     else {
       if ((isNaN(params.location[0])) || (params.location[0] <  -90) || (params.location[0] >  90)) {
@@ -532,20 +537,28 @@ var validate_perform = function(perform, parameter) {
   }
 
   if (!!params.pairing) {
+    didP = true;
+
     if (!{ off  : true
          , on   : true
          , code : true }[params.pairing]) result.invalid.push('pairing');
   }
 
   if (!!params.strict) {
+    didP = true;
+
     if (!{ off  : true
          , on   : true }[params.strict]) result.invalid.push('strict');
   }
 
   if (!!params.displayUnits) {
+    didP = true;
+
     if (!{ customary : true
          , metric    : true }[params.displayUnits]) result.invalid.push('displayUnits');
   }
+
+  if (!didP) result.requires.push('name');
 
   return result;
 };
