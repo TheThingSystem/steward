@@ -284,11 +284,14 @@ exports.start = function() {
   devices.makers['/device/gateway/nest/cloud'] = Cloud;
 
   require('./../../discovery/discovery-mac').pairing([ '18:b4:30' ], function(ipaddr, macaddr, tag) {
-    var now = new Date().getTime();
+    var f, i, now;
 
+    now = new Date().getTime();
     if (now >= later) {
-      later = now + (5 * 1000);
-      broker.publish('actors', 'scan', '', '/device/gateway/nest/cloud');
+      later = now + (10 * 1000);
+
+      f = function() { broker.publish('actors', 'scan', '', '/device/gateway/nest/cloud'); };
+      for (i = 0; i < 10; i++) setTimeout(f, i * 1000);
     }
 
     if ((!!macaddrs[macaddr]) || (ipaddr === '0.0.0.0')) return;
