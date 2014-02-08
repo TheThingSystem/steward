@@ -137,6 +137,8 @@ Cloud.prototype.addstation = function(self, station) {
   udn = 'koubachi:' + station.mac_address;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
+    if (!sensor) return;
+
     return sensor.update(sensor, params);
   }
 

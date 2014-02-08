@@ -481,6 +481,8 @@ Cloud.prototype.addstation = function(self, id, station, name, actual, lastModif
   udn = 'ecobee:' + id;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
+    if (!sensor) return;
+
     sensor.revision = revision;
     return sensor.update(sensor, params, actual.connected ? 'present' : 'absent');
   }

@@ -99,6 +99,8 @@ Gateway.prototype.thX = function(self, evt) {
   udn = 'rfxcom:th:' + evt.id;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
+    if (!sensor) return;
+
     return sensor.update(sensor, params);
   }
 

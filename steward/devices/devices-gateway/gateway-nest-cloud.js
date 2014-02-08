@@ -184,6 +184,8 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
   udn = 'nest:' + id;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
+    if (!sensor) return;
+
     return sensor.update(sensor, params, status);
   }
 
