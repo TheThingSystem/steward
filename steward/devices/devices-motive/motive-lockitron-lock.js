@@ -63,23 +63,24 @@ Lock.prototype.update = function(self, params, status) {
 };
 
 Lock.prototype.webhook = function(self, event, data) {
-  var activity, f;
+  var activity, f, outcome;
 
   try {
     activity = data.activity;
+    outcome = activity.kind || activity.human_type;
 
     f = { error  : function() {
-                     logger.error('device/' + self.deviceID, { event: event, diagnostic: activity.kind });
+                     logger.error('device/' + self.deviceID, { event: event, diagnostic: outcome });
                    }
         , notice : function() {
-                     if (activity.kind.indexOf('lock-updated-') !== 0) {
+                     if (outcome.indexOf('lock-updated-') !== 0) {
                        return logger.warning('device/' + self.deviceID, { event: event, data: data });
                      }
 
-                     self.state = activity.updated_current === 'lock' ? 'locked' : 'unlocked';
+                     self.state = outcome === 'lock-updated-locked' ? 'locked' : 'unlocked';
                      self.changed();
                    }
-        }[activity.status];
+        }[activity.status || activity.human_outcome];
     if (!f) throw new Error('unknown activity status');
     f();
   } catch(ex) {
@@ -108,7 +109,8 @@ Lock.prototype.perform = function(self, taskID, perform, parameter) {
 
   self.gateway.lockitron.roundtrip('GET', '/locks/' + self.serial + '/' + perform, null, function(err, results) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: perform, diagnostic: err.message });
-    self.webhook(self, perform, results.data);
+
+    self.webhook(self, perform, results);
   });
 
   return steward.performed(taskID);

@@ -390,6 +390,14 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
       f = function() { tesla.door_lock({ id: self.vehicle.id, lock : params.doors || parameter }, cb); };
       break;
 
+    case 'lock':
+      f = function() { tesla.door_lock({ id: self.vehicle.id, lock : true }, cb); };
+      break;
+
+    case 'unlock':
+      f = function() { tesla.door_lock({ id: self.vehicle.id, lock : false }, cb); };
+      break;
+
     case 'lights':
       f = function() { tesla.flash(self.vehicle.id, cb); };
       break;
@@ -470,6 +478,10 @@ var validate_perform = function(perform, parameter) {
       if (!!params.doors) parameter = params.doors;
       if (!{ lock    : true
            , unlock  : true }[parameter]) result.invalid.push('doors');
+      break;
+
+    case 'lock':
+    case 'unlock':
       break;
 
     case 'lights':
