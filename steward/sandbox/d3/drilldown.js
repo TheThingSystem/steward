@@ -1478,9 +1478,15 @@ var single_motive_drilldown = function(state) {
 };
 
 var single_motive_instructions = function(device) {
-  instructions = (device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors';
-  instructions += '<br/>' + 'flash headlights<br/>' + 'honk horn<br/>' + 'set desired temperature';
-  if (device.info.sunroof !== 'none') instructions += '<br/>' + 'adjust sunroof';
+  var performs = stack[0].message.result.actors[device.deviceType].perform.toString();
+  var instructions = '';
+  if (/\block\b/.test(performs) && /\bunlock\b/.test(performs)) 
+    instructions += ((device.status !== 'locked') ? 'lock vehicle' : 'unlock vehicle') + '<br/>';
+  if (/\bdoors\b/.test(performs)) instructions += ((device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors') + '<br/>';
+  if (/\blights\b/.test(performs)) instructions += 'flash headlights<br/>';
+  if (/\bhorn\b/.test(performs)) instructions += 'honk horn<br/>';
+  if (/\bhvac\b/.test(performs)) instructions += 'set desired temperature<br/>';
+  if (/\bsunroof\b/.test(performs)) instructions += (device.info.sunroof !== 'none') ? 'adjust sunroof' : '';
   return instructions
 }
 
