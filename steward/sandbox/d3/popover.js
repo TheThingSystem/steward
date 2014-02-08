@@ -611,7 +611,7 @@ var showPop = function(device) {
 				 .on("click", function() {motiveCommand(event, "locks")});
 			 div2.append("span")
 					 .attr("id", "vehicleLockAction")
-					 .text(function() { return (device.status === "locked") ? "UNLOCK VEHICLE" : "LOCK VEHICLE"});
+					 .text(function() { return (device.status === "locked") ? "UNLOCK" : "LOCK"});
      } else {
 			 div2 = div.append("div")
 				 .attr("class", "label")
@@ -684,11 +684,11 @@ var showPop = function(device) {
            if (event.target.src.indexOf("lock-on") !== -1) {
              event.target.src = "popovers/assets/lock-off.svg";
              newPerform.perform = "unlock";
-             event.target.nextSibling.innerText = "LOCK VEHICLE"
+             event.target.nextSibling.innerText = "LOCK"
            } else {
              event.target.src = "popovers/assets/lock-on.svg";
              newPerform.perform = "lock";
-             event.target.nextSibling.innerText = "UNLOCK VEHICLE"
+             event.target.nextSibling.innerText = "UNLOCK"
            }
            break;
          default:
@@ -1737,7 +1737,7 @@ var updatePopover = function(device, update) {
 			d3.select("#vehicleLocks")
 				.attr("src", function() { return (update.status === "locked") ? "popovers/assets/lock-on.svg" : "popovers/assets/lock-off.svg" });
 			d3.select("#vehicleLockAction")
-				.text(function() { return (update.status === "locked") ? "UNLOCK VEHICLE" : "LOCK VEHICLE" });
+				.text(function() { return (update.status === "locked") ? "UNLOCK" : "LOCK" });
 			newPerform.perform = (update.status === "locked") ? "lock" : "unlock";
     }
     newPerform.parameter = update.info;

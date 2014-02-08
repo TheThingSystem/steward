@@ -1481,7 +1481,7 @@ var single_motive_instructions = function(device) {
   var performs = stack[0].message.result.actors[device.deviceType].perform.toString();
   var instructions = '';
   if (/\block\b/.test(performs) && /\bunlock\b/.test(performs)) 
-    instructions += ((device.status !== 'locked') ? 'lock vehicle' : 'unlock vehicle') + '<br/>';
+    instructions += ((device.status !== 'locked') ? 'lock' : 'unlock') + '<br/>';
   if (/\bdoors\b/.test(performs)) instructions += ((device.info.doors !== 'locked') ? 'lock doors' : 'unlock doors') + '<br/>';
   if (/\blights\b/.test(performs)) instructions += 'flash headlights<br/>';
   if (/\bhorn\b/.test(performs)) instructions += 'honk horn<br/>';
