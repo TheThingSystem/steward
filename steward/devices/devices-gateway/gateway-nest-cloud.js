@@ -87,7 +87,7 @@ Cloud.prototype.login = function(self) {
     if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
     setTimeout(function() { self.login(self); }, 30 * 1000);
   }).login(self.info.email, self.info.passphrase, function(err, data) {/* jshint unused: false */
-    if (err) { self.nest = null; return self.error(self, err); }
+    if (!!err) { self.nest = null; return self.error(self, err); }
 
     self.status = 'ready';
     self.changed();

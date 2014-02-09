@@ -72,6 +72,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
            , reading  : (value < 128) ? (value + 128) : (value - 128)
            });
   }
+  if (v.length == 0) return;
   v.sort(function(a, b) { return (b.reading - a.reading); });
 
   tagID = self.eui64 + data.substr(4, 7);
