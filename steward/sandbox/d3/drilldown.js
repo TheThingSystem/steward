@@ -363,7 +363,7 @@ var onUpdate_drilldown = function(updates) {
       currDevice.device.name = update.name;
       document.getElementById("actor-big-icon").style.backgroundColor = statusColor(update);
       document.getElementById("actor-big-name").style.color = statusColor(update);
-      document.getElementById("actor-big-name").innerText = currDevice.device.name;
+      document.getElementById("actor-big-name").textContent = currDevice.device.name;
       if (document.getElementById("single-device-instructions")) {
         document.getElementById("single-device-instructions").innerHTML = entry.instrux(currDevice.device);
       }

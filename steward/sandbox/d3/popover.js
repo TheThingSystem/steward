@@ -673,22 +673,22 @@ var showPop = function(device) {
            if (event.target.src.indexOf("lock-on") !== -1) {
              event.target.src = "popovers/assets/lock-off.svg";
              newPerform.parameter.doors = "unlock";
-             event.target.nextSibling.innerText = "LOCK DOORS"
+             event.target.nextSibling.textContent = "LOCK DOORS"
            } else {
              event.target.src = "popovers/assets/lock-on.svg";
              newPerform.parameter.doors = "lock";
-             event.target.nextSibling.innerText = "UNLOCK DOORS"
+             event.target.nextSibling.textContent = "UNLOCK DOORS"
            }
            break;
          case "locks":
            if (event.target.src.indexOf("lock-on") !== -1) {
              event.target.src = "popovers/assets/lock-off.svg";
              newPerform.perform = "unlock";
-             event.target.nextSibling.innerText = "LOCK"
+             event.target.nextSibling.textContent = "LOCK"
            } else {
              event.target.src = "popovers/assets/lock-on.svg";
              newPerform.perform = "lock";
-             event.target.nextSibling.innerText = "UNLOCK"
+             event.target.nextSibling.textContent = "UNLOCK"
            }
            break;
          default:
@@ -1176,7 +1176,7 @@ var showPop = function(device) {
 	  var elem = d3.event.target;
 	  if (entry.norename) {
 	    notify("\"" + currDevice.device.name + "\" cannot be renamed from the steward.");
-	    elem.innerText = currDevice.device.name;
+	    elem.textContent = currDevice.device.name;
 	    elem.blur();
 	    return;
 	  }
@@ -1187,13 +1187,13 @@ var showPop = function(device) {
 	      d3.event.preventDefault();
 	    }
 	  }
-	  if (elem.innerText === "" || elem.innerText === "\n") {
-	    elem.innerText = device.name;
-	  } else if (elem.innerText !== device.name) {
+	  if (elem.textContent === "" || elem.textContent === "\n") {
+	    elem.textContent = device.name;
+	  } else if (elem.textContent !== device.name) {
 	    var cmd = { path     : newPerform.path,
 	                perform  : "set",
 	                requestID: "2",
-	                parameter: { name : elem.innerText} };
+	                parameter: { name : elem.textContent} };
 	    cmd.parameter = JSON.stringify(cmd.parameter);
 	    elem.scrollLeft = 0;
         wsSend(JSON.stringify(cmd));
