@@ -3,4 +3,4 @@ node_js:
    - "0.10"
 install: "npm -g install jshint"
 script:
-  jshint *.js
+  jshint steward/*/*.js steward/devices/*/*.js
