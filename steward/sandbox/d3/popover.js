@@ -183,6 +183,12 @@ var showPop = function(device) {
 		w = 485, h = 497, t = 290, l = 133;
 		break;
 	case "/device/presence/":
+		if (hasAlertPerform()) {
+		  w = 420, h = 340, t = 215, l = 165;
+		} else {
+		  w = 485, h = 497, t = 290, l = 133;
+		}
+		break;
 	case "/device/wearable/":
 		w = 420, h = 340, t = 215, l = 165;
 		break;
@@ -251,6 +257,12 @@ var showPop = function(device) {
 				return "popovers/assets/window.short.popover.svg";
 				break;
 			case "/device/presence/":
+			  if (hasAlertPerform()) {
+				  return "popovers/assets/wearable-popover.svg";
+			  } else {
+				  return "popovers/assets/window.short.popover.svg";
+			  }
+			  break;
 			case "/device/wearable/":
 				return "popovers/assets/wearable-popover.svg";
 				break;
@@ -721,43 +733,50 @@ var showPop = function(device) {
 	   .on("blur", setDeviceName)
 	   .on("keydown", setDeviceName)
        .text(device.name);
-       
-     div = pop.append("div")
-         .attr("id", "big-button-wrapper-wear");
-		 div2 = div.append("div")
-		   .attr("class", "label")
-		   .attr("id", "big-button-one-wear")
-		   .style("text-align", "center");
-		 div2.append("img")
-		   .attr("id", "big-button-one-img-wear")
-		   .attr("src", function() { return (device.status === "present") ? "popovers/assets/alert-on.svg" : "popovers/assets/alert-off.svg" })
-		   .attr("height", "152px")
-		   .style("margin-bottom", "12px")
-		   .on("click", function() {presenceCommand(event, "mild")});
-		 div2.append("span")
-		   .attr("id", "alert-button-one-label")
-		   .style("color", function() { return (device.status === "present") ? "#fff" : "#444" })
-		   .text("SEND ALERT");
-		 div2 = div.append("div")
-		   .attr("class", "label")
-		   .attr("id", "big-button-two-wear")
-		   .style("text-align", "center");
-		 div2.append("img")
-		   .attr("id", "big-button-two-img-wear")
-		   .attr("src", function() { return (device.status === "present") ? "popovers/assets/alert-urgent-on.svg" : "popovers/assets/alert-urgent-off.svg" })
-		   .attr("height", "152px")
-		   .style("margin-bottom", "12px")
-		   .on("click", function() {presenceCommand(event, "high")});
-		 div2.append("span")
-		   .attr("id", "alert-button-two-label")
-		   .style("color", function() { return (device.status === "present") ? "#fff" : "#444" })
-		   .text("SEND URGENT ALERT");
-		   
-	  pop.append("img")
-        .attr("src", "popovers/assets/done_on.svg")
-        .attr("id", "done-wear")
-        .style("height", "22px")
-        .on("click", cancel);
+     
+     if (hasAlertPerform()) {
+			 div = pop.append("div")
+					 .attr("id", "big-button-wrapper-wear");
+			 div2 = div.append("div")
+				 .attr("class", "label")
+				 .attr("id", "big-button-one-wear")
+				 .style("text-align", "center");
+			 div2.append("img")
+				 .attr("id", "big-button-one-img-wear")
+				 .attr("src", function() { return (device.status === "present") ? "popovers/assets/alert-on.svg" : "popovers/assets/alert-off.svg" })
+				 .attr("height", "152px")
+				 .style("margin-bottom", "12px")
+				 .on("click", function() {presenceCommand(event, "mild")});
+			 div2.append("span")
+				 .attr("id", "alert-button-one-label")
+				 .style("color", function() { return (device.status === "present") ? "#fff" : "#444" })
+				 .text("SEND ALERT");
+			 div2 = div.append("div")
+				 .attr("class", "label")
+				 .attr("id", "big-button-two-wear")
+				 .style("text-align", "center");
+			 div2.append("img")
+				 .attr("id", "big-button-two-img-wear")
+				 .attr("src", function() { return (device.status === "present") ? "popovers/assets/alert-urgent-on.svg" : "popovers/assets/alert-urgent-off.svg" })
+				 .attr("height", "152px")
+				 .style("margin-bottom", "12px")
+				 .on("click", function() {presenceCommand(event, "high")});
+			 div2.append("span")
+				 .attr("id", "alert-button-two-label")
+				 .style("color", function() { return (device.status === "present") ? "#fff" : "#444" })
+				 .text("SEND URGENT ALERT");
+			 pop.append("img")
+					.attr("src", "popovers/assets/done_on.svg")
+					.attr("id", "done-wear")
+					.style("height", "22px")
+					.on("click", cancel);
+		 } else {
+			 pop.append("img")
+					.attr("src", "popovers/assets/done_on.svg")
+					.attr("class", "done-narrow")
+					.style("height", "22px")
+					.on("click", cancel);
+		 }		 
         
      function presenceCommand(event, type) {
        if (newPerform.status === "present") {
@@ -1063,7 +1082,6 @@ var showPop = function(device) {
       div.append("div")
         .attr("id", "device-status-label").attr("class", "label")
         .text("DEVICE STATUS");
-
     };
     
 	function toggleOnOff(type) {
@@ -1196,7 +1214,7 @@ var showPop = function(device) {
 	                parameter: { name : elem.textContent} };
 	    cmd.parameter = JSON.stringify(cmd.parameter);
 	    elem.scrollLeft = 0;
-        wsSend(JSON.stringify(cmd));
+      wsSend(JSON.stringify(cmd));
 	  }
 	};
 
@@ -1204,14 +1222,13 @@ var showPop = function(device) {
      d3.select("#popBg")
       .transition().each("end", removePop())
       .duration(600)
-	  .style("opacity", "0");
+	    .style("opacity", "0");
 	};
 	
 	function removePop() {
 	  d3.select("#blocker").remove(); 
 	  pop.remove();
 	};
-	
 };
 
 var ColorPickerMgr = {
@@ -1744,17 +1761,19 @@ var updatePopover = function(device, update) {
   }
   
   function updatePresencePop() {
-    d3.select("#big-button-one-img-wear")
-      .attr("src", function() { return (update.status === "present") ? "popovers/assets/alert-on.svg" : "popovers/assets/alert-off.svg"});
-    d3.select("#big-button-two-img-wear")
-      .attr("src", function() { return (update.status === "present") ? "popovers/assets/alert-urgent-on.svg" : "popovers/assets/alert-urgent-off.svg"});
-    d3.select("#alert-button-one-label")
-      .style("color", function() { return (update.status === "present") ? "#fff" : "#444" });
-    d3.select("#alert-button-two-label")
-      .style("color", function() { return (update.status === "present") ? "#fff" : "#444" });
-
-    newPerform.parameter = update.info;
-    newPerform.status = update.status;
+    if (hasAlertPerform()) {
+			d3.select("#big-button-one-img-wear")
+				.attr("src", function() { return (update.status === "present") ? "popovers/assets/alert-on.svg" : "popovers/assets/alert-off.svg"});
+			d3.select("#big-button-two-img-wear")
+				.attr("src", function() { return (update.status === "present") ? "popovers/assets/alert-urgent-on.svg" : "popovers/assets/alert-urgent-off.svg"});
+			d3.select("#alert-button-one-label")
+				.style("color", function() { return (update.status === "present") ? "#fff" : "#444" });
+			d3.select("#alert-button-two-label")
+				.style("color", function() { return (update.status === "present") ? "#fff" : "#444" });
+	
+			newPerform.parameter = update.info;
+			newPerform.status = update.status;
+		}
   }
   
   function updateSwitchPop() {
@@ -1927,6 +1946,11 @@ function asFahrenheit(celsius) {
 
 function renderTemperature(temperature) {
   return isPlaceMetric() ? parseInt(temperature, 10).toFixed(1) + "°C" : asFahrenheit(parseInt(temperature, 10)).toFixed(1) + "°F";
+}
+	
+function hasAlertPerform() {
+	var performs = stack[0].message.result.actors[currDevice.device.deviceType].perform.toString();
+	return false; //(/\balert\b/.test(performs));
 }
 
 function sendData(device) {

@@ -399,7 +399,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   div.setAttribute('style', 'position: absolute; top: 20px; left: 20px; margin-bottom: 8px; width: 44px; height: 44px; background-color: #fff;');
   img = document.createElement('img');
   img.setAttribute('src', 'actors/home.svg');
-  img.setAttribute('onclick', 'javascript:goback();');
+  img.setAttribute('onclick', 'javascript:if (document.getElementById("map-canvas")) {document.body.removeChild(document.getElementById("map-canvas"))}; goback();');
   div.appendChild(img);
   chart.appendChild(div);
 
@@ -550,7 +550,8 @@ var drawArcs = function(arcs) {
 
   index = 0.7; // Reassign index values for arcs subset
   for (; i < limit; i++) {
-     labels += arcs[i].label + '<br />';
+     labels += arcLabelHTML(arcs[i].label);
+//     labels += arcs[i].label + '<br />';
 //     values += '<div class="label">' + arcs[i].cooked + '</div>';
     arcs[i].index = index;
     arcz.push(arcs[i]);
@@ -674,6 +675,23 @@ var drawArcs = function(arcs) {
       txt = txt.replace(re, "±");
     }
     return txt;
+  }
+  
+  function arcLabelHTML(labelText) {
+    var result = "";
+    switch (labelText.toLowerCase()) {
+      case "location":
+        if (currDevice.device.info.hasOwnProperty("locations") && currDevice.device.info.locations.length > 0) {
+          result += "<span class='clickable-text' onclick='javascript:showLocations(event)'>" + labelText + "</span>";
+        } else {
+          result += labelText;
+        }
+        break;
+      default:
+        result += labelText;
+        break;
+    }
+    return (result + "<br/>");
   }
 };
 
@@ -1794,6 +1812,86 @@ var multiple_drilldown = function(name, members) {
     }
   }
 };
+
+var showLocations = function(evt) {
+  var allLocs, i, loc, locArray, locs, map, mapCanvas;
+  if (!document.getElementById('googleMapsAPI')) {
+    loadScript();
+  } else {
+    if (document.getElementById('map-canvas')) {
+      document.body.removeChild(document.getElementById('map-canvas'));
+      return;
+    }
+    
+		mapCanvas = document.createElement('div');
+		mapCanvas.id = 'map-canvas';
+		document.body.appendChild(mapCanvas);
+
+    loc = currDevice.device.info.location;
+    mapOptions = {
+      zoom: 14,
+      center: new google.maps.LatLng(parseFloat(loc[0]), parseFloat(loc[1]))
+    };
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    
+    locs = [];
+    markers = [];
+    pathCoords = [];
+    allLocs = currDevice.device.info.locations;
+    
+    for (i = 0; i < allLocs.length; i++) {
+      locArray = allLocs[i].split(',');
+      locs[i] = new google.maps.LatLng(parseFloat(locArray[0]), parseFloat(locArray[1]))
+    }
+    
+    var symbol = {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 6,
+      strokeColor: '#000',
+      strokeWidth: 1
+    };
+    
+    var marker = new google.maps.Marker({
+      position: new google.maps.LatLng(parseFloat(loc[0]), parseFloat(loc[1])),
+      map: map,
+      icon: symbol
+    });
+    
+    var lines = [];
+    function addLine(i, start, end) {
+      var j;
+      lines[i] = new google.maps.Polyline({
+        path: [start, end],
+        strokeColor: '#FF0000',
+        strokeWeight: 2,
+        map: map
+      });
+      if (count === locs.length - 1) {
+        count = 0;
+        for (j = 0; j < lines.length; j++) {
+          lines[j].setMap(null);
+        }
+      }
+    }
+    
+    var count = 0;
+    function drawLines() {
+      window.setInterval(function() {
+        addLine(count, locs[count], locs[++count]);
+      }, 800);
+    }
+    
+    drawLines();
+  }
+  
+  function loadScript() {
+    var script = document.createElement('script');
+    script.id = 'googleMapsAPI';
+    script.type = 'text/javascript';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=showLocations';
+    document.body.appendChild(script);
+  }
+}
 
 // managing multi-drilldown icon display and control
 
