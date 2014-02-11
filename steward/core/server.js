@@ -541,7 +541,7 @@ var subscribe = function(params) {
     var device, entry, info, params, parts, status, udn;
 
     parts = topic.split('/');
-    if (parts[0] !== 'mqttitude') return;
+    if ((parts[0] !== 'mqttitude') && (parts[0] !== 'owntracks')) return;
 
     try { entry = JSON.parse(message); } catch(ex) { return console.log(ex); }
 

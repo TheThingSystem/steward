@@ -1,4 +1,4 @@
-// http://mqttitude.org
+// http://owntracks.org
 
 var geocoder    = require('geocoder')
   , util        = require('util')
@@ -239,4 +239,10 @@ exports.start = function() {
   steward.actors.device.presence.mqttitude.mobile = utility.clone(steward.actors.device.presence.mqtt.mobile);
   steward.actors.device.presence.mqttitude.mobile.$info.type = '/device/presence/mqttitude/mobile';
   devices.makers['/device/presence/mqttitude/mobile'] = Mobile;
+
+  steward.actors.device.presence.owntracks = utility.clone(steward.actors.device.presence.mqtt);
+  steward.actors.device.presence.owntracks.$info.type = '/device/presence/owntracks';
+  steward.actors.device.presence.owntracks.mobile = utility.clone(steward.actors.device.presence.mqtt.mobile);
+  steward.actors.device.presence.owntracks.mobile.$info.type = '/device/presence/owntracks/mobile';
+  devices.makers['/device/presence/owntracks/mobile'] = Mobile;
 };

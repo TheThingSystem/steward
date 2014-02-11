@@ -31,8 +31,9 @@ var pair = function(logger, ws, api, message, tag) {
   if (!message.name)                                        return error(true,  'missing name element');
   if (!message.name.length)                                 return error(true,  'empty name element');
 
+  if (places.place1.info.pairing === 'off')                 return error(false, 'unknown api: ' + message.path);
   if (!!message.pairingCode) {
-    if ((!!places.place1.info.pairingCode) && (places.place1.info.pairingCode != message.pairingCode))
+    if ((!!places.place1.info.pairingCode) && (places.place1.info.pairingCode !== message.pairingCode))
                                                             return error(false, 'invalid pairingCode element');
   } else if (!!places.place1.info.pairingCode)              return error(true,  'missing pairingCode element');
 
