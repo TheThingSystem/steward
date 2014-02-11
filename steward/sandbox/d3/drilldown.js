@@ -1881,7 +1881,7 @@ var showLocations = function(evt) {
       }, 800);
     }
     
-    drawLines();
+    if (locs.length > 1) drawLines();
   }
   
   function loadScript() {
