@@ -489,8 +489,6 @@ var hueHue        = function(hue) { return scaledU16(hue);    };
 var percentageSat = function(sat) { return percentageU8(sat); };
 var hueSaturation = function(sat) { return scaledU8(sat);     };
 
-var validTemperature = function(ct)  { return ((154 <= ct)  && (ct  <= 500)); };
-
 
 // in seconds
 
@@ -620,7 +618,7 @@ var validate_perform_bulb = function(perform, parameter) {
   if (!!color) {
     switch (color.model) {
         case 'temperature':
-          if (!validTemperature(color.temperature)) result.invalid.push('color.temperature');
+          if (!lighting.validTemperature(color.temperature)) result.invalid.push('color.temperature');
           break;
 
         case 'hue':

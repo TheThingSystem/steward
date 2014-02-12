@@ -3,6 +3,7 @@
 
 // load the module that knows how to discover/communicate with the lighting gateway
 var TBD         = require('TBD')
+  , tinycolor   = require('tinycolor2')
   , util        = require('util')
   , db          = require('./../../core/database').db
   , devices     = require('./../../core/device')
@@ -179,7 +180,7 @@ var childprops = function(self, led) {
 };
 
 TBD.prototype.perform = function(self, taskID, perform, parameter, led) {
-  var color, f, params, props, state;
+  var color, f, hsl, kelvin, params, props, state;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -200,28 +201,33 @@ TBD.prototype.perform = function(self, taskID, perform, parameter, led) {
 
     color = params.color;
     if (!!color) {
+      if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) return false;
+      state.brightness = params.brightness || self.bulbs[led].brightness;
+
       switch (color.model) {
         case 'rgb':
-// TBD: map to native model
+// TBD: map to native model (we'll assume either hue or temperature)
+          if ((color.rgb.r === 255) && (color.rgb.g === 255) && (color.rgb.b === 255)) {
+            state.color = { model: 'temperature', temperature: color.temperature };
+          } else {
+            hsl = tinycolor({ r: color.rgb.r, g: color.rgb.g, b: color.rgb.b}).toHsl();
+            state.color = { model: 'hue', hue: { hue: hsl.h, saturation: hsl.s * 100 } };
+            state.brightness = hsl.l * 100;
+          }
           break;
 
 // TBD: other models, mapped to native model, go here...
+        case 'hue':
+        case 'temperature':
+          break;
 
         default:
-          break;
+          return false;
       }
       state.color = color;
     }
 
-    if ((!!params.brightness) && (!!props.state.brightness.min) && (!!props.state.brightness.max)) {
-      if (!lighting.validBrightness(params.brightness)) return false;
-      state.brightness = devices.scaledPercentage(params.brightness, props.state.brightness.min,  props.state.brightness.max);
-    }
-
-/* TBD: est for all dark here, if so:
-
-     state.on = false;
- */
+    if (state.brightness === 0) state.on = false;
   }
 
   logger.notice('device/' + self.deviceID, { perform: state });
@@ -231,6 +237,22 @@ TBD.prototype.perform = function(self, taskID, perform, parameter, led) {
   if (!state.on) self.controller.turnOff(led);
   else {
     f = function() { self.controller.setState(led, state); };
+
+/*   
+    f = function() {
+// assuming 16-bits each for hue, saturation, luminance, and whitecolor
+      if (state.color.model === 'hue') {
+        self.controller.setState(led, devices.scaledPercentage(state.color.model.hue.h / 360, 0, 0xffff),
+                                      devices.scaledPercentage(state.color.model.hue.h,       0, 0xffff),
+                                      devices.scaledPercentage(state.brightness,              0, 0xffff),
+                                      0);
+      } else {
+        kelvin = 1000000 / state.color.model.temperature.temperature;
+        self.controller.setState(led, 0x0000, 0x0000, devices.scaledPercentage(state.brightness, 0, 0xffff),
+                                 devices.scaledPercentage(devices.scaledLevel(kelvin, 2000, 6500), 0, 0xffff));
+      }
+    };
+ */
 
     if (self.state !== 'on') self.controller.turnOn(led, f); else f();
   }
@@ -271,6 +293,15 @@ var validate_perform = function(perform, parameter) {
           break;
 
 // TBD: other color models validated here...
+        case 'hue':
+          if (!lighting.validHue(color.hue)) result.invalid.push('color.hue');
+          if (!lighting.validSaturation(color.saturation)) result.invalid.push('color.saturation');
+          if (!params.brightness) result.requires.push('brightness');
+          break;
+
+        case 'temperature':
+          if (!lighting.validTemperature(color.temperature)) result.invalid.push('color.temperature');
+          break;
 
         default:
           result.invalid.push('color.model');
@@ -359,6 +390,8 @@ exports.start = function() {
                                    , status     : [ 'on', 'off' ]
                                    , color        : { model: [ { rgb : { r: 'u8',  g: 'u8',  b: 'u8' } }
 // TBD: other color models go here, but RGB is mandatory
+                                                             , { hue         : { hue: 'degrees', saturation: 'percentage' } }
+                                                             , { temperature : { temperture: 'mireds' } }
                                                              ]
                                                     }
                                    , brightness : 'percentage'

@@ -19,6 +19,7 @@ exports.validBrightness  = function(bri)  { return ((  0 <= bri) && (bri <= 100)
 exports.validHue         = function(hue)  { return ((  0 <= hue) && (hue <  360)); };
 exports.validSaturation  = function(sat)  { return ((  0 <= sat) && (sat <= 100)); };
 exports.validCIE1931     = function(xy)   { return ((0 <= xy.x) && (xy.x <= 1) && (0 <= xy.y) && (xy.y <= 1)); };
+exports.validTemperature = function(mired){ return ((154 <= mired)  && (mired  <= 500)); };
 exports.validCMYW        = function(cmyw) {
   return (   (0 <= cmyw.c) && (cmyw.c <= 100)
           && (0 <= cmyw.m) && (cmyw.m <= 100)

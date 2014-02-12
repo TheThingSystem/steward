@@ -3,6 +3,7 @@
 
 // load the module that knows how to discover/communicate with the bulb
 var TBD         = require('TBD')
+  , tinycolor   = require('tinycolor2')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -60,7 +61,7 @@ TBD.prototype.update = function(self, state) {
 // off: turn the bulb off.
 // on: turn the bulb on and set its bulb to the 'color' and 'brightness' parameter.
 TBD.prototype.perform = function(self, taskID, perform, parameter) {
-  var color, f, params, state;
+  var color, f, hsl, kelvin, params, state;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -78,25 +79,33 @@ TBD.prototype.perform = function(self, taskID, perform, parameter) {
 
     color = params.color;
     if (!!color) {
+      if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) return false;
+      state.brightness = params.brightness || self.brightness;
+
       switch (color.model) {
         case 'rgb':
-// TBD: map to native model
+// TBD: map to native model (we'll assume either hue or temperature)
+          if ((color.rgb.r === 255) && (color.rgb.g === 255) && (color.rgb.b === 255)) {
+            state.color = { model: 'temperature', temperature: color.temperature };
+          } else {
+            hsl = tinycolor({ r: color.rgb.r, g: color.rgb.g, b: color.rgb.b}).toHsl();
+            state.color = { model: 'hue', hue: { hue: hsl.h, saturation: hsl.s * 100 } };
+            state.brightness = hsl.l * 100;
+          }
           break;
 
 // TBD: other models, mapped to native model, go here...
+        case 'hue':
+        case 'temperature':
+          break;
 
         default:
-          break;
+          return false;
       }
       state.color = color;
     }
 
-    if ((!!params.brightness) && (lighting.validBrightness(params.brightness))) state.brightness = params.brightness;
-
-/* TBD: if a brightness of zero means that the bulb is off, remember that.
-
-     state.on = false;
- */
+    if (state.brightness === 0) state.on = false;
   }
 
   logger.info('device/' + self.deviceID, { perform: state });
@@ -106,6 +115,22 @@ TBD.prototype.perform = function(self, taskID, perform, parameter) {
   if (!state.on) self.bulb.turnOff();
   else {
     f = function() { self.bulb.setState(state); };
+
+/*   
+    f = function() {
+// assuming 16-bits each for hue, saturation, luminance, and whitecolor
+      if (state.color.model === 'hue') {
+        self.bulb.setState(led, devices.scaledPercentage(state.color.model.hue.h / 360, 0, 0xffff),
+                                devices.scaledPercentage(state.color.model.hue.h,       0, 0xffff),
+                                devices.scaledPercentage(state.brightness,              0, 0xffff),
+                                0);
+      } else {
+        kelvin = 1000000 / state.color.model.temperature.temperature;
+        self.bulb.setState(led, 0x0000, 0x0000, devices.scaledPercentage(state.brightness, 0, 0xffff),
+                           devices.scaledPercentage(devices.scaledLevel(kelvin, 2000, 6500), 0, 0xffff));
+      }
+    };
+ */
 
     if (self.state !== 'on') self.bulb.turnOn(f); else f();
   }
@@ -144,6 +169,15 @@ var validate_perform = function(perform, parameter) {
           break;
 
 // TBD: other color models validated here...
+        case 'hue':
+          if (!lighting.validHue(color.hue)) result.invalid.push('color.hue');
+          if (!lighting.validSaturation(color.saturation)) result.invalid.push('color.saturation');
+          if (!params.brightness) result.requires.push('brightness');
+          break;
+
+        case 'temperature':
+          if (!lighting.validTemperature(color.temperature)) result.invalid.push('color.temperature');
+          break;
 
         default:
           result.invalid.push('color.model');
@@ -171,6 +205,8 @@ exports.start = function() {
                                    , status       : [ 'on', 'off' ]
                                    , color        : { model: [ { rgb : { r: 'u8',  g: 'u8',  b: 'u8' } }
 // TBD: other color models go here, but RGB is mandatory
+                                                             , { hue         : { hue: 'degrees', saturation: 'percentage' } }
+                                                             , { temperature : { temperture: 'mireds' } }
                                                              ]
                                                     }
                                    , brightness   : 'percentage'
