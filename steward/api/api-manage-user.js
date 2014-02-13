@@ -243,7 +243,6 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
         who = 'user/' + user.userName + '/' + client.clientID;
         results.result.clients[who] = proplist2(null, client, user);
         if (!masterP) continue;
-if(true) continue;
 
         results.result.clients[who].otpURL =
                        client.clientAuthAlg
