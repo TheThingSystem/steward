@@ -17,8 +17,8 @@ var db;
 var create = function(logger, ws, api, message, tag) {
   var actor, actorID, actorType, entity, p, parts, results, uuid, v;
 
-  var error = function(permanent, diagnostic) {
-    return manage.error(ws, tag, 'event creation', message.requestID, permanent, diagnostic);
+  var error = function(permanent, diagnostic, viz) {
+    return manage.error(ws, tag, 'event creation', message.requestID, permanent, diagnostic, viz);
   };
 
   if (!readyP())                  return error(false, 'database not ready');
@@ -57,7 +57,7 @@ var create = function(logger, ws, api, message, tag) {
     }
   }
 
-  if (!!events[uuid])             return error(false, 'duplicate uuid');
+  if (!!events[uuid])             return error(false, 'duplicate uuid', 'event/' + events[uuid].eventID);
   events[uuid] = {};
 
   results = { requestID: message.requestID };

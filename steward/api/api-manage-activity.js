@@ -18,8 +18,8 @@ var db;
 var create = function(logger, ws, api, message, tag) {
   var event, group, results, task, uuid;
 
-  var error = function(permanent, diagnostic) {
-    return manage.error(ws, tag, 'activity creation', message.requestID, permanent, diagnostic);
+  var error = function(permanent, diagnostic, viz) {
+    return manage.error(ws, tag, 'activity creation', message.requestID, permanent, diagnostic, viz);
   };
 
   if (!readyP())                       return error(false, 'database not ready');
@@ -72,7 +72,7 @@ var create = function(logger, ws, api, message, tag) {
                                        return error(true, 'invalid task ' + message.task);
   }
 
-  if (!!activities[uuid])              return error(false, 'duplicate uuid');
+  if (!!activities[uuid])              return error(false, 'duplicate uuid', 'activity/' + activities[uuid].activityID);
   activities[uuid] = {};
 
   results = { requestID: message.requestID };

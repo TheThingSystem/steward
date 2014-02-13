@@ -121,8 +121,10 @@ var accessP = function(api, clientInfo, message, tag) {
   return true;
 };
 
-var error = exports.error = function(ws, tag, event, requestID, permanent, diagnostic) {
+var error = exports.error = function(ws, tag, event, requestID, permanent, diagnostic, viz) {
   var meta = { error: { permanent: permanent, diagnostic: diagnostic } };
+
+  if (!!viz) meta.error.videlicet = viz;
 
   if (requestID) meta.requestID = requestID;
   ws.send(JSON.stringify(meta), function(err) {

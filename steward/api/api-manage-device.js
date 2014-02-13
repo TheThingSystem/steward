@@ -13,8 +13,8 @@ var db;
 var create = function(logger, ws, api, message, tag) {
   var actor, info, p, parts, v, uuid;
 
-  var error = function(permanent, diagnostic) {
-    return manage.error(ws, tag, 'device creation', message.requestID, permanent, diagnostic);
+  var error = function(permanent, diagnostic, viz) {
+    return manage.error(ws, tag, 'device creation', message.requestID, permanent, diagnostic, viz);
   };
 
   if (!readyP())                                            return error(false, 'database not ready');
@@ -52,7 +52,8 @@ var create = function(logger, ws, api, message, tag) {
     try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
     if (err)                                                return error(false, err.message);
-    if (!deviceID)                                          return error(false, 'duplicate uuid');
+    if (!deviceID)                                          return error(false, 'duplicate uuid',
+                                                                         'device/' + devices.devices[info.id].device.deviceID);
 
     db.run('INSERT INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
            { $deviceID: deviceID, $key: 'info', $value: JSON.stringify(info) });

@@ -23,8 +23,8 @@ var db;
 var create = function(logger, ws, api, message, tag) {
   var actor, i, member, members, operator, parent, parentID, results, type, uuid;
 
-  var error = function(permanent, diagnostic) {
-    return manage.error(ws, tag, 'group creation', message.requestID, permanent, diagnostic);
+  var error = function(permanent, diagnostic, viz) {
+    return manage.error(ws, tag, 'group creation', message.requestID, permanent, diagnostic, viz);
   };
 
   if (!readyP())                                            return error(false, 'database not ready');
@@ -88,7 +88,8 @@ var create = function(logger, ws, api, message, tag) {
     }
   }
 
-  if (!!groups[uuid])                                       return error(false, 'duplicate uuid');
+  if (!!groups[uuid])                                       return error(false, 'duplicate uuid',
+                                                                         'group/' + groups[uuid].groupID);
   groups[uuid] = {};
 
   results = { requestID: message.requestID };

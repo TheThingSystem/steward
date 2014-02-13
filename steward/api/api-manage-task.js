@@ -17,8 +17,8 @@ var db;
 var create = function(logger, ws, api, message, tag) {
   var actor, actorID, actorType, entity, guard, p, parts, results, uuid, v;
 
-  var error = function(permanent, diagnostic) {
-    return manage.error(ws, tag, 'task creation', message.requestID, permanent, diagnostic);
+  var error = function(permanent, diagnostic, viz) {
+    return manage.error(ws, tag, 'task creation', message.requestID, permanent, diagnostic, viz);
   };
 
   if (!readyP())                  return error(false, 'database not ready');
@@ -67,7 +67,7 @@ var create = function(logger, ws, api, message, tag) {
     if (!actor.$lookup(guard[1])) return error(false, 'unknown guard ' + message.actor);
   }
 
-  if (!!tasks[uuid])              return error(false, 'duplicate uuid');
+  if (!!tasks[uuid])              return error(false, 'duplicate uuid', 'task/' + tasks[uuid].taskID);
   tasks[uuid] = {};
 
   results = { requestID: message.requestID };
