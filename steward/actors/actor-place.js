@@ -432,7 +432,7 @@ Place.prototype.getWoeID = function(self, tries) {
 
     self.info.woeid = woeid;
     self.setInfo();
-    self.changed();    
+    self.changed();
 
     if (!!self.weatherID) clearInterval(self.weatherID);
     self.weatherID = setInterval(function() { self.getWeather(self); }, 30 * 60 * 1000);
@@ -466,7 +466,7 @@ Place.prototype.getWeather = function(self) {
       wind = response.query.results.channel.wind;
       current = response.query.results.channel.item.condition;
       self.info.conditions = { code        : current.code
-                             , text        : current.text              
+                             , text        : current.text
                              , temperature : current.temp
                              , humidity    : atmosphere.humidity
                              , pressure    : atmosphere.pressure

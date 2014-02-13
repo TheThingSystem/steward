@@ -564,7 +564,18 @@ var place_info   = { name        : 'Home'
                    , strict      : 'on'
                    };
 
-var bootable = { ecobee         :
+var bootable = { dweetio        :
+                 { text         : 'The steward can automatically upload measurements to dweet.io'
+                 , instructions : 'No account is necessary. The key is an optional identifier for your use.'
+                 , site         : 'https://dweet.io/'
+                 , icon         : ''
+                 , name         : 'dweet'
+                 , actor        : '/device/indicator/dweetio/sensor'
+                 , info         :
+                   { key        : ''
+                   }
+                 }
+               , ecobee         :
                  { text         : 'If you have the Ecobee SmartSi thermostat, the steward can manage it for you.'
                  , instructions : 'Go to https://plus.google.com/communities/113042377519941328693 and ask for help, sorry!'
                  , site         : 'https://www.ecobee.com'
