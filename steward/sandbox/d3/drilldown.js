@@ -1814,11 +1814,12 @@ var multiple_drilldown = function(name, members) {
 };
 
 var showLocations = function(evt) {
-  var allLocs, i, loc, locArray, locs, map, mapCanvas;
+  var allLocs, count, i, image, j, lines, loc, locArray, locs, map, mapOptions, mapCanvas, marker, roadAtlassStyles, roadMapType, styledMapOptions;
   if (!document.getElementById('googleMapsAPI')) {
     loadScript();
   } else {
     if (document.getElementById('map-canvas')) {
+      chart.removeChild(document.getElementById('closeme'));
       document.body.removeChild(document.getElementById('map-canvas'));
       return;
     }
@@ -1827,16 +1828,98 @@ var showLocations = function(evt) {
 		mapCanvas.id = 'map-canvas';
 		document.body.appendChild(mapCanvas);
 
+		div = document.createElement('div');
+		div.setAttribute('id', 'closeme');
+		img = document.createElement('img');
+		img.setAttribute('src', 'popovers/assets/close.svg');
+		img.setAttribute('onclick', 'javascript:showLocations()');
+		div.appendChild(img);
+		chart.appendChild(div);
+    
     loc = currDevice.device.info.location;
     mapOptions = {
-      zoom: 14,
-      center: new google.maps.LatLng(parseFloat(loc[0]), parseFloat(loc[1]))
+      zoom: 12,
+      center: new google.maps.LatLng(parseFloat(loc[0]), parseFloat(loc[1])),
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+        mapTypeIds: [google.maps.MapTypeId.HYBRID, 'usroadatlas']
+      }
     };
+		roadAtlasStyles = [
+			{
+				featureType: 'road.highway',
+				elementType: 'geometry',
+				stylers: [
+					{ color: '#ffd809' },
+					{ saturation: 0 },
+					{ lightness: 0 }
+				]
+			},{
+				featureType: 'road.arterial',
+				elementType: 'geometry',
+				stylers: [
+					{ color: '#eeeeee' },
+					{ visibility: 'on' },
+				]
+			},{
+				featureType: 'road.local',
+				elementType: 'geometry',
+				stylers: [
+					{ color: '#eeeeee' },
+					{ visibility: 'simplified' }
+				]
+			},{
+				featureType: 'water',
+				elementType: 'geometry',
+				stylers: [
+					{ saturation: 40 },
+					{ lightness: 40 }
+				]
+			},{
+				featureType: 'road.highway',
+				elementType: 'labels',
+				stylers: [
+					{ visibility: 'on' },
+					{ saturation: 98 }
+				]
+			},{
+				featureType: 'administrative.locality',
+				elementType: 'labels',
+				stylers: [
+					{ hue: '#4b2057' },
+					{ saturation: 50 },
+					{ lightness: -10 },
+					{ gamma: 0.90 }
+				]
+			},{
+				featureType: 'transit.line',
+				elementType: 'geometry',
+				stylers: [
+					{ hue: '#ff0000' },
+					{ visibility: 'on' },
+					{ lightness: -70 }
+				]
+			},{
+				featureType: 'landscape',
+				elementType: 'geometry',
+				stylers: [
+					{ color: '#ffffff' },
+				]
+			}    
+		];
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+		styledMapOptions = {
+			name: 'Road Map'
+		};
+	
+		roadMapType = new google.maps.StyledMapType(
+				roadAtlasStyles, styledMapOptions);
+	
+		map.mapTypes.set('usroadatlas', roadMapType);
+		map.setMapTypeId('usroadatlas');
     
     locs = [];
-    markers = [];
-    pathCoords = [];
     allLocs = currDevice.device.info.locations;
     
     for (i = 0; i < allLocs.length; i++) {
@@ -1844,26 +1927,21 @@ var showLocations = function(evt) {
       locs[i] = new google.maps.LatLng(parseFloat(locArray[0]), parseFloat(locArray[1]))
     }
     
-    var symbol = {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 6,
-      strokeColor: '#000',
-      strokeWidth: 1
+    image = {
+      url: 'popovers/assets/actors/t.svg'
     };
-    
-    var marker = new google.maps.Marker({
+    marker = new google.maps.Marker({
       position: new google.maps.LatLng(parseFloat(loc[0]), parseFloat(loc[1])),
-      map: map,
-      icon: symbol
+      icon: image,
+      map: map
     });
     
-    var lines = [];
+    lines = [];
     function addLine(i, start, end) {
-      var j;
       lines[i] = new google.maps.Polyline({
         path: [start, end],
-        strokeColor: '#FF0000',
-        strokeWeight: 2,
+        strokeColor: '#9b00c1',
+        strokeWeight: 4,
         map: map
       });
       if (count === locs.length - 1) {
@@ -1874,7 +1952,7 @@ var showLocations = function(evt) {
       }
     }
     
-    var count = 0;
+    count = 0;
     function drawLines() {
       window.setInterval(function() {
         addLine(count, locs[count], locs[++count]);
@@ -1883,7 +1961,7 @@ var showLocations = function(evt) {
     
     if (locs.length > 1) drawLines();
   }
-  
+    
   function loadScript() {
     var script = document.createElement('script');
     script.id = 'googleMapsAPI';
