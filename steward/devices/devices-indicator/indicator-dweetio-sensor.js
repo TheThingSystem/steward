@@ -43,6 +43,7 @@ var DweetIO = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   if (!!self.info.thing) self.status = 'ready'; else self.getThingName(self);
+  self.normalize(self);
 };
 util.inherits(DweetIO, indicator.Device);
 
@@ -90,6 +91,23 @@ DweetIO.prototype.getThingName = function(self) {
   }).end('{}');
 };
 
+DweetIO.prototype.normalize = function(self) {
+  var deviceID, i;
+
+  if ((util.isArray(self.info.measurements)) && (self.info.measurements.length > 0) && (!self.measurements)) {
+    self.measurements = {};
+    for (i = 0; i < self.info.measurements.length; i++) self.measurements[self.info.measurements[i]] = true;
+  }
+
+  if ((util.isArray(self.info.sensors)) && (self.info.sensors.length > 0) && (!self.sensors)) {
+    self.sensors = {};
+    for (i = 0; i < self.info.sensors.length; i++) {
+      deviceID = self.info.sensors[i].split('/')[1];
+      self.sensors[deviceID] = true;
+    }
+  }
+};
+
 DweetIO.prototype.update = function(self, deviceID, point) {
   var actor, device, entity;
 
@@ -97,12 +115,12 @@ DweetIO.prototype.update = function(self, deviceID, point) {
   if ((!!self.sensors) && (!self.sensors[deviceID])) return;
   if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
-  point.actor = { actorID: 'device/' + deviceID };
+  point.device = { deviceID: deviceID };
   actor = steward.actors.device;
   if (!!actor) {
     entity = actor.$lookup(deviceID);
     if (!!entity) device = entity.proplist();
-    if (!!device) point.actor.name = device.name;
+    if (!!device) point.device.name = device.name;
   }
   delete(point.streamID);
 
@@ -134,6 +152,7 @@ DweetIO.prototype.perform = function(self, taskID, perform, parameter) {
     delete(self.sensors);
   }
 
+  self.normalize(self);
   return steward.performed(taskID);
 };
 
