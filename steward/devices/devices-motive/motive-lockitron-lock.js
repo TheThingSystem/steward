@@ -4,7 +4,7 @@ var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
-  , motive     = require('./../device-motive')
+  , motive      = require('./../device-motive')
   ;
 
 

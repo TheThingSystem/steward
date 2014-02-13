@@ -79,5 +79,6 @@
     , "xmldom"		        : "0.1.x"
     , "xmlhttprequest"          : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
     , "yoctolib"                : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
+    , "yql"                     : "0.4.8"
     }
 }

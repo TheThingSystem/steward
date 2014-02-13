@@ -3,6 +3,7 @@ var fs          = require('fs')
   , parser      = require('cron-parser')
   , suncalc     = require('suncalc')
   , util        = require('util')
+  , yql         = require('yql')
   , database    = require('./../core/database')
   , devices     = require('./../core/device')
   , server      = require('./../core/server')
@@ -164,6 +165,7 @@ var Place = exports.Place = function(info) {
     delete(self.info.coordinates);
     self.setInfo();
   }
+  if (!self.info.woeid) self.getWoeID(self);
   self.info.review = [];
   self.info.ipaddrs = [];
   steward.forEachAddress(function(addr) { self.info.ipaddrs.push(addr); });
@@ -177,6 +179,7 @@ var Place = exports.Place = function(info) {
     info = utility.clone(self.info);
     delete(info.name);
     delete(info.ipaddrs);
+    delete(info.woeid);
     if (!!server.vous) {
       info.remote = server.vous;
 
@@ -210,7 +213,10 @@ var Place = exports.Place = function(info) {
     if (request === 'perform') return self.perform(self, eventID, observe, parameter);
   });
 
-  return true;
+  if ((!!self.info.woeid) && (!self.weatherID)) {
+    self.weatherID = setInterval(function() { self.getWeather(self); }, 30 * 60 * 1000);
+    self.getWeather(self);
+  }
 };
 util.inherits(Place, devices.Device);
 
@@ -325,6 +331,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
         geometry = result.results[0].geometry;
         place1.info.location = [ geometry.location.lat, geometry.location.lng ];
+        self.getWoeID(self);
         if (!!params.displayUnits) return;
 
         components = result.results[0].address_components;
@@ -338,6 +345,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.location) {
     place1.info.location = utility.location_fuzz(params.location);
+    self.getWoeID(self);
     if (!params.physical) {
       geocoder.reverseGeocode(place1.info.location[0], place1.info.location[1], function(err, result) {
         if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
@@ -362,7 +370,6 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
       place1.info.displayUnits =
           (result.results[result.results.length - 1].formatted_address === 'United States') ? 'customary' : 'metric';
       });
-
   }
 
 // TBD: look at all 'solar' events and set the timer accordingly...
@@ -394,6 +401,94 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
 Place.prototype.makecode = function() {
   this.info.pairingCode = ('000000' + Math.round(Math.random() * 999999)).substr(-6);
+};
+
+Place.prototype.getWoeID = function(self, tries) {
+  var retry = function(args) {
+    if (!args) args = {};
+    args.event = 'getWoeID';
+    logger.error('place/1', args);
+    setTimeout(function() { self.getWoeID(self, tries++); }, 5 * 60 * 1000);
+  };
+
+  if (!!tries) {
+    if (!!self.info.woeid) return;
+  } else {
+    delete(self.info.woeid);
+    tries = 1;
+  }
+
+  new yql.exec('SELECT * FROM geo.placefinder WHERE (text = @text) AND (gflags = "R")', function (response) {
+    var woeid;
+
+    if (!!response.error) return retry({ diagnostic: response.error.description });
+
+    try {
+      woeid = parseInt(response.query.results.Result.woeid, 10);
+      if (isNaN(woeid)) throw new Error('invalid WoeID');
+    } catch(ex) {
+      return retry({ response: response, diagnostic: ex.message });
+    }
+
+    self.info.woeid = woeid;
+    self.setInfo();
+    self.changed();    
+
+    if (!!self.weatherID) clearInterval(self.weatherID);
+    self.weatherID = setInterval(function() { self.getWeather(self); }, 30 * 60 * 1000);
+    self.getWeather(self);
+  }, { text: self.info.location[0] + ',' + self.info.location[1] });
+};
+
+Place.prototype.getWeather = function(self) {
+  if (!self.info.woeid) return;
+
+  new yql.exec('SELECT * FROM weather.forecast WHERE (woeid = @woeid) AND (u = "c")', function (response) {
+    var atmosphere, current, diff, forecasts, i, pubdate, wind;
+
+    if (!!response.error) return logger.error('place/1', { event: 'getWeather', diagnostic: response.error.description });
+
+    try {
+      pubdate = new Date(response.query.results.channel.item.pubDate);
+      diff = pubdate.getTime() + (75 * 60 * 1000) - new Date().getTime();
+      if (diff > 0) {
+        if (!!self.weatherID) clearInterval(self.weatherID);
+        setTimeout(function() {
+          logger.warning('place/1', { event: 'getWeather', diagnostic: 'reset to every 75 minutes' });
+          if (!!self.weatherID) return;
+          self.weatherID = setInterval(function() { self.getWeather(self); }, 75 * 60 * 1000);
+          self.getWeather(self);
+        }, diff + (5 * 60 * 1000));
+        logger.warning('place/1', { event: 'getWeather', diagnostic: 'check in ' + ((diff / 1000) + 5 * 60) + ' seconds' });
+      }
+
+      atmosphere = response.query.results.channel.atmosphere;
+      wind = response.query.results.channel.wind;
+      current = response.query.results.channel.item.condition;
+      self.info.conditions = { code        : current.code
+                             , text        : current.text              
+                             , temperature : current.temp
+                             , humidity    : atmosphere.humidity
+                             , pressure    : atmosphere.pressure
+                             , windchill   : wind.chill
+                             , visibility  : atmosphere.visibility
+                             , lastSample  : new Date(current.date)
+                             };
+
+      self.info.forecasts = [];
+      forecasts = response.query.results.channel.item.forecast;
+      for (i = 0; i < forecasts.length; i++) {
+        self.info.forecasts.push({ code            : forecasts[i].code
+                                 , text            : forecasts[i].text
+                                 , highTemperature : forecasts[i].high
+                                 , lowTemperature  : forecasts[i].low
+                                 , nextSample      : new Date(forecasts[i].date)
+                                 });
+      }
+    } catch(ex) {
+      logger.error('place/1', { event: 'getWeather', diagnostic: ex.message });
+    }
+  }, { woeid: self.info.woeid });
 };
 
 var review = function() {
@@ -592,6 +687,16 @@ exports.start = function() {
                                    , location    : 'coordinates'
                                    , remote      : true
                                    , review      : []
+                                   , conditions  : { code        : true
+                                                   , text        : true
+                                                   , temperature : 'celsius'
+                                                   , humidity    : 'percentage'
+                                                   , pressure    : 'millibars'
+                                                   , windchill   : 'celsius'
+                                                   , visibility  : 'kilometers'
+                                                   , lastSample  : 'timestamp'
+                                                   }
+                                   , forecasts   : 'array'
                                    , solar       : [ 'dawn'
                                                    , 'morning-twilight'
                                                    , 'sunrise'
