@@ -454,8 +454,9 @@ Place.prototype.getWeather = function(self) {
       if (diff > 0) {
         if (!!self.weatherID) clearInterval(self.weatherID);
         setTimeout(function() {
+          if (!!self.weatherID) return logger.warning('place/1', { event: 'getWeather', diagnostic: 'previously reset' });
+
           logger.warning('place/1', { event: 'getWeather', diagnostic: 'reset to every 75 minutes' });
-          if (!!self.weatherID) return;
           self.weatherID = setInterval(function() { self.getWeather(self); }, 75 * 60 * 1000);
           self.getWeather(self);
         }, diff + (5 * 60 * 1000));

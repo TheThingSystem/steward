@@ -48,7 +48,7 @@ var pair = function(logger, ws, api, message, tag) {
                      , path       : '/api/v1/user/create/' +
                                    ((!!user) ? ('.things/' + message.name) : (steward.uuid + ':things'))
                      , name       : (!!user) ? message.name                : '.things'
-                     , comments   : (!!user) ? message.comments            : 'simple thing protocol clients'
+                     , comments   : (!!user) ? message.comments            : 'simple thing protocol client'
                      , role       : 'device'
                      , clientName : message.name
                      }, tag, true);
