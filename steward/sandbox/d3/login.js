@@ -1,3 +1,5 @@
+var wsx;
+
 var showLogin = function(changeLogin) {
   var chart, div, form, table, td, tr;
   
@@ -12,87 +14,168 @@ var showLogin = function(changeLogin) {
     chart.appendChild(div);
   }
   
-  div = d3.select("body")
-  	.append("div")
-  	.attr("id", "login")
-  	.classed("form-container-short", true)
-  	.style("display", "block")
-  	.style("top", "-210px");
-  form = div.append("form")
-  	.attr("name", "loginForm")
-  	.attr("action", "#");
-  table = form.append("table")
-    .classed("short-form", true);
-    
-  tr = table.append("tr");
-  tr.append("td").text("Client ID:");
-  tr.append("td")
-  	.append("input")
-  	  .attr("type", "text")
-  	  .attr("name", "userName")
-  	  .attr("autocorrect", "off")
-  	  .attr("autocapitalize", "none");
-  tr.append("td").text("e.g., \'root/1\'");
-  
-  tr = table.append("tr");
-  tr.append("td").text("Login code:");
-  tr.append("td")
-  	.append("input")
-  	  .attr("type", function() { return (isMobile()) ? "number" : "text" })
-  	  .attr("name", "userCode")
-  	  .attr("autocorrect", "off")
-  	  .attr("onkeyup", "javascript:submitLogin(event)");
-  tr.append("td").text("e.g., \'123456\'");
-
-  tr = table.append("tr");
-  td = tr.append("td")
-  	.attr("colspan", "3")
-    .style("text-align", "center");
-  if (!isRemoteAccess()) {
-    td.append("img")
-  	    .attr("src", "popovers/assets/create-account.svg")
-  	    .style("cursor", "pointer")
-  	    .on("click", function() { window.location = "../client.html"; });
+  var steward = { hostname : window.location.hostname
+                 , port     : window.location.port
+                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 };
+	wsx = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
+	
+	wsx.onopen = function(event) {
+		wsx.send(JSON.stringify({ path      : '/api/v1/user/list/'
+									         , requestID  : '400'
+									         , options    : { depth: 'all' }
+		}));
+	};
+	
+	wsx.onmessage = function(event) {
+		var message = JSON.parse(event.data);
+//		console.log(JSON.stringify(message,null,4));
+		var requestID = message.requestID.toString();
+		
+		if (message.hasOwnProperty("error")) notify(message.error.diagnostic);
+		
+		switch(requestID) {
+		  case "400":
+				if (message.hasOwnProperty("result") && message.result.hasOwnProperty("status")) {
+					if (message.result.status !== "success") notify("The Steward is unable to inquire about existing accounts.");
+				}
+				if (message.hasOwnProperty("result") && message.result.hasOwnProperty("users")) {
+				  var isDeveloperMode = (message.result.steward.hasOwnProperty("developer") && message.result.steward.developer === true);
+				  assembleLogin((Object.keys(message.result.users).length === 0), isDeveloperMode);
+				}
+		    break;
+		  default:
+		    break;
+		}
+	};
+	
+	wsx.onclose = function(event) {};
+	
+	wsx.onerror = function(event) {
+		try {
+			ws.close();
+			console.log("Closed websocket");
+		} catch (ex) {}
+	};
+	
+  function assembleLogin(noUsers, isDeveloperMode) {
+    if (noUsers) {
+			div = d3.select("body")
+				.append("div")
+				.attr("id", "login")
+				.classed("form-container-short", true)
+				.style("display", "block")
+				.style("top", "-210px");
+			form = div.append("form")
+				.attr("name", "loginForm")
+				.attr("action", "#");
+      form.append("p");
+			form.append("img")
+				.attr("src", "popovers/assets/create-account-only.svg")
+				.style("cursor", "pointer")
+				.on("click", function() { window.location = "../client.html"; });
+			if (ws2) {
+				form.append("img")
+					.attr("src", "popovers/assets/developer-mode.svg")
+					.style("cursor", "pointer")
+					.on("click", hideLogin);
+			} else {
+				form.append("img")
+					.attr("src", "popovers/assets/developer-mode.svg")
+					.style("cursor", "pointer")
+					.attr("onclick", "javascript:setDeveloperMode(" + isDeveloperMode + ")");
+			}
+      form.append("p")
+        .html("Developer mode disables authentication for local clients.");
+      form.append("p")
+        .html("If you do not understand, please click on [CREATE ACCOUNT].");
+      form.append("p")
+        .html("If you do understand, you may click on [DEVELOPER MODE].");
+        
+    } else {
+			div = d3.select("body")
+				.append("div")
+				.attr("id", "login")
+				.classed("form-container-short", true)
+				.style("display", "block")
+				.style("top", "-210px");
+			form = div.append("form")
+				.attr("name", "loginForm")
+				.attr("action", "#");
+			table = form.append("table")
+				.classed("short-form", true);
+				
+			tr = table.append("tr");
+			tr.append("td").text("Client ID:");
+			tr.append("td")
+				.append("input")
+					.attr("type", "text")
+					.attr("name", "userName")
+					.attr("autocorrect", "off")
+					.attr("autocapitalize", "none");
+			tr.append("td").text("e.g., \'root/1\'");
+			
+			tr = table.append("tr");
+			tr.append("td").text("Login code:");
+			tr.append("td")
+				.append("input")
+					.attr("type", function() { return (isMobile()) ? "number" : "text" })
+					.attr("name", "userCode")
+					.attr("autocorrect", "off")
+					.attr("onkeyup", "javascript:submitLogin(event)");
+			tr.append("td").text("e.g., \'123456\'");
+		
+			tr = table.append("tr");
+			td = tr.append("td")
+				.attr("colspan", "3")
+				.style("text-align", "center");
+			if (!isRemoteAccess()) {
+				td.append("img")
+						.attr("src", "popovers/assets/create-account.svg")
+						.style("cursor", "pointer")
+						.on("click", function() { window.location = "../client.html"; });
+			}
+			if (changeLogin) {
+				if (!readOnlyAccess && !isRemoteAccess()) {
+					td.append("img")
+						.attr("src", "popovers/assets/read-only.svg")
+						.style("cursor", "pointer")
+						.on("click", function() { hideLogin(); switchToReadOnly(); });
+				}
+				td.append("img")
+					.attr("src", "popovers/assets/cancel-login.svg")
+					.style("cursor", "pointer")
+					.on("click", hideLogin);
+			} else if (!isRemoteAccess()) {
+				td.append("img")
+					.attr("src", "popovers/assets/read-only.svg")
+					.style("cursor", "pointer")
+					.on("click", function() { hideLogin(); switchToReadOnly(); });
+			}
+			td.append("img")
+					.attr("src", "popovers/assets/login.svg")
+					.style("cursor", "pointer")
+					.on("click", login);
+			tr = table.append("tr")
+				.append("td")
+				.attr("colspan", "3")
+				.style("text-align", "center")
+				.style("padding-bottom", "15px")
+				.attr("id", "loginStatus")
+				.html(function() { return (loginInfo.clientID !== '') ?
+													 '<font color="green">logged in with Client ID: ' + loginInfo.clientID + '</font>' : '' });
+    }
+		d3.select("#login")
+			.style("top", "-240px")
+			.transition()
+			.duration(600)
+			.style("top", "120px");
+			
+		if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
+		
+    if (document.loginForm.userName) document.loginForm.userName.focus();
+		
   }
-  if (changeLogin) {
-    if (!readOnlyAccess && !isRemoteAccess()) {
-      td.append("img")
-  	    .attr("src", "popovers/assets/read-only.svg")
-  	    .style("cursor", "pointer")
-  	    .on("click", function() { hideLogin(); switchToReadOnly(); });
-  	}
-    td.append("img")
-  	  .attr("src", "popovers/assets/cancel-login.svg")
-  	  .style("cursor", "pointer")
-  	  .on("click", hideLogin);
-  } else if (!isRemoteAccess()) {
-    td.append("img")
-  	  .attr("src", "popovers/assets/read-only.svg")
-  	  .style("cursor", "pointer")
-  	  .on("click", function() { hideLogin(); switchToReadOnly(); });
-  }
-  td.append("img")
-  	  .attr("src", "popovers/assets/login.svg")
-  	  .style("cursor", "pointer")
-  	  .on("click", login);
-  tr = table.append("tr")
-    .append("td")
-  	.attr("colspan", "3")
-  	.style("text-align", "center")
-  	.style("padding-bottom", "15px")
-    .attr("id", "loginStatus")
-    .html(function() { return (loginInfo.clientID !== '') ?
-                       '<font color="green">logged in with Client ID: ' + loginInfo.clientID + '</font>' : '' });
-
-  d3.select("#login")
-    .style("top", "-240px")
-    .transition()
-    .duration(600)
-    .style("top", "120px");
-    
-  if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
-  
-  document.loginForm.userName.focus();
   
   function isRemoteAccess() {
     return (/\.taas\./.test(location.hostname));
@@ -103,6 +186,22 @@ var showLogin = function(changeLogin) {
     return ((/iPhone/.test(navigator.userAgent)) || (/iPad/.test(navigator.userAgent)));
   }
 };
+  
+function setDeveloperMode(isDeveloperMode) {
+	if (!isDeveloperMode) {
+	  wsx.send(JSON.stringify({ path      : '/api/v1/actor/perform/place'
+                            , perform   : 'set'
+                            , parameter : JSON.stringify({ strict: 'off' })
+	  }));
+	}
+	hideLogin();
+  var steward = { hostname : window.location.hostname
+				        , port     : window.location.port
+				        , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+				        , secure   : false
+				        };
+  go(steward);
+}
 
 var hideLogin = function() {
   d3.select("#login")
@@ -112,6 +211,10 @@ var hideLogin = function() {
     .style("top", "-240px")
     .remove();
   if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', 'javascript:showLogin(true)');
+  if (wsx) {
+    wsx.close();
+    wsx = null;
+  }
 }
 
 var submitLogin = function(evt) {
@@ -302,7 +405,7 @@ var showSettings = function() {
     var optgroup, option;
     
     optgroup = document.createElement('optgroup');
-    optgroup.setAttribute('label', 'Strict Mode');
+    optgroup.setAttribute('label', 'Developer Mode');
     select.appendChild(optgroup);
     
     option = document.createElement('option');
@@ -340,15 +443,16 @@ var showSettings = function() {
     var optgroup, option;
     var keys = getKeys(bootable);
     
-    optgroup = document.createElement('optgroup');
-    optgroup.setAttribute('label', 'Choose a Service');
-    select.appendChild(optgroup);
-
     for (var i = 0; i < keys.length; i++) {
       option = document.createElement('option');
       option.setAttribute('value', keys[i]);
       option.innerHTML = keys[i];
-      optgroup.appendChild(option);
+      if (i === 0) {
+				option.setAttribute('disabled', 'disabled');
+				option.setAttribute('selected', 'selected');
+				option.setAttribute('hidden', 'hidden');
+      }
+      select.appendChild(option);
     }
     return select;
   }
@@ -381,9 +485,10 @@ var pickDisplayUnits = function(evt) {
 // Create pair of label & text input elements for networked products
 var labeledBoxes = function(select) {
   var i, pwd = false;
-  var choice = select.value;
-  var keys = getKeys(bootable[choice].info);
   var labels = [];
+  var choice = select.value;
+  if (!choice) return labels;
+  var keys = getKeys(bootable[choice].info);
   for (i = 0; i < keys.length; i++) {
     pwd = ['credentials', 'password', 'passphrase'].indexOf(keys[i]) >= 0;
     labels[i] = labeledBox(keys[i].toUpperCase(), 'bootChoice' + i, 'bootChoiceLabel' + i, 
@@ -534,6 +639,7 @@ var savePlace = function(evt) {
 
 var addCloud = function(evt) {
   var emptyP = false, entry, i, val;
+  if (document.getElementById("bootableChoice").selectedIndex === 0) return false; 
   var form = document.getElementById("cloud-form");
   var labels = form.getElementsByTagName("label");
   var name = document.getElementById("bootableChoice").value;
@@ -564,7 +670,12 @@ var place_info   = { name        : 'Home'
                    , strict      : 'on'
                    };
 
-var bootable = { dweetio        :
+var bootable = { 'Cloud Service':
+                 { text         : 'Choose a cloud service to enter its access credentials.'
+                 , instructions : ''
+                 , info         : {}
+                 }
+               , dweetio        :
                  { text         : 'The steward can automatically upload measurements to dweet.io'
                  , instructions : 'No account is necessary. The key is an optional identifier for your use.'
                  , site         : 'https://dweet.io/'

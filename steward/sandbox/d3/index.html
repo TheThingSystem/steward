@@ -336,7 +336,7 @@ var goforw = function(page, actor) {
 };
 
 var end = function() {
-  ws2.close();
+  if (ws2) ws2.close();
 }
 
 </script>
