@@ -710,7 +710,7 @@ var showPop = function(device) {
      }
      
      function hasLockPerform() {
-       var performs = stack[0].message.result.actors[currDevice.deviceType].perform;
+       var performs = stack[0].message.result.actors[currDevice.device.deviceType].perform;
        return (performs[0] === "lock" || performs[0] === "unlock")
      }
    }
@@ -964,6 +964,8 @@ var showPop = function(device) {
      var div, elem;
      newPerform.perform = device.status;
      finishCommon("done-switch");
+     
+     if (hasNoPerform()) return;
      
      var hasLevel = device.info.hasOwnProperty("level");
      div = pop.append("div")
@@ -1951,6 +1953,10 @@ function renderTemperature(temperature) {
 function hasAlertPerform() {
 	var performs = stack[0].message.result.actors[currDevice.device.deviceType].perform.toString();
 	return false; //(/\balert\b/.test(performs));
+}
+
+function hasNoPerform() {
+	return (stack[0].message.result.actors[currDevice.device.deviceType].perform.toString() === '');
 }
 
 function sendData(device) {

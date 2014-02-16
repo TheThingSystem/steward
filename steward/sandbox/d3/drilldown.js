@@ -3,6 +3,7 @@ var actors           = {}
   , place
   , names            = {}
   , tags             = {}
+  , containers       = {}
   , multiple_arcs    = []
   , lastUpdated
   , lastIconTrayPage = 1
@@ -86,6 +87,7 @@ var home = function(state) {
   names = allNames(message);
   tags = allTags(message);
   categories = allCategories(message);
+  containers = allContainers(message);
   
   img = document.createElement('img');
   img.setAttribute('id', 'to-config');
@@ -149,6 +151,9 @@ var home = function(state) {
     img.setAttribute('src', entry.img);
     img.setAttribute('id', actor2ID(device.actor));
     img.setAttribute('style', 'background-color:' + statusColor(device));
+    if (!!containers[device.actor]) {
+      img.setAttribute('onclick', 'javascript:goforw(container_drilldown, "' + device.actor + '");');
+    } else 
     if (!!entry.single) img.setAttribute('onclick', 'javascript:goforw(' + entry.single + ', "' + device.actor + '");');
     actor.appendChild(img);
     div.appendChild(actor);
@@ -494,6 +499,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     
     div2 = document.createElement('div');
     div2.setAttribute('class', 'multiple-instructions');
+    if (!!containers[currDevice.actor]) div2.setAttribute('id', 'toPopover');
     div2.innerHTML = '<span class="actor-name" style="">' + name + '</span>'
                     + '<span>'
                     + instructions
@@ -513,7 +519,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   }
   chart.appendChild(div);
   if (document.getElementById("toPopover") && !readOnlyAccess) {
-    document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(currDevice.device , currDevice.entry);');
+    document.getElementById("toPopover").setAttribute('onclick', 'javascript:showPop(currDevice.device);');
   }
   
   if (document.getElementById("left-arrow")) handleArrowVisibility();
@@ -1747,6 +1753,28 @@ var tag_drilldown = function(state) {
   multiple_drilldown(state.actor, members);
 };
 
+var container_drilldown = function(state) {
+  var device, entry, group, i, members;
+  
+  currDevice.actor = state.actor;
+  currDevice.device = actors[state.actor];
+  currDevice.entry = entries[currDevice.device.deviceType] || entries.default(currDevice.device.deviceType);
+  
+  group = containers[state.actor];
+  if (!group) return;
+
+  members = [];
+  for (i = 0; i < group.length; i++) {
+    device = actors[group[i]];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
+    if ((!entry) || (!entry.arcs)) continue;
+
+    members.push(device);
+  }
+
+  multiple_drilldown(actors[state.actor].name, members);
+};
+
 
 var set_multiple_labels_and_arcs = function() {
 
@@ -2154,6 +2182,7 @@ var entries = {
                       result.single = single_switch_drilldown;
                       result.arcs = switch_device_arcs;
                       result.instrux = single_lighting_instructions;
+                      result.contains = ['outlets', 'plugs'];
                       result.pop = 'switch_pop';
                       break;
 

@@ -147,6 +147,37 @@ var allCategories = function(message) {
   return sorted(categories);
 };
 
+
+// returns an object with members that contain other devices, each member is an object holding an array of contained device names (e.g., 'device/3')
+
+var allContainers = function(message) {
+  var actor, containers, device, entry, i, id, j, result;
+  
+  result = message.result;
+  if (!result) return null;
+  
+  containers = {};
+  for (id in result) {
+    if ((!result.hasOwnProperty(id)) || (id === 'actor') || (id.indexOf('/device/') !== 0)) continue;
+    
+    for (actor in result[id]) if (result[id].hasOwnProperty(actor)) {
+      device = result[id][actor];
+      entry = entries[device.deviceType] || entries.default(device.deviceType);
+      if (entry.hasOwnProperty('contains')) {
+				for (i = 0; i < entry.contains.length; i++) {
+					if (device.info.hasOwnProperty(entry.contains[i])) {
+            containers[device.actor] = [];
+						for (j = 0; j < device.info[entry.contains[i]].length; j++) {
+							containers[device.actor].push(device.info[entry.contains[i]][j]);
+						}
+					}
+				}      
+      }
+    }
+  }
+  return sorted(containers);
+};
+
 var sorted = function(o) {
   var a, i, prop, result;
 
