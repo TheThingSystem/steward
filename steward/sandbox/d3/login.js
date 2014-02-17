@@ -73,7 +73,7 @@ var showLogin = function(changeLogin) {
 			form.append("img")
 				.attr("src", "popovers/assets/create-account-only.svg")
 				.style("cursor", "pointer")
-				.on("click", function() { window.location = "../client.html"; });
+				.on("click", goClientBootstrap);
 			if (ws2) {
 				form.append("img")
 					.attr("src", "popovers/assets/developer-mode.svg")
@@ -133,7 +133,7 @@ var showLogin = function(changeLogin) {
 				td.append("img")
 						.attr("src", "popovers/assets/create-account.svg")
 						.style("cursor", "pointer")
-						.on("click", function() { window.location = "../client.html"; });
+						.on("click", goClientBootstrap);
 			}
 			if (changeLogin) {
 				if (!readOnlyAccess && !isRemoteAccess()) {
@@ -174,7 +174,6 @@ var showLogin = function(changeLogin) {
 		if (document.getElementById('relogin')) document.getElementById('relogin').setAttribute('onclick', '');
 		
     if (document.loginForm.userName) document.loginForm.userName.focus();
-		
   }
   
   function isRemoteAccess() {
@@ -184,6 +183,18 @@ var showLogin = function(changeLogin) {
   function isMobile() {
     // looking only for iOS devices now
     return ((/iPhone/.test(navigator.userAgent)) || (/iPad/.test(navigator.userAgent)));
+  }
+  
+  function goClientBootstrap() {
+		var clientURL =
+		    { hostname : window.location.hostname
+				, port     : (window.location.protocol.indexOf('https:') === 0) ? '8888' : '8887'
+				, protocol : window.location.protocol
+				, path     : '/d3/index.html'
+				};
+    clientURL = encodeURIComponent(clientURL.protocol + '//' + clientURL.hostname + ':' + clientURL.port + clientURL.path);
+    var bootstrapURL = '../client.html?clientURL=' + clientURL;
+    window.location.href = bootstrapURL;
   }
 };
   

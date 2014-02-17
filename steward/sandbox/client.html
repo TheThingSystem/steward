@@ -595,6 +595,20 @@ var go = function(steward, i) {
   };
 };
 
+var insertClientButton = function() {
+  var img, td
+  var search = window.location.search.substring(1);
+  search = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
+  if (!!search.clientURL) {
+    td = document.createElement('td');
+    img = document.createElement('img');
+    img.src = 'd3/popovers/assets/back-to-client-login.svg'
+    img.setAttribute('onclick', "javascript:window.location.href = '" + decodeURIComponent(search.clientURL) + "'");
+    td.appendChild(img);
+    document.getElementById('authTestButtons').appendChild(td);
+  }
+}
+
 var main = function() {
 	// redirect https://127.0.0.1 to http
 	if (window.location.hostname === "127.0.0.1" && window.location.protocol === "https:") {
@@ -602,6 +616,8 @@ var main = function() {
 		window.location.href = newURL;
 		return;
 	}
+	
+	insertClientButton()
 
   var steward = { hostname : window.location.hostname
                  , port     : window.location.port
@@ -679,7 +695,7 @@ Input a short name (e.g., "user") and a longer, more descriptive name (e.g., "Us
     <td><input type='text' name='userCode' /></td>
     <td>e.g., "123456"</td>
 </tr>
-<tr valign='top'>
+<tr id='authTestButtons' valign='top'>
     <td></td>
     <td><input type="image" src="d3/popovers/assets/test.svg" value='Test' /><br/><br/><span id='status2'></span></td>
 </tr>
