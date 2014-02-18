@@ -411,6 +411,8 @@ Place.prototype.getWoeID = function(self, tries) {
     setTimeout(function() { self.getWoeID(self, tries++); }, 5 * 60 * 1000);
   };
 
+  if ((!place1.info.location) || !util.isArray(place1.info.location) || (place1.info.location.length < 2)) return;
+
   if (!!tries) {
     if (!!self.info.woeid) return;
   } else {
