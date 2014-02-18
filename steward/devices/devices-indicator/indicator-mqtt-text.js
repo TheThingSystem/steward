@@ -1,10 +1,10 @@
 // mqtt - send measurements via MQTT
 
 var mqtt        = require('mqtt')
-  , querystring = require('querystring')
   , url         = require('url')
   , util        = require('util')
   , devices     = require('./../../core/device')
+  , server      = require('./../../core/server')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
@@ -17,7 +17,7 @@ var logger = indicator.logger;
 
 
 var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
-  var method, option, options, opts, parts, self;
+  var params, self;
 
   self = this;
 
@@ -35,31 +35,6 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'username', 'passphrase' ];
   self.changed();
 
-  parts = url.parse(info.url);
-  if (!parts.port) parts.port = (parts.protocol === 'mqtts') ? 8883 : 1883;
-  options = { protocolID: 'MQIsdp', protocolVersion: 3 };
-  opts = (!!parts.query) ? querystring.parse(parts.query) : {};
-  if (!!info.username) {
-    opts.username = info.username;
-    if (!!info.passphrase) opts.password = info.passphrase;
-  }
-  for (option in opts) if (opts.hasOwnProperty(option)) options[option] = opts[option];
-
-  self.path = parts.pathname;
-  if (!self.path) self.path = '';
-  else if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
-
-  method = (parts.protocol === 'mqtts') ? mqtt.createSecureClient : mqtt.createClient;
-  self.mqtt = method(parts.port, parts.hostname, options).on('connection', function() {
-    self.status = 'ready';
-  }).on('message', function(topic, message, packet) {
-    logger.warning('device/' + self.deviceID, { event: 'message', topic: topic, message: message, packet: packet });
-  }).on('error', function(err) {
-    self.status = 'error';
-    self.changed();
-    logger.error('device/' + self.deviceID, { diagnostic: err.message });
-  });
-
 /*
  device/162 - Air Quality Sensor
 { streamID  : 160
@@ -69,6 +44,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
 }
  */
   broker.subscribe('readings', function(deviceID, point) {
+    if (!self.mqtt) return;
     if (self.status !== 'ready') return;
     if ((!!self.sensors) && (!self.sensors[deviceID])) return;
     if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
@@ -82,9 +58,43 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
+
+  params = url.parse(info.url, true);
+  if (!!info.username) {
+    params.query.username = info.username;
+    if (!!info.passphrase) params.query.password = info.passphrase;
+  }
+  self.login(self, params);
 };
 util.inherits(Mqtt, indicator.Device);
 
+
+Mqtt.prototype.login = function(self, params) {
+  var method, option, options, opts;
+
+  if (!params.port) params.port = (params.protocol === 'mqtts') ? 8883 : 1883;
+
+  options = { protocolID: 'MQIsdp', protocolVersion: 3 };
+  opts = params.query || {};
+  for (option in opts) if (opts.hasOwnProperty(option)) options[option] = opts[option];
+
+  self.path = params.pathname;
+  if (!self.path) self.path = '';
+  else if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
+
+  method = (params.protocol === 'mqtts') ? mqtt.createSecureClient : mqtt.createClient;
+  self.mqtt = method(params.port, params.hostname, options).on('connection', function() {
+    self.status = 'ready';
+  }).on('message', server.mqtt_onmessage).on('error', function(err) {
+    self.status = 'error';
+    self.changed();
+    logger.error('device/' + self.deviceID, { event: 'error', diagnostic: err.message });
+
+    self.mqtt.end();
+    self.mqtt = null;
+    setTimeout(function() { self.login(params); }, 600 * 1000);
+  });
+};
 
 Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
   var params;
@@ -108,15 +118,15 @@ Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 var validate_create = function(info) {
-  var parts
+  var params
     , result = { invalid: [], requires: [] }
     ;
 
   if (!info.url) result.requires.push('url');
   else if (typeof info.url !== 'string') result.invalid.push('url');
   else {
-    parts = url.parse(info.url);
-    if ((!parts.hostname) || ((parts.protocol !== 'mqtt:') && (parts.protocol != 'mqtts:'))) {
+    params = url.parse(info.url);
+    if ((!params.hostname) || ((params.protocol !== 'mqtt:') && (params.protocol != 'mqtts:'))) {
       result.invalid.push('url');
     }
   }

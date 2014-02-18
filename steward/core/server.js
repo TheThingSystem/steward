@@ -536,8 +536,48 @@ var subscribe = function(params) {
              , reconnectPeriod : 0
              };
 
-  client = mqtt.createSecureClient(8883, params.server.hostname, settings).on('message',
-    function(topic, message, packet) {/* jshint unused: false */
+  client = mqtt.createSecureClient(8883, params.server.hostname, settings).on('message', mqtt_onmessage).on('error',
+  function(err) {
+    logger.error('mqtt', { event: 'error', diagnostic: err.message });
+
+    this.end();
+    setTimeout(function() { subscribe(params); }, 600 * 1000);
+  });
+  client.subscribe('+/' + place + '/#', { qos: 1 });
+
+  previous = {};
+  priority = winston.config.syslog.levels.notice;
+  broker.subscribe('beacon-egress', function(category, data) {
+    var datum, device, deviceUID, i, now;
+
+    if (!util.isArray(data)) data = [ data ];
+    for (i = 0; i < data.length; i++) {
+      datum = data[i];
+
+      if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < priority)) continue;
+
+      if (!previous[datum.level]) previous[datum.level] = {};
+      now = new Date(datum.date).getTime();
+      if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
+      previous[datum.level][datum.message] = now + (60 * 1000);
+
+      datum.category = category;
+
+      client.publish('logs/' + place + '/steward', JSON.stringify(datum), { retain: true });
+
+      if (!devices) devices = require('./device');
+      for (deviceUID in devices.devices) {
+        if ((!devices.devices.hasOwnProperty(deviceUID)) || (deviceUID.indexOf('mqtt:') !== 0)) continue;
+        device = devices.devices[deviceUID].device;
+        if ((!device) || (!device.priority) || (winston.config.syslog.levels[datum.level] < device.priority)) continue;
+
+        client.publish(deviceUID.substring(5) + '/message', JSON.stringify(datum), { retain: true });
+      }
+    }
+  });
+};
+
+var mqtt_onmessage = exports.mqtt_onmessage = function(topic, message, packet) {/* jshint unused: false */
     var device, entry, info, params, parts, status, udn;
 
     parts = topic.split('/');
@@ -582,41 +622,4 @@ var subscribe = function(params) {
 
     logger.info('mqtt', { name: info.device.name, id: info.device.unit.serial,  params: info.params });
     devices.discover(info);
-  }).on('error', function(err) {
-    logger.error('mqtt', { event: 'error', diagnostic: err.message });
-    this.end();
-    setTimeout(function() { subscribe(params); }, 600 * 1000);
-  });
-  client.subscribe('+/' + place + '/#', { qos: 1 });
-
-  previous = {};
-  priority = winston.config.syslog.levels.notice;
-  broker.subscribe('beacon-egress', function(category, data) {
-    var datum, device, deviceUID, i, now;
-
-    if (!util.isArray(data)) data = [ data ];
-    for (i = 0; i < data.length; i++) {
-      datum = data[i];
-
-      if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < priority)) continue;
-
-      if (!previous[datum.level]) previous[datum.level] = {};
-      now = new Date(datum.date).getTime();
-      if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
-      previous[datum.level][datum.message] = now + (60 * 1000);
-
-      datum.category = category;
-
-      client.publish('logs/' + place + '/steward', JSON.stringify(datum), { retain: true });
-
-      if (!devices) devices = require('./device');
-      for (deviceUID in devices.devices) {
-        if ((!devices.devices.hasOwnProperty(deviceUID)) || (deviceUID.indexOf('mqtt:') !== 0)) continue;
-        device = devices.devices[deviceUID].device;
-        if ((!device) || (!device.priority) || (winston.config.syslog.levels[datum.level] < device.priority)) continue;
-
-        client.publish(deviceUID.substring(5) + '/message', JSON.stringify(datum), { retain: true });
-      }
-    }
-  });
 };
