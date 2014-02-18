@@ -14,52 +14,54 @@ var showLogin = function(changeLogin) {
     chart.appendChild(div);
   }
   
-  var steward = { hostname : window.location.hostname
-                 , port     : window.location.port
-                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
-                 };
-	wsx = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
-	
-	wsx.onopen = function(event) {
-		wsx.send(JSON.stringify({ path      : '/api/v1/user/list/'
-									         , requestID  : '400'
-									         , options    : { depth: 'all' }
-		}));
-	};
-	
-	wsx.onmessage = function(event) {
-		var message = JSON.parse(event.data);
-//		console.log(JSON.stringify(message,null,4));
-		var requestID = message.requestID.toString();
+  if (isRemoteAccess()) {
+    assembleLogin(false, false);
+  } else {
+		var steward = { hostname : window.location.hostname
+									 , port     : window.location.port
+									 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+									 };
+		wsx = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
 		
-		if (message.hasOwnProperty("error")) notify(message.error.diagnostic);
+		wsx.onopen = function(event) {
+			wsx.send(JSON.stringify({ path      : '/api/v1/user/list/'
+														 , requestID  : 400
+														 , options    : { depth: 'all' }
+			}));
+		};
 		
-		switch(requestID) {
-		  case "400":
-				if (message.hasOwnProperty("result") && message.result.hasOwnProperty("status")) {
-					if (message.result.status !== "success") notify("The Steward is unable to inquire about existing accounts.");
-				}
-				if (message.hasOwnProperty("result") && message.result.hasOwnProperty("users")) {
-				  var isDeveloperMode = (message.result.steward.hasOwnProperty("developer") && message.result.steward.developer === true);
-				  assembleLogin((Object.keys(message.result.users).length === 0), isDeveloperMode);
-				}
-		    break;
-		  default:
-		    break;
-		}
-	};
-	
-	wsx.onclose = function(event) {};
-	
-	wsx.onerror = function(event) {
-		try {
-			ws.close();
-			console.log("Closed websocket");
-		} catch (ex) {}
-	};
-	
+		wsx.onmessage = function(event) {
+			var message = JSON.parse(event.data);
+			var requestID = message.requestID.toString();
+			
+			if (message.hasOwnProperty("error")) notify(message.error.diagnostic);
+			
+			switch(requestID) {
+				case "400":
+					if (message.hasOwnProperty("result") && message.result.hasOwnProperty("status")) {
+						if (message.result.status !== "success") notify("The Steward is unable to inquire about existing accounts.");
+					}
+					if (message.hasOwnProperty("result") && message.result.hasOwnProperty("users")) {
+						var isDeveloperMode = (message.result.steward.hasOwnProperty("developer") && message.result.steward.developer === true);
+						assembleLogin((Object.keys(message.result.users).length === 0), isDeveloperMode);
+					}
+					break;
+				default:
+					break;
+			}
+		};
+		
+		wsx.onclose = function(event) {};
+		
+		wsx.onerror = function(event) {
+			try {
+				ws.close();
+				console.log("Closed websocket");
+			} catch (ex) {}
+		};
+	}
   function assembleLogin(noUsers, isDeveloperMode) {
-    if (noUsers) {
+    if (noUsers && !isRemoteAccess()) {
 			div = d3.select("body")
 				.append("div")
 				.attr("id", "login")
