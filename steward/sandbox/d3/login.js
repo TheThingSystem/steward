@@ -751,7 +751,7 @@ var bootable = { '':
                  , site         : ''
                  , icon         : ''
                  , name         : 'mqtt'
-                 , actor        : '/device/indicator/text/mqtt'
+                 , actor        : '/device/indicator/mqtt/text'
                  , info         :
                    { url        : ''
                    , username   : ''
