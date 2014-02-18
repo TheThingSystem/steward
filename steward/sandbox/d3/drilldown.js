@@ -1,4 +1,3 @@
-
 var actors           = {}
   , place
   , names            = {}
