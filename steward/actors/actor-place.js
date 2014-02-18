@@ -460,7 +460,8 @@ Place.prototype.getWeather = function(self) {
           self.weatherID = setInterval(function() { self.getWeather(self); }, 75 * 60 * 1000);
           self.getWeather(self);
         }, diff + (5 * 60 * 1000));
-        logger.warning('place/1', { event: 'getWeather', diagnostic: 'check in ' + ((diff / 1000) + 5 * 60) + ' seconds' });
+        logger.warning('place/1', { event      : 'getWeather'
+                                  , diagnostic : 'check in ' + ((diff / 1000) + 5 * 60).toFixed(3) + ' seconds' });
       }
 
       atmosphere = response.query.results.channel.atmosphere;

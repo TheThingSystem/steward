@@ -681,7 +681,7 @@ var place_info   = { name        : 'Home'
                    , strict      : 'on'
                    };
 
-var bootable = { 'Cloud Service':
+var bootable = { '':
                  { text         : 'Choose a cloud service to enter its access credentials.'
                  , instructions : ''
                  , info         : {}

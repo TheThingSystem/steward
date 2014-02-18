@@ -36,7 +36,7 @@
     , "netmask"                 : "1.0.4"
     , "noble"                   : "git://github.com/sandeepmistry/noble.git"
     , "node-blink1"             : "0.1.0"
-    , "node-dweetio"            : "0.0.7"
+    , "node-dweetio"            : "0.0.8"
     , "node-hid"                : "0.2.3"
     , "node-lsof"               : "git://github.com/TheThingSystem/node-lsof.git"
     , "node-netatmo"            : "git://github.com/TheThingSystem/node-netatmo.git"
