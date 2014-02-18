@@ -153,7 +153,6 @@ var childprops = function(self, led) {
           };
 
   child.proplist = devices.Device.prototype.proplist;
-  child.setName = devices.Device.prototype.setName;
 
   child.perform = function(strip, taskID, perform, parameter) { return self.perform(self, taskID, perform, parameter, led); };
 
@@ -170,6 +169,18 @@ GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led)
     if (!params.name) return false;
 
     self.controller.setBulbName(led, params.name);
+
+    db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',
+           { $deviceName: params.name, $deviceID : props.deviceID }, function(err) {
+      if (err) {
+        return logger.error('devices',
+                            { event: 'UPDATE device.deviceName for ' + props.deviceID, diagnostic: err.message });
+      }
+
+      self.bulbs[led].name = params.name;
+      self.bulbs[led].updated = new Date().getTime();
+      self.changed();
+    });
 
     return steward.performed(taskID);
   }
