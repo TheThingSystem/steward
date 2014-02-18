@@ -491,7 +491,8 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .attr('class', 'actor-grouping')
        .attr('id', function(d, i) {return actor2ID(devices[i].actor) + "-tray-icon";})
        .attr('onclick', function(d, i) {var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType);
-         return 'javascript:goforw(' + entry.single + ', "' + devices[i].actor + '");'; });
+         return (!!containers[devices[i].actor]) ? 'javascript:goforw(container_drilldown, "' + devices[i].actor + '");' : 
+           'javascript:goforw(' + entry.single + ', "' + devices[i].actor + '");'; });
     
     div.appendChild(div3);
     
