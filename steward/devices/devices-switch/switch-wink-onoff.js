@@ -118,7 +118,7 @@ exports.start = function() {
   steward.actors.device['switch'].wink.onoff =
       { $info     : { type       : '/device/switch/wink/onoff'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'off', 'on' ]
                     , properties : { name     : true
                                    , status   : [ 'on', 'off' ]
                                    , property : true
