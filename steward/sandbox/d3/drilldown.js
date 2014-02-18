@@ -929,6 +929,17 @@ var single_device_arcs = function(device) {
     break;
   }
 
+  if (arcs.length === 0) {
+    arcs.push({ name   : 'status'
+              , raw    : device.status
+              , color  : color
+              , label  : 'STATUS'
+              , cooked : device.status
+              , value  : 50
+              , index  : a1
+              });
+  }
+
   return arcs;
 };
 
@@ -1409,7 +1420,7 @@ var media_device_arcs = function(device) {
                           , raw    : v.title || ''
                           , label  : 'TRACK'
                           , cooked : text
-                          , value  : clip2bars ((text.length > 0) ? 100 : 0, 0, 100)
+                          , value  : clip2bars((text.length > 0) ? 100 : 0, 0, 100)
                           , index  : 0.60
                           });
 
