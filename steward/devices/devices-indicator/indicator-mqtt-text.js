@@ -54,6 +54,10 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
     self.status = 'ready';
   }).on('message', function(topic, message, packet) {
     logger.warning('device/' + self.deviceID, { event: 'message', topic: topic, message: message, packet: packet });
+  }).on('error', function(err) {
+    self.status = 'error';
+    self.changed();
+    logger.error('device/' + self.deviceID, { diagnostic: err.message });
   });
 
 /*
