@@ -1802,6 +1802,7 @@ var review_drilldown = function(state) {
   members = [];
   for (i = 0; i < group.length; i++) {
     device = actors[group[i]];
+    if (!device) continue;
     entry = entries[device.deviceType] || entries.default(device.deviceType);
     if ((!entry) || (!entry.arcs)) continue;
 
