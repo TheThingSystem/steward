@@ -102,7 +102,9 @@ var accessP = function(api, clientInfo, message, tag) {
 
   if ((api.access !== access.level.none) && (levels === access.level.none)) return false;
 
-  if ((api.access !== access.level.none) && (places.place1.info.strict !== 'off') && (!(levels & api.access))) {
+  if ((api.access !== access.level.none)
+          && ((places.place1.info.strict !== 'off') || (!clientInfo.local))
+          && (!(levels & api.access))) {
     if ((clientInfo.subnet) && (message.path === '/api/v1/actor/perform/place') && (message.perform === 'set')
             && (users.count() === 0)) {
       logger.warning(tag, { event: 'access', diagnostic: 'setting developer mode', role: role, resource: 'manage' });
