@@ -123,6 +123,13 @@ var home = function(state) {
                   + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
 
+  if (place.info.review.length > 0) {
+    span = document.getElementById("sName");
+    span.style.textDecoration = "underline";
+    span.style.cursor = "pointer";
+    span.setAttribute('onclick', 'javascript:goforw(review_drilldown, "place/1")');
+  }
+
   div = document.createElement('div');
   div.setAttribute('class', 'actors');
   div.setAttribute('id', 'stage');
@@ -1786,6 +1793,23 @@ var container_drilldown = function(state) {
   multiple_drilldown(actors[state.actor].name, members);
 };
 
+var review_drilldown = function(state) {
+  var device, entry, group, i, members;
+  
+  group = place.info.review;
+  if (!group) return;
+  
+  members = [];
+  for (i = 0; i < group.length; i++) {
+    device = actors[group[i]];
+    entry = entries[device.deviceType] || entries.default(device.deviceType);
+    if ((!entry) || (!entry.arcs)) continue;
+
+    members.push(device);
+  }
+
+  multiple_drilldown(place.name, members);
+}
 
 var set_multiple_labels_and_arcs = function() {
 
