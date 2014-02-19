@@ -500,10 +500,12 @@ var onactors = function(message) {
   actors = message.result.actors;
   devices = {};
   for (entities in message.result) {
-    if ((!message.result.hasOwnProperty(entities)) || (entities.indexOf('/device/') !== 0)) continue;
+    if (!message.result.hasOwnProperty(entities)) ontinue;
+    if ((entities.indexOf('/device/') !== 0) && (entities.indexOf('/place') !== 0)) continue;
 
     for (entity in message.result[entities]) {
-      if ((!message.result[entities].hasOwnProperty(entity)) || (entity.indexOf('device/') !== 0)) continue;
+      if (!message.result[entities].hasOwnProperty(entity)) continue;
+      if ((entity.indexOf('device/') !== 0) && (entity.indexOf('place/') !== 0)) continue;
 
       devices[entity] = message.result[entities][entity];
     }
@@ -681,6 +683,10 @@ var onactors = function(message) {
 
             case 'accuracy':
               if (!isNaN(v)) v = '&plusmn;' + v.toFixed(2) + ' meters';
+              break;
+
+            case 'actor':
+              if (!!devices[v]) v = devices[v].name + ' [' + v + ']';
               break;
 
             case 'gauges':

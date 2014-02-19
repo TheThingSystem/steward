@@ -470,7 +470,7 @@ Place.prototype.getWeather = function(self) {
       wind = response.query.results.channel.wind;
       current = response.query.results.channel.item.condition;
       self.info.conditions = { code        : current.code
-                             , text        : current.text
+                             , text        : current.text.toLowerCase()
                              , temperature : current.temp
                              , humidity    : atmosphere.humidity
                              , pressure    : atmosphere.pressure
@@ -483,7 +483,7 @@ Place.prototype.getWeather = function(self) {
       forecasts = response.query.results.channel.item.forecast;
       for (i = 0; i < forecasts.length; i++) {
         self.info.forecasts.push({ code            : forecasts[i].code
-                                 , text            : forecasts[i].text
+                                 , text            : forecasts[i].text.toLowerCase()
                                  , highTemperature : forecasts[i].high
                                  , lowTemperature  : forecasts[i].low
                                  , nextSample      : new Date(forecasts[i].date)
