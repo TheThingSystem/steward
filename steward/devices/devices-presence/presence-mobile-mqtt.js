@@ -201,9 +201,9 @@ Mobile.prototype.reverseGeocode = function(self) {
     if (!!err) return logger.error('device/' + self.deviceID, { event      : 'reverseGeocode'
                                                               , location   : location
                                                               , diagnostic : err.message });
-    if (result.status !== 'OK') return logger.warning('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                                                 , location   : location
-                                                                                 , diagnostic : result.status });
+    if (result.status !== 'OK') return logger.debug('device/' + self.deviceID, { event      : 'reverseGeocode'
+                                                                               , location   : location
+                                                                               , diagnostic : result.status });
     if (result.results.length < 1) return;
 
     geocache[key] = result.results[0].formatted_address;
