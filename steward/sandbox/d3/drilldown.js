@@ -119,10 +119,13 @@ var home = function(state) {
   div.innerHTML = '<div class="big-instructions" style="padding-top: 0px;">We are ready.<br />'
                   + '<span style="color: #666;">Please send instructions.</span></div>'
                   + '<div class="small-instructions">'
+                  + '<span style="background-color: #fff; position: absolute; left: 0px; top: -7px; width: 26px;">'
+                  + '<img id="wxicon" src="' + weather_icon(place.info.conditions.code, place.info.solar) + '" style="height: 26px;" /></span>'
                   + '<span id="sName" style="color:' + place.status + ';">' + place.name + '</span>'
                   + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
-
+  document.getElementById("wxicon").setAttribute('onclick', 'javascript:goforw(weather_drilldown, "weather")');
+  
   if (place.info.review.length > 0) {
     span = document.getElementById("sName");
     span.style.textDecoration = "underline";
@@ -288,8 +291,11 @@ if (false) {
         continue;
       
       }
-      if (update.whatami.match(/\/place/)) {
+      if (/\/place/.test(update.whatami)) {
         lastUpdated.push(update.updated);
+        if (document.getElementById("wxicon")) {
+          document.getElementById("wxicon").src = weather_icon(update.info.conditions.code, update.info.solar);
+        }
         continue;
       }
       actorID = actor2ID(update.whoami);
@@ -335,7 +341,6 @@ if (false) {
 
 var onUpdate_drilldown = function(updates) {
   var actor, arc, arcs, arcz, category, entry, i, j, update;
-//  var arcColor = []; // save to calc contrasting overlaid text color
   for (i = 0; i < updates.length; i++) {
     update = updates[i];
     if (update.whatami.match(/\/device\/gateway\//)) continue;
@@ -492,8 +497,12 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .style('overflow', 'hidden');
        
     actor.append('img')
-       .attr('src', function(d, i) {var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType); return entry.img; })
+       .attr('src', function(d, i) {
+         if (/\weather\b/.test(devices[i].actor)) return weather_icon(devices[i].info.code); 
+         var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType); 
+         return entry.img; })
        .style('background-color', function(d, i) {return statusColor(devices[i]); })
+       .style('width', function(d, i) {if (/\weather\b/.test(devices[i].actor)) return '50px'; return 'inherit';})
        .attr('class', 'actor-grouping')
        .attr('id', function(d, i) {return actor2ID(devices[i].actor) + "-tray-icon";})
        .attr('onclick', function(d, i) {var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType);
@@ -518,7 +527,9 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     entry = entries[device.deviceType] || entries.default(device.deviceType);
     currDevice.entry = entry;
     if (readOnlyAccess) instructions = '';
-    div.innerHTML = '<div style="width: 155px; height: 155px; position: relative; left: 62px; overflow: hidden;"><img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + entry.img + '" /></div>'
+    img = (/\weather\b/.test(device.actor)) ? weather_icon(device.info.code) : entry.img;
+    div.innerHTML = '<div style="width: 155px; height: 155px; position: relative; left: 62px; overflow: hidden;">'
+                    + '<img class="actor-big" id="actor-big-icon" style="background-color:' + statusColor(device) + ';" src="' + img + '" /></div>'
                     + '<div id="toPopover" class="big-instructions">'
                     + '<span class="actor-name" id="actor-big-name" style="color:' + statusColor(device) + ';">' + name + '</span>'
                     + instructions
@@ -548,7 +559,6 @@ var drawArcs = function(arcs) {
   div.setAttribute('style',
                    'position: absolute; top: 52px; left: 178px; width: 200px; height: 240px; text-align: right; font-weight: normal;');
   labels = '';
-//  values = '';
   arcz = [];
   if (!arcs) arcs = multiple_arcs;
   
@@ -563,9 +573,7 @@ var drawArcs = function(arcs) {
 
   index = 0.7; // Reassign index values for arcs subset
   for (; i < limit; i++) {
-     labels += arcLabelHTML(arcs[i].label);
-//     labels += arcs[i].label + '<br />';
-//     values += '<div class="label">' + arcs[i].cooked + '</div>';
+    labels += arcLabelHTML(arcs[i].label);
     arcs[i].index = index;
     arcz.push(arcs[i]);
     index -= 0.1;
@@ -1812,9 +1820,199 @@ var review_drilldown = function(state) {
   multiple_drilldown(place.name, members);
 }
 
-var set_multiple_labels_and_arcs = function() {
-
+var weather_drilldown = function(state) {
+  var arc, arcs, arcz, device, devices, entry, group, i, index, members, placeInfo;
+  
+  placeInfo = state.message.result['/place']['place/1'].info;
+  if (!placeInfo.conditions || !placeInfo.forecasts) return;
+  
+  members = [];
+  device = {actor      : "weather/1"
+          , deviceType : "conditions"
+          , info       : placeInfo.conditions
+          , name       : "CURRENT"
+          };
+  members.push(device);
+  group = placeInfo.forecasts;
+  for (i = 0; i < group.length; i++) {
+    device = {actor      : "weather/" + (i + 2)
+            , deviceType : "forecast"
+            , info       : group[i]
+            , name       : (dayAhead(i + 1)).toUpperCase()
+            };
+    members.push(device);
+  }
+  
+  arcs = [];
+  devices = [];
+  index = 0.7;
+  for (i = 0; i < members.length; i++) {
+    device = members[i];
+    entry = entries[device.deviceType];
+    
+    arcz = entry.arcs(device);
+    
+    arc = arcz[0] || {};
+    arc.id = actor2ID(device.actor + "/" + i);
+    arc.label = device.name;
+    arc.index = index;
+    index -= 0.1;
+    arcs.push(arc);
+    
+    devices.push(device);
+  }
+  
+  device_drilldown(name, devices, arcs, 'touch a thing to learn more');
 };
+
+var single_weather_drilldown = function(state) {
+  var device, devices, entry, i, instructions, placeInfo, suffix;
+  devices = [];
+  device = {};
+  
+  placeInfo = state.message.result['/place']['place/1'].info;
+  if (state.actor === "weather/1") {
+    device.actor = state.actor;
+    device.deviceType = "conditions";
+    device.info = placeInfo.conditions;
+    device.name = "CURRENT";
+  } else {
+    suffix = state.actor.match(/\/(.+)$/)[1];
+    device.actor = state.actor;
+    device.deviceType = "forecasts";
+    device.info = placeInfo.forecasts[suffix - 2];
+    device.name = (dayAhead(suffix - 1).toUpperCase());
+  }
+  devices.push(device);
+  device_drilldown(devices[0].name, devices, weather_arcs(devices[0]), '');
+};
+
+var weather_arcs = function(device) {
+  var arcs, prop, v;
+  
+  arcs = [];
+  
+  for (prop in device.info) {
+    if (!device.info.hasOwnProperty(prop)) continue;
+
+    v = device.info[prop];
+    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    switch (prop) {
+      case 'text':
+        arcs.splice(0, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'SUMMARY'
+                          , cooked : v
+                          , value  : clip2bars(v.length ? 100 : 0, 0, 100)
+                          , index  : 0.70
+                          });
+        break;
+      case 'temperature':
+      case 'highTemperature':
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v
+                          , label  : (prop === 'temperature') ? 'TEMPERATURE' : 'HIGH TEMP'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , value  : clip2bars(v, v >= -30 ? -30 : 0, v <= 50 ? 50 : 100)
+                          , index  : 0.60
+                          });
+        break;
+      case 'humidity':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'HUMIDITY'
+                          , cooked : v + '%'
+                          , value  : clip2bars(v, 21, 70)
+                          , index  : 0.50
+                          });
+        break;
+      case 'lowTemperature':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'LOW TEMP'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , value  : clip2bars(v, v >= -30 ? -30 : 0, v <= 50 ? 50 : 100)
+                          , index  : 0.50
+                          });
+        break;
+      case 'pressure':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'PRESSURE'
+                          , cooked : v.toFixed(3) + ' mbars'
+                          , value  : clip2bars(v, 980, 1060)
+                          , index  : 0.40
+                          });
+        break;
+      case 'windchill':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'WIND CHILL'
+                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , value  : clip2bars(v, v >= -30 ? -30 : 0, v <= 50 ? 50 : 100)
+                          , index  : 0.30
+                          });
+        break;
+      case 'visibility':
+        arcs.splice(5, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'VISIBILITY'
+                          , cooked : v + ' mi'
+                          , value  : clip2bars(v, 0, 50)
+                          , index  : 0.20
+                          });
+        break;
+    }
+  }
+  if (arcs.length > 0) return arcs;
+};
+
+var weather_icon = function(code, solar) {
+  var entry;
+  var path = 'popovers/assets/weather/';
+  if (!solar) solar = stack[1].message.result['/place']['place/1'].info.solar;
+  var codeEntries = {wx0     : 'tornado.svg'
+                  ,  wx2     : 'hurricane.svg'
+                  ,  wx4     : 'thunderstorm.svg'
+                  ,  wx5     : 'mixedrainandsnow.svg'
+                  ,  wx11    : 'showers.svg'
+                  ,  wx12    : 'showers.svg'
+                  ,  wx16    : 'snow.svg'
+                  ,  wx18    : 'sleet.svg'
+                  ,  wx20    : 'foggy.svg'
+                  ,  wx23    : 'blustery.svg'
+                  ,  wx26    : 'cloudy.svg'
+                  ,  wx32    : 'sunny.svg'
+                  ,  wx36    : 'hot.svg'
+                  ,  wx44    : 'thundershowers.svg'
+                  ,  wx45    : 'thunderstorm.svg'
+  };
+  var solarEntries = {dawn               : 'night.svg'
+                   ,  'morning-twilight' : 'night.svg'
+                   ,  sunrise            : 'day.svg'
+                   ,  morning            : 'day.svg'
+                   ,  daylight           : 'day.svg'
+                   ,  noon               : 'day.svg'
+                   ,  evening            : 'day.svg'
+                   ,  sunset             : 'day.svg'
+                   ,  'evening-twilight' : 'night.svg'
+                   ,  dusk               : 'night.svg'
+                   ,  night              : 'night.svg'
+                   ,  nadir              : 'night.svg'
+  };
+  entry = codeEntries['wx' + code] || solarEntries[solar];
+  return path + entry;
+};
+
+function dayAhead(n) {
+	var days, now, result;
+	result = "";
+	
+	days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	now = new Date();
+	result = (n === 1) ? "tomorrow" : days[((now.getDay() + n) % 7)];
+	return result;
+}
 
 var multiple_drilldown = function(name, members) {
   var arc, arcs, arcz, device, devices, entry, i, index; 
@@ -2256,5 +2454,14 @@ var entries = {
                                                               }
               , wearable                                    : { img     : 'categories/wearable.svg'
                                                               , single  : category_wearable_drilldown
+                                                              }
+//weather
+              , conditions                                  : { single  : single_weather_drilldown
+                                                              , arcs    : weather_arcs
+                                                              , instrux : no_instructions
+                                                              }
+              , forecast                                    : { single  : single_weather_drilldown
+                                                              , arcs    : weather_arcs
+                                                              , instrux : no_instructions
                                                               }
               };

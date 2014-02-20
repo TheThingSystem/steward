@@ -1952,7 +1952,7 @@ function renderTemperature(temperature) {
 	
 function hasAlertPerform() {
 	var performs = stack[0].message.result.actors[currDevice.device.deviceType].perform.toString();
-	return false; //(/\balert\b/.test(performs));
+	(/\balert\b/.test(performs));
 }
 
 function hasNoPerform() {
