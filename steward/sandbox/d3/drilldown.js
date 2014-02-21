@@ -1821,7 +1821,8 @@ var review_drilldown = function(state) {
 }
 
 var weather_drilldown = function(state) {
-  var arc, arcs, arcz, device, devices, entry, group, i, index, members, placeInfo;
+  var arc, arcs, arcz, device, devices, entry, group, i, index, maxForecasts, members, placeInfo;
+  maxForecasts = 3;
   
   placeInfo = state.message.result['/place']['place/1'].info;
   if (!placeInfo.conditions || !placeInfo.forecasts) return;
@@ -1835,6 +1836,7 @@ var weather_drilldown = function(state) {
   members.push(device);
   group = placeInfo.forecasts;
   for (i = 0; i < group.length; i++) {
+    if (i > maxForecasts) continue;
     device = {actor      : "weather/" + (i + 2)
             , deviceType : "forecast"
             , info       : group[i]
@@ -1888,7 +1890,7 @@ var single_weather_drilldown = function(state) {
 };
 
 var weather_arcs = function(device) {
-  var arcs, prop, v;
+  var arcs, codeValues, prop, v, v2;
   
   arcs = [];
   
@@ -1899,11 +1901,29 @@ var weather_arcs = function(device) {
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
       case 'text':
+        v2 = "wx" + device.info.code;
+        codeValues = { wx0     : 5
+                  , wx2     : 5
+                  , wx4     : 10
+                  , wx5     : 15
+                  , wx11    : 30
+                  , wx12    : 30
+                  , wx16    : 20
+                  , wx18    : 20
+                  , wx20    : 25
+                  , wx23    : 25
+                  , wx26    : 35
+                  , wx32    : 50
+                  , wx36    : 45
+                  , wx40    : 40
+                  , wx44    : 10
+                  , wx45    : 10
+                  };
         arcs.splice(0, 0, { name   : prop
                           , raw    : v
                           , label  : 'SUMMARY'
                           , cooked : v
-                          , value  : clip2bars(v.length ? 100 : 0, 0, 100)
+                          , value  : clip2bars(codeValues[v2] || 25, 0, 100)
                           , index  : 0.70
                           });
         break;
@@ -1984,7 +2004,7 @@ var weather_icon = function(code, solar) {
                   ,  wx26    : 'cloudy.svg'
                   ,  wx32    : 'sunny.svg'
                   ,  wx36    : 'hot.svg'
-                  ,  wx44    : 'thundershowers.svg'
+                  ,  wx44    : 'partlycloudy.svg'
                   ,  wx45    : 'thunderstorm.svg'
   };
   var solarEntries = {dawn               : 'night.svg'
