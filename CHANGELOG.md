@@ -1,6 +1,27 @@
 ChangeLog
 =======
 
+## Release 1.5 "TBD" - TBD
+## Commit - TBD
+
+### Steward
+
+### TAAS (Things as a Service)
+
+### TSRP (Thing Simple Reporting Protocol)
+
+### Places
+
+### Things
+
+### HTML5/D3 client
+
+### User management client (client.html)
+
+### Developer clients
+
+### Utilities
+
 ## Release 1.4 "Resolutions" - January 24, 2014
 ## Commit - 9ca2c07b2d7b8e470b5cfe94d697449b5579af8f
 
