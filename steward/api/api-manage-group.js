@@ -61,6 +61,7 @@ var create = function(logger, ws, api, message, tag) {
   if (!util.isArray(members))                               return error(true,  'members element not an array');
   if ((operator === operators.not) && members.length !== 1) return error(true,  'not operator requires 1 member');
   for (i = 0; i < members.length; i++) {
+    if (!members[i])                                        return error(true,  'null member element');
     member = members[i].split('/');
     if (member.length !== 2)                                return error(true,  'invalid member element');
     member[1] = member[1].toString();
@@ -348,6 +349,7 @@ var modify = function(logger, ws, api, message, tag) {
     if (!util.isArray(members))                             return error(true,  'members element not an array');
     if ((operator === operators.not) && members.length !== 1) return error(true,  'not operator requires 1 member');
     for (i = 0; i < members.length; i++) {
+    if (!members[i])                                        return error(true,  'null member element');
       member = members[i].split('/');
       if (member.length !== 2)                              return error(true,  'invalid member element');
       member[1] = member[1].toString();

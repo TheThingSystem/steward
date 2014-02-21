@@ -57,6 +57,7 @@ Spotter.prototype.update = function(self, params) {
   var d, data, eventID, firstP, observation, now, prop, props, previous, updateP;
 
   firstP = !self.params;
+  if (!self.observations) self.observations = {};
   self.params = params;
   updateP = false;
 
