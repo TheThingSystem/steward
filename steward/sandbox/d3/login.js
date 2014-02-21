@@ -90,9 +90,9 @@ var showLogin = function(changeLogin) {
       form.append("p")
         .html("Developer mode disables authentication for local clients.");
       form.append("p")
-        .html("If you do not understand, please click on [CREATE ACCOUNT].");
+        .html("If you do not understand, please click on <span style='font-family: 'Roadgeek 2005 Series D'; color: #6FCDF4'>CREATE ACCOUNT.</span>");
       form.append("p")
-        .html("If you do understand, you may click on [DEVELOPER MODE].");
+        .html("If you do understand, you may click on <span style='font-family: 'Roadgeek 2005 Series D'; color: #6FCDF4'>DEVELOPER MODE.</span>");
         
     } else {
 			div = d3.select("body")

@@ -288,6 +288,7 @@ p.actor-name {
         width: 600px;
         height: 210px;
         text-align: center;
+        font-family: 'Roadgeek 2005 Series C'; font-weight: normal;
 }
 
 .form-container-short { 
