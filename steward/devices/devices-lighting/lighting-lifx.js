@@ -1,5 +1,5 @@
-// lighting bulb template -- start with this when each bulb can be managed independently (controller may be present, but hidden)
-// search for LIFX to see what to change
+// www.LIFX.co bulbs driver. No copyright claimed, Russ Nelson <nelson@crynwr.com>
+// Derived from pi@steward drivers/lighting-bulb-template.js whose copyright may apply.
 
 // load the module that knows how to discover/communicate with the bulb
 var lifx        = require('lifx')
