@@ -112,6 +112,10 @@ var home = function(state) {
   chart.appendChild(div);
   
   lastUpdated = place.updated;
+  
+  span = (place.info.conditions) ? 
+          ('<span style="background-color: #fff; position: absolute; left: 0px; top: -7px; width: 26px;">'
+          + '<img id="wxicon" src="' + weather_icon(place.info.conditions.code, place.info.solar) + '" style="height: 26px;" /></span>') : '';
 
   div = document.createElement('div');
   div.setAttribute('id', 'controls-home');
@@ -119,12 +123,11 @@ var home = function(state) {
   div.innerHTML = '<div class="big-instructions" style="padding-top: 0px;">We are ready.<br />'
                   + '<span style="color: #666;">Please send instructions.</span></div>'
                   + '<div class="small-instructions">'
-                  + '<span style="background-color: #fff; position: absolute; left: 0px; top: -7px; width: 26px;">'
-                  + '<img id="wxicon" src="' + weather_icon(place.info.conditions.code, place.info.solar) + '" style="height: 26px;" /></span>'
+                  + span
                   + '<span id="sName" style="color:' + place.status + ';">' + place.name + '</span>'
                   + ' — updated <span id="timeagoStamp">' + d3.timestamp.ago(lastUpdated,true) + '</span></div>';
   chart.appendChild(div);
-  document.getElementById("wxicon").setAttribute('onclick', 'javascript:goforw(weather_drilldown, "weather")');
+  if (place.info.conditions) document.getElementById("wxicon").setAttribute('onclick', 'javascript:goforw(weather_drilldown, "weather")');
   
   if (place.info.review.length > 0) {
     span = document.getElementById("sName");

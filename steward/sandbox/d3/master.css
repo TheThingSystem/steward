@@ -309,6 +309,7 @@ p.actor-name {
 .form-container table { width: 600px; }
 table.short-form td { padding: 10px; font-size: 18px; text-align: left; }
 
+.button-replica {font-family: 'Roadgeek 2005 Series D'; color: #6FCDF4; }
 
 /* configure screen elements */
 
