@@ -87,7 +87,7 @@ Cloud.prototype.scan = function(self) {
         sensors[plant.sensor_serial].samples = plant.samples;
       }
       if (!plant.status) plant.status = {};
-      if (!plant.status.soil_mosture) plant.status.soil_mosture = {};
+      if (!plant.status.soil_moisture) plant.status.soil_moisture = {};
       if (!plant.status.fertilizer) plant.status.fertilizer = {};
       if (!plant.status.air_temperature) plant.status.air_temperature = { instruction_key: 'temperature_good' };
       if (!plant.status.light) plant.status.light = { instruction_key: 'light_good' };

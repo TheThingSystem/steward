@@ -688,6 +688,18 @@ var bootable = { '':
                  , instructions : ''
                  , info         : {}
                  }
+               , automatic      :
+                 { text         : 'If you have one or more Automatic devices, the steward can manage them for you.'
+                 , instructions : 'Enter your OAuth info. To get OAuth info, go to the Automatic website, login, click on "Sign up for API Access", and follow the directions.'
+                 , site         : 'http://www.automatic.com'
+                 , icon         : ''
+                 , name         : 'automatic'
+                 , actor        :'/device/gateway/automatic/cloud'
+                 , info         :
+                   { clientID   : ''
+                   , clientSecret : ''
+                   }
+                 }
                , dweetio        :
                  { text         : 'The steward can automatically upload measurements to dweet.io'
                  , instructions : 'No account is necessary. The key is an optional identifier for your use.'
@@ -823,7 +835,7 @@ var bootable = { '':
                  , instructions : 'Enter your OAuth info, along with your Wink email and password. To get OAuth info, send an email to questions@quirkyinc.com.'
                  , site         : 'http://www.quirky.com'
                  , icon         : ''
-                 , name         : 'netatmo'
+                 , name         : 'quirky'
                  , actor        :'/device/gateway/wink/cloud'
                  , info         :
                    { clientID   : ''

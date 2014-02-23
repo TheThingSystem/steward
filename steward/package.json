@@ -12,6 +12,7 @@
     , "arp-a"                   : "0.2.2"
     , "async"                   : "0.2.9"
     , "axiscam"                 : "0.0.4"
+    , "automatic-api"           : "0.9.3"
     , "avahi_pub"               : "git://github.com/TheThingSystem/node_avahi_pub.git"
     , "blinkstick"              : "git://github.com/TheThingSystem/blinkstick-node.git"
     , "color-convert"           : "0.3.1"

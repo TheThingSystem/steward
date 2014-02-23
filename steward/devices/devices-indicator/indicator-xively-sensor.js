@@ -185,7 +185,7 @@ Cosm.prototype.update = function(self, deviceID, point) {
 
 
 Cosm.prototype.perform = function(self, taskID, perform, parameter) {
-  var onoff, params;
+  var onoff, params, updateP;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -193,16 +193,20 @@ Cosm.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.name) self.setName(params.name);
 
+  updateP = false;
   if ((!!params.measurements) && (util.isArray(params.measurements))) {
+    updateP = true;
     self.info.measurements = params.measurements;
     delete(self.measurements);
   }
   if ((!!params.sensors) && (util.isArray(params.sensors))) {
+    updateP = true;
     self.info.sensors = params.sensors;
     delete(self.sensors);
   }
 
   if ((!!params.private) && ((params.private === 'on') || (params.private === 'off'))) {
+    updateP = true;
     self.info.private = params.private;
     onoff = self.info.private === 'on';
     if (self.feed.private != onoff) {
@@ -212,6 +216,7 @@ Cosm.prototype.perform = function(self, taskID, perform, parameter) {
       });
     }
   }
+  if (updateP) self.setInfo();
 
   return steward.performed(taskID);
 };

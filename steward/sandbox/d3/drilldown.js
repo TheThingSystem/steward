@@ -1980,7 +1980,7 @@ var weather_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'VISIBILITY'
-                          , cooked : v + ' mi'
+                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' mi'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.20
                           });

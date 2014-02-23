@@ -1,4 +1,4 @@
-// lockitron - interactive plant care
+// lockitron - Keyless entry using your phone: http://lockitron.com
 
 var Lockitron   = require('lockitron-api')
   , util        = require('util')
@@ -29,7 +29,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'accessToken' ];
   self.changed();
   self.timer = null;
-  self.webhookP = false;
+  self.readyP = true;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -37,7 +37,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  if (!!info.accessToken) self.login(self);
+  if (!!self.info.accessToken) self.login(self);
 };
 util.inherits(Cloud, require('./../device-gateway').Device);
 
@@ -59,8 +59,8 @@ Cloud.prototype.login = function(self) {
   if (!!self.timer) clearInterval(self.timer);
   self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
   self.scan(self);
-  if (!!self.webhookP) return;
-  self.webhookP = true;
+  if (!!self.readyP) return;
+  self.readyP = true;
 
   self.lookup('lockitron', function(err, options) {
     if (!!err) logger.warning('device/' + self.deviceID, { event: 'lookup', diagnostic: err.message });
@@ -100,7 +100,7 @@ Cloud.prototype.login = function(self) {
       try { json = JSON.parse(body); } catch(ex) { return loser(ex.message); }
       if (!json.data) return loser('webhook missing data parameter');
       if (!json.data.lock) return loser('webhook missing data.lock parameter');
-      response.writeHead(200, {'content-length' : 0 });
+      response.writeHead(200, { 'content-length' : 0 });
       response.end();
 
       udn = 'lockitron:' + json.data.lock.id;

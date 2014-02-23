@@ -1,4 +1,4 @@
-// lockitron - interactive plant care: http://www.lockitron.com
+// lockitron - Keyless entry using your phone: http://lockitron.com
 
 var util        = require('util')
   , devices     = require('./../../core/device')
