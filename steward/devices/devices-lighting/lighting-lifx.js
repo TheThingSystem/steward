@@ -1,5 +1,5 @@
-// www.LIFX.co bulbs driver. No copyright claimed, Russ Nelson <nelson@crynwr.com>
-// Derived from pi@steward drivers/lighting-bulb-template.js whose copyright may apply.
+// lighting bulb template -- start with this when each bulb can be managed independently (controller may be present, but hidden)
+// search for LIFX to see what to change
 
 // load the module that knows how to discover/communicate with the bulb
 var lifx        = require('lifx')
@@ -51,7 +51,7 @@ LIFX.prototype.update = function(self, state) {
                                       , { 'hue': { hue: state.kelvin, saturation: state.saturation / 655.350 } }
                                       ]
                              }
-              , brightness : state.brightness
+              , brightness : state.brightness / 655.350
               };
   logger.info("LIFX updated", self.info.color, self.info.brightness, self.status);
 };
@@ -72,8 +72,9 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
     return self.setName(params.name, taskID);
   }
 
+  if (!self.info) { self.info = {}; } // we haven't gotten an update yet.
   if (!self.info.color) {
-    self.lx.findBulbs();
+    lx.findBulbs();
     return;
   }
   logger.info("LIFX perform",self.info);
@@ -112,7 +113,8 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
 
 // LIFX: here is the meat of our driver. We call into the low-level hardware driver to turn the bulb on and off,
 // set the brightness, and/or set the color.
-  if (!state.on) self.lx.lightsOff(self.bulb);
+  console.log("acting", lx);
+  if (!state.on) lx.lightsOff(self.bulb);
   else {
     self.lx.lightsOn(self.bulb);
 // assuming 16-bits each for hue, saturation, luminance, and whitecolor
@@ -156,7 +158,16 @@ var validate_perform = function(perform, parameter) {
   }
 
   color = params.color;
+  if (color === undefined) {
+	  logger.info("color is undefined"); }
   if (!!color) {
+	  logger.info("color is not not true"); }
+  if (!color) {
+	  logger.info("color is not true"); }
+  if (color) {
+	  logger.info("color is true"); }
+  if (!!color) {
+    logger.info("checking color", color.model, color);
     switch (color.model) {
         case 'rgb':
           if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
@@ -174,12 +185,13 @@ var validate_perform = function(perform, parameter) {
           break;
 
         default:
-          result.invalid.push('color.model');
+          result.invalid.push('color.model='+color.model);
           break;
     }
   }
 
   if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) result.invalid.push('brightness');
+  if (!!params.brightness) logger.info("checking brightness", params.brightness);
 
   return result;
 };
@@ -255,5 +267,6 @@ exports.start = function() {
     dev.logger(dev);
     //dev.update(dev, { power: bulbonoff.on ? 65535 : 0 }); 
   }).logger = logger2;
+  console.log("starting up", lx);
 };
 
