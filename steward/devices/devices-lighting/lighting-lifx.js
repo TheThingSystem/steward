@@ -222,7 +222,10 @@ exports.start = function() {
 
 // LIFX: when the hardware driver discovers a new bulb, it will call us.
 // LIFX: or if the low-level driver needs to be polled, then create a 'scan' function and call it periodically.
-  lx = lifx.init().on('bulb', function(bulb) {
+  lx = lifx.init();
+  console.log("lifx.init", lx);
+
+  lx.on('bulb', function(bulb) {
         var info;
 
  info = { source     : 'LIFX'
@@ -248,7 +251,9 @@ exports.start = function() {
     if (!!devices.devices[info.id]) return;
 
     devices.discover(info);
-  }).on('bulbstate', function(bulbstate) {
+  });
+
+  lx.on('bulbstate', function(bulbstate) {
     var dev,  udn;
 
     udn = 'LIFX:' + bulbstate.bulb.lifxAddress.toString('hex');
@@ -257,7 +262,9 @@ exports.start = function() {
     if (!dev) return;
     console.log("bulbstate 2", devices.devices[udn].device, bulbstate);
     dev.update(dev, bulbstate.state);
-  }).on('bulbonoff', function(bulbonoff) {
+  });
+
+  lx.on('bulbonoff', function(bulbonoff) {
     console.log("bulbonoff", bulbonoff);
     var dev,  udn;
 
@@ -266,7 +273,9 @@ exports.start = function() {
     dev = devices.devices[udn].device;
     dev.logger(dev);
     //dev.update(dev, { power: bulbonoff.on ? 65535 : 0 }); 
-  }).logger = logger2;
+  });
+
+  lx.logger = logger2;
   console.log("starting up", lx);
 };
 
