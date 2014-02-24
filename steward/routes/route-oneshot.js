@@ -194,6 +194,10 @@ var report = function(query, proplist) {
   properties = (!!query.properties) ? query.properties.split(',') : [ 'status' ];
   for (i = 0, s = ''; i < properties.length; i++, s = ', ') {
     prop = properties[i];
+
+    v = device.expand('.[.' + prop + '].', proplist);
+    if (!v) continue;
+
     if (properties.length > 1) {
       if ((i + 1) === properties.length) s += 'and ';
 // heh
@@ -201,7 +205,6 @@ var report = function(query, proplist) {
                    , co       : 'carbon monoxide'
                    }[prop] || prop) + ' is ';
     }
-    v = device.expand('.[.' + prop + '].', proplist);
 // TBD: this is really a UI thing, but it is rather convenient to place here...
     if (places.place1.info.displayUnits === 'customary') {
       v = { temperature     : Math.round(((v * 9) / 5) + 32)
@@ -224,6 +227,7 @@ var report = function(query, proplist) {
     data += v;
     data += { temperature  : ' degrees'
             , humidity     : ' percent'
+            , moisture     : ' milli bars'
             , co2          : ' parts per million'
             , noise        : ' decibels'
             , pressure     : ' milli bars'

@@ -294,6 +294,7 @@ exports.start = function() {
 
       f = function() { broker.publish('actors', 'scan', '', '/device/gateway/nest/cloud'); };
       for (i = 0; i < 15; i++) setTimeout(f, i * 2000);
+      logger.warning('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
       f();
     }
 
@@ -302,4 +303,8 @@ exports.start = function() {
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;
   });
+
+// NB: needed on RPi where disk is a bit slow... (may eventually be needed for other gateways)
+  require('./../devices-climate/climate-nest-control').start();
+  require('./../devices-sensor/sensor-nest-smoke').start();
 };
