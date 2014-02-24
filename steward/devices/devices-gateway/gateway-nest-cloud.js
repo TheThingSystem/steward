@@ -294,7 +294,7 @@ exports.start = function() {
 
       f = function() { broker.publish('actors', 'scan', '', '/device/gateway/nest/cloud'); };
       for (i = 0; i < 15; i++) setTimeout(f, i * 2000);
-      logger.warning('nest-cloud', 'begin 30-second scan');
+      logger.info('nest-cloud', 'begin 30-second scan');
       f();
     }
 

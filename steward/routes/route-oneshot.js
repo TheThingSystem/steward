@@ -230,7 +230,7 @@ var report = function(query, proplist) {
             , co2          : ' parts per million'
             , heading      : ' degrees'
             , humidity     : ' percent'
-            , lux          : ' luminous flux'
+            , light        : ' luminous flux'
             , moisture     : ' milli bars'
             , noise        : ' decibels'
             , pressure     : ' milli bars'

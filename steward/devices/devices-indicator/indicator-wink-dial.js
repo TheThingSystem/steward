@@ -120,7 +120,10 @@ Gauge.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.actor) self.info.actor = params.actor;
   if (!!params.property) self.info.property = params.property;
-  if ((!!params.actor) || (!!params.property)) self.setState({ actor: self.info.actor, property: self.info.property });
+  if ((!!params.actor) || (!!params.property)) {
+    self.setState({ actor: self.info.actor, property: self.info.property });
+    self.egress(self);
+  }
 
   return steward.performed(taskID);
 };
