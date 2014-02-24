@@ -162,7 +162,6 @@ Cloud.prototype.error = function(self, event, err) {
 
 Cloud.prototype.scan = function(self, client) {
   client.roundtrip('GET', '/vehicles', null, function(err, results) {
-    var entry, i, info, lock, now, params, status, udn;
 
     if (!!err) return self.error(self, 'roundtrip', err);
 

@@ -53,7 +53,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  setInterval(function() { self.scan(self); }, 45 * 1000);
+  setInterval(function() { self.scan(self); }, 2 * 1000);
   self.scan(self);
 };
 util.inherits(Sensor, sensor.Device);
@@ -75,7 +75,7 @@ Sensor.prototype.scan = function(self) {
     }
 
     params = { lastSample : new Date().getTime() };
-    params[self.sensorQ] = result;
+    params[self.sensorQ] = (isNaN(result) || result < 0) ? 0 : result;
     self.update(self, params);
   });
 };
