@@ -208,11 +208,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
   macaddrs[station.mac_address] = true;
 
   logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
-  devices.discover(info, function(err, deviceID) {/* jshint unused: false */
-    if ((!err) || (err.message.indexOf('no maker registered for ') !== 0)) return;
-
-    setTimeout(function() { self.scan(self); }, 30 * 1000);
-  });
+  devices.discover(info);
   self.changed();
 };
 
