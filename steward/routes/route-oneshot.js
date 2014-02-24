@@ -203,6 +203,7 @@ var report = function(query, proplist) {
 // heh
       data += s + ({ co2      : 'C O 2'
                    , co       : 'carbon monoxide'
+                   , no       : 'nitrous oxide'
                    }[prop] || prop) + ' is ';
     }
 // TBD: this is really a UI thing, but it is rather convenient to place here...
@@ -225,14 +226,15 @@ var report = function(query, proplist) {
           }[prop] || v;
     }
     data += v;
-    data += { temperature  : ' degrees'
-            , humidity     : ' percent'
-            , moisture     : ' milli bars'
+    data += { batteryLevel : ' percent'
             , co2          : ' parts per million'
+            , heading      : ' degrees'
+            , humidity     : ' percent'
+            , lux          : ' luminous flux'
+            , moisture     : ' milli bars'
             , noise        : ' decibels'
             , pressure     : ' milli bars'
-            , batteryLevel : ' percent'
-            , heading      : ' degrees'
+            , temperature  : ' degrees'
             }[prop] || '';
   }
 
