@@ -403,7 +403,7 @@ Device.prototype.setState = function(state) {
   db.serialize(function() {
     db.run('DELETE FROM deviceProps WHERE deviceID=$deviceID AND key="state"', { $deviceID : self.deviceID });
 
-    db.run('REPLACE INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
+    db.run('INSERT INTO deviceProps(deviceID, key, value) VALUES($deviceID, $key, $value)',
            { $deviceID : self.deviceID, $key: 'state', $value: JSON.stringify(state) });
   });
 
