@@ -33,7 +33,7 @@
     , "lumen"                   : "git://github.com/TheThingSystem/node-lumen.git"
     , "mdns"                    : "git://github.com/TheThingSystem/node_mdns.git"
     , "mime"                    : "1.2.9"
-    , "mqtt"                    : "0.3.4"
+    , "mqtt"                    : "git://github.com/TheThingSystem/MQTT.git"
     , "netmask"                 : "1.0.4"
     , "noble"                   : "git://github.com/sandeepmistry/noble.git"
     , "node-blink1"             : "0.1.0"

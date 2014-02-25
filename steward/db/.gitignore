@@ -1,3 +1,4 @@
+*.crt
 *.db
 *.key
 *_rsa

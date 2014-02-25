@@ -1,7 +1,6 @@
 // mqtt - send measurements via MQTT
 
-var fs          = require('fs')
-  , mqtt        = require('mqtt')
+var mqtt        = require('mqtt')
   , url         = require('url')
   , util        = require('util')
   , winston     = require('winston')
@@ -34,6 +33,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.id);
   delete(self.info.device);
   delete(self.info.deviceType);
+  delete(self.info.ipaddress);
   self.priority = winston.config.syslog.levels[self.info.priority || 'notice'] || winston.config.syslog.levels.notice;
   self.info.priority = utility.value2key(winston.config.syslog.levels, self.priority);
   self.status = 'waiting';
@@ -55,7 +55,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
     if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
     self.mqtt.publish(self.path + 'device/' + deviceID + '/' + point.measure.name,
-                      { value: point.value, measure: point.measure, timestamp: point.timestamp });
+                      JSON.stringify({ value: point.value, measure: point.measure, timestamp: point.timestamp }));
   });
 
   previous = {};
@@ -99,12 +99,14 @@ Mqtt.prototype.login = function(self) {
   var method, option, options, opts, params;
 
   params = url.parse(self.info.url, true);
-  if (!params.port) params.port = (params.protocol === 'mqtts') ? 8883 : 1883;
+  if (!params.port) params.port = (params.protocol === 'mqtts:') ? 8883 : 1883;
   if (!!self.info.username) {
     params.query.username = self.info.username;
     if (!!self.info.passphrase) params.query.password = self.info.passphrase;
   }
-  if (!!self.info.crtPath) params.ca = [ self.info.crtPath ];
+  if ((!!self.info.crtPath) && (params.protocol === 'mqtts:')) {
+    params.query.ca = [ __dirname + '/../../db/' + self.info.crtPath ];
+  }
 
   options = { protocolID: 'MQIsdp', protocolVersion: 3 };
   opts = params.query || {};
@@ -114,10 +116,14 @@ Mqtt.prototype.login = function(self) {
   if (!self.path) self.path = '';
   else if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
 
-  method = (params.protocol === 'mqtts') ? mqtt.createSecureClient : mqtt.createClient;
-  self.mqtt = method(params.port, params.hostname, options).on('connection', function() {
+  method = (params.protocol === 'mqtts:') ? mqtt.createSecureClient : mqtt.createClient;
+console.log('>>> method='+params.protocol + ' port=' + params.port + ' hostname=' + params.hostname);console.log(options);
+  self.mqtt = method(params.port, params.hostname, options).on('connect', function() {
+console.log('>>> connect');
     self.status = 'ready';
+    self.changed();
   }).on('message', server.mqtt_onmessage).on('error', function(err) {
+console.log('>>> error');
     self.status = 'error';
     self.changed();
     logger.error('device/' + self.deviceID, { event: 'error', diagnostic: err.message });
@@ -177,19 +183,18 @@ var validate_create = function(info) {
   else if (typeof info.url !== 'string') result.invalid.push('url');
   else {
     params = url.parse(info.url);
-    if ((!params.hostname) || ((params.protocol !== 'mqtt:') && (params.protocol != 'mqtts:'))) {
+    if ((!params.hostname) || ((params.protocol !== 'mqtt:') && (params.protocol !== 'mqtts:'))) {
       result.invalid.push('url');
     }
   }
 
   if ((!!info.username) && (typeof info.username !== 'string')) result.invalid.push('username');
-  if (!!info.password) {
+  if (!!info.passphrase) {
     if (!info.username) result.requires.push('username');
-    if (typeof info.password !== 'string') result.invalid.push('password');
+    if (typeof info.passphrase !== 'string') result.invalid.push('passphrase');
   }
 
-// NB: i dislike doing the synchronous call, but it is rather convenient...
-  if ((!!info.crtPath) && (!fs.existsSync(info.crtPath))) result.invalid.push('crtPath');
+  if ((!!info.crtPath) && (info.crtPath.indexOf('/') !== -1)) result.invalid.push('crtPath');
 
   if ((!!info.measurements) && (!util.isArray(info.measurements))) result.invalid.push('measurements');
   if ((!!info.sensors) && (!util.isArray(info.sensors))) result.invalid.push('sensors');

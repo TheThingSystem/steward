@@ -352,7 +352,7 @@ var showSettings = function() {
 
   span = document.createElement('span')
   span.setAttribute('id', 'lan-instructions');
-  span.innerHTML = "&larr; " + "Require secure connection over LAN for clients (disable if you are using Arduino-based clients)";
+  span.innerHTML = "&larr; " + "By default, secure connections are required for LAN clients. Developer mode disables security checks for LAN-based clients (e.g., Arduino-based clients that lack encryption).";
   form.appendChild(span);
   
   
@@ -423,11 +423,11 @@ var showSettings = function() {
     
     option = document.createElement('option');
     option.setAttribute('value', 'on');
-    option.innerHTML = 'yes';
+    option.innerHTML = 'Strict';
     optgroup.appendChild(option);
     option = document.createElement('option');
     option.setAttribute('value', 'off');
-    option.innerHTML = 'no';
+    option.innerHTML = 'Developer';
     optgroup.appendChild(option);
     return select;
   }
@@ -769,7 +769,8 @@ var bootable = { '':
                  , info         :
                    { url        : ''
                    , username   : ''
-                   , password   : ''
+                   , passphrase : ''
+                   , crtPath    : ''
                    }
                  }
                , nest           :
