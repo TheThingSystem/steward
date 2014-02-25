@@ -1,8 +1,11 @@
 // mqtt - send measurements via MQTT
 
-var mqtt        = require('mqtt')
+var fs          = require('fs')
+  , mqtt        = require('mqtt')
   , url         = require('url')
   , util        = require('util')
+  , winston     = require('winston')
+  , serialize   = require('winston/lib/winston/common').serialize
   , devices     = require('./../../core/device')
   , server      = require('./../../core/server')
   , steward     = require('./../../core/steward')
@@ -17,7 +20,7 @@ var logger = indicator.logger;
 
 
 var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
-  var params, self;
+  var previous, self;
 
   self = this;
 
@@ -31,8 +34,10 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.id);
   delete(self.info.device);
   delete(self.info.deviceType);
+  self.priority = winston.config.syslog.levels[self.info.priority || 'notice'] || winston.config.syslog.levels.notice;
+  self.info.priority = utility.value2key(winston.config.syslog.levels, self.priority);
   self.status = 'waiting';
-  self.elide = [ 'username', 'passphrase' ];
+  self.elide = [ 'passphrase' ];
   self.changed();
 
 /*
@@ -53,26 +58,53 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
                       { value: point.value, measure: point.measure, timestamp: point.timestamp });
   });
 
+  previous = {};
+  broker.subscribe('beacon-egress', function(category, data) {
+    var datum, i, now, parameter;
+
+    if (!self.mqtt) return;
+
+    if (!util.isArray(data)) data = [ data ];
+    for (i = 0; i < data.length; i++) {
+      datum = data[i];
+
+      if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) continue;
+
+      if (!previous[datum.level]) previous[datum.level] = {};
+      now = new Date(datum.date).getTime();
+      if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
+      previous[datum.level][datum.message] = now + (60 * 1000);
+
+      parameter = datum.message;
+      if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
+
+      datum.category = category;
+
+      self.mqtt.publish(self.path + 'logs/', JSON.stringify(datum), { retain: true });
+    }
+  });
+
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  params = url.parse(info.url, true);
-  if (!!info.username) {
-    params.query.username = info.username;
-    if (!!info.passphrase) params.query.password = info.passphrase;
-  }
-  self.login(self, params);
+  self.login(self);
 };
 util.inherits(Mqtt, indicator.Device);
 
 
-Mqtt.prototype.login = function(self, params) {
-  var method, option, options, opts;
+Mqtt.prototype.login = function(self) {
+  var method, option, options, opts, params;
 
+  params = url.parse(self.info.url, true);
   if (!params.port) params.port = (params.protocol === 'mqtts') ? 8883 : 1883;
+  if (!!self.info.username) {
+    params.query.username = self.info.username;
+    if (!!self.info.passphrase) params.query.password = self.info.passphrase;
+  }
+  if (!!self.info.crtPath) params.ca = [ self.info.crtPath ];
 
   options = { protocolID: 'MQIsdp', protocolVersion: 3 };
   opts = params.query || {};
@@ -92,28 +124,47 @@ Mqtt.prototype.login = function(self, params) {
 
     self.mqtt.end();
     self.mqtt = null;
-    setTimeout(function() { self.login(params); }, 600 * 1000);
+    setTimeout(function() { self.login(self); }, 600 * 1000);
   });
 };
 
 Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
+  var param, params, updateP;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform !== 'set') return false;
+  if (perform === 'set') {
+    if (!!params.name) {
+      self.setName(params.name);
+      delete(params.name);
+    }
 
-  if (!!params.name) self.setName(params.name);
+    updateP = false;
+    for (param in params) {
+      if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
 
-  if ((!!params.measurements) && (util.isArray(params.measurements))) {
-    self.info.measurements = params.measurements;
-    delete(self.measurements);
+      self.info[param] = params[param];
+      updateP = true;
+    }
+    if (updateP) self.setInfo();
+
+    if (!!self.mqtt) {
+      self.mqtt = null;
+      setTimeout(function() { self.login(self); }, 0);
+    }
+
+    return true;
   }
-  if ((!!params.sensors) && (util.isArray(params.sensors))) {
-    self.info.sensors = params.sensors;
-    delete(self.sensors);
-  }
 
+  if ((perform !== 'growl') || (!self.mqtt)) return false;
+  params.message = devices.expand(params.message, 'device/' + self.deviceID);
+
+  if ((!params.priority) || (!params.message) || (params.message.length === 0)) return false;
+
+  if ((!winston.config.syslog.levels[params.priority])
+        || (winston.config.syslog.levels[params.priority] < self.priority)) return false;
+
+  self.mqtt.publish(self.path + 'messages/', params.message, { retain: true });
   return steward.performed(taskID);
 };
 
@@ -137,8 +188,13 @@ var validate_create = function(info) {
     if (typeof info.password !== 'string') result.invalid.push('password');
   }
 
+// NB: i dislike doing the synchronous call, but it is rather convenient...
+  if ((!!info.crtPath) && (!fs.existsSync(info.crtPath))) result.invalid.push('crtPath');
+
   if ((!!info.measurements) && (!util.isArray(info.measurements))) result.invalid.push('measurements');
   if ((!!info.sensors) && (!util.isArray(info.sensors))) result.invalid.push('sensors');
+
+  if ((!!info.priority) && (!winston.config.syslog.levels[info.priority])) result.invalid.push('priority');
 
   return result;
 };
@@ -152,7 +208,17 @@ var validate_perform = function(perform, parameter) {
 
   if (perform === 'set') return validate_create(params);
 
-  result.invalid.push('perform');
+  if (perform !== 'growl') {
+    result.invalid.push('perform');
+    return result;
+  }
+
+  if (!params.priority) result.requires.push('priority');
+  else if (!winston.config.syslog.levels[params.priority]) result.invalid.push('priority');
+
+  if (!params.message) result.requires.push('message');
+  else if (params.message.length === 0) result.invalid.push('message');
+
   return result;
 };
 
@@ -171,14 +237,16 @@ exports.start = function() {
   steward.actors.device.indicator.mqtt.text =
       { $info     : { type       : '/device/indicator/mqtt/text'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'growl' ]
                     , properties : { name         : true
                                    , status       : [ 'waiting', 'ready', 'error' ]
                                    , url          : true
                                    , username     : true
                                    , passphrase   : true
+                                   , crtFile      : true
                                    , measurements : measurements
                                    , sensors      : []
+                                   , priority     : utility.keys(winston.config.syslog.levels)
                                    }
                     }
       , $validate : { create     : validate_create
