@@ -581,7 +581,7 @@ var mqtt_onmessage = exports.mqtt_onmessage = function(topic, message, packet) {
     var device, entry, info, params, parts, status, udn;
 
     parts = topic.split('/');
-    if ((parts[0] !== 'mqttitude') && (parts[0] !== 'owntracks')) return;
+    if (parts[0] === 'mqttitude') parts[0] = 'owntracks'; else if (parts[0] !== 'owntracks') return;
 
     try { entry = JSON.parse(message); } catch(ex) { return console.log(ex); }
 
@@ -591,6 +591,7 @@ var mqtt_onmessage = exports.mqtt_onmessage = function(topic, message, packet) {
       params.location = [ entry.lat, entry.lon ];
       if (!!entry.alt) params.location.push(entry.alt);
       if (!!entry.acc) params.accuracy = parseFloat(entry.acc);
+      if (!!entry.batt) params.batteryLevel = parseFloat(entry.batt);
     }
 
     if (!devices) devices = require('./device');

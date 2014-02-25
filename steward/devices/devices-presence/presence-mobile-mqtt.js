@@ -221,24 +221,19 @@ exports.start = function() {
       { $info     : { type       : '/device/presence/mqtt/mobile'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name      : true
-                                   , status    : [ 'present', 'recent', 'absent' ]
-                                   , location  : 'coordinates'
-                                   , accuracy  : 'meters'
-                                   , physical  : true
-                                   , distance  : 'kilometers'  // technically, it should be client-derived
-                                   , priority : utility.keys(winston.config.syslog.levels)
+                    , properties : { name         : true
+                                   , status       : [ 'present', 'recent', 'absent' ]
+                                   , location     : 'coordinates'
+                                   , accuracy     : 'meters'
+                                   , batteryLevel : 'percentage'
+                                   , physical     : true
+                                   , distance     : 'kilometers'  // technically, it should be client-derived
+                                   , priority     : utility.keys(winston.config.syslog.levels)
                                    }
                     }
       , $validate : { perform    : validate_perform }
       };
   devices.makers['/device/presence/mqtt/mobile'] = Mobile;
-
-  steward.actors.device.presence.mqttitude = utility.clone(steward.actors.device.presence.mqtt);
-  steward.actors.device.presence.mqttitude.$info.type = '/device/presence/mqttitude';
-  steward.actors.device.presence.mqttitude.mobile = utility.clone(steward.actors.device.presence.mqtt.mobile);
-  steward.actors.device.presence.mqttitude.mobile.$info.type = '/device/presence/mqttitude/mobile';
-  devices.makers['/device/presence/mqttitude/mobile'] = Mobile;
 
   steward.actors.device.presence.owntracks = utility.clone(steward.actors.device.presence.mqtt);
   steward.actors.device.presence.owntracks.$info.type = '/device/presence/owntracks';
