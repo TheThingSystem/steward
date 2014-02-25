@@ -29,7 +29,6 @@ var LIFX = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.bulb = info.bulb;
-  self.lx = info.lx
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -44,16 +43,14 @@ util.inherits(LIFX, lighting.Device);
 // possibly somebody else is changing the state of the hardware directly,
 // or the hardware has built-in controls, like a light switch.
 LIFX.prototype.update = function(self, state) {
-    logger.info("LIFX update", state.power, state.hue, state.saturation, state.brightness);
   self.status = state.power ? 'on' : 'off';
   tc = tinycolor({ h: state.hue * 360.0 / 65535.0, s: state.saturation / 655.350, l: state.brightness / 655.350 });
-  self.info = { color      : { model: [ { 'rgb': tc.toRgb() }
-                                      , { 'hue': { hue: state.kelvin, saturation: state.saturation / 655.350 } }
-                                      ]
+  self.info = { color      : { model: { 'rgb': tc.toRgb()
+                                      , 'hue': { hue: state.kelvin, saturation: state.saturation / 655.350 } }
                              }
               , brightness : state.brightness / 655.350
               };
-  logger.info("LIFX updated", self.info.color, self.info.brightness, self.status);
+  logger.info("LIFX updated", util.inspect(self.info.color), self.info.brightness);
 };
 
 
@@ -113,19 +110,18 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
 
 // LIFX: here is the meat of our driver. We call into the low-level hardware driver to turn the bulb on and off,
 // set the brightness, and/or set the color.
-  console.log("acting", lx);
   if (!state.on) lx.lightsOff(self.bulb);
   else {
-    self.lx.lightsOn(self.bulb);
+    lx.lightsOn(self.bulb);
 // assuming 16-bits each for hue, saturation, luminance, and whitecolor
       if (state.color.model === 'hue') {
-        self.lx.lightsColour(devices.scaledPercentage(state.color.model.hue.h / 360, 0, 0xffff),
+        lx.lightsColour(devices.scaledPercentage(state.color.model.hue.h / 360, 0, 0xffff),
                                 devices.scaledPercentage(state.color.model.hue.h,       0, 0xffff),
                                 devices.scaledPercentage(state.brightness,              0, 0xffff),
                                 0, 0, self.bulb);
       } else {
         kelvin = 1000000 / state.color.model.temperature.temperature;
-        self.lx.lightsColour(0x0000, 0x0000, devices.scaledPercentage(state.brightness, 0, 0xffff),
+        lx.lightsColour(0x0000, 0x0000, devices.scaledPercentage(state.brightness, 0, 0xffff),
                            devices.scaledPercentage(devices.scaledLevel(kelvin, 2000, 6500), 0, 0xffff),
                            0, self.bulb);
       }
@@ -158,16 +154,9 @@ var validate_perform = function(perform, parameter) {
   }
 
   color = params.color;
-  if (color === undefined) {
-	  logger.info("color is undefined"); }
   if (!!color) {
-	  logger.info("color is not not true"); }
-  if (!color) {
-	  logger.info("color is not true"); }
-  if (color) {
-	  logger.info("color is true"); }
-  if (!!color) {
-    logger.info("checking color", color.model, color);
+    logger.info("checking color", util.inspect(color));
+    // not sure what to do here.
     switch (color.model) {
         case 'rgb':
           if (!lighting.validRGB(color.rgb)) result.invalid.push('color.rgb');
@@ -223,12 +212,10 @@ exports.start = function() {
 // LIFX: when the hardware driver discovers a new bulb, it will call us.
 // LIFX: or if the low-level driver needs to be polled, then create a 'scan' function and call it periodically.
   lx = lifx.init();
-  console.log("lifx.init", lx);
-
   lx.on('bulb', function(bulb) {
         var info;
 
- info = { source     : 'LIFX'
+  info = { source     : 'LIFX'
            , lx         : lx
            , bulb       : bulb
            , device     : { url          : null
@@ -260,12 +247,11 @@ exports.start = function() {
     if (!devices.devices[udn]) return;
     dev = devices.devices[udn].device;
     if (!dev) return;
-    console.log("bulbstate 2", devices.devices[udn].device, bulbstate);
+    //console.log("bulbstate 2", devices.devices[udn].device, bulbstate);
     dev.update(dev, bulbstate.state);
   });
 
   lx.on('bulbonoff', function(bulbonoff) {
-    console.log("bulbonoff", bulbonoff);
     var dev,  udn;
 
     udn = 'LIFX:' + bulbonoff.bulb.lifxAddress.toString('hex');
@@ -276,6 +262,5 @@ exports.start = function() {
   });
 
   lx.logger = logger2;
-  console.log("starting up", lx);
 };
 
