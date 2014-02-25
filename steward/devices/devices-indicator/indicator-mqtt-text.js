@@ -117,13 +117,10 @@ Mqtt.prototype.login = function(self) {
   else if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
 
   method = (params.protocol === 'mqtts:') ? mqtt.createSecureClient : mqtt.createClient;
-console.log('>>> method='+params.protocol + ' port=' + params.port + ' hostname=' + params.hostname);console.log(options);
   self.mqtt = method(params.port, params.hostname, options).on('connect', function() {
-console.log('>>> connect');
     self.status = 'ready';
     self.changed();
   }).on('message', server.mqtt_onmessage).on('error', function(err) {
-console.log('>>> error');
     self.status = 'error';
     self.changed();
     logger.error('device/' + self.deviceID, { event: 'error', diagnostic: err.message });
