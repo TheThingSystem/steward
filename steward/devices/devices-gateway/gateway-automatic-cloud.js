@@ -25,12 +25,12 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   delete(self.info.id);
   delete(self.info.device);
   delete(self.info.deviceType);
+  if (!self.info.users) self.info.users = {};
 
   self.status = 'waiting';
   self.elide = [ 'clientID', 'clientSecret', 'users' ];
   self.changed();
   self.timer = null;
-  self.readyP = true;
   self.clients = {};
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -39,7 +39,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  if ((!!self.info.clientID) || (self.info.clientSecret)) self.login(self);
+  if ((!!self.info.clientID) && (!!self.info.clientSecret)) self.login(self);
 };
 util.inherits(Cloud, require('./../device-gateway').Device);
 
@@ -51,10 +51,6 @@ Cloud.prototype.login = function(self) {
   self.changed();
 
   if (!!self.timer) clearInterval(self.timer);
-  self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
-  self.scan(self);
-  if (!!self.readyP) return;
-  self.readyP = true;
 
   var bgerror = function(err) { logger.error('device/' + self.device, { event: 'background', diagnostic: err.message }); };
 
@@ -69,6 +65,8 @@ Cloud.prototype.login = function(self) {
                                            , remote : 'tcp://' + ipaddr + ':' + portno
                                            , proxy  : options.proxy
                                            });
+    self.info.authorizeURL = 'http://' + options.ipaddr + ':' + options.portno + '/';
+
     for (user in self.info.users) {
       if (!self.info.users.hasOwnProperty(user)) continue;
 
@@ -77,6 +75,8 @@ Cloud.prototype.login = function(self) {
       self.info.users[user].client = client;
       self.scan(self, client);
     }
+
+    self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
   }, function(request, response) {
     var body = '';
 
@@ -96,12 +96,11 @@ Cloud.prototype.login = function(self) {
     }).on('clientError', function(err, socket) {/* jshint unused: false */
       logger.warning('device/' + self.deviceID, { event:'clientError', diagnostic: err.message });
     }).on('end', function() {
-      var client, data, parts, requestURL;
+      var client, data, parts, requestURL, udn, vehicle;
 
-      var loser = function (message, blankP) {
+      var loser = function (message) {
         logger.error('device/' + self.deviceID, { event: 'request', diagnostic: message });
 
-        if (blankP) message = '';
         response.writeHead(200, { 'content-type': 'text/plain; charset=utf8', 'content-length' : message.length });
         response.end(message);
       };
@@ -114,8 +113,10 @@ Cloud.prototype.login = function(self) {
         response.writeHead(200, { 'content-length' : 0 });
         response.end();
 
-console.log(util.inspect(data, { depth: null }));
-        return;
+        udn = 'automatic:' + data.user.id;
+        if (!devices.devices[udn]) return;
+        vehicle = devices.devices[udn].device;
+        return vehicle.webhook(vehicle, 'webhook', data);
       }
 
       parts = url.parse(request.url, true);
@@ -123,16 +124,14 @@ console.log(util.inspect(data, { depth: null }));
         if (!parts.query.state) return loser('invalid response from server');
 
         client = self.clients[parts.query.state];
-        if (!client) return loser('invalid response from server', true);
+        if (!client) return loser('invalid response from server');
 
         client.authorize(parts.query.code, parts.query.state, function(err, user, state, scopes) {/* jshint unused: false */
           if (!!err) return logger.error('device/' + self.deviceID,
                                          { event: 'request', diagnostic: 'authorization error: ' + err.message });
 
-console.log(util.inspect(state, { depth: null }));
-
           self.info.users[user.id] = { client: client, state: state };
-          self.setInfo2();
+          self.setInfo2(self);
 
           self.scan(self, client);
         });
@@ -161,24 +160,72 @@ Cloud.prototype.error = function(self, event, err) {
 };
 
 Cloud.prototype.scan = function(self, client) {
+  var user;
+
+  if (!client) {
+    for (user in self.info.users) if (!!self.info.users.hasOwnProperty(user)) self.scan(self, self.info.users[user].client);
+    return;
+  }
+
   client.roundtrip('GET', '/vehicles', null, function(err, results) {
+    var entry, i, info, params, status, udn, vehicle;
 
-    if (!!err) return self.error(self, 'roundtrip', err);
+    if (!!err) return self.error(self, '/vehicles', err);
 
-console.log(util.inspect(results, { depth: null }));
-/*
-    [
-      {
-        "uri": "https://api.automatic.com/v1/vehicles/524da549e4b08d1af17f6dca",
-        "id": "524da549e4b08d1af17f6dca",
-        "year": "2001",
-        "make": "Acura",
-        "model": "MDX",
-        "color": "Purple",
-        "display_name": "My Speed Demon"
+    for (i = 0; i < results.length; i++) {
+      entry = results[i];
+
+      params = {};
+      status = 'ready';
+
+      udn = 'automatic:' + entry.id;
+      if (!!devices.devices[udn]) {
+        vehicle = devices.devices[udn].device;
+        vehicle.update(vehicle, params);
+        continue;
       }
-    ]
- */
+
+      params.status = status;
+      info =  { source: self.deviceID, gateway: self, params: params };
+      info.device = { url                          : null
+                    , name                         : entry.display_name
+                    , manufacturer                 : entry.make
+                    , model        : { name        : entry.model
+                                     , description : entry.year + ' ' + entry.make + ' ' + entry.model
+                                     , number      : ''
+                                     }
+                    , unit         : { serial      : entry.id
+                                     , udn         : udn
+                                     }
+                    };
+
+      info.url = info.device.url;
+      info.deviceType = '/device/motive/automatic/vehicle';
+      info.id = info.device.unit.udn;
+
+      logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
+      devices.discover(info);
+      self.changed();
+    }
+
+    client.roundtrip('GET', '/trips', null, function(err, results) {
+      var entry, i, udn, vehicle, vehicles;
+
+      if (!!err) return self.error(self, '/trips', err);
+
+      vehicles = {};
+      for (i = 0; i < results.length; i++) {
+        entry = results[i];
+
+        if (!!vehicles[entry.vehicle.id]) continue;
+        vehicles[entry.vehicle.id] = true;
+
+        udn = 'automatic:' + entry.vehicle.id;
+        if (!devices.devices[udn]) continue;
+        vehicle = devices.devices[udn].device;
+        vehicle.webhook(vehicle, 'trip', { location: entry.end_location, created_at: entry.end_time, type: 'trip:summary' });
+      }
+    });
   });
 };
 
@@ -202,12 +249,15 @@ Cloud.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.name) self.setName(params.name);
 
   clientID = self.info.clientID;
-  clientSecret = self.info.clientSecret;
   if (!!params.clientID) self.info.clientID = params.clientID;
+  clientSecret = self.info.clientSecret;
   if (!!params.clientSecret) self.info.clientSecret = params.clientSecret;
-  if ((self.info.clientID !== clientID) && (self.info.clientSecret !== clientSecret)) self.login(self);
+  if ((!!self.info.clientID) && (!!self.info.clientSecret)) {
+    if ((self.info.clientID !== clientID) || (self.info.clientSecret !== clientSecret)) self.login(self);
+  }
 
-  self.setInfo2();
+
+  self.setInfo2(self);
 
   return steward.performed(taskID);
 };
@@ -216,10 +266,10 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.clientID) result.requires.push('clientID');
-  else if ((typeof info.clientID !== 'string') || (info.clientID.length !== 32)) result.invalid.push('clientID');
+  else if ((typeof info.clientID !== 'string') || (info.clientID.length !== 20)) result.invalid.push('clientID');
 
   if (!info.clientSecret) result.requires.push('clientSecret');
-  else if ((typeof info.clientSecret !== 'string') || (info.clientSecret.length !== 32)) result.invalid.push('clientSecret');
+  else if ((typeof info.clientSecret !== 'string') || (info.clientSecret.length !== 40)) result.invalid.push('clientSecret');
 
   return result;
 };
@@ -255,6 +305,7 @@ exports.start = function() {
                                    , status       : [ 'waiting', 'ready', 'error', 'reset' ]
                                    , clientID     : true
                                    , clientSecret : true
+                                   , authorizeURL : true
                                    }
                     }
       , $validate : { create     : validate_create

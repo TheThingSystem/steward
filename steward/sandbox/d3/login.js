@@ -684,7 +684,7 @@ var place_info   = { name        : 'Home'
                    };
 
 var bootable = { '':
-                 { text         : 'Choose a cloud service to enter its access credentials.'
+                 { text         : 'Choose a cloud service to enter its authentication credentials.'
                  , instructions : ''
                  , info         : {}
                  }
@@ -699,6 +699,7 @@ var bootable = { '':
                    { clientID   : ''
                    , clientSecret : ''
                    }
+                 , authorizeText : 'Click here to add a new vehicle for the steward to manage.'
                  }
                , dweetio        :
                  { text         : 'The steward can automatically upload measurements to dweet.io'

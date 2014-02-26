@@ -2411,7 +2411,7 @@ var entries = {
 
                     case 'motive':
 // temporary
-                      if (quad[4] === 'model-s') result.img = 'actors/' + quad[2] + '-automotive.svg';
+                      if (quad[4] === 'model-s') result.img = 'actors/' + quad[2] + '-vehicle.svg';
                       result.single = single_motive_drilldown;
                       result.arcs = motive_device_arcs;
                       result.instrux = single_motive_instructions;

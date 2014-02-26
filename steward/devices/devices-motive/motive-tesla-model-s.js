@@ -1,7 +1,6 @@
 // Tesla Motors, Inc. - Model S - Electric Vehicle (for the WIN)
 
-var geocoder    = require('geocoder')
-  , tesla       = require('teslams')
+var tesla       = require('teslams')
   , util        = require('util')
   , devices     = require('./../../core/device')
   , places      = require('./../../actors/actor-place')
@@ -13,8 +12,6 @@ var geocoder    = require('geocoder')
 
 
 var logger   = motive.logger;
-
-var geocache = {};
 
 
 var ModelS = exports.device = function(deviceID, deviceUID, info) {
@@ -339,42 +336,6 @@ ModelS.prototype.stream = function(self, fastP) {
   });
 };
 
-ModelS.prototype.reverseGeocode = function(self) {
-  var key, location;
-
-  if (!util.isArray(self.info.location)) return;
-
-  location = self.info.location;
-  key = parseFloat(location[0]).toFixed(3) + ',' + parseFloat(location[1]).toFixed(3);
-
-  if ((!!places.place1.info.location)
-          && (location[0] === places.place1.info.location[0])
-          && (location[1] === places.place1.info.location[1])) {
-    geocache[key] = places.place1.info.physical;
-  }
-  if (!!geocache[key]) {
-    if (self.info.physical !== geocache[key]) {
-      self.info.physical = geocache[key];
-      self.changed();
-    }
-
-    return;
-  }
-
-  geocoder.reverseGeocode(location[0], location[1], function(err, result) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                              , location   : location
-                                                              , diagnostic : err.message });
-    if (result.status !== 'OK') return logger.warning('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                                                 , location   : location
-                                                                                 , diagnostic : result.status });
-    if (result.results.length < 1) return;
-
-    geocache[key] = result.results[0].formatted_address;
-    self.info.physical = geocache[key];
-    self.changed();
-  });
-};
 
 ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   var cb, deg, f, params, pct, state;

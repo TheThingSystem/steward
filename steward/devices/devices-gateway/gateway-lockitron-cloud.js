@@ -165,7 +165,7 @@ Cloud.prototype.scan = function(self) {
 };
 
 Cloud.prototype.perform = function(self, taskID, perform, parameter) {
-  var params;
+  var accessToken, params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -173,8 +173,9 @@ Cloud.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.name) self.setName(params.name);
 
+  accessToken = self.info.accessToken;
   if (!!params.accessToken) self.info.accessToken = params.accessToken;
-  self.login(self);
+  if ((!!self.info.accessToken) && (self.info.accessToken !== accessToken)) self.login(self);
 
   self.setInfo();
 
