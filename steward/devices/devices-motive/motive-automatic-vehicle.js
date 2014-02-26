@@ -88,6 +88,14 @@ Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false
     updateP = true;
   }
 
+  if ((data.type === 'parking:changed') || (data.type === 'ignition:off')) {
+    if (self.info.velocity !== 0) {
+      self.info.velocity = 0;
+      updateP = true;
+    }
+  }
+
+/*
   if ((data.type === 'ignition:on') || (data.type === 'ignition:off')) {
     ignition = data.type === 'ignition:on' ? 'true' : 'false';
 
@@ -96,6 +104,7 @@ Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false
       updateP = true;
     }
   }
+ */
 
   if (updateP) self.changed();
 };
@@ -116,7 +125,7 @@ exports.start = function() {
                                    , accuracy       : 'meters'
                                    , physical       : true
                                    , distance       : 'kilometers'  // technically, it should be client-derived
-                                   , ignition       : [ 'true', 'false' ]
+//                                 , ignition       : [ 'true', 'false' ]
 /* NB: these really ought to be provided by the Automatic API
                                    , heading        : 'degrees'
                                    , velocity       : 'meters/second'
