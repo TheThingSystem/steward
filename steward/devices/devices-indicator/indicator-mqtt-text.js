@@ -54,7 +54,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
     if ((!!self.sensors) && (!self.sensors[deviceID])) return;
     if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
-    self.mqtt.publish(self.path + 'device/' + deviceID + '/' + point.measure.name,
+    self.mqtt.publish(self.path + 'devices/' + deviceID + '/' + point.measure.name,
                       JSON.stringify({ value: point.value, measure: point.measure, timestamp: point.timestamp }));
   });
 
@@ -78,9 +78,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
       parameter = datum.message;
       if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
 
-      datum.category = category;
-
-      self.mqtt.publish(self.path + 'logs', JSON.stringify(datum), { retain: true });
+      self.mqtt.publish(self.path + 'logs' + category, JSON.stringify(datum), { retain: true });
     }
   });
 
