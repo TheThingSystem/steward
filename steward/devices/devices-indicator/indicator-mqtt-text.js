@@ -80,7 +80,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
 
       datum.category = category;
 
-      self.mqtt.publish(self.path + 'logs/', JSON.stringify(datum), { retain: true });
+      self.mqtt.publish(self.path + 'logs', JSON.stringify(datum), { retain: true });
     }
   });
 
@@ -167,7 +167,7 @@ Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
   if ((!winston.config.syslog.levels[params.priority])
         || (winston.config.syslog.levels[params.priority] < self.priority)) return false;
 
-  self.mqtt.publish(self.path + 'messages/', params.message, { retain: true });
+  self.mqtt.publish(self.path + 'messages', params.message, { retain: true });
   return steward.performed(taskID);
 };
 
