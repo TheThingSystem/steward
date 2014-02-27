@@ -1003,13 +1003,23 @@ var single_climate_instructions = function(device) {
 
 
 var climate_device_arcs = function(device) {
-  var arcs, now, prop, v;
+  var arcs, i, now, prop, props, v;
 
   arcs = [];
 
   if (!device.info.lastSample) device.info.lastSample = device.updated;
-  for (prop in device.info) {
-    if (!device.info.hasOwnProperty(prop)) continue;
+  props = sortprops(device.info, [ 'lastSample',
+                                 , 'temperature',     'airQuality',      'voc'
+                                 , 'goalTemperature', 'flame',           'moisture', 'needsWater',    'text'
+                                 , 'humidity',        'co2',             'smoke',    'light',         'flow',
+                                                      'needsMist',       'rssi'
+                                 , 'hvac',            'noise',           'co',       'concentration', 'nextSample',
+                                                      'needsFertilizer', 'battery',  'batteryLevel',  'location'
+                                 , 'away',             'pressure',       'no2'
+                                 ]);
+
+  for (i = 0; i < props.length; i++) {
+    prop = props[i];
 
     v = device.info[prop];
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
@@ -1414,6 +1424,8 @@ var media_device_arcs = function(device) {
 
   arcs = [];
 
+  props = sortprops(device.info, [ 'track', 'volume', 'muted', 'mode' ]);
+
   v = device.status;
   arcs.push({ name   : 'status'
             , raw    : v
@@ -1423,8 +1435,8 @@ var media_device_arcs = function(device) {
             , index  : 0.70
             });
 
-  for (prop in device.info) {
-    if (!device.info.hasOwnProperty(prop)) continue;
+  for (i = 0; i < props.length; i++) {
+    prop = props[i];
 
     v = device.info[prop];
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
@@ -1544,16 +1556,28 @@ var single_motive_instructions = function(device) {
 }
 
 var motive_device_arcs = function(device) {
-  var arcs, cooked, dist, prop, v;
+  var arcs, cooked, dist, i, prop, props, v;
 
   arcs = [];
+  props = sortprops(device.info, [ 'lastSample', 'location', 'velocity', 'heading', 'odometer', 'charger', 'intTemperature' ]);
 
-  for (prop in device.info) {
-    if (!device.info.hasOwnProperty(prop)) continue;
+  for (i = 0; i < props.length; i++) {
+    prop = props[i];
 
     v = device.info[prop];
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
+      case 'lastSample':
+        now = new Date().getTime();
+        arcs.splice(0, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'TIME'
+                          , cooked : d3.timestamp.ago(v)
+                          , value  : clip2bars(now - (new Date(v).getTime()), 0, 86400 * 1000)
+                          , index  : 0.70
+                          });
+        break;
+
       case 'location':
         if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
           dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
@@ -1568,28 +1592,28 @@ var motive_device_arcs = function(device) {
           cooked = v.toString();
           dist = -1;
         }
-        arcs.splice(0, 0, { name   : prop
+        arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
                           , cooked : cooked
                           , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
-                          , index  : 0.70
+                          , index  : 0.60
                           });
         break;
 
       case 'velocity':
-        arcs.splice(1, 0, { name   : prop
+        arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'SPEED'
                           , cooked : (v > 0) ? ((v / 1000).toFixed(0) + ' km/h' + ' / ' + (v * 2.23694).toFixed(0) + ' mph')
                                              : 'stationary'
                           , value  : clip2bars(v, 0, 50)
-                          , index  : 0.60
+                          , index  : 0.50
                           });
         break;
 
       case 'heading':
-        arcs.splice(2, 0, { name   : prop
+        arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'HEADING'
                           , cooked :   (v <  22.5) ? 'north' 
@@ -1602,22 +1626,22 @@ var motive_device_arcs = function(device) {
                                      : (v < 335.5) ? 'north-west'
                                      : 'north'
                           , value  : clip2bars((v > 180) ? (360 - v) : v, 0, 180)
-                          , index  : 0.50
-                          });
-        break;
-
-      case 'odometer':
-        arcs.splice(3, 0, { name   : prop
-                          , raw    : v
-                          , label  : 'ODOMETER'
-                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' mi'
-                          , value  : clip2bars(v % 20000, 0, 20000)
                           , index  : 0.40
                           });
         break;
 
-      case 'charger':
+      case 'odometer':
         arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'ODOMETER'
+                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' mi'
+                          , value  : clip2bars(v % 20000, 0, 20000)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'charger':
+        arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'CHARGER'
                           , cooked : v
@@ -1625,17 +1649,17 @@ var motive_device_arcs = function(device) {
                                      : v === 'regenerating'  ? 0.375
                                      : v === 'drawing'       ? 0
                                      : 0.25
-                          , index  : 0.30
+                          , index  : 0.20
                           });
         break;
 
       case 'intTemperature':
-        arcs.splice(5, 0, { name   : prop
+        arcs.splice(6, 0, { name   : prop
                           , raw    : v
                           , label  : 'INTERIOR'
                           , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, 17, 32)
-                          , index  : 0.20
+                          , index  : 0.10
                           });
         break;
 
@@ -1665,6 +1689,16 @@ var motive_device_arcs = function(device) {
             });
 
   return arcs;
+};
+
+var sortprops = function(info, ordered) {
+  var prop;
+
+  props = [];
+  for (prop in info) if (!!info.hasOwnProperty(prop)) props.push(prop);
+  props.sort(function(a, b) { return (ordered.indexOf(a) - ordered.indexOf(b)); });
+
+  return props;
 };
 
 // from http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points

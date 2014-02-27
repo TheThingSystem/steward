@@ -110,9 +110,11 @@ Mqtt.prototype.login = function(self) {
   opts = params.query || {};
   for (option in opts) if (opts.hasOwnProperty(option)) options[option] = opts[option];
 
-  self.path = params.pathname;
-  if (!self.path) self.path = '';
-  else if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
+  self.path = params.pathname || '';
+  if (self.path.indexOf('/') !== 0) self.path = '/' + self.path;
+  if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
+  self.path = self.path.split('/').slice(1).slice(0, -1).join('/');
+  if (self.path !== '') self.path += '/';
 
   method = (params.protocol === 'mqtts:') ? mqtt.createSecureClient : mqtt.createClient;
   self.mqtt = method(params.port, params.hostname, options).on('connect', function() {
@@ -129,6 +131,8 @@ Mqtt.prototype.login = function(self) {
   });
   if (!!self.info.subscriptions) {
     for (i = 0; i < self.info.subscriptions.length; i++) self.mqtt.subscribe(self.info.subscriptions[i]);
+  } else {
+    self.mqtt.subscribe(self.path.split('/')[0] + '/#');
   }
 };
 

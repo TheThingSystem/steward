@@ -130,6 +130,7 @@ exports.start = function() {
                                    , heading        : 'degrees'
                                    , velocity       : 'meters/second'
                                    , odometer       : 'kilometers'
+                                   , range          : 'kilometers'
  */
                                    }
                     }

@@ -772,7 +772,6 @@ var bootable = { '':
                    , username   : ''
                    , passphrase : ''
                    , crtPath    : ''
-                   , subscriptions : ''
                    }
                  }
                , nest           :
