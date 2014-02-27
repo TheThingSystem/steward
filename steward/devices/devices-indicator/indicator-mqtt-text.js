@@ -94,7 +94,7 @@ util.inherits(Mqtt, indicator.Device);
 
 
 Mqtt.prototype.login = function(self) {
-  var method, option, options, opts, params;
+  var i, method, option, options, opts, params;
 
   params = url.parse(self.info.url, true);
   if (!params.port) params.port = (params.protocol === 'mqtts:') ? 8883 : 1883;
@@ -127,6 +127,9 @@ Mqtt.prototype.login = function(self) {
     self.mqtt = null;
     setTimeout(function() { self.login(self); }, 600 * 1000);
   });
+  if (!!self.info.subscriptions) {
+    for (i = 0; i < self.info.subscriptions.length; i++) self.mqtt.subscribe(self.info.subscriptions[i]);
+  }
 };
 
 Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
@@ -147,8 +150,9 @@ Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
       self.info[param] = params[param];
       updateP = true;
     }
-    if (updateP) self.setInfo();
+    if (!updateP) return true;
 
+    self.setInfo();
     if (!!self.mqtt) {
       self.mqtt = null;
       setTimeout(function() { self.login(self); }, 0);
@@ -191,10 +195,14 @@ var validate_create = function(info) {
 
   if ((!!info.crtPath) && (info.crtPath.indexOf('/') !== -1)) result.invalid.push('crtPath');
 
+// NB: maybe we ought to be syntax checking the values for these two?
   if ((!!info.measurements) && (!util.isArray(info.measurements))) result.invalid.push('measurements');
   if ((!!info.sensors) && (!util.isArray(info.sensors))) result.invalid.push('sensors');
 
   if ((!!info.priority) && (!winston.config.syslog.levels[info.priority])) result.invalid.push('priority');
+
+// NB: maybe we ought to be syntax checking the values for these?
+  if ((!!info.subscriptions) && (!util.isArray(info.subscriptions))) result.invalid.push('subscriptions');
 
   return result;
 };
@@ -247,6 +255,7 @@ exports.start = function() {
                                    , measurements : measurements
                                    , sensors      : []
                                    , priority     : utility.keys(winston.config.syslog.levels)
+                                   , subscriptions: []
                                    }
                     }
       , $validate : { create     : validate_create
