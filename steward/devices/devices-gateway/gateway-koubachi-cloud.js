@@ -137,9 +137,8 @@ Cloud.prototype.addstation = function(self, station) {
   udn = 'koubachi:' + station.mac_address;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
-    if (!sensor) return;
-
-    return sensor.update(sensor, params);
+    if (!!sensor) sensor.update(sensor, params);
+    return;
   }
 
   name = station.hardware_product_type;
@@ -201,7 +200,8 @@ Cloud.prototype.addplant = function(self, plant) {
   udn = 'koubachi:' + plant.id;
   if (!!devices.devices[udn]) {
     device = devices.devices[udn].device;
-    return device.update(device, params);
+    if (!!device) device.update(device, params);
+    return;
   }
 
   info =  { source: self.deviceID, gateway: self, params: params };

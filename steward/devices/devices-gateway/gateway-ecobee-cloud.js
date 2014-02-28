@@ -379,7 +379,7 @@ Cloud.prototype.scan = function(self) {
       udn = 'ecobee:' + id;
       if (!!devices.devices[udn]) {
         sensor = devices.devices[udn].device;
-        if ((!!sensor.revision) && (sensor.revision === revision)) {
+        if ((!!sensor) && (!!sensor.revision) && (sensor.revision === revision)) {
           sensor.updated = new Date().getTime();
           continue;
         }

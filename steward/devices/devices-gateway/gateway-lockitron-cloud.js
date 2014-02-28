@@ -84,7 +84,6 @@ Cloud.prototype.login = function(self) {
       body += chunk.toString();
     }).on('close', function() {
       logger.warning('device/' + self.deviceID, { event:'close', diagnostic: 'premature eof' });
-      console.log('https error: premature close');
     }).on('clientError', function(err, socket) {/* jshint unused: false */
       logger.warning('device/' + self.deviceID, { event:'clientError', diagnostic: err.message });
     }).on('end', function() {
@@ -106,7 +105,7 @@ Cloud.prototype.login = function(self) {
       udn = 'lockitron:' + json.data.lock.id;
       if (!devices.devices[udn]) return;
       lock = devices.devices[udn].device;
-      lock.webhook(lock, 'webhook', json.data);
+      if (!!lock) lock.webhook(lock, 'webhook', json.data);
     });
   });
 };
@@ -136,7 +135,8 @@ Cloud.prototype.scan = function(self) {
       udn = 'lockitron:' + entry.id;
       if (!!devices.devices[udn]) {
         lock = devices.devices[udn].device;
-        return lock.update(lock, params, status);
+        if (!!lock) lock.update(lock, params, status);
+        return;
       }
 
       params.status = status;

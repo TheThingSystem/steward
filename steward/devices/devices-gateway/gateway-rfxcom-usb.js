@@ -99,9 +99,8 @@ Gateway.prototype.thX = function(self, evt) {
   udn = 'rfxcom:th:' + evt.id;
   if (!!devices.devices[udn]) {
     sensor = devices.devices[udn].device;
-    if (!sensor) return;
-
-    return sensor.update(sensor, params);
+    if (!!sensor) sensor.update(sensor, params);
+    return;
   }
 
   name = (!!evt.humidity) ? 'Thermo-Hygro Sensor' : 'Temperature Sensor';
@@ -141,7 +140,8 @@ Gateway.prototype.lighting2 = function(self, evt) {
   udn = 'rfxcom:lighting2:' + evt.id;
   if (!!devices.devices[udn]) {
     lights = devices.devices[udn].device;
-    return lights.update(lights, params);
+    if (!!lights) lights.update(lights, params);
+    return;
   }
 
   name = evt.subtype || 'Siemens';

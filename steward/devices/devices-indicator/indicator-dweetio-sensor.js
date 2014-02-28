@@ -127,7 +127,7 @@ DweetIO.prototype.update = function(self, deviceID, point) {
   self.dweetio.dweet_for(self.info.thing, point, self.info.key || null, function(err, dweet) {
       /* jshint unused: false */
 
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'dweet_for', diagnostic: err.message });
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'dweet_for', diagnostic: err.message || err });
   });
 };
 

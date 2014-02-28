@@ -259,7 +259,7 @@ var update = function(udn, data, timestamp) {
   if ((!devices.devices[udn]) || (!devices.devices[udn].device)) return;
 
   device = devices.devices[udn].device;
-  return device.update(device, data, timestamp);
+  if (!!device) device.update(device, data, timestamp);
 };
 
 

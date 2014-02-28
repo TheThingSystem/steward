@@ -5,18 +5,91 @@ ChangeLog
 ## Commit - TBD
 
 ### Steward
+- experimental bootstrap-mac.sh script created
+- API
+    - add videlicet property (viz.) when reporting a duplicate
+    - add bullet-proofing to group membership when modifying a group
+    - tighten text in oneshot
+- Discovery
+    - ignore VirtualBox interfaces, thanks @alexking
+    - upgrade to latest arp-a module
+- Security
+    - more extensive generation of self-signed certificates
+    - numerous small fixes to access control
 
 ### TAAS (Things as a Service)
 
 ### TSRP (Thing Simple Reporting Protocol)
 
 ### Places
+- add current and forecast weather
 
 ### Things
+- all: make "wake" a generic device task (if IP address defined for device instance)
+    - if argument is empty to device.expand (the routine that interprets '.[ ... ].'), it also returns null
+    - invoke device.expand in the lower-api, not the upper-api (to avoid JSON mangling)
+    - setState() on updates was broken, not any more
+- mDNS and UPNP:
+    - finalize handling of deviceType information
+- device/climate:
+    - normalize for more code re-use
+    - ecobee/control: fix misnamed property ('apikey' v. 'appKey')
+    - flower-power/sensor:
+        - upgrade to latest node-flower-power-cloud module
+        - fix typo ('soil_mosture' v. 'soil_moisture')
+    - samsung/control: more preparation for release
+- device/gateway
+    - all: child device safety checks to avoid spurious crashes
+    - nest/cloud: temporarily scan intently on arp traffic
+    - reelyactive/hub: attempt to avoid creating bogus reels
+- device/indicator:
+    - deweetio/sensor: NEW
+    - irtoy/ifrared: disabled until completion
+    - mqtt/text:
+        - was text/mqtt
+        - subscribe to first term of topic + '/#'
+    - nma/text: NEW, thanks @torkelsson
+    - wink/dial: typo ('spit' v. 'split')
+    - xively/sensor: invoke setInfo() when appropriate
+- device/lighting:
+    - tcpi/bulb:
+        - remove heuristic trying to distinguish between bulbs and downlights, it's not deterministic
+        - better device naming
+        - upgrade to latest node-greenwave-gop module
+    - template: more examples
+- device/media:
+    - normalize for more code re-use
+    - chromecast/video: upgrade to latest eureka-dongle module
+- device/motive:
+    - automatic/vehicle: NEW
+    - lockitron/lock: NEW
+    - tesla/model-s:
+        - ignore HTTP response code 408 from server (they are somewhat plentious)
+        - upgrade to latest teslams module
+        - normalize for more code re-use
+    - irobot/floor: disabled until completion
+- device/presence:
+    - ble/fob: add Chipolo
+    - owntracks/mobile:
+        - was mqttitude/mobile
+        - ignore ZERO_MATCHES error on geocode
+- device/switch:
+    - wink/onoff: add missing on/off performers
 
 ### HTML5/D3 client
+- bootstrap screen
+- do not allow long device names to scroll past name field
+- fixes for 'metric' display
+- support 'container' devices (e.g., those that contain plugs or gauges, etc.) with "double drill-down"
+- fixes for cursor focus
+- various fixes for displaying presence and sensor information
+- display map for presence and motive locations
+- display current/forecast conditions
+- display devices under review
 
 ### User management client (client.html)
+- prepare allow 'master' role to see QRcodes for clients
+- add 'back' link
 
 ### Developer clients
 

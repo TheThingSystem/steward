@@ -78,7 +78,7 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
       parameter = datum.message;
       if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
 
-      self.mqtt.publish(self.path + 'logs' + category, JSON.stringify(datum), { retain: true });
+      self.mqtt.publish(self.path + 'logs/' + category, JSON.stringify(datum), { retain: true });
     }
   });
 

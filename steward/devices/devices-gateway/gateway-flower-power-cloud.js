@@ -103,7 +103,7 @@ Cloud.prototype.scan = function(self) {
       udn = 'flower-power:plant:' + k;
       if (!!devices.devices[udn]) {
         sensor = devices.devices[udn].device;
-        sensor.update(sensor, params);
+        if (!!sensor) sensor.update(sensor, params);
         continue;
       }
 
@@ -150,7 +150,7 @@ Cloud.prototype.scan = function(self) {
       udn = 'flower-power:sensor:' + k;
       if (!!devices.devices[udn]) {
         sensor = devices.devices[udn].device;
-        sensor.update(sensor, params);
+        if (!!sensor) sensor.update(sensor, params);
         continue;
       }
 
