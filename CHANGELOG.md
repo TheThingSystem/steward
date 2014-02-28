@@ -43,12 +43,12 @@ ChangeLog
     - nest/cloud: temporarily scan intently on arp traffic
     - reelyactive/hub: attempt to avoid creating bogus reels
 - device/indicator:
-    - deweetio/sensor: NEW
+    - deweetio/sensor: NEW (complete)
     - irtoy/ifrared: disabled until completion
     - mqtt/text:
         - was text/mqtt
         - subscribe to first term of topic + '/#'
-    - nma/text: NEW, thanks @torkelsson
+    - nma/text: NEW (complete), thanks @torkelsson
     - wink/dial: typo ('spit' v. 'split')
     - xively/sensor: invoke setInfo() when appropriate
 - device/lighting:
@@ -61,8 +61,8 @@ ChangeLog
     - normalize for more code re-use
     - chromecast/video: upgrade to latest eureka-dongle module
 - device/motive:
-    - automatic/vehicle: NEW
-    - lockitron/lock: NEW
+    - automatic/vehicle: NEW (mostly complete)
+    - lockitron/lock: NEW (complete)
     - tesla/model-s:
         - ignore HTTP response code 408 from server (they are somewhat plentious)
         - upgrade to latest teslams module
@@ -92,7 +92,9 @@ ChangeLog
 - add 'back' link
 
 ### Developer clients
-
+- An [iOS library](https://github.com/TheThingSystem/steward-ios-library) to interface with the Things-as-a-service, client-side
+- A [node.js module](https://github.com/TheThingSystem/node-thing-client) to interface with TheThingSystem, as a thing
+- A [node.js module](https://github.com/TheThingSystem/node-taas-client) to interface with the Things-as-a-service, client-side
 ### Utilities
 
 ## Release 1.4 "Resolutions" - January 24, 2014

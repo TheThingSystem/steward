@@ -80,24 +80,26 @@ Cloud.prototype.login = function(self) {
   }, function(request, response) {
     var body = '';
 
-    if ((request.method !== 'GET') && (request.method !== 'POST')) {
+console.log('>>> ' + request.method);
+    if ((request.method !== 'GET') && (request.method !== 'POST') && (request.method !== 'PUT')) {
       logger.info('device/' + self.deviceID, { event: 'request', method: request.method });
 
-      response.writeHead(405, { Allow: 'GET, POST' });
+      response.writeHead(405, { Allow: 'GET, POST, PUT' });
       return response.end();
     }
 
     request.setEncoding('utf8');
     request.on('data', function(chunk) {
+console.log('>>> data: ' + chunk.toString());
       body += chunk.toString();
     }).on('close', function() {
       logger.warning('device/' + self.deviceID, { event:'close', diagnostic: 'premature eof' });
-      console.log('https error: premature close');
     }).on('clientError', function(err, socket) {/* jshint unused: false */
       logger.warning('device/' + self.deviceID, { event:'clientError', diagnostic: err.message });
     }).on('end', function() {
       var client, data, parts, requestURL, udn, vehicle;
 
+console.log('>>> end: ' + body);
       var loser = function (message) {
         logger.error('device/' + self.deviceID, { event: 'request', diagnostic: message });
 
@@ -105,7 +107,8 @@ Cloud.prototype.login = function(self) {
         response.end(message);
       };
 
-      if (request.method === 'POST') {
+// NB: documentation says POST, but i'm seeing PUT...
+      if ((request.method === 'POST') || (request.method === 'PUT')) {
         try { data = JSON.parse(body); } catch(ex) { return loser(ex.message); }
         if (!data.type) return loser('webhook missing type parameter');
         if ((!data.user) || (!data.user.id)) return loser('webhook missing user.id');
@@ -113,10 +116,14 @@ Cloud.prototype.login = function(self) {
         response.writeHead(200, { 'content-length' : 0 });
         response.end();
 
-        udn = 'automatic:' + data.user.id;
+        udn = 'automatic:' + data.vehicle.id;
+console.log('>>> udn='+udn);
         if (!devices.devices[udn]) return;
+
         vehicle = devices.devices[udn].device;
-        return vehicle.webhook(vehicle, 'webhook', data);
+console.log('>>> WEBHOOK: ' + (!!vehicle));
+        if (!!vehicle) vehicle.webhook(vehicle, 'webhook', data);
+        return;
       }
 
       parts = url.parse(request.url, true);
@@ -181,7 +188,7 @@ Cloud.prototype.scan = function(self, client) {
       udn = 'automatic:' + entry.id;
       if (!!devices.devices[udn]) {
         vehicle = devices.devices[udn].device;
-        vehicle.update(vehicle, params);
+        if (!!vehicle) vehicle.update(vehicle, params);
         continue;
       }
 
@@ -222,8 +229,10 @@ Cloud.prototype.scan = function(self, client) {
 
         udn = 'automatic:' + entry.vehicle.id;
         if (!devices.devices[udn]) continue;
+
         vehicle = devices.devices[udn].device;
-        vehicle.webhook(vehicle, 'trip', { location: entry.end_location, created_at: entry.end_time, type: 'trip:summary' });
+        if (!!vehicle) vehicle.webhook(vehicle, 'trip',
+                                       { location: entry.end_location, created_at: entry.end_time, type: 'trip:summary' });
       }
     });
   });

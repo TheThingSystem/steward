@@ -213,7 +213,7 @@ exports.discover = function(info, callback) {
       if (!info.device.name) info.device.name = 'device/' +  row.deviceID;
       devices[deviceUID].device = new (makers[deviceType])(row.deviceID, deviceUID, info);
       devices[deviceUID].proplist = Device.prototype.proplist;
-      logger.info('found ' + info.device.name, { deviceType: deviceType });
+      logger.info('found ' + info.device.name, { deviceID: row.deviceID, deviceType: deviceType });
 
       db.run('UPDATE devices SET deviceIP=$deviceIP, deviceMAC=$deviceMAC, updated=datetime("now") WHERE deviceID=$deviceID',
          { $deviceIP: info.ipaddress, $deviceMAC: deviceMAC, $deviceID : row.deviceID }, function(err) {
@@ -241,7 +241,7 @@ exports.discover = function(info, callback) {
       if (!info.device.name) info.device.name = 'device/' +  deviceID;
       devices[deviceUID].device = new (makers[deviceType])(deviceID, deviceUID, info);
       devices[deviceUID].proplist = Device.prototype.proplist;
-      logger.notice('adding ' + info.device.name, { deviceType: deviceType });
+      logger.notice('adding ' + info.device.name, { deviceID: deviceID, deviceType: deviceType });
 
       if (!!callback) callback(null, deviceID);
     });
