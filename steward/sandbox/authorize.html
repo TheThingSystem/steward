@@ -1,0 +1,644 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>&#x24e3; client bootstrap</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<style>
+  body {
+    background: #16161D;
+    color: white;
+  	font-size: 13pt;
+	font-family: "Trebuchet MS";    
+	text-align: center;
+  }
+  
+a { color: #fff; }  
+h1 { text-transform: uppercase; font-size: 22pt; font-family: "Roadgeek 2005 Series D";  }
+
+#main { text-align: left; margin: 20px 72px; }
+
+table.short-form td { padding: 10px; }
+
+.form-container { background: url('d3/popovers/assets/window.form.svg') no-repeat; width: 600px; height: 250px; padding: 30px; margin: 30px auto; }
+.form-container-short { background: url('d3/popovers/assets/window.form.short.svg') no-repeat; width: 600px; height: 180px; padding: 30px; margin: 30px auto; }
+.form-container table { width: 600px; }
+
+/* log in screen elements */
+#login {
+        position: absolute;
+        width: 600px;
+        height: 210px;
+        text-align: center;
+}
+
+#login form {
+		width: 420px;
+		margin: -10px 90px;
+}
+
+  
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+  
+</style>
+
+<script type='text/javascript' src='d3/d3.v2.js'></script>
+
+<script>
+
+var reqno = 1;
+var callbacks = {};
+
+var users = {};
+var nextClientID = 1;
+
+var add_callback = function(cb) {
+  callbacks[reqno.toString()] = cb;
+
+  return reqno++;
+};
+
+var create_user = function(ws, name, comments, role, cb) {
+  var u, x = name.indexOf('/');
+
+  if ((x === -1) && (!!users['user/' + name])) {
+    name += '/' + nextClientID;
+    x = name.indexOf('/');
+  }
+  if (role !== 'master') {
+    for (u in users) if (users.hasOwnProperty(u)) break;
+    if (!u) role = 'master';
+  }
+
+  ws.send(JSON.stringify({ path       : '/api/v1/user/create/' + name
+                         , requestID  : add_callback(cb)
+                         , name       : (x !== -1) ? name.slice(x + 1) : name
+                         , comments   : (x !== -1) ? '' : comments
+                         , role       : role
+                         , clientName : (x !== -1) ? comments : 'bootstrap'
+                         }));
+};
+
+var authenticate_user = function(ws, name, code, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/authenticate/' + name
+                         , requestID : add_callback(cb)
+                         , response  : code
+                         }));
+};
+
+var list_users = function(ws, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/list/'
+                         , requestID : add_callback(cb)
+                         , options   : { depth: 'all' }
+                         }));
+};
+
+
+var ws = null;
+
+var validate_create = function() {
+  var create   = document.forms.createForm
+    , name     = create.userName.value
+    , comments = create.userComments.value
+    , role     = create.userRole.value
+    , qrcode   = document.images.qrcode
+    , otpURL   = document.getElementById('otpURL')
+    , otpWords  = document.getElementById('otpWords')
+    , status   = document.getElementById('status')
+    , test     = document.forms.testForm
+    ;
+
+  qrcode.src = 'qrcode.png';
+  otpURL.href = '';
+  status.innerHTML = '';
+
+  if (!!name) name = name.replace(/^\s+|\s+$/g, '');
+  if ((!name)
+        || (name.length       ===  0)
+        || (name.search(/\s/) !== -1)
+        || (name.indexOf('-') ===  0)
+        || (name.indexOf('.') !== -1)
+        || (name.indexOf(':') !== -1)) {
+    alert('invalid short name');
+    return false;
+  }
+
+  if (!!comments) comments = comments.replace(/^\s+|\s+$/g, '');
+  if (!role) role = 'guest';
+
+  create_user(ws, name, comments, role, function(message) {
+    var w, x, y, z;
+
+    if (!!message.result) {
+      listall(true);
+
+      qrcode.src = message.result.authenticatorURL;
+      otpURL.href = message.result.otpURL;
+      status.innerHTML = '<strong><font color="green">success.</strong></font>';
+
+      otpWords.innerHTML = '';
+      w = otpURL.search;
+      x = w.indexOf('secret=');
+      if (x !== -1) {
+        w = w.substring(x + 7);
+        x = w.indexOf('&');
+        if (x !== -1) w = w.substring(0, x);
+        y = '';
+        z = 0;
+        while (w.length > 0) {
+          if (!(z++ % 8)) y += '</tr><tr>';
+          y += '<td>' + w.substring(0, 4) + '</td>';
+          w = w.substring(4);
+        }
+        y = '<table><tr>' + y + '</tr></table>';
+        otpWords.innerHTML = y;
+      }
+
+      x = name.indexOf('/');
+      if (x !== -1) name = name.slice(0, x);
+      test.userName.value = name + '/' + message.result.client;
+      return true;
+    }
+
+    if (!!message.error) {
+      status.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+      return true;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+var validate_test = function() {
+  var test     = document.forms.testForm
+    , name     = test.userName.value
+    , code     = test.userCode.value
+    , status2  = document.getElementById('status2')
+    ;
+
+  status2.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    alert('invalid login code');
+    return false;
+  }
+
+  authenticate_user(ws, name, code, function(message) {
+    if (!!message.result) {
+      listall(true);
+      status2.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      return true;
+    }
+
+    if (!!message.error) {
+      status2.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+      return true;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+var listall = function(fromCreation) {
+  list_users(ws, function(message) {
+    var client, clientID, firstP, table, text, user, x, y;
+    
+    table = '';
+    
+    if (message.hasOwnProperty('result') && message.result.hasOwnProperty('users')) {
+      users = message.result.users;
+    } else users = {};
+    for (x in message.result.users) {
+      if (!message.result.users.hasOwnProperty(x)) continue;
+      user = message.result.users[x];
+        
+      for (y = 0; y < user.clients.length; y++) {
+        clientID = parseInt(user.clients[y], 10);
+        if (nextClientID < clientID) nextClientID = clientID + 1;
+      }
+
+      firstP = true;
+
+      for (y in message.result.clients) {
+        if (!message.result.clients.hasOwnProperty(y)) continue;
+        client = message.result.clients[y];
+        if (y.indexOf(x + '/') !==  0) continue;
+
+        clientID = y.split('/').slice(1).join('/');
+
+        table += '<tr><td>';
+        if (firstP) {
+          firstP = false;
+          table += user.name + '&nbsp;&nbsp;</td><td>' + (user.role || '******') + '&nbsp;&nbsp;</td><td>' + user.comments;
+        } else table += '</td><td></td><td>';
+        table += '&nbsp;&nbsp;</td><td>' + clientID + '&nbsp;&nbsp</td><td>' + client.name + '&nbsp;&nbsp;</td><td>'
+                 + client.comments + '&nbsp;&nbsp;</td><td>' + last_login(client.lastLogin) + '</td></tr>';
+      }
+
+      if (firstP) {
+        table += '<tr><td>' + user.name + '&nbsp;&nbsp;</td><td></td><td>' + user.comments
+                 + '&nbsp;&nbsp;</td><td></td><td></td><td></td><td>' + last_login(user.lastLogin) + '</td></tr>';
+      }
+    }
+
+    if (table !== '') {
+      text = '<table><tr><td>User</td><td>Role</td><td>User Info&nbsp;&nbsp;</td>'
+              + '<td>Client</td><td>Name</td><td>Client Info&nbsp;&nbsp;</td><td>Last Login</td></tr>'
+              + table + '</table>';
+      if (!fromCreation) showLogin();
+    } else text = 'None.';
+
+    document.getElementById('user-container').innerHTML = text;
+  });
+  
+  function objHasProps(obj) {
+    for (var prop in obj) {
+      if (obj.hasOwnProperty(prop)) return true;
+    }
+    return false;
+  };
+};
+
+var last_login = function(time) {
+  if (!!time) return time_ago(time, true);
+  return '';
+}
+
+var showLogin = function() {
+  var div, form, table, td, tr;
+  
+  disableCreate(true);
+  
+  d3.select("#main")
+    .style("opacity", 1)
+    .transition()
+    .duration(500)
+    .style("opacity", 0);
+  div = d3.select("body")
+  	.append("div")
+  	.attr("id", "login")
+  	.classed("form-container-short", true)
+  	.style("display", "block")
+  	.style("left", function() { return ((document.body.offsetWidth / 2) - 322) + "px"; })
+  	.style("top", "-240px");
+  form = div.append("form")
+  	.attr("name", "loginForm")
+  	.attr("action", "#");
+  table = form.append("table")
+    .classed("short-form", true);
+    
+  tr = table.append("tr");
+  tr.append("td").text("Client ID:");
+  tr.append("td")
+  	.append("input")
+  	  .attr("type", "text")
+  	  .attr("name", "userName");
+  tr.append("td").text("e.g., \'root/1\'");
+  
+  tr = table.append("tr");
+  tr.append("td").text("Login code:");
+  tr.append("td")
+  	.append("input")
+  	  .attr("type", "text")
+  	  .attr("name", "userCode")
+  	  .attr("onkeyup", "javascript:submitLogin(event)");
+  tr.append("td").text("e.g., \'123456\'");
+
+  tr = table.append("tr");
+  tr.append("td");
+  td = tr.append("td")
+    .style("text-align", "center");
+  td.append("img")
+  	  .attr("src", "d3/popovers/assets/login.svg")
+  	  .style("cursor", "pointer")
+  	  .on("click", login);
+  tr = table.append("tr")
+    .append("td")
+  	.attr("colspan", "3")
+  	.style("text-align", "center")
+  	.style("padding-bottom", "15px")
+    .attr("id", "loginStatus");
+
+  d3.select("#login")
+    .style("top", "-240px")
+    .transition()
+    .duration(500)
+    .style("top", function() { var top = window.pageYOffset || document.documentElement.scrollTop; return top + 150 + "px" });
+    
+};
+
+var hideLogin = function() {
+  d3.select("#login")
+    .transition()
+    .duration(300)
+    .style("top", "-240px")
+    .remove();
+  d3.select("#main")
+    .style("opacity", 0)
+    .transition()
+    .duration(300)
+    .style("opacity", 1);
+  disableCreate(false);
+}
+
+var submitLogin = function(evt) {
+    if (evt.keyCode === 13) login();
+}
+
+var disableCreate = function(state) {
+  document.forms["createForm"].userName.disabled = state;
+  document.forms["createForm"].userComments.disabled = state;
+  document.forms["createForm"].userRole.disabled = state;
+  document.getElementById("create-button").style.display = (state) ? "none" : "inline";
+}
+
+var login = function() {
+  var form         = document.forms.loginForm
+    , name         = form.userName.value
+    , code         = form.userCode.value
+    , loginStatus  = document.getElementById('loginStatus')
+    ;
+
+  loginStatus.innerHTML = '';
+
+  if (!!code) code = code.replace(/^\s+|\s+$/g, '');
+  if ((!code) || (code.length === 0)) {
+    return false;
+  }
+  
+  authenticate_user(ws, name, code, function(message) {
+    if (!!message.result) {
+      loginStatus.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
+      disableCreate(false);
+      setTimeout(function() {
+        hideLogin();
+      }, 2 * 1000);
+//      return true;
+    }
+
+    if (!!message.error) {
+      loginStatus.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
+//      return true;
+    }
+
+    return false;
+  });
+  return false;
+};
+
+// http://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
+var time_ago = function(time, agoP) {
+  switch (typeof time) {
+    case 'number':
+      break;
+
+    case 'string':
+      time = +new Date(time);
+      break;
+
+    case 'object':
+      if (time.constructor === Date) time = time.getTime();
+      break;
+
+    default:
+      time = +new Date();
+      break;
+  }
+  var time_formats = [
+    [         60, 's'      ,                   1], // 60
+    [        120, '1m',            '1m from now'], // 60*2
+    [       3600, 'm',                        60], // 60*60, 60
+    [       7200, '1h',            '1h from now'], // 60*60*2
+    [      86400, 'h',                      3600], // 60*60*24, 60*60
+    [     172800, 'yesterday',        'tomorrow'], // 60*60*24*2
+    [     604800, 'd',                     86400], // 60*60*24*7, 60*60*24
+    [    1209600, 'last week',       'next week'], // 60*60*24*7*4*2
+    [    2419200, 'w',                    604800], // 60*60*24*7*4, 60*60*24*7
+    [    4838400, 'last month',     'next month'], // 60*60*24*7*4*2
+    [   29030400, 'months',              2419200], // 60*60*24*7*4*12, 60*60*24*7*4
+    [   58060800, 'last year',       'next year'], // 60*60*24*7*4*12*2
+    [ 2903040000, 'years',              29030400], // 60*60*24*7*4*12*100, 60*60*24*7*4*12
+    [ 5806080000, 'last century', 'next century'], // 60*60*24*7*4*12*100*2
+    [58060800000, 'centuries',        2903040000]  // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
+  ];
+  var seconds = (+new Date() - time) / 1000
+    , token = agoP ? 'ago' : ''
+    , list_choice = 1;
+
+  if (seconds < 0) {
+    seconds = Math.abs(seconds);
+    token = 'from now';
+    list_choice = 2;
+  } else if (seconds < 1) {
+    return 'now';
+  }
+
+  var i = 0
+    , format;
+  while (format = time_formats[i++])
+    if (seconds < format[0]) {
+      if (typeof format[2] == 'string') return format[list_choice];
+      return Math.floor(seconds / format[2]) + format[1] + ' ' + token;
+    }
+  return time;
+}
+
+var events = {};
+
+var go = function(steward, i) {
+  ws = new WebSocket(steward.protocol + '//' + steward.hostname + ':' + steward.port + '/manage');
+
+  ws.onopen = function(event) {
+
+    ws.send(JSON.stringify({ path        : '/api/v1/user/prime/1/1'
+                           , fingerprint : '54:cc:01:fa:af:20:c4:76:80:a7:d0:79:29:2f:13:6a'
+                           , requestID   : add_callback(function(message) { /* console.log(JSON.stringify(message)); */ })
+                           }));
+    listall(false);
+    return;
+
+/*
+    ws.send(JSON.stringify({ path         : '/api/v1/thing/pair/testing123'
+                           , name         : 'testing456'
+                           , requestID    : add_callback(function(message) { console.log(message); })
+                           }));
+    ws.send(JSON.stringify({ path         : '/api/v1/thing/hello/4'
+                           , response     : '441587'
+                           , requestID    : add_callback(function(message) { 
+      console.log(message);
+ */
+
+      ws.send(JSON.stringify({ path       : '/api/v1/thing/prototype'
+                             , things     :
+                               { '/device/presence/mobile/iOS' :
+                                 { name                        : true
+                                 , status                      : [ 'present', 'absent', 'recent' ]
+                                 }
+                               }
+                             , requestID  : add_callback(function(message) {
+        console.log(message);
+
+        ws.send(JSON.stringify({ path     : '/api/v1/thing/register'
+                               , things   :
+                                 { 'thingID1'   :
+                                   { devicetype : '/device/presence/mobile/iOS'
+                                   , name       : 'MTR\'s iPhone5'
+                                   , status     : 'present'
+                                   , device     :
+                                     { name     : 'iPhone5'
+                                     , maker    : 'Apple Inc.'
+                                     , model    :
+                                       { name   : 'iPhone5'
+                                       , number : 'MD665LL/A'
+                                       }
+                                     , unit     : 
+                                       { serial : 'F23C91AEC05E'
+                                       , udn    : '195a42b0-ef6b-11e2-99d0-f23c91aec05e'
+                                       }
+                                     }
+                                   , updated    : new Date().getTime()
+                                   }
+                                 }
+                               , requestID  : add_callback(function(message) {
+            var thingID;
+
+            console.log(message);
+            if (!message.things.thingID1) return console.log('no response for thingID1');
+            if (!message.things.thingID1.success) return console.log('not successful for thingID1');
+            if (!message.things.thingID1.thingID) return console.log('no thingID for thingID1');
+            thingID = message.things.thingID1.thingID;
+
+            setInterval(function() {
+              var eventID
+                , report = { path      : '/api/v1/thing/report'
+                           , events    : {}
+                           , requestID : add_callback(function(message) { console.log(message); })
+                           }
+                , update = { path      : '/api/v1/thing/update'
+                           , things    : {}
+                           , requestID : add_callback(function(message) { console.log(message); })
+                           };
+
+              for (eventID in events) if (events.hasOwnProperty(eventID)) report.events[eventID] = { reason : 'observe' };
+              ws.send(JSON.stringify(report));
+
+              update.things[thingID] = { name    : reqno.toString()
+                                       , status  : 'present'
+                                       , updated : new Date().getTime()
+                                       };
+              ws.send(JSON.stringify(update));
+            }, 30 * 1000);
+          })
+        }));
+      })
+                             }));
+/*
+      })}));
+ */
+  };
+
+  ws.onmessage = function(event) {
+    var eventID, id, message;
+
+    try {
+      message = JSON.parse(event.data);
+      id = message.requestID.toString();
+      if ((!!message.events) || (!!message.tasks)) {
+        switch(message.path) {
+          case '/api/v1/thing/observe':
+            for (eventID in message.events) {
+              if (!message.events.hasOwnProperty(eventID)) continue;
+              if (message.events[eventID].testOnly) console.log('testOnly');
+              else events[eventID] = { observe: message.events[eventID].observe, parameter: message.events[eventID].parameter };
+              message.events[eventID].status = 'success';
+            }
+            message.path = '/api/v1/thing/report';
+            ws.send(JSON.stringify(message));
+            break;
+
+          default:
+            console.log('unsolicited');
+            console.log(message);
+            break;
+        }
+      } else if ((!!callbacks[id]) && ((callbacks[id])(message))) delete(callbacks[id]);
+    } catch(ex) {
+      console.log(ex.message);
+    }
+  };
+
+  ws.onclose = function(event) {
+    console.log('onclose'); console.log(event);
+
+    setTimeout (function() { go(steward, i + 1); }, 2500);
+  };
+
+  ws.onerror = function(event) {
+    console.log('onerror'); console.log(event);
+
+    try { ws.close (); } catch (ex) {}
+    ws = null;
+    setTimeout (function() { go(steward, i + 1); }, 5000);
+  };
+};
+
+var insertClientButton = function() {
+  var img, td
+  var search = window.location.search.substring(1);
+  search = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
+  if (!!search.clientURL) {
+    td = document.createElement('td');
+    img = document.createElement('img');
+    img.src = 'd3/popovers/assets/back-to-client-login.svg'
+    img.setAttribute('onclick', "javascript:window.location.href = '" + decodeURIComponent(search.clientURL) + "'");
+    td.appendChild(img);
+    document.getElementById('authTestButtons').appendChild(td);
+  }
+}
+
+var main = function() {
+	// redirect https://127.0.0.1 to http
+	if (window.location.hostname === "127.0.0.1" && window.location.protocol === "https:") {
+		var newURL = "http://127.0.0.1:8887" + window.location.pathname;
+		window.location.href = newURL;
+		return;
+	}
+	
+	insertClientButton()
+
+  var steward = { hostname : window.location.hostname
+                 , port     : window.location.port
+                 , protocol : (window.location.protocol.indexOf('https:') === 0) ? 'wss:' : 'ws:'
+                 };
+
+  go(steward, 1);
+};
+</script>
+</head>
+
+<body onload='main();'>
+<img src="d3/images/thing.sys.logo.black.svg" />
+
+<div id='main' style='margin: 30px 300px; text-align: center;'>
+	<h1>Steward Authorized</h1>
+
+	<p>When a user goes through the redirect process to authorize the steward to access their account (e.g., for automatic), at the end of the process they need to get a page with is #thethingsystem branded and has a paragraph block. This is that page.</p>
+
+</div>
+<img src="d3/popovers/assets/close-button.svg" />
+
+</body>
+</html>
