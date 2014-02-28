@@ -585,6 +585,8 @@ var mqtt_onmessage = exports.mqtt_onmessage = function(topic, message, packet) {
 
     try { entry = JSON.parse(message); } catch(ex) { return console.log(ex); }
 
+    if ((!entry._type) || (!entry.tst)) return;
+
     status = entry._type === 'location' ? 'present' : 'recent';
     params = { lastSample: entry.tst * 1000 };
     if (entry._type === 'location') {
