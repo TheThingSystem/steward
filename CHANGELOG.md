@@ -18,8 +18,10 @@ ChangeLog
     - numerous small fixes to access control
 
 ### TAAS (Things as a Service)
+- no changes
 
 ### TSRP (Thing Simple Reporting Protocol)
+- no changes
 
 ### Places
 - add current and forecast weather
@@ -97,9 +99,8 @@ ChangeLog
 - A [node.js module](https://github.com/TheThingSystem/node-taas-client) to interface with the Things-as-a-service, client-side
  
 ### Utilities
-
 - no changes
-- 
+
 ## Release 1.4 "Resolutions" - January 24, 2014
 ## Commit - 9ca2c07b2d7b8e470b5cfe94d697449b5579af8f
 
