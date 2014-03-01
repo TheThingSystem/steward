@@ -511,7 +511,7 @@ var rendezvous = function(params, portno, u) {
 
     retry(10);
   }).on('end', function() {
-    logger.warning('rendezvous', { event: 'end', server: u.host });
+    logger.debug('rendezvous', { event: 'end', server: u.host });
 
     retry(5);
   }).connect(u.port, u.hostname);

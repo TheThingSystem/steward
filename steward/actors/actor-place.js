@@ -476,7 +476,7 @@ Place.prototype.getWeather = function(self) {
                              , pressure    : atmosphere.pressure
                              , windchill   : wind.chill
                              , visibility  : atmosphere.visibility
-                             , lastSample  : new Date(current.date)
+                             , lastSample  : new Date(current.date).getTime()
                              };
 
       self.info.forecasts = [];
@@ -486,7 +486,7 @@ Place.prototype.getWeather = function(self) {
                                  , text            : forecasts[i].text.toLowerCase()
                                  , highTemperature : forecasts[i].high
                                  , lowTemperature  : forecasts[i].low
-                                 , nextSample      : new Date(forecasts[i].date)
+                                 , nextSample      : new Date(forecasts[i].date).getTime()
                                  });
       }
     } catch(ex) {

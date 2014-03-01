@@ -81,16 +81,15 @@ Cloud.prototype.login = function(self) {
     var body = '';
 
 console.log('>>> ' + request.method);
-    if ((request.method !== 'GET') && (request.method !== 'POST') && (request.method !== 'PUT')) {
+    if ((request.method !== 'GET') && (request.method !== 'POST')) {
       logger.info('device/' + self.deviceID, { event: 'request', method: request.method });
 
-      response.writeHead(405, { Allow: 'GET, POST, PUT' });
+      response.writeHead(405, { Allow: 'GET, POST' });
       return response.end();
     }
 
     request.setEncoding('utf8');
     request.on('data', function(chunk) {
-console.log('>>> data: ' + chunk.toString());
       body += chunk.toString();
     }).on('close', function() {
       logger.warning('device/' + self.deviceID, { event:'close', diagnostic: 'premature eof' });
@@ -107,9 +106,9 @@ console.log('>>> end: ' + body);
         response.end(message);
       };
 
-// NB: documentation says POST, but i'm seeing PUT...
-      if ((request.method === 'POST') || (request.method === 'PUT')) {
+      if (request.method === 'POST') {
         try { data = JSON.parse(body); } catch(ex) { return loser(ex.message); }
+console.log(data);
         if (!data.type) return loser('webhook missing type parameter');
         if ((!data.user) || (!data.user.id)) return loser('webhook missing user.id');
         if (!self.info.users[data.user.id]) return loser('internal error (somewhere!)');
@@ -117,11 +116,10 @@ console.log('>>> end: ' + body);
         response.end();
 
         udn = 'automatic:' + data.vehicle.id;
-console.log('>>> udn='+udn);
+console.log('>>> WEBHOOK udn='+udn);
         if (!devices.devices[udn]) return;
 
         vehicle = devices.devices[udn].device;
-console.log('>>> WEBHOOK: ' + (!!vehicle));
         if (!!vehicle) vehicle.webhook(vehicle, 'webhook', data);
         return;
       }
@@ -186,6 +184,8 @@ Cloud.prototype.scan = function(self, client) {
       status = 'ready';
 
       udn = 'automatic:' + entry.id;
+console.log('>>> /vehicles udn='+udn);
+console.log(entry);
       if (!!devices.devices[udn]) {
         vehicle = devices.devices[udn].device;
         if (!!vehicle) vehicle.update(vehicle, params);
@@ -228,11 +228,16 @@ Cloud.prototype.scan = function(self, client) {
         vehicles[entry.vehicle.id] = true;
 
         udn = 'automatic:' + entry.vehicle.id;
+console.log('>>> /trips udn='+udn);
+console.log(entry);
         if (!devices.devices[udn]) continue;
 
         vehicle = devices.devices[udn].device;
-        if (!!vehicle) vehicle.webhook(vehicle, 'trip',
-                                       { location: entry.end_location, created_at: entry.end_time, type: 'trip:summary' });
+        if (!!vehicle) vehicle.webhook(vehicle, 'trip', { vehicle    : { id: entry.vehicle.id }
+                                                        , location   : entry.end_location
+                                                        , created_at : entry.end_time
+                                                        , type       : 'trip:summary'
+                                                        });
       }
     });
   });
