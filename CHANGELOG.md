@@ -1,8 +1,8 @@
 ChangeLog
 =======
 
-## Release 1.5 "TBD" - TBD
-## Commit - TBD
+## Release 1.5 "Ground Hog" - March 1, 2014
+## Commit - ddc6a500d20b6065c6e5b19611afb224878e4c66
 
 ### Steward
 - experimental bootstrap-mac.sh script created
@@ -95,8 +95,11 @@ ChangeLog
 - An [iOS library](https://github.com/TheThingSystem/steward-ios-library) to interface with the Things-as-a-service, client-side
 - A [node.js module](https://github.com/TheThingSystem/node-thing-client) to interface with TheThingSystem, as a thing
 - A [node.js module](https://github.com/TheThingSystem/node-taas-client) to interface with the Things-as-a-service, client-side
+ 
 ### Utilities
 
+- no changes
+- 
 ## Release 1.4 "Resolutions" - January 24, 2014
 ## Commit - 9ca2c07b2d7b8e470b5cfe94d697449b5579af8f
 
