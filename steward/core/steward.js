@@ -73,8 +73,9 @@ var scan = function() {
 
     activity = activities.activities[uuid];
     if (!activity.armed) continue;
+    if (activity.lastTime === null) activity.lastTime = 0;
 
-    if (observedP(activity.event)) {
+    if ((observedP(activity.event)) && (observedT(activity.event) > activity.lastTime)) {
       activity.lastTime = now;
       prepare(activity.task);
     }
@@ -104,9 +105,12 @@ var scan = function() {
 
   for (i = 0; i < performances.length; i++) {
     performance = performances[i];
+// TBD: i rather dislike double notices...
+    if (performance.perform !== 'growl') {
 // .info
-    logger.notice('perform',
-                { taskID: performance.taskID, perform: performance.perform, parameter: performance.parameter });
+      logger.notice('perform',
+                  { taskID: performance.taskID, perform: performance.perform, parameter: performance.parameter });
+    }
 
     for (device in performance.devices) {
       if (!performance.devices.hasOwnProperty(device)) continue;
@@ -118,29 +122,23 @@ var scan = function() {
 
 
 var check = function(event, now) {
-  var actor, entity, info, params, proplist;
+  var actor, entity, info, params, previous, proplist;
 
   actor = exports.actors[event.actorType];
   if (!actor) return;
   entity = actor.$lookup(event.actorID);
   if (!entity) return;
   proplist = entity.proplist();
-  if ((!!event.watchP) && (!!proplist.updated) && (event.watchP === proplist.updated.getTime())) {
-    event.observeP = false;
-    return;
-  }
-  if (!!proplist.updated) event.watchP = proplist.updated.getTime();
-
   info = utility.clone(proplist.info);
   info.status = proplist.status;
 
   try { params = JSON.parse(event.parameter); } catch(ex) { params = null; }
+  previous = event.observeP;
   event.observeP = (!!params) && evaluate(params, entity, info);
-  if ((!!event.lastTime) && (!!event.observeP)) {
-    if (!!event.previous) event.observeP = false;
-    event.previous = true;
-  } else event.previous = event.observeP;
-  if (event.observeP) event.lastTime = now;
+  if (event.observeP !== previous) {
+event.lastTime = now;
+console.log('>>> updating ' + event.actorType + '/' + event.actorID);
+}
 };
 
 var evaluate = function(params, entity, info) {
@@ -251,10 +249,36 @@ var observedP = function(whoami) {
             return false;
         }
       }
-      return (group.groupOperator == groups.operators.and);
+      return (group.groupOperator === groups.operators.and);
 
     default:
       return false;
+  }
+};
+
+var observedT = function(whoami) {
+  var event, group, i, lastTime, parts, result;
+
+  parts = whoami.split('/');
+  switch (parts[0]) {
+    case 'event':
+      event = events.id2event(parts[1]);
+if(!event)console.log('>>> no event: ' + whoami);
+      return ((event && event.lastTime) || 0);
+
+    case 'group':
+      group = groups.id2group(parts[1]);
+      if ((!group) || (group.members.length < 1)) return false;
+
+      lastTime = observedT(group.members[0].actor);
+      for (i = 1; i < group.members.length; i++) {
+        result = observedT(group.members[i].actor);
+        if (result > lastTime) lastTime = result;
+      }
+      return lastTime;
+
+    default:
+      return 0;
   }
 };
 
@@ -267,7 +291,8 @@ var prepare = exports.prepare = function(whoami) {
     case 'task':
       task = tasks.id2task(parts[1]);
       if (!task) break;
-      task.performP = (task.guardType === '') || (observedP(task.guardType));
+      task.performP = (task.guardType === '') || (observedP(task.guardType + '/' + task.guardID));
+if(task.guardType!== '')console.log('>>> guard ' + task.guardType + '/' + task.guardID + ' -> ' + task.performP);
       break;
 
 // TBD: temporal ordering
@@ -445,7 +470,7 @@ exports.start = function() {
   if (!!exports.uuid) {
     logger.notice('start', { uuid: exports.uuid });
     server.start();
-    setInterval(scan, 10 * 1000);
+    setInterval(scan, 3 * 1000);
     setInterval(function() {
       var module, now;
 

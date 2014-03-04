@@ -505,7 +505,7 @@ exports.start = function() {
                     , perform    : [ 'wake' ]
                     , properties : { name   : true
                                    , status : [ 'ready', 'absent' ]
-                                   , nodeID : 'array'
+                                   , nodeID : []
                                    }
                     }
       , $validate : { perform    : devices.validate_perform

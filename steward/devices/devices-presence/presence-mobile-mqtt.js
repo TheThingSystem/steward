@@ -1,11 +1,9 @@
 // http://owntracks.org
 
-var geocoder    = require('geocoder')
-  , util        = require('util')
+var util        = require('util')
   , winston     = require('winston')
   , db          = require('./../../core/database').db
   , devices     = require('./../../core/device')
-  , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
@@ -14,9 +12,6 @@ var geocoder    = require('geocoder')
 
 
 var logger   = presence.logger;
-
-var geocache = {};
-
 
 var Mobile = exports.Device = function(deviceID, deviceUID, info) {
   var param, self;
@@ -41,8 +36,6 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
   self.timer = null;
   self.update(self, info.params);
 
-  self.events = {};
-
   db.get('SELECT value FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
                { $deviceID: self.deviceID, $key: 'info' }, function(err, row) {
     var params;
@@ -65,7 +58,7 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, eventID, perform, parameter);
   });
 
-  setInterval(function() { self.reverseGeocode(self); }, 60 * 1000);
+  setInterval(function() { self.reverseGeocode(self, logger); }, 60 * 1000);
 };
 util.inherits(Mobile, presence.Device);
 
@@ -110,7 +103,7 @@ var validate_perform = function(perform, parameter) {
 
 
 Mobile.prototype.update = function(self, params, status) {
-  var entry, param, updateP;
+  var param, updateP;
 
   updateP = false;
   if ((!!status) && (status !== self.status)) {
@@ -121,96 +114,13 @@ Mobile.prototype.update = function(self, params, status) {
     if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
 
     self.info[param] = params[param];
-    if (param === 'location') {
-      if (!places.place1.info.location) delete(self.info.distance);
-      else self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
-                                                                             places.place1.info.location[0],
-                                                                             places.place1.info.location[1]));
-    }
+    if (param === 'location') self.addlocation(self);
     updateP = true;
   }
   if (updateP) self.changed();
-
-  if (!self.info.location) return;
-  entry = self.info.location.slice(0, 2).join(',');
-  if (self.info.locations.length === 0) {
-    self.info.locations.push(entry);
-    return;
-  }
-  if (entry === self.info.locations[self.info.locations.length - 1]) return;
-
-  self.info.locations.push(entry);
-// derived experientially: 28 appears to be the limit
-  if ((self.info.locations.length > 24) && (!self.timer)) self.timer = setTimeout (function() { self.balance(self, 24); }, 0);
-};
-
-Mobile.prototype.balance = function(self, max) {
-  var d, i, location, points, previous, q;
-
-  self.timer = null;
-  if (self.info.locations.length <= max) return;
-
-  if (self.info.locations.length > max) self.info.locations.splice (0, self.info.locations.length - max);
-  q = Math.round(max / 4);
-  self.info.locations.splice(0, q);
-
-  d = [];
-  for (i = 1, previous = self.info.locations[0].split(','); i < self.info.locations.length - 1; i++, previous = location) {
-    location = self.info.locations[i].split(',');
-    d.push([ i
-           , self.info.locations[i],
-           , utility.getDistanceFromLatLonInKm(location[0], location[1], previous[0], previous[1])
-           ]);
-  }
-  d.sort(function(a,b) { return (b[2] - a[2]); });
-  d.splice(0, q);
-
-  points = [];
-  d.sort(function(a,b) { return (b[0] - a[0]); });
-  for (i = 0; i < d.length; i++) points.push(d[i][1]);
-  points.push(self.info.locations[self.info.locations.length - 1]);
-
-  self.info.locations = points;
 };
 
 Mobile.prototype.detail = function(self, params) {/* jshint unused: false */};
-
-Mobile.prototype.reverseGeocode = function(self) {
-  var key, location;
-
-  if (self.info.locations.length < 1) return;
-
-  location = self.info.locations[self.info.locations.length - 1].split(',');
-  key = parseFloat(location[0]).toFixed(3) + ',' + parseFloat(location[1]).toFixed(3);
-
-  if ((!!places.place1.info.location)
-          && (location[0] === places.place1.info.location[0])
-          && (location[1] === places.place1.info.location[1])) {
-    geocache[key] = places.place1.info.physical;
-  }
-  if (!!geocache[key]) {
-    if (self.info.physical !== geocache[key]) {
-      self.info.physical = geocache[key];
-      self.changed();
-    }
-
-    return;
-  }
-
-  geocoder.reverseGeocode(location[0], location[1], function(err, result) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                              , location   : location
-                                                              , diagnostic : err.message });
-    if (result.status !== 'OK') return logger.debug('device/' + self.deviceID, { event      : 'reverseGeocode'
-                                                                               , location   : location
-                                                                               , diagnostic : result.status });
-    if (result.results.length < 1) return;
-
-    geocache[key] = result.results[0].formatted_address;
-    self.info.physical = geocache[key];
-    self.changed();
-  });
-};
 
 
 exports.start = function() {
@@ -224,6 +134,7 @@ exports.start = function() {
                     , properties : { name         : true
                                    , status       : [ 'present', 'recent', 'absent' ]
                                    , location     : 'coordinates'
+                                   , locations    : []
                                    , accuracy     : 'meters'
                                    , batteryLevel : 'percentage'
                                    , physical     : true

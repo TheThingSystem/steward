@@ -20,7 +20,7 @@ var Strip = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.info = { outlets: [] };
+  self.info = { plugs: [] };
   self.gateway = info.gateway;
   self.status = 'absent';
   self.update(self, info.params);

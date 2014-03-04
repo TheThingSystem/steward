@@ -52,6 +52,7 @@
     , "pcap"                    : "git://github.com/TheThingSystem/node_pcap.git"
     , "pkginfo"                 : "0.3.0"
     , "pixelpusher"             : "0.1.0"
+    , "polyline-encoded"        : "0.0.4"
     , "portfinder"              : "0.2.1"
     , "rfxcom"                  : "git://github.com/TheThingSystem/node-rfxcom.git"
     , "robosmart"               : "0.1.1"
@@ -81,6 +82,6 @@
     , "xmldom"		        : "0.1.x"
     , "xmlhttprequest"          : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
     , "yoctolib"                : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
-    , "yql"                     : "0.4.8"
+    , "yql"                     : "git://github.com/TheThingSystem/yql.git"
     }
 }

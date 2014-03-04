@@ -3,7 +3,6 @@
 var tesla       = require('teslams')
   , util        = require('util')
   , devices     = require('./../../core/device')
-  , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
@@ -30,7 +29,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.vehicle.streamingP = false;
   self.vehicle.updatingP = false;
 
-  self.info = {};
+  self.info = { locations: [] };
 
   self.status = null;
   self.newstate(self);
@@ -209,10 +208,7 @@ ModelS.prototype.scan = function(self) {
         didP = true;
         self.info.location[0] = data.latitude;
         self.info.location[1] = data.longitude;
-        if (!places.place1.info.location) delete(self.info.distance);
-        else self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
-                                                                               places.place1.info.location[0],
-                                                                               places.place1.info.location[1]));
+        self.addlocation(self);
       }
 
       if (self.info.heading !== data.heading) {
@@ -512,8 +508,9 @@ exports.start = function() {
                                    , extTemperature : 'celsius'
 
                                    , location       : 'coordinates'
+//                                 , accuracy       : 'meters'
                                    , physical       : true
-                                   , distance       : 'kilometers'  // technically, it should be client-derived
+                                   , distance       : 'kilometers'
                                    , heading        : 'degrees'
                                    , velocity       : 'meters/second'
                                    , odometer       : 'kilometers'

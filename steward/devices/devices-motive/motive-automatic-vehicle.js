@@ -1,8 +1,8 @@
 // automatic - an auto accessory to make you a smarter driver: http://www.automatic.com
 
-var util        = require('util')
+var polyline    = require('polyline-encoded')
+  , util        = require('util')
   , devices     = require('./../../core/device')
-  , places      = require('./../../actors/actor-place')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
@@ -24,7 +24,7 @@ var Vehicle = exports.device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.info = {};
+  self.info = { locations: [] };
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
@@ -60,10 +60,14 @@ Vehicle.prototype.update = function(self, params, status) {
 };
 
 Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false */
-    console.log(util.inspect(data, { depth: null }));
+console.log(util.inspect(data, { depth: null }));
   var ignition, updateP;
 
-  updateP = true;
+  updateP = false;
+
+
+  if ((util.isArray(self.info.location)) && (data.type === 'trip:summary')) return;
+  if (!!data.path) updateP = self.addpath(self, polyline.decode(data.path));
 
   if (!!data.location) {
     if (!util.isArray(self.info.location)) {
@@ -76,10 +80,7 @@ Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false
       self.info.location[0] = data.location.lat;
       self.info.location[1] = data.location.lon;
       self.info.accuracy = data.location.accuracy_m;
-      if (!places.place1.info.location) delete(self.info.distance);
-      else self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
-                                                                             places.place1.info.location[0],
-                                                                             places.place1.info.location[1]));
+      self.addlocation(self);
       updateP = true;
     }
   }
@@ -125,7 +126,7 @@ exports.start = function() {
                                    , location       : 'coordinates'
                                    , accuracy       : 'meters'
                                    , physical       : true
-                                   , distance       : 'kilometers'  // technically, it should be client-derived
+                                   , distance       : 'kilometers'
 //                                 , ignition       : [ 'true', 'false' ]
 /* NB: these really ought to be provided by the Automatic API
                                    , heading        : 'degrees'

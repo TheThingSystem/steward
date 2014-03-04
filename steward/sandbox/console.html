@@ -469,7 +469,7 @@ var traverse = function(result, whoami, depth) {
       return '<table class="children">' + children + '</table>';
 
     default:
-      return entity.name;
+      return entity.name + ' [' + whoami + ']';
   }
 }
 
@@ -679,6 +679,10 @@ var onactors = function(message) {
                     + ((v.length > 2) ? (' / ' + Math.round(v[2]) + ' m') : '');
               }
               else v = serialize_array(v);
+              break;
+
+            case 'locations':
+              v = v.length + (v.length !== 1 ? (' entries') : (' entry'));
               break;
 
             case 'accuracy':

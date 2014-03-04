@@ -234,7 +234,7 @@ exports.start = function() {
                     , properties : { name     : true
                                    , status   : [ 'present', 'absent' ]
                                    , lqi      : 's8'
-                                   , rankings : 'array'
+                                   , rankings : []
                                    }
                     }
       , $validate : { observe    : validate_observe

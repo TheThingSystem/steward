@@ -184,7 +184,7 @@ Cloud.prototype.scan = function(self, client) {
       status = 'ready';
 
       udn = 'automatic:' + entry.id;
-console.log('>>> /vehicles udn='+udn);
+console.log('>>> /vehicles udn='+udn+' exists='+(!!devices.devices[udn]));
 console.log(entry);
       if (!!devices.devices[udn]) {
         vehicle = devices.devices[udn].device;
@@ -228,7 +228,7 @@ console.log(entry);
         vehicles[entry.vehicle.id] = true;
 
         udn = 'automatic:' + entry.vehicle.id;
-console.log('>>> /trips udn='+udn);
+console.log('>>> /trips udn='+udn+' ready='+(!!devices.devices[udn]));
 console.log(entry);
         if (!devices.devices[udn]) continue;
 
@@ -236,6 +236,7 @@ console.log(entry);
         if (!!vehicle) vehicle.webhook(vehicle, 'trip', { vehicle    : { id: entry.vehicle.id }
                                                         , location   : entry.end_location
                                                         , created_at : entry.end_time
+                                                        , path       : entry.path
                                                         , type       : 'trip:summary'
                                                         });
       }

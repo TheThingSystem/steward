@@ -420,10 +420,11 @@ Place.prototype.getWoeID = function(self, tries) {
     tries = 1;
   }
 
-  new yql.exec('SELECT * FROM geo.placefinder WHERE (text = @text) AND (gflags = "R")', function (response) {
+  new yql.exec2('SELECT * FROM geo.placefinder WHERE (text = @text) AND (gflags = "R")', 
+                { text: self.info.location[0] + ',' + self.info.location[1] }, {}, function (err, response) {
     var woeid;
 
-    if (!!response.error) return retry({ diagnostic: response.error.description });
+    if (!!err) return retry({ diagnostic: err.message });
 
     try {
       woeid = parseInt(response.query.results.Result.woeid, 10);
@@ -439,16 +440,17 @@ Place.prototype.getWoeID = function(self, tries) {
     if (!!self.weatherID) clearInterval(self.weatherID);
     self.weatherID = setInterval(function() { self.getWeather(self); }, 30 * 60 * 1000);
     self.getWeather(self);
-  }, { text: self.info.location[0] + ',' + self.info.location[1] });
+  });
 };
 
 Place.prototype.getWeather = function(self) {
   if (!self.info.woeid) return;
 
-  new yql.exec('SELECT * FROM weather.forecast WHERE (woeid = @woeid) AND (u = "c")', function (response) {
+  new yql.exec2('SELECT * FROM weather.forecast WHERE (woeid = @woeid) AND (u = "c")', { woeid: self.info.woeid }, {},
+  function (err, response) {
     var atmosphere, current, diff, forecasts, i, pubdate, wind;
 
-    if (!!response.error) return logger.error('place/1', { event: 'getWeather', diagnostic: response.error.description });
+    if (!!err) return logger.error('place/1', { event: 'getWeather', diagnostic: err.message });
 
     try {
       pubdate = new Date(response.query.results.channel.item.pubDate);
@@ -492,7 +494,7 @@ Place.prototype.getWeather = function(self) {
     } catch(ex) {
       logger.error('place/1', { event: 'getWeather', diagnostic: ex.message });
     }
-  }, { woeid: self.info.woeid });
+  });
 };
 
 var review = function() {
