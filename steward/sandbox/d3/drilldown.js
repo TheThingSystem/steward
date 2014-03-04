@@ -1407,11 +1407,30 @@ var single_media_instructions = function(device) {
 };
 
 var single_thermostat_instructions = function(device) {
-  instructions = "";
-  if (device.info.hvac) instructions += (device.info.hvac !== 'on') ? 'turn on HVAC' : 'turn off HVAC';
-  instructions += '<br/>' + 'set desired temperature';
-  if (device.info.fan) instructions += '<br/>' + 'set fan time';
-  return instructions;
+  var instructions = [];
+  if (device.info.power) {
+    if (device.info.power == 'off') {
+      instructions.push('turn on power');
+    }
+    if (device.info.power == 'on') {
+      instructions.push('turn off power');
+    }    
+  }
+
+  if (device.info.hvac) {
+    if (device.info.hvac !== 'off') {
+      instructions.push('turn off HVAC');
+    } else {
+      instructions.push('turn on HVAC');
+    }
+  }
+
+  instructions.push('set desired temperature');
+
+  if (device.info.fan) {
+    instructions.push('set fan time');
+  }
+  return instructions.join('<br />');
 };
 
 var single_presence_instructions = function(device) {

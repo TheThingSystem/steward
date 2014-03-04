@@ -283,7 +283,11 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
   if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
   Thermostat.operations[perform](this, params);
-  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
+  setTimeout(function () {
+    if (self.gateway) {
+      self.gateway.scan(self); 
+    }
+  }, 1 * 1000);
   return steward.performed(taskID);
 };
 
@@ -323,8 +327,8 @@ exports.start = function() {
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'
                                    , power           : [ 'on', 'off' ]
-                                   , hvac            : [ 'cool', 'heat', 'fan', 'off', 'dry', 'auto' ]
-                                   , fan             : [ 'on', 'auto', 'milliseconds', 'off', 'high', 'mid', 'low' ]
+                                   , hvac            : [ 'cool', 'heat', 'fan', 'dry', 'off', 'auto', ]
+                                   , fan             : [ 'on', 'off', 'high', 'mid', 'low', 'auto', 'milliseconds' ]
                                    , goalTemperature : 'celsius'
                                    }
                     }

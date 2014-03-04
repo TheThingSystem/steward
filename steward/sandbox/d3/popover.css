@@ -30,9 +30,8 @@
 }
 
 .popover-name { 
-        position: absolute;
-        top: 23px;
-        left: 65px;
+        float: left;
+        margin-top: 23px;
         font-family: "Roadgeek 2005 Series D";
         font-size: 26px;
         line-height: 26px;
@@ -40,6 +39,7 @@
         color: #fff;
         height: 26px;
         width: 400px;
+        margin-right: 5px;
         white-space: nowrap;
         text-overflow: clip;
         overflow: hidden;
@@ -51,12 +51,28 @@
 #primary-controls 
 	{ position: absolute; top: 0px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
 	
-	#actor { position: absolute; top: 14px; left: 15px; }
-	#button-one-climate { position: absolute; top: 24px; left: 317px; }
-	#button-two-climate { position: absolute; top: 24px; left: 383px; }
-	#button-three-climate { position: absolute; top: 24px; left: 449px; }
-	#button-four-climate { position: absolute; top: 24px; left: 515px; }
-
+	#actor { 
+    float: left; 
+    margin-left: 15px; 
+    margin-top: 15px;
+    margin-right: 5px;
+  }
+  .label.generic-button {
+    float: left;
+    height: 20px;
+    width: 60px;
+    margin-right: 5px;
+    background: url('popovers/assets/generic-button.svg');
+    color: white;
+    text-align: center;
+    font-size: 80%;
+    cursor: pointer;
+    margin-top: 24px;
+    padding-top: 5px;
+  }
+  .label.generic-button.off {
+    opacity: 0.75;
+  }
 	
 #on-off-slider-wrapper { position: absolute; top: 25px; left: 290px; }
 	.on-off-slider { position: absolute; top: 0px; left: 25px; }
@@ -126,6 +142,9 @@
 #equalizer { position: absolute; top: 345px; left: 258px; }
 
 /* Climate */
+#on-off-slider-wrapper-hvac {position: absolute; top: 25px; left: 490px; }
+#hvac-controls { position: absolute; width: 350px; left: 200px; top: 110px; }
+
 #temperature-wrapper
 	{ position: absolute; top: 55px; left: 0px; width: 597px; height: 60px; z-index: 1px; }
 	.temperature { position: absolute; top: 20px; left: 210px; height: 24px; width: 360px; background:url('popovers/assets/slider.transparent.long.svg'); background-position: -5px -4px; }
@@ -142,11 +161,11 @@
 	.fantime-slider-label { position: absolute; top: 20px; left: 32px; }
 	.fantime-slider-readout { position: absolute; top: 175px; left: 15px; padding: 1px; }
 
-#thermostat-wrapper { position: absolute; top: 154px; left: 212px; }
+#thermostat-wrapper { position: absolute; top: 164px; left: 212px; }
 	.thermostat-knob { position: absolute; top: 0px; left: 0px; }
 	.thermostat-bkg { position: absolute; top: 112px; left: 112px; }
 	
-#done-climate { position: absolute; top: 450px; left: 510px; }
+#done-climate { position: absolute; top: 350px; left: 320px; }
 
 /* Motive */
 

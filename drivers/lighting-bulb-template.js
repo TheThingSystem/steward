@@ -46,13 +46,12 @@ util.inherits(TBD, lighting.Device);
 // possibly somebody else is changing the state of the hardware directly,
 // or the hardware has built-in controls, like a light switch.
 TBD.prototype.update = function(self, state) {
-/* TBD: update self.state and self.info accordingly
-
-  self.status = ... ? 'on' : 'off';
+  /* TBD: update self.state and self.info accordingly */
+  self.status = state ? 'on' : 'off';
   self.info = { color      : { model: 'rgb', rgb: { r: 0, g: 0, b: 0 } }
               , brightness : 0
               };
- */
+ 
 };
 
 

@@ -112,8 +112,8 @@ Thermostat.operations =
          devices.attempt_perform('goalTemperature', params, function(value) {
            var goalTemperature;
 
-           goalTemperature = parseInt(value, 10);
-          if (isNaN(goalTemperature)) return;
+         goalTemperature = parseInt(value, 10);
+         if (isNaN(goalTemperature)) return;
 // TBD: set the desired temperature here...
          });
        }
