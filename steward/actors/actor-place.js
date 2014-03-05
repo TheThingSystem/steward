@@ -448,7 +448,7 @@ Place.prototype.getWeather = function(self) {
 
   new yql.exec2('SELECT * FROM weather.forecast WHERE (woeid = @woeid) AND (u = "c")', { woeid: self.info.woeid }, {},
   function (err, response) {
-    var atmosphere, current, diff, forecasts, i, pubdate, wind;
+    var a, atmosphere, current, diff, forecasts, i, pubdate, wind;
 
     if (!!err) return logger.error('place/1', { event: 'getWeather', diagnostic: err.message });
 
@@ -469,8 +469,11 @@ Place.prototype.getWeather = function(self) {
       }
 
       atmosphere = response.query.results.channel.atmosphere;
+      for (a in atmosphere) if ((atmosphere.hasOwnProperty(a)) && (atmosphere[a] === '')) delete(atmosphere[a]);
       wind = response.query.results.channel.wind;
+      if (wind.chill === '') delete(wind.chill);
       current = response.query.results.channel.item.condition;
+      if (current.temp === '') delete(current.temp);
       self.info.conditions = { code        : current.code
                              , text        : current.text.toLowerCase()
                              , temperature : current.temp
