@@ -6,12 +6,11 @@ var util        = require('util')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , hub         = require('./../devices-gateway/gateway-yoctopuce-hub')
-  , climate     = require('./../device-climate')
   , sensor      = require('./../device-sensor')
   ;
 
 
-var logger = climate.logger;
+var logger = sensor.logger;
 
 
 var Sensor = exports.Device = function(deviceID, deviceUID, info) {
@@ -53,10 +52,10 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  setInterval(function() { self.scan(self); }, 45 * 1000);
+  setInterval(function() { self.scan(self); }, 15 * 1000);
   self.scan(self);
 };
-util.inherits(Sensor, climate.Device);
+util.inherits(Sensor, sensor.Device);
 
 Sensor.prototype.scan = function(self) {
   var status = self.co2.isOnline() ? 'present' : 'absent';
@@ -117,11 +116,11 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device.climate.yoctopuce = steward.actors.device.climate.yoctopuce ||
-      { $info     : { type: '/device/climate/yoctopuce' } };
+  steward.actors.device.sensor.yoctopuce = steward.actors.device.sensor.yoctopuce ||
+      { $info     : { type: '/device/sensor/yoctopuce' } };
 
-  steward.actors.device.climate.yoctopuce.co2 =
-      { $info     : { type       : '/device/climate/yoctopuce/co2'
+  steward.actors.device.sensor.yoctopuce.co2 =
+      { $info     : { type       : '/device/sensor/yoctopuce/co2'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
@@ -132,7 +131,7 @@ exports.start = function() {
                     }
       , $validate : {  perform   : hub.validate_perform }
       };
-  devices.makers['/device/climate/yoctopuce/co2'] = Sensor;
+  devices.makers['/device/sensor/yoctopuce/co2'] = Sensor;
 
-  hub.register('Yocto-CO2', '/device/climate/yoctopuce/co2');
+  hub.register('Yocto-CO2', '/device/sensor/yoctopuce/co2');
 };

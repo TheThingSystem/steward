@@ -671,6 +671,31 @@ exports.name2place = function(name) {
   return null;
 };
 
+exports.customary = function(property, value) {
+  if (place1.info.displayUnits !== 'customary') return value;
+
+  return { 
+// celsius -> fahrenheit
+           extTemperature  : Math.round(((value * 9) / 5) + 32)
+         , goalTemperature : Math.round(((value * 9) / 5) + 32)
+         , intTemperature  : Math.round(((value * 9) / 5) + 32)
+         , temperature     : Math.round(((value * 9) / 5) + 32)
+         , windchill       : Math.round(((value * 9) / 5) + 32)
+
+// meters -> feet
+         , accuracy        : Math.round(value * 3.28084)
+
+// kilometers -> miles
+         , distance        : Math.round(value * 0.621371)
+         , odometer        : Math.round(value * 0.621371)
+         , range           : Math.round(value * 0.621371)
+         , visibility      : Math.round(value * 0.621371)
+
+// meters/second -> miles/hour
+         , velocity        : Math.round(value * 2.23694)
+         }[property] || value;
+};
+
 
 exports.start = function() {
   var colors, status;

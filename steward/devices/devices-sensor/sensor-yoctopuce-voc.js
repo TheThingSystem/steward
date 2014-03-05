@@ -6,12 +6,11 @@ var util        = require('util')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
   , hub         = require('./../devices-gateway/gateway-yoctopuce-hub')
-  , climate     = require('./../device-climate')
   , sensor      = require('./../device-sensor')
   ;
 
 
-var logger = climate.logger;
+var logger = sensor.logger;
 
 
 var Sensor = exports.Device = function(deviceID, deviceUID, info) {
@@ -59,10 +58,10 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  setInterval(function() { self.scan(self); }, 45 * 1000);
+  setInterval(function() { self.scan(self); }, 15 * 1000);
   self.scan(self);
 };
-util.inherits(Sensor, climate.Device);
+util.inherits(Sensor, sensor.Device);
 
 Sensor.prototype.scan = function(self) {
   var status = self.voc.isOnline() ? 'present' : 'absent';
@@ -78,7 +77,7 @@ Sensor.prototype.scan = function(self) {
       return logger.error('device/' + self.deviceID, { event: 'get_currentValue', diagnostic: 'currentValue invalid' });
     }
 
-    self.update(self, { lastSample: new Date().getTime(), airQuality: result, voc: result });
+    self.update(self, { lastSample: new Date().getTime(), voc: result });
   });
 };
 
@@ -124,23 +123,22 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device.climate.yoctopuce = steward.actors.device.climate.yoctopuce ||
-      { $info     : { type: '/device/climate/yoctopuce' } };
+  steward.actors.device.sensor.yoctopuce = steward.actors.device.sensor.yoctopuce ||
+      { $info     : { type: '/device/sensor/yoctopuce' } };
 
-  steward.actors.device.climate.yoctopuce.voc =
-      { $info     : { type       : '/device/climate/yoctopuce/voc'
+  steward.actors.device.sensor.yoctopuce.voc =
+      { $info     : { type       : '/device/sensor/yoctopuce/voc'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
                                    , status     : [ 'present', 'absent' ]
                                    , lastSample : 'timestamp'
-                                   , airQuality : 'sigmas'
                                    , voc        : 'ppm'
                                    }
                     }
       , $validate : {  perform   : hub.validate_perform }
       };
-  devices.makers['/device/climate/yoctopuce/voc'] = Sensor;
+  devices.makers['/device/sensor/yoctopuce/voc'] = Sensor;
 
-  hub.register('Yocto-VOC', '/device/climate/yoctopuce/voc');
+  hub.register('Yocto-VOC', '/device/sensor/yoctopuce/voc');
 };

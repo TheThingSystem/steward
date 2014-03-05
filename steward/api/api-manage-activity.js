@@ -244,7 +244,7 @@ var list = function(logger, ws, api, message, tag) {
 
         default:
           if (!actors[actorType].$lookup) {
-            logger.warning(tag, { event: 'internal', diagonstic: 'actors[' + actorType + '].$lookup is nulll' });
+            logger.warning(tag, { event: 'internal', diagonstic: 'actors[' + actorType + '].$lookup is null' });
           }
           if (!(actor = actors[actorType].$lookup(actorID))) continue;
           props = (!!actor.proplist) ? actor.proplist(null, actor) : actors[actorType].$proplist(actorID, actor);

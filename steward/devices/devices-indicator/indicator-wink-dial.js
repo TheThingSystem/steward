@@ -6,6 +6,7 @@ var util        = require('util')
   , utility     = require('./../../core/utility')
   , broker      = utility.broker
   , indicator   = require('./../device-indicator')
+  , places      = require('./../../actors/actor-place')
   ;
 
 
@@ -69,19 +70,53 @@ Gauge.prototype.update = function(self, params) {
 };
 
 Gauge.prototype.egress = function(self) {
-  var label, value;
+  var customary, metricP, parts, property, value;
 
   if (!self.gateway.wink) return;
 
-  label = self.info.property.split('.');
-  label = label[label.length - 1];
+  customary = places.place1.info.displayUnits === 'customary';
   if (self.info.property.indexOf('.[') !== -1) {
+    if (customary) {
+      customary = self.info.property.lastIndexOf('].') == (self.info.property.length - 2);
+      if (customary) property = self.info.property.substr(3, self.info.property.length - 5);
+    }
     value = devices.expand(self.info.property, self.info.actor);
     if (!value) return;
   } else {
+    property = self.info.property;
     value = devices.expand('.[' + self.info.actor + '.' + self.info.property + '].');
     if (!value) return;
-    if ((label.length + 1 + value.length) <= 8) value = label + ' ' + value;
+  }
+  parts = property ? property.split('.') : [ null ];
+  property = parts[parts.length - 1];
+  if (customary) value = places.customary(property, value);
+  if (!isNaN(value)) {
+    metricP = places.place1.info.displayUnits === 'metric';
+
+    value += { batteryLevel    : '%'
+             , accuracy        : metricP ? 'M'   : 'FT'
+             , co              : 'PPM'
+             , co2             : 'PPM'
+             , distance        : metricP ? 'KM'  : 'MI'
+             , extTemperature  : metricP ? 'C'   : 'F'
+             , goalTemperature : metricP ? 'C'   : 'F'
+             , heading         : metricP ? 'C'   : 'F'
+             , humidity        : '%'
+             , intTemperature  : metricP ? 'C'   : 'F'
+             , light           : 'LM'
+             , moisture        : 'MB'
+             , no              : 'PPM'
+             , no2             : 'PPM'
+             , noise           : 'DB'
+             , odometer        : metricP ? 'KM'  : 'MI'
+             , pressure        : 'MB'
+             , range           : metricP ? 'KM'  : ' MI'
+             , temperature     : metricP ? 'C'   : 'F'
+             , velocity        : metricP ? 'MPS' : 'MPH'
+             , visibility      : metricP ? 'KM'  : ' MI'
+             , voc             : 'PPM'
+             , windchill       : metricP ? 'C'   : 'F'
+            }[property] || '';
   }
 
   self.gateway.wink.setDial(self.params, { name                  : 'dial:' + self.deviceID

@@ -491,9 +491,12 @@ Device.prototype.addlocation = function(self) {
   if (!places) places = require('./../actors/actor-place');
 
   if (!places.place1.info.location) delete(self.info.distance);
-  else self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
-                                                                         places.place1.info.location[0],
-                                                                         places.place1.info.location[1]));
+  else {
+    self.info.distance = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
+                                                                      places.place1.info.location[0],
+                                                                      places.place1.info.location[1]));
+    if (!self.info.distance) self.info.distance = "0";
+  }
 
   entry = self.info.location.slice(0, 2).join(',');
   if (self.info.locations.length === 0) {

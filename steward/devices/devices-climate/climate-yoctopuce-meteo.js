@@ -57,7 +57,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  setInterval(function() { self.scan(self); }, 45 * 1000);
+  setInterval(function() { self.scan(self); }, 15 * 1000);
   self.scan(self);
 };
 util.inherits(Sensor, climate.Device);

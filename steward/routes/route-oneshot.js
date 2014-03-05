@@ -188,7 +188,7 @@ var find = function(query, tag) {
 };
 
 var report = function(query, proplist) {
-  var data, i, prop, properties, s, v;
+  var data, i, metricP, parts, prop, properties, s, v;
 
   data = '';
   properties = (!!query.properties) ? query.properties.split(',') : [ 'status' ];
@@ -198,44 +198,49 @@ var report = function(query, proplist) {
     v = device.expand('.[.' + prop + '].', proplist);
     if (!v) continue;
 
+    parts = prop.split('.');
+    prop = parts[parts.length - 1];
+
     if (properties.length > 1) {
       if ((i + 1) === properties.length) s += 'and ';
 // heh
-      data += s + ({ co2      : 'C O 2'
-                   , co       : 'carbon monoxide'
+      data += s + ({ co       : 'carbon monoxide'
+                   , co2      : 'C O 2'
                    , no       : 'nitrous oxide'
+                   , no2      : 'N O 2'
+                   , voc      : 'volatile organic compounds'
                    }[prop] || prop) + ' is ';
     }
 // TBD: this is really a UI thing, but it is rather convenient to place here...
-    if (places.place1.info.displayUnits === 'customary') {
-      v = { temperature     : Math.round(((v * 9) / 5) + 32)
-          , goalTemperature : Math.round(((v * 9) / 5) + 32)
-          , intTemperature  : Math.round(((v * 9) / 5) + 32)
-          , extTemperature  : Math.round(((v * 9) / 5) + 32)
-
-// meters/second -> miles/hour
-          , velocity        : Math.round(v * 2.23694) + ' miles per hour'
-
-// kilometers -> miles
-          , distance        : Math.round(v * 0.621371) + ' miles'
-          , odometer        : Math.round(v * 0.621371) + ' miles'
-          , range           : Math.round(v * 0.621371) + ' miles'
-
-// meters -> feet
-          , accuracy        : Math.round(v * 3.28084) + ' feet'
-          }[prop] || v;
-    }
+    metricP = places.place1.info.displayUnits === 'metric';
+    v = places.customary(prop, v);
     data += v;
-    data += { batteryLevel : ' percent'
-            , co2          : ' parts per million'
-            , heading      : ' degrees'
-            , humidity     : ' percent'
-            , light        : ' luminous flux'
-            , moisture     : ' milli bars'
-            , noise        : ' decibels'
-            , pressure     : ' milli bars'
-            , temperature  : ' degrees'
-            }[prop] || '';
+    if (!isNaN(v)) {
+      data += { batteryLevel    : ' percent'
+              , accuracy        : metricP ? ' meters' : ' feet'
+              , co              : ' parts per million'
+              , co2             : ' parts per million'
+              , distance        : metricP ? ' kilometers' : ' miles'
+              , extTemperature  : ' degrees'
+              , goalTemperature : ' degrees'
+              , heading         : ' degrees'
+              , humidity        : ' percent'
+              , intTemperature  : ' degrees'
+              , light           : ' luminous flux'
+              , moisture        : ' milli bars'
+              , no              : ' parts per million'
+              , no2             : ' parts per million'
+              , noise           : ' decibels'
+              , odometer        : metricP ? ' kilometers' : ' miles'
+              , pressure        : ' milli bars'
+              , range           : metricP ? ' kilometers' : ' miles'
+              , temperature     : ' degrees'
+              , velocity        : metricP ? ' meters per second' : ' miles per hour'
+              , visibility      : metricP ? ' kilometers' : ' miles'
+              , voc             : ' parts per million'
+              , windchill       : ' degrees'
+              }[prop] || '';
+    }
   }
 
   return data.replace('[object Object]', 'complicated');
