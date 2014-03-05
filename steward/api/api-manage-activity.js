@@ -243,7 +243,7 @@ var list = function(logger, ws, api, message, tag) {
           break;
 
         default:
-          if (!actors[actorType].$lookup) {
+          if ((!actors[actorType]) || (!actors[actorType].$lookup)) {
             logger.warning(tag, { event: 'internal', diagonstic: 'actors[' + actorType + '].$lookup is null' });
           }
           if (!(actor = actors[actorType].$lookup(actorID))) continue;
