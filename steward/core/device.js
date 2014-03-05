@@ -777,8 +777,12 @@ exports.expand = function(line, defentity) {
     for (p = 1; p < parts.length; p++) {
       part = parts[p];
       if (!info) return null;
-      if (!!info[part]) field = info[part]; else break;
-      info = field;
+      if (!info[part]) {
+        field = '';
+        break;
+      }
+      info = info[part];
+      field = info;
     }
     result += field;
   }
