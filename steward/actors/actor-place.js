@@ -469,11 +469,11 @@ Place.prototype.getWeather = function(self) {
       }
 
       atmosphere = response.query.results.channel.atmosphere;
-      for (a in atmosphere) if ((atmosphere.hasOwnProperty(a)) && (atmosphere[a] === '')) delete(atmosphere[a]);
+      for (a in atmosphere) if ((atmosphere.hasOwnProperty(a)) && (isNaN(atmosphere[a]))) delete(atmosphere[a]);
       wind = response.query.results.channel.wind;
-      if (wind.chill === '') delete(wind.chill);
+      if (isNaN(wind.chill)) delete(wind.chill);
       current = response.query.results.channel.item.condition;
-      if (current.temp === '') delete(current.temp);
+      if (isNaN(current.temp)) delete(current.temp);
       self.info.conditions = { code        : current.code
                              , text        : current.text.toLowerCase()
                              , temperature : current.temp
