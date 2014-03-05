@@ -777,7 +777,7 @@ exports.expand = function(line, defentity) {
     for (p = 1; p < parts.length; p++) {
       part = parts[p];
       if (!info) return null;
-      if (!info[part]) {
+      if ((typeof info[part] === 'undefined') || (info[part].length === 0)) {
         field = '';
         break;
       }
