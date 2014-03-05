@@ -1,8 +1,7 @@
-// climate control template -- start with this when an HVAC unit can be managed independently
+// Samsung Smart Air Conditioners - http://www.samsung.com/au/air-conditioning/smart-zone/
 
 exports.start = function() {};
 
-// load the module that knows how to discover/communicate with a bulb
 var samsung     = require('samsung-airconditioner')
   , util        = require('util')
   , devices     = require('./../../core/device')
@@ -16,8 +15,6 @@ var samsung     = require('samsung-airconditioner')
 var logger = climate.logger;
 
 
-// define the prototype that will be instantiated when the HVAC unit is discovered
-// later, we will create a ...perform function, and a ...update function.
 var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
@@ -74,7 +71,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
           translated_state.goalTemperature = state[key];
           break;
         case 'AC_FUN_SLEEP':
-          translated_state.fan = parseInt(state[key], 10) * 1000 * 60;
+          translated_state.fan = parseInt(state[key], 10) * (60 * 1000);
           break;
         // TODO: this isn't what the hvac fan interace wants
         // case "AC_FUN_WINDLEVEL":
@@ -110,17 +107,10 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
 
     logger.info('device/' + self.deviceID, translated_state);
 
-    self.update(self, translated_state, self.status);
-    self.changed();
+    self.update(self, translated_state);
   });
 
-  self.update(self, {
-    'hvac': 'off',
-    'power': 'off',
-    'fan': 0,
-    'temperature': 0
-  }, 'present');
-  self.changed();
+  self.update(self, { 'hvac': 'off', 'power': 'off', 'fan': 0, 'temperature': 0 }, 'present');
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -180,6 +170,12 @@ Thermostat.prototype.setup = function () {
 Thermostat.prototype.update = function(self, params, status) {
   var param, updateP;
 
+  if (!!params.power) {
+    self.power = params.power;
+    delete(params.power);
+    if (self.power === 'off') params.hvac = 'off';
+  }
+
   updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
@@ -203,18 +199,12 @@ Thermostat.operations =
            self.setName(value);
          });
 
-        devices.attempt_perform('power', params, function(value) {
-          switch (value) {
-            case 'off':
-              self.hvac.onoff(false);
-              break;
-            case 'on':
-              self.hvac.onoff(true);
-              break;
-          }
-        });
-
         devices.attempt_perform('hvac', params, function(value) {
+          if ((value !== 'off') && (self.power === 'off')) {
+            self.power = 'on';
+            self.hvac.onoff(true);
+          }
+
           switch (value) {
             case 'auto':
               self.hvac.mode('Auto');
@@ -230,6 +220,9 @@ Thermostat.operations =
               break;
             case 'fan':
               self.hvac.mode('Wind');
+              break;
+            case 'off':
+              self.hvac.onoff(false);
               break;
           }
         });
@@ -253,7 +246,7 @@ Thermostat.operations =
             default:
               time = parseInt(value, 10);
               if (isNaN(time)) break;
-              self.hvac.set_sleep_mode(time/1000/60);
+              self.hvac.set_sleep_mode(time / (60 * 1000));
               break;
           }
         });
@@ -298,7 +291,7 @@ var validate_perform = function(perform, parameter) {
 
   if (!params) return result;
 
-  devices.validate_param('power',           params, result, false, { off: 1, on:  1 });
+  devices.validate_param('name',            params, result, false, { });
   devices.validate_param('hvac',            params, result, false, { off: 1, fan: 1, heat: 1, cool: 1, auto: 1 });
   devices.validate_param('fan',             params, result, true,  { off: 1, on:  1, auto: 1 });
   devices.validate_param('goalTemperature', params, result, true,  { });
@@ -316,13 +309,12 @@ exports.start = function() {
   steward.actors.device.climate.samsung.control =
       { $info     : { type       : '/device/climate/samsung/control'
                     , observe    : [ ]
-                    , perform    : [ ]
+                    , perform    : [ 'wake' ]
                     , properties : { name            : true
                                    , status          : [ 'present', 'reset' ]
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'
                                    , humidity        : 'percentage'
-                                   , power           : [ 'on', 'off' ]
                                    , hvac            : [ 'cool', 'heat', 'fan', 'off', 'dry', 'auto' ]
                                    , fan             : [ 'on', 'auto', 'milliseconds', 'off', 'high', 'mid', 'low' ]
                                    , goalTemperature : 'celsius'

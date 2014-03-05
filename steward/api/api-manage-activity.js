@@ -172,21 +172,24 @@ var list = function(logger, ws, api, message, tag) {
     if (!results.result.groups) results.result.groups = {};
     for (i = 0; i < actorIDs.length; i++) {
       if (!!results.result.groups['group/' + actorIDs[i]]) continue;
-      results.result.groups['group/' + actorIDs[i]] = groups.proplist(null, groups.id2group(actorIDs[i]));
+      group = groups.id2group(actorIDs[i]);
+      if (!!group) results.result.groups['group/' + actorIDs[i]] = groups.proplist(null, group);
     }
 
     actorIDs = events.idlist();
     if (!results.result.groups) results.result.events = {};
     for (i = 0; i < actorIDs.length; i++) {
       if (!!results.result.events['event/' + actorIDs[i]]) continue;
-      results.result.events['event/' + actorIDs[i]] = events.proplist(null, events.id2event(actorIDs[i]));
+      event = events.id2event(actorIDs[i]);
+      if (!!event) results.result.events['event/' + actorIDs[i]] = events.proplist(null, event);
     }
 
     actorIDs = tasks.idlist();
     if (!results.result.groups) results.result.tasks = {};
     for (i = 0; i < actorIDs.length; i++) {
       if (!!results.result.tasks['task/' + actorIDs[i]]) continue;
-      results.result.tasks['task/' + actorIDs[i]] = tasks.proplist(null, tasks.id2task(actorIDs[i]));
+      task = tasks.id2task(actorIDs[i]);
+      if (!!task) results.result.tasks['task/' + actorIDs[i]] = tasks.proplist(null, task);
     }
   }
 

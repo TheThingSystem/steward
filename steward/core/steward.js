@@ -135,10 +135,7 @@ var check = function(event, now) {
   try { params = JSON.parse(event.parameter); } catch(ex) { params = null; }
   previous = event.observeP;
   event.observeP = (!!params) && evaluate(params, entity, info);
-  if (event.observeP !== previous) {
-event.lastTime = now;
-console.log('>>> updating ' + event.actorType + '/' + event.actorID);
-}
+  if (event.observeP !== previous) event.lastTime = now;
 };
 
 var evaluate = function(params, entity, info) {
@@ -263,7 +260,6 @@ var observedT = function(whoami) {
   switch (parts[0]) {
     case 'event':
       event = events.id2event(parts[1]);
-if(!event)console.log('>>> no event: ' + whoami);
       return ((event && event.lastTime) || 0);
 
     case 'group':
@@ -292,7 +288,6 @@ var prepare = exports.prepare = function(whoami) {
       task = tasks.id2task(parts[1]);
       if (!task) break;
       task.performP = (task.guardType === '') || (observedP(task.guardType + '/' + task.guardID));
-if(task.guardType!== '')console.log('>>> guard ' + task.guardType + '/' + task.guardID + ' -> ' + task.performP);
       break;
 
 // TBD: temporal ordering

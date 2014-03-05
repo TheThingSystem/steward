@@ -583,7 +583,7 @@ var validate_observe = function(observe, parameter) {
       }
       pair = nextSolarEvent(new Date(), params[1]);
       if (!util.isArray(pair)) {
-        result.invalid.push('parameter');
+        result.invalid.push('parameter ' + params[1] + ': ' + JSON.stringify(pair));
         break;
       }
       if (pair[1] === 0) params[0] = 'start';

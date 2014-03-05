@@ -270,6 +270,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
 
       if (member.actorType !== 'group') continue;
       group = groups.id2group(member.actorID);
+      if (!group) continue;
 
       members = group.members;
       for (j = 0; j < members.length; j++) {
