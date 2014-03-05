@@ -420,7 +420,7 @@ Place.prototype.getWoeID = function(self, tries) {
     tries = 1;
   }
 
-  new yql.exec2('SELECT * FROM geo.placefinder WHERE (text = @text) AND (gflags = "R")', 
+  new yql.exec2('SELECT * FROM geo.placefinder WHERE (text = @text) AND (gflags = "R")',
                 { text: self.info.location[0] + ',' + self.info.location[1] }, {}, function (err, response) {
     var woeid;
 
