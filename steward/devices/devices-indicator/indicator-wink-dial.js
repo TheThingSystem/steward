@@ -114,7 +114,6 @@ Gauge.prototype.egress = function(self) {
               }[property] || '';
     }
   }
-console.log('>>> ' + self.info.actor + ' . ' + self.info.property + ' -> ' + value);
 
   self.gateway.wink.setDial(self.params, { name                  : 'dial:' + self.deviceID
                                          , label                 : value

@@ -684,7 +684,6 @@ exports.rainbow =
 , attention: { color: 'orange', rgb: { r: 255, g: 131, b:   0 } }
 , warning:   { color: 'blue',   rgb: { r:   0, g:   0, b: 255 } }
 , normal:    { color: 'green',  rgb: { r:   0, g: 255, b:   0 } }
-
 };
 
 

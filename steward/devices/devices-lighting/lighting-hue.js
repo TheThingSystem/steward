@@ -96,18 +96,16 @@ var childprops = function(self, light) {
     color = {};
     if (child.state.colormode === 'ct')  {
       color.model       = 'temperature';
-      color.temperature = child.state.ct;
+      color.temperature = { temperature: child.state.ct };
     } else if (child.state.colormode === 'hue') {
       color.model       = 'hue';
-      color.hue         = degreesHue(child.state.hue);
-      color.saturation  = percentageSat(child.state.sat);
+      color.hue         = { hue: degreesHue(child.state.hue), saturation: percentageSat(child.state.sat) };
     } else if (child.state.colormode === 'xy') {
       color.model       = 'cie1931';
       color.cie1931     = { x: child.state.xy[0], y: child.state.xy[1] };
     } else {
       color.model       = 'hue';
-      color.hue         = 0;
-      color.saturation  = 0;
+      color.hue         = { hue: 0, saturation: 0 };
     }
     child.info = { color: color, brightness: percentageBri(child.state.bri) };
     child.updated = props.updated;
@@ -174,37 +172,37 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     });
 
     return steward.performed(taskID);
-  } else {
-    if (perform === 'off') state.on = false;
-    else if (perform !== 'on') return;
-    else {
-      state.on = true;
+  }
 
-      if (!!params.brightness) state.bri = hueBrightness(params.brightness);
+  if (perform === 'off') state.on = false;
+  else if (perform !== 'on') return;
+  else {
+    state.on = true;
 
-      color = params.color;
-      if (!!color) {
-        switch (color.model) {
-          case 'temperature':
-            state.ct = temperature(color.temperature);
-            break;
+    if (!!params.brightness) state.bri = hueBrightness(params.brightness);
 
-          case 'hue':
-            state.hue = hueHue(color.hue);
-            state.sat = hueSaturation(color.saturation);
-            break;
+    color = params.color;
+    if (!!color) {
+      switch (color.model) {
+        case 'temperature':
+          state.ct = temperature(color.temperature.temperature);
+          break;
 
-          case 'cie1931':
-            state.xy = lighting.colors.cie1931([ color.cie1931.x, color.cie1931.y]);
-            break;
+        case 'hue':
+          state.hue = hueHue(color.hue.hue);
+          state.sat = hueSaturation(color.hue.saturation);
+          break;
 
-          case 'rgb':
-            state.xy = lighting.colors.rgbToCIE1931(color.rgb.r, color.rgb.g, color.rgb.b);
-            break;
+        case 'cie1931':
+          state.xy = lighting.colors.cie1931([ color.cie1931.x, color.cie1931.y]);
+          break;
 
-          default:
-            break;
-        }
+        case 'rgb':
+          state.xy = lighting.colors.rgbToCIE1931(color.rgb.r, color.rgb.g, color.rgb.b);
+          break;
+
+        default:
+          break;
       }
     }
   }
@@ -618,12 +616,12 @@ var validate_perform_bulb = function(perform, parameter) {
   if (!!color) {
     switch (color.model) {
         case 'temperature':
-          if (!lighting.validTemperature(color.temperature)) result.invalid.push('color.temperature');
+          if (!lighting.validTemperature(color.temperature.temperature)) result.invalid.push('color.temperature.temperature');
           break;
 
         case 'hue':
-          if (!lighting.validHue(color.hue)) result.invalid.push('color.hue');
-          if (!lighting.validSaturation(color.saturation)) result.invalid.push('color.saturation');
+          if (!lighting.validHue(color.hue.hue)) result.invalid.push('color.hue.hue');
+          if (!lighting.validSaturation(color.hue.saturation)) result.invalid.push('color.hue.saturation');
           if (!params.brightness) result.requires.push('brightness');
           break;
 

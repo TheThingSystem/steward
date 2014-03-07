@@ -252,11 +252,12 @@ var onmessage = function(message, reel) {
 };
 
 // the UDP stream is faster than the database on startup
-
 var update = function(udn, data, timestamp) {
   var device;
 
-  if ((!devices.devices[udn]) || (!devices.devices[udn].device)) return;
+  if ((!devices.devices[udn]) || (!devices.devices[udn].device)) {
+    return setTimeout(function() { update(udn, data, timestamp); }, 10);
+  }
 
   device = devices.devices[udn].device;
   if (!!device) device.update(device, data, timestamp);
