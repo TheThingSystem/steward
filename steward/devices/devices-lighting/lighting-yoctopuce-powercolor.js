@@ -134,6 +134,7 @@ var validate_perform = function(perform, parameter) {
   if (!!color) {
     switch (color.model) {
         case 'hue':
+          if (!color.hue) { result.requires.push('color.hue'); break; }
           if (!lighting.validHue(color.hue.hue)) result.invalid.push('color.hue.hue');
           if (!lighting.validSaturation(color.hue.saturation)) result.invalid.push('color.hue.saturation');
           if (!params.brightness) result.requires.push('brightness');

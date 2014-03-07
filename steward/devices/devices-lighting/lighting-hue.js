@@ -616,10 +616,12 @@ var validate_perform_bulb = function(perform, parameter) {
   if (!!color) {
     switch (color.model) {
         case 'temperature':
+          if (!color.temperature) { result.requires.push('color.temperature'); break; }
           if (!lighting.validTemperature(color.temperature.temperature)) result.invalid.push('color.temperature.temperature');
           break;
 
         case 'hue':
+          if (!color.hue) { result.requires.push('color.hue'); break; }
           if (!lighting.validHue(color.hue.hue)) result.invalid.push('color.hue.hue');
           if (!lighting.validSaturation(color.hue.saturation)) result.invalid.push('color.hue.saturation');
           if (!params.brightness) result.requires.push('brightness');
