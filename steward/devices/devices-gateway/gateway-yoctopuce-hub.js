@@ -141,7 +141,8 @@ Hub.prototype.addsensor = function(self, module, modelNumber, productName, seria
                                                 , diagnostic  : 'unit unusable' });
       continue;
     }
-    sensorQ = sensorQ.toLowerCase();
+    parts = sensorQ.split(' ');
+    sensorQ = parts[parts.length - 1].toLowerCase();
 
     sensors.prime(sensorQ);
 
