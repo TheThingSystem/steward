@@ -27,7 +27,6 @@
     , "irobot"                  : "git://github.com/TheThingSystem/irobot.git"
     , "json-stringify-safe"     : "4.0.0"
     , "koubachi"                : "0.0.4"
-    , "lifx"                    : "git://github.com/TheThingSystem/lifxjs.git"
     , "line-reader"             : "0.2.3"
     , "lockitron-api"           : "0.3.1"
     , "longjohn"                : "0.2.0"
