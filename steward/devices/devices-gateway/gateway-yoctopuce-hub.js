@@ -134,15 +134,11 @@ Hub.prototype.addsensor = function(self, module, modelNumber, productName, seria
       continue;
     }
 
-    if ((!!name) && (name.length !== 0)) {
-      parts = name.split('-');
-      sensorQ = parts[parts.length - 1];
-    }
-    if (!sensorQ) {
-      logger.warning('device/' + self.deviceID, { event       : 'addsensor'
+    sensorQ = sensor.get_unit();
+    if (sensorQ === yapi.Y_UNIT_INVALID) {
+      logger.warning('device/' + self.deviceID, { event       : 'get_unit'
                                                 , sensorID    : sensorID
-                                                , logicalName : name
-                                                , diagnostic  : 'logicalName unusable' });
+                                                , diagnostic  : 'unit unusable' });
       continue;
     }
     sensorQ = sensorQ.toLowerCase();
