@@ -1858,8 +1858,9 @@ var review_drilldown = function(state) {
 }
 
 var weather_drilldown = function(state) {
-  var arc, arcs, arcz, device, devices, entry, group, i, index, maxForecasts, members, placeInfo;
+  var arc, arcs, arcz, device, devices, entry, group, i, index, maxForecasts, members, name, placeInfo;
   maxForecasts = 3;
+  name = "";
   
   placeInfo = state.message.result['/place']['place/1'].info;
   if (!placeInfo.conditions || !placeInfo.forecasts) return;
