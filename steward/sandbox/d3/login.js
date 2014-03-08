@@ -701,6 +701,20 @@ var bootable = { '':
                    }
                  , authorizeText : 'Click here to add a new vehicle for the steward to manage.'
                  }
+               , cassandra      :
+                 { text         : 'If you have an account on a Cassandra server, the steward can automatically upload measurements.'
+                 , instructions : 'Enter a URL, e.g., "nosqls://cluster" and your username/password for the server'
+                 , site         : ''
+                 , icon         : ''
+                 , name         : 'cassandra'
+                 , actor        : '/device/indicator/cassandra/nosql'
+                 , info         :
+                   { url        : ''
+                   , username   : ''
+                   , passphrase : ''
+                   , crtPath    : ''
+                   }
+                 }
                , dweetio        :
                  { text         : 'The steward can automatically upload measurements to dweet.io'
                  , instructions : 'No account is necessary. The key is an optional identifier for your use.'

@@ -50,7 +50,7 @@ var create = function(logger, ws, api, message, tag) {
 
     try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
-    if (err)                                                return error(false, err.message);
+    if (!!err)                                              return error(false, err.message);
     if (!deviceID)                                          return error(false, 'duplicate uuid',
                                                                          'device/' + devices.devices[info.id].device.deviceID);
 

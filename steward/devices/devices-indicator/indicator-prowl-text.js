@@ -62,6 +62,7 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
     if (!util.isArray(data)) data = [ data ];
     for (i = 0; i < data.length; i++) {
       datum = data[i];
+      if (!datum.date) continue;
 
       if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) continue;
 

@@ -38,6 +38,7 @@
     , "netmask"                 : "1.0.4"
     , "noble"                   : "git://github.com/sandeepmistry/noble.git"
     , "node-blink1"             : "0.1.0"
+    , "node-cassandra-cql"      : "git://github.com/TheThingSystem/node-cassandra-cql.git"
     , "node-dweetio"            : "0.0.8"
     , "node-hid"                : "0.2.3"
     , "node-lsof"               : "git://github.com/TheThingSystem/node-lsof.git"

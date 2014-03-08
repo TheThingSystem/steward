@@ -1,10 +1,24 @@
-// mqtt - send measurements via MQTT
+// cassandra - partitioned row store with tunable consistency
 
-var mqtt        = require('mqtt')
+/*
+CREATE KEYSPACE logging WITH REPLICATION={'class': 'SimpleStrategy','replication_factor':1};
+CREATE TABLE logging.logs(key TEXT, date TIMESTAMP, steward TEXT, level TEXT, message TEXT, meta TEXT,
+                          PRIMARY KEY(key, date));
+GRANT SELECT ON logging.logs to 'arden-arcade.taas.thethingsystem.net';
+GRANT MODIFY ON logging.logs to 'arden-arcade.taas.thethingsystem.net';
+
+CREATE KEYSPACE sensors WITH REPLICATION={'class': 'SimpleStrategy','replication_factor':1};
+CREATE TABLE sensors.measurements(key TEXT, date TIMESTAMP, steward TEXT, actor TEXT, name TEXT, value TEXT, meta TEXT,
+                                  PRIMARY KEY(key, date));
+GRANT SELECT ON sensors.measurements TO 'arden-arcade.taas.thethingsystem.net';
+GRANT MODIFY ON sensors.measurements TO 'arden-arcade.taas.thethingsystem.net';
+
+*/
+
+var cql         = require('node-cassandra-cql')
   , url         = require('url')
   , util        = require('util')
   , winston     = require('winston')
-  , serialize   = require('winston/lib/winston/common').serialize
   , devices     = require('./../../core/device')
   , server      = require('./../../core/server')
   , steward     = require('./../../core/steward')
@@ -18,7 +32,7 @@ var mqtt        = require('mqtt')
 var logger = indicator.logger;
 
 
-var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
+var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
   var previous, self;
 
   self = this;
@@ -49,136 +63,119 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
 }
  */
   broker.subscribe('readings', function(deviceID, point) {
-    if (!self.mqtt) return;
+    var date, key;
+
+    if (!self.cql) return;
     if (self.status !== 'ready') return;
 
     if ((!!self.sensors) && (!self.sensors[deviceID])) return;
     if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
-    self.mqtt.publish(self.path + 'devices/' + deviceID + '/' + point.measure.name,
-                      JSON.stringify({ value: point.value, measure: point.measure, timestamp: point.timestamp }));
+    date = new Date(point.timestamp);
+    try { key = date.toISOString().slice(11); } catch(ex) { return; }
+
+    self.cql.executeAsPrepared('INSERT INTO sensors.measurements(key, date, steward, actor, name, value, meta) '
+                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?)',
+                               [ key
+                               , date
+                               , server.vous || ''
+                               , 'device/' + deviceID
+                               , point.measure.name
+                               , point.value.toString()
+                               , util.inspect(point.measure)
+                               ], function(err) {
+      if (!!err) self.error(self, err);
+    });
   });
 
   previous = {};
   broker.subscribe('beacon-egress', function(category, data) {
-    var datum, i, now, parameter;
+    var date, datum, key, i, now;
 
-    if (!self.mqtt) return;
+    if (!self.cql) return;
     if (self.status !== 'ready') return;
+
+    var oops = function(err) { if (!!err) self.error(self, err); };
 
     if (!util.isArray(data)) data = [ data ];
     for (i = 0; i < data.length; i++) {
       datum = data[i];
-      if (!datum.date) continue;
 
       if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) continue;
 
       if (!previous[datum.level]) previous[datum.level] = {};
-      now = new Date(datum.date).getTime();
+      date = new Date(datum.date);
+      try { key = date.toISOString().slice(11); } catch(ex) { return; }
+
+      now = date.getTime();
       if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
       previous[datum.level][datum.message] = now + (60 * 1000);
 
-      parameter = datum.message;
-      if (!!datum.meta) parameter += ' ' + serialize(datum.meta);
-
-      self.mqtt.publish(self.path + 'logs/' + category, JSON.stringify(datum), { retain: true });
+      self.cql.executeAsPrepared('INSERT INTO logging.logs(key, date, steward, level, message, meta) VALUES(?, ?, ?, ?, ?, ?)',
+                                 [ key, date, server.vous || '', datum.level, datum.message, util.inspect(datum.meta || {}) ],
+                                 oops);
     }
   });
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
   });
 
   self.login(self);
 };
-util.inherits(Mqtt, indicator.Device);
+util.inherits(Cassandra, indicator.Device);
 
 
-Mqtt.prototype.login = function(self) {
-  var i, method, option, options, opts, params;
+Cassandra.prototype.login = function(self) {
+  var option, opts, params;
 
   params = url.parse(self.info.url, true);
-  if (!params.port) params.port = (params.protocol === 'mqtts:') ? 8883 : 1883;
+  if (!params.port) params.port = (params.protocol === 'nosqls:') ? 9043 : 9042;
   if (!!self.info.username) {
     params.query.username = self.info.username;
     if (!!self.info.passphrase) params.query.password = self.info.passphrase;
   }
-  if ((!!self.info.crtPath) && (params.protocol === 'mqtts:')) {
+  if ((!!self.info.crtPath) && (params.protocol === 'nosqls:')) {
     params.query.ca = [ __dirname + '/../../db/' + self.info.crtPath ];
   }
 
-  options = { protocolID: 'MQIsdp', protocolVersion: 3 };
+  self.options = {};
   opts = params.query || {};
-  for (option in opts) if (opts.hasOwnProperty(option)) options[option] = opts[option];
+  for (option in opts) if (opts.hasOwnProperty(option)) self.options[option] = opts[option];
+  self.options.secureP = params.protocol === 'nosqls:';
+  if (self.options.secureP) self.options.tlsport = params.port; else self.options.port = params.port;
+  self.options.hosts = [ params.host ];
 
   self.path = params.pathname || '';
   if (self.path.indexOf('/') !== 0) self.path = '/' + self.path;
   if (self.path.lastIndexOf('/') !== (self.path.length - 1)) self.path += '/';
   self.path = self.path.split('/').slice(1).slice(0, -1).join('/');
-  if (self.path !== '') self.path += '/';
+  self.options.keyspace = self.path !== '' ? self.path : 'logging';
 
-  method = (params.protocol === 'mqtts:') ? mqtt.createSecureClient : mqtt.createClient;
-  self.mqtt = method(params.port, params.hostname, options).on('connect', function() {
+  self.cql = new cql.Client(self.options).on('log', function(level, message) {
+    if ((level === 'info') || (!logger[level])) level = 'debug';
+    logger[level]('device/' + self.deviceID, { message: message });
+  });
+  self.cql.connect(function(err) {
+    if (!!err) return self.error(self, err);
+
     self.status = 'ready';
     self.changed();
-  }).on('message', server.mqtt_onmessage).on('error', function(err) {
-    self.status = 'error';
-    self.changed();
-    logger.error('device/' + self.deviceID, { event: 'error', diagnostic: err.message });
-
-    self.mqtt.end();
-    self.mqtt = null;
-    setTimeout(function() { self.login(self); }, 600 * 1000);
   });
-  if (!!self.info.subscriptions) {
-    for (i = 0; i < self.info.subscriptions.length; i++) self.mqtt.subscribe(self.info.subscriptions[i]);
-  } else {
-    self.mqtt.subscribe(self.path.split('/')[0] + '/#');
-  }
 };
 
-Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
-  var param, params, updateP;
+Cassandra.prototype.error = function(self, err) {
+  logger.error('device/' + self.deviceID, { diagnostic: err.message });
+  self.status = 'error';
+  self.changed();
 
-  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
-
-  if (perform === 'set') {
-    if (!!params.name) {
-      self.setName(params.name);
-      delete(params.name);
-    }
-
-    updateP = false;
-    for (param in params) {
-      if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
-
-      self.info[param] = params[param];
-      updateP = true;
-    }
-    if (!updateP) return true;
-
-    self.setInfo();
-    if (!!self.mqtt) {
-      self.mqtt = null;
-      setTimeout(function() { self.login(self); }, 0);
-    }
-
-    return true;
-  }
-
-  if ((perform !== 'growl') || (!self.mqtt)) return false;
-  params.message = devices.expand(params.message, 'device/' + self.deviceID);
-
-  if ((!params.priority) || (!params.message) || (params.message.length === 0)) return false;
-
-  if ((!winston.config.syslog.levels[params.priority])
-        || (winston.config.syslog.levels[params.priority] < self.priority)) return false;
-
-  self.mqtt.publish(self.path + 'messages', params.message, { retain: true });
-  return steward.performed(taskID);
+  self.cql.shutdown();
+  self.sql = null;
+  return setTimeout(function() { self.login(self); }, 600 * 1000);
 };
+
 
 var validate_create = function(info) {
   var params
@@ -189,7 +186,7 @@ var validate_create = function(info) {
   else if (typeof info.url !== 'string') result.invalid.push('url');
   else {
     params = url.parse(info.url);
-    if ((!params.hostname) || ((params.protocol !== 'mqtt:') && (params.protocol !== 'mqtts:'))) {
+    if ((!params.hostname) || ((params.protocol !== 'nosql:') && (params.protocol !== 'nosqls:'))) {
       result.invalid.push('url');
     }
   }
@@ -208,32 +205,6 @@ var validate_create = function(info) {
 
   if ((!!info.priority) && (!winston.config.syslog.levels[info.priority])) result.invalid.push('priority');
 
-// NB: maybe we ought to be syntax checking the values for these?
-  if ((!!info.subscriptions) && (!util.isArray(info.subscriptions))) result.invalid.push('subscriptions');
-
-  return result;
-};
-
-var validate_perform = function(perform, parameter) {
-  var params = {}
-    , result = { invalid: [], requires: [] }
-    ;
-
-  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
-
-  if (perform === 'set') return validate_create(params);
-
-  if (perform !== 'growl') {
-    result.invalid.push('perform');
-    return result;
-  }
-
-  if (!params.priority) result.requires.push('priority');
-  else if (!winston.config.syslog.levels[params.priority]) result.invalid.push('priority');
-
-  if (!params.message) result.requires.push('message');
-  else if (params.message.length === 0) result.invalid.push('message');
-
   return result;
 };
 
@@ -241,18 +212,18 @@ var validate_perform = function(perform, parameter) {
 exports.start = function() {
   var measureName, measurements;
 
-  steward.actors.device.indicator.mqtt = steward.actors.device.indicator.mqtt ||
-      { $info     : { type: '/device/indicator/mqtt' } };
+  steward.actors.device.indicator.cassandra = steward.actors.device.indicator.cassandra ||
+      { $info     : { type: '/device/indicator/cassandra' } };
 
   measurements = {};
   for (measureName in sensor.measures) {
     if (sensor.measures.hasOwnProperty(measureName)) measurements[measureName] = sensor.measures[measureName].units;
   }
 
-  steward.actors.device.indicator.mqtt.text =
-      { $info     : { type       : '/device/indicator/mqtt/text'
+  steward.actors.device.indicator.cassandra.nosql =
+      { $info     : { type       : '/device/indicator/cassandra/nosql'
                     , observe    : [ ]
-                    , perform    : [ 'growl' ]
+                    , perform    : [ ]
                     , properties : { name         : true
                                    , status       : [ 'waiting', 'ready', 'error' ]
                                    , url          : true
@@ -266,8 +237,8 @@ exports.start = function() {
                                    }
                     }
       , $validate : { create     : validate_create
-                    , perform    : validate_perform
+                    , perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/indicator/mqtt/text'] = Mqtt;
+  devices.makers['/device/indicator/cassandra/nosql'] = Cassandra;
 };
