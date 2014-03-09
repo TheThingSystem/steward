@@ -15,7 +15,7 @@ DROP KEYSPACE sensors;
 CREATE KEYSPACE sensors WITH REPLICATION={'class':'SimpleStrategy','replication_factor':1};
 USE sensors;
 CREATE TABLE measurements(hour TIMESTAMP, id TIMEUUID, source UUID, datetime TIMESTAMP,
-                          steward TEXT, actor TEXT, name TEXT, value TEXT, meta MAP<TEXT,TEXT>,
+                          steward TEXT, actor TEXT, name TEXT, value TEXT, units TEXT, meta MAP<TEXT,TEXT>,
                           PRIMARY KEY(hour, datetime))
   WITH CLUSTERING ORDER BY (datetime DESC);
 GRANT SELECT ON measurements TO 'arden-arcade.taas.thethingsystem.net';
@@ -106,8 +106,8 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
     if (!!device) actor += ' ' + device.name;
 
     self.cql.executeAsPrepared('INSERT INTO sensors.measurements(hour, id, source, datetime, '
-                                 + 'steward, actor, name, value, meta) '
-                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                 + 'steward, actor, name, value, units, meta) '
+                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                                [ hour
                                , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
                                , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
@@ -116,6 +116,7 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
                                , actor
                                , point.measure.name
                                , point.value.toString()
+                               , point.measure.label
                                , meta2map(point.measure)
                                ], function(err) {
       if (!!err) self.error(self, err);
