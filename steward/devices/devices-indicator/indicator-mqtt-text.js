@@ -130,7 +130,7 @@ Mqtt.prototype.login = function(self) {
 
     self.mqtt.end();
     self.mqtt = null;
-    setTimeout(function() { self.login(self); }, 600 * 1000);
+    setTimeout(function() { self.login(self); }, 30 * 1000);
   });
   if (!!self.info.subscriptions) {
     for (i = 0; i < self.info.subscriptions.length; i++) self.mqtt.subscribe(self.info.subscriptions[i]);

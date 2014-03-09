@@ -205,7 +205,7 @@ GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led)
   self.controller.setBulbLevel(led, state.on, bri);
 
   self.bulbs[led].state.on = state.on;
-  self.bulbs[led].state.brightness.level = state.brightness;
+  if (state.on) self.bulbs[led].state.brightness.level = state.brightness;
   self.bulbs[led].updated = new Date().getTime();
   self.changed();
 

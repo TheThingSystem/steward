@@ -151,8 +151,10 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
 
 // TBD: determine why not receiving update events... (if we can't fix this, we'll need to start polling...)
   self.status = state.on ? 'on' : 'off';
-  if (state.on) self.info.color = state.color;
-  self.info.brightness = state.brightness;
+  if (state.on) {
+    self.info.color = state.color;
+    self.info.brightness = state.brightness;
+  }
   self.changed();
 
   return steward.performed(taskID);
