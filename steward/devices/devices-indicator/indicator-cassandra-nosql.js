@@ -88,7 +88,7 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
 }
  */
   broker.subscribe('readings', function(deviceID, point) {
-    var datetime, hour;
+    var actor, datetime, device, hour;
 
     if ((!self.cql) || (self.status !== 'ready') || (!steward.uuid)) return;
 
@@ -101,6 +101,9 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
     } catch(ex) {
       return;
     }
+    actor = 'device/' + deviceID;
+    device = devices.id2device(deviceID);
+    if (!!device) actor += ' ' + device.name;
 
     self.cql.executeAsPrepared('INSERT INTO sensors.measurements(hour, id, source, datetime, '
                                  + 'steward, actor, name, value, meta) '
@@ -110,7 +113,7 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
                                , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
                                , datetime
                                , server.vous || ''
-                               , 'device/' + deviceID
+                               , actor
                                , point.measure.name
                                , point.value.toString()
                                , meta2map(point.measure)

@@ -13,7 +13,7 @@ var measures = exports.measures =
                  { airQuality  : { symbol: 'AQI', units: 'voltage',    type: 'contextDependentUnits' }
                  , co          : { symbol: 'co',  units: 'ppm',        type: 'contextDependentUnits' }
                  , co2         : { symbol: 'co2', units: 'ppm',        type: 'contextDependentUnits' }
-                 , humidity    : { symbol: '%',   units: 'percentage', type: 'contextDependentUnits' }
+                 , humidity    : { symbol: 'RH',  units: 'percentage', type: 'contextDependentUnits' }
                  , light       : { symbol: 'lx',  units: 'lux',        type: 'derivedSI'             }
                  , moisture    : { symbol: 'mb',  units: 'millibars',  type: 'derivedUnits'          }
                  , no2         : { symbol: 'no2', units: 'ppm',        type: 'contextDependentUnits' }
