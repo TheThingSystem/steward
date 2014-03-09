@@ -677,7 +677,7 @@ exports.name2place = function(name) {
 exports.customary = function(property, value) {
   if (place1.info.displayUnits !== 'customary') return value;
 
-  return { 
+  return {
 // celsius -> fahrenheit
            extTemperature  : Math.round(((value * 9) / 5) + 32)
          , goalTemperature : Math.round(((value * 9) / 5) + 32)

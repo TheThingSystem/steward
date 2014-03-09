@@ -1,23 +1,32 @@
 // cassandra - partitioned row store with tunable consistency
 
 /*
-CREATE KEYSPACE logging WITH REPLICATION={'class': 'SimpleStrategy','replication_factor':1};
-CREATE TABLE logging.logs(key TEXT, date TIMESTAMP, steward TEXT, level TEXT, message TEXT, meta TEXT,
-                          PRIMARY KEY(key, date));
-GRANT SELECT ON logging.logs to 'arden-arcade.taas.thethingsystem.net';
-GRANT MODIFY ON logging.logs to 'arden-arcade.taas.thethingsystem.net';
+DROP KEYSPACE logging;
+CREATE KEYSPACE logging WITH REPLICATION={'class':'SimpleStrategy','replication_factor':1};
+USE logging;
+CREATE TABLE logs(hour TIMESTAMP, id TIMEUUID, source UUID, datetime TIMESTAMP,
+                  steward TEXT, category TEXT, level TEXT, message TEXT, meta MAP<TEXT,TEXT>,
+                  PRIMARY KEY(hour, datetime))
+  WITH CLUSTERING ORDER BY (datetime DESC);
+GRANT SELECT ON logs to 'arden-arcade.taas.thethingsystem.net';
+GRANT MODIFY ON logs to 'arden-arcade.taas.thethingsystem.net';
 
-CREATE KEYSPACE sensors WITH REPLICATION={'class': 'SimpleStrategy','replication_factor':1};
-CREATE TABLE sensors.measurements(key TEXT, date TIMESTAMP, steward TEXT, actor TEXT, name TEXT, value TEXT, meta TEXT,
-                                  PRIMARY KEY(key, date));
-GRANT SELECT ON sensors.measurements TO 'arden-arcade.taas.thethingsystem.net';
-GRANT MODIFY ON sensors.measurements TO 'arden-arcade.taas.thethingsystem.net';
+DROP KEYSPACE sensors;
+CREATE KEYSPACE sensors WITH REPLICATION={'class':'SimpleStrategy','replication_factor':1};
+USE sensors;
+CREATE TABLE measurements(hour TIMESTAMP, id TIMEUUID, source UUID, datetime TIMESTAMP,
+                          steward TEXT, actor TEXT, name TEXT, value TEXT, meta MAP<TEXT,TEXT>,
+                          PRIMARY KEY(hour, datetime))
+  WITH CLUSTERING ORDER BY (datetime DESC);
+GRANT SELECT ON measurements TO 'arden-arcade.taas.thethingsystem.net';
+GRANT MODIFY ON measurements TO 'arden-arcade.taas.thethingsystem.net';
 
 */
 
 var cql         = require('node-cassandra-cql')
   , url         = require('url')
   , util        = require('util')
+  , uuid        = require('node-uuid')
   , winston     = require('winston')
   , devices     = require('./../../core/device')
   , server      = require('./../../core/server')
@@ -54,8 +63,24 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'passphrase' ];
   self.changed();
 
+  var date2hour = function(date) {
+    var hour = new Date(date).toISOString().slice(0, 14) + '00:00.000Z';
+
+    return new Date(hour);
+  };
+
+  var meta2map = function(meta) {
+    var m, map;
+
+    map = {};
+    if (!!meta) for (m in meta) if (!!meta.hasOwnProperty(m)) { try { map[m] = meta[m].toString(); } catch(ex) {} }
+
+    return { hint: cql.types.dataTypes.map, value: map };
+  };
+
 /*
- device/162 - Air Quality Sensor
+ deviceID   : '162'
+
 { streamID  : 160
 , measure   : { name: "co", type: "contextDependentUnits", label: "voltage", symbol: "co" }
 , value     : 0.0823
@@ -63,56 +88,89 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
 }
  */
   broker.subscribe('readings', function(deviceID, point) {
-    var date, key;
+    var datetime, hour;
 
-    if (!self.cql) return;
-    if (self.status !== 'ready') return;
+    if ((!self.cql) || (self.status !== 'ready') || (!steward.uuid)) return;
 
     if ((!!self.sensors) && (!self.sensors[deviceID])) return;
     if ((!!self.measurements) && (!self.measurements[point.measure.name])) return;
 
-    date = new Date(point.timestamp);
-    try { key = date.toISOString().slice(11); } catch(ex) { return; }
+    try {
+      datetime = new Date(point.timestamp);
+      hour = date2hour(point.timestamp);
+    } catch(ex) {
+      return;
+    }
 
-    self.cql.executeAsPrepared('INSERT INTO sensors.measurements(key, date, steward, actor, name, value, meta) '
-                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?)',
-                               [ key
-                               , date
+    self.cql.executeAsPrepared('INSERT INTO sensors.measurements(hour, id, source, datetime, '
+                                 + 'steward, actor, name, value, meta) '
+                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                               [ hour
+                               , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
+                               , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
+                               , datetime
                                , server.vous || ''
                                , 'device/' + deviceID
                                , point.measure.name
                                , point.value.toString()
-                               , util.inspect(point.measure)
+                               , meta2map(point.measure)
                                ], function(err) {
       if (!!err) self.error(self, err);
     });
   });
 
+/*
+ category : 'devices'
+
+{ date    : '2014-03-09T03:26:26.669Z',
+  level   : 'info',
+  message : 'device/370 WeMo Light Switch',
+  meta    :
+   { subscribe : 'uuid:893e0d7a-1dd2-11b2-bdf2-e2745f0d2d27',
+     sequence  : 0,
+     seconds   : 1800 } }
+ */
   previous = {};
   broker.subscribe('beacon-egress', function(category, data) {
-    var date, datum, key, i, now;
+    var datetime, datum, hour, i, now;
 
-    if (!self.cql) return;
-    if (self.status !== 'ready') return;
+    if ((!self.cql) || (self.status !== 'ready') || (!steward.uuid)) return;
 
     var oops = function(err) { if (!!err) self.error(self, err); };
 
     if (!util.isArray(data)) data = [ data ];
     for (i = 0; i < data.length; i++) {
       datum = data[i];
+      if (!datum.date) continue;
 
       if ((!winston.config.syslog.levels[datum.level]) || (winston.config.syslog.levels[datum.level] < self.priority)) continue;
 
       if (!previous[datum.level]) previous[datum.level] = {};
-      date = new Date(datum.date);
-      try { key = date.toISOString().slice(11); } catch(ex) { return; }
 
-      now = date.getTime();
+      try {
+        datetime = new Date(datum.date);
+        hour = date2hour(datum.date);
+      } catch(ex) {
+        continue;
+      }
+
+      now = datetime.getTime();
       if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
       previous[datum.level][datum.message] = now + (60 * 1000);
 
-      self.cql.executeAsPrepared('INSERT INTO logging.logs(key, date, steward, level, message, meta) VALUES(?, ?, ?, ?, ?, ?)',
-                                 [ key, date, server.vous || '', datum.level, datum.message, util.inspect(datum.meta || {}) ],
+      self.cql.executeAsPrepared('INSERT INTO logging.logs(hour, id, source, datetime, '
+                                 + 'steward, category, level, message, meta) '
+                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                 [ hour
+                                 , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
+                                 , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
+                                 , datetime
+                                 , server.vous || ''
+                                 , category
+                                 , datum.level
+                                 , datum.message
+                                 , meta2map(datum.meta)
+                                 ],
                                  oops);
     }
   });
@@ -173,7 +231,7 @@ Cassandra.prototype.error = function(self, err) {
 
   self.cql.shutdown();
   self.sql = null;
-  return setTimeout(function() { self.login(self); }, 600 * 1000);
+  return setTimeout(function() { self.login(self); }, 30 * 1000);
 };
 
 
@@ -233,7 +291,6 @@ exports.start = function() {
                                    , measurements : measurements
                                    , sensors      : []
                                    , priority     : utility.keys(winston.config.syslog.levels)
-                                   , subscriptions: []
                                    }
                     }
       , $validate : { create     : validate_create
