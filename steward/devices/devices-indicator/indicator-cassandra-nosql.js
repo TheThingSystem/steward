@@ -105,20 +105,20 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
     device = devices.id2device(deviceID);
     if (!!device) actor += ' ' + device.name;
 
-    self.cql.executeAsPrepared('INSERT INTO sensors.measurements(hour, id, source, datetime, '
-                                 + 'steward, actor, name, value, units, meta) '
-                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                               [ hour
-                               , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
-                               , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
-                               , datetime
-                               , server.vous || ''
-                               , actor
-                               , point.measure.name
-                               , point.value.toString()
-                               , point.measure.label
-                               , meta2map(point.measure)
-                               ], function(err) {
+    self.cql.execute('INSERT INTO sensors.measurements(hour, id, source, datetime, '
+                       + 'steward, actor, name, value, units, meta) '
+                       + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                     [ hour
+                     , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
+                     , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
+                     , datetime
+                     , server.vous || ''
+                     , actor
+                     , point.measure.name
+                     , point.value.toString()
+                     , point.measure.label
+                     , meta2map(point.measure)
+                     ], function(err) {
       if (!!err) self.error(self, err);
     });
   });
@@ -162,20 +162,20 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
       if ((!!previous[datum.level][datum.message]) && (previous[datum.level][datum.message] > now)) continue;
       previous[datum.level][datum.message] = now + (60 * 1000);
 
-      self.cql.executeAsPrepared('INSERT INTO logging.logs(hour, id, source, datetime, '
-                                 + 'steward, category, level, message, meta) '
-                                 + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                 [ hour
-                                 , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
-                                 , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
-                                 , datetime
-                                 , server.vous || ''
-                                 , category
-                                 , datum.level
-                                 , datum.message
-                                 , meta2map(datum.meta)
-                                 ],
-                                 oops);
+      self.cql.execute('INSERT INTO logging.logs(hour, id, source, datetime, '
+                       + 'steward, category, level, message, meta) '
+                       + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                       [ hour
+                       , { hint: cql.types.dataTypes.timeuuid, value: uuid.v1()    }
+                       , { hint: cql.types.dataTypes.uuid,     value: steward.uuid }
+                       , datetime
+                       , server.vous || ''
+                       , category
+                       , datum.level
+                       , datum.message
+                       , meta2map(datum.meta)
+                       ],
+                       oops);
     }
   });
 

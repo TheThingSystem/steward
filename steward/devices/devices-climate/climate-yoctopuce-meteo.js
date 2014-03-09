@@ -63,8 +63,6 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Sensor, climate.Device);
 
 Sensor.prototype.scan = function(self) {
-  var params;
-
   var status = self.meteo.module.isOnline() ? 'present' : 'absent';
 
   if (self.status !== status) {
@@ -73,17 +71,13 @@ Sensor.prototype.scan = function(self) {
   }
   if (self.status !== 'present') return;
 
-  params = {};
-
   self.meteo.temperature.get_currentValue_async(function(ctx, led, result) {
     if (result === yapi.Y_LCURRENTVALUE_INVALID) {
       return logger.error('device/' + self.deviceID,
                           { event: 'get_currentValue', diagnostic: 'temperature currentValue invalid' });
     }
 
-    if (!params.lastSample) params.lastSample = new Date().getTime();
-    params.temperature = result;
-    if ((!!params.humidity) && (!!params.pressure)) self.update(self, params);
+    self.update(self, { temperature: result, lastSample: new Date().getTime() });
   });
 
   self.meteo.humidity.get_currentValue_async(function(ctx, led, result) {
@@ -92,9 +86,7 @@ Sensor.prototype.scan = function(self) {
                           { event: 'get_currentValue', diagnostic: 'humidity currentValue invalid' });
     }
 
-    if (!params.lastSample) params.lastSample = new Date().getTime();
-    params.humidity = result;
-    if ((!!params.temperature) && (!!params.pressure)) self.update(self, params);
+    self.update(self, { humidity: result, lastSample: new Date().getTime() });
   });
 
   self.meteo.pressure.get_currentValue_async(function(ctx, led, result) {
@@ -103,9 +95,7 @@ Sensor.prototype.scan = function(self) {
                           { event: 'get_currentValue', diagnostic: 'pressure currentValue invalid' });
     }
 
-    if (!params.lastSample) params.lastSample = new Date().getTime();
-    params.pressure = result;
-    if ((!!params.temperature) && (!!params.humidity)) self.update(self, params);
+    self.update(self, { pressure: result, lastSample: new Date().getTime() });
   });
 };
 
