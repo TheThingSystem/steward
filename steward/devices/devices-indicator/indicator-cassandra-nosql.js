@@ -73,7 +73,7 @@ var Cassandra = exports.Device = function(deviceID, deviceUID, info) {
     var m, map;
 
     map = {};
-    if (!!meta) for (m in meta) if (!!meta.hasOwnProperty(m)) { try { map[m] = meta[m].toString(); } catch(ex) {} }
+    if (!!meta) for (m in meta) if (meta.hasOwnProperty(m)) { try { map[m] = meta[m].toString(); } catch(ex) {} }
 
     return { hint: cql.types.dataTypes.map, value: map };
   };
