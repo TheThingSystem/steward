@@ -40,14 +40,6 @@ var Mqtt = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'passphrase' ];
   self.changed();
 
-/*
- device/162 - Air Quality Sensor
-{ streamID  : 160
-, measure   : { name: "co", type: "contextDependentUnits", label: "voltage", symbol: "co" }
-, value     : 0.0823
-, timestamp : 1383839241764
-}
- */
   broker.subscribe('readings', function(deviceID, point) {
     if (!self.mqtt) return;
     if (self.status !== 'ready') return;

@@ -10,17 +10,18 @@ var sqlite3     = require('sqlite3')
 var logger = exports.logger = utility.logger('sensor');
 
 var measures = exports.measures =
-                 { temperature : { symbol: 'C',   units: 'celsius',    type: 'derivedSI'             }
-                 , humidity    : { symbol: '%',   units: 'percentage', type: 'contextDependentUnits' }
+                 { airQuality  : { symbol: 'AQI', units: 'voltage',    type: 'contextDependentUnits' }
+                 , co          : { symbol: 'co',  units: 'ppm',        type: 'contextDependentUnits' }
                  , co2         : { symbol: 'co2', units: 'ppm',        type: 'contextDependentUnits' }
+                 , humidity    : { symbol: '%',   units: 'percentage', type: 'contextDependentUnits' }
+                 , light       : { symbol: 'lx',  units: 'lux',        type: 'derivedSI'             }
+                 , moisture    : { symbol: 'mb',  units: 'millibars',  type: 'derivedUnits'          }
+                 , no2         : { symbol: 'no2', units: 'ppm',        type: 'contextDependentUnits' }
                  , noise       : { symbol: 'dB',  units: 'decibels',   type: 'derivedUnits'          }
                  , pressure    : { symbol: 'mb',  units: 'millibars',  type: 'derivedUnits'          }
-                 , airQuality  : { symbol: 'AQI', units: 'voltage',    type: 'contextDependentUnits' }
                  , smoke       : { symbol: 'v',   units: 'voltage',    type: 'contextDependentUnits' }
-                 , co          : { symbol: 'co',  units: 'voltage',    type: 'contextDependentUnits' }
-                 , no2         : { symbol: 'no2', units: 'voltage',    type: 'contextDependentUnits' }
-                 , moisture    : { symbol: 'mb',  units: 'millibars',  type: 'derivedUnits'          }
-                 , light       : { symbol: 'lx',  units: 'lux',        type: 'derivedSI'             }
+                 , temperature : { symbol: 'C',   units: 'celsius',    type: 'derivedSI'             }
+                 , voc         : { symbol: 'voc', units: 'ppm',        type: 'contextDependentUnits' }
                  };
 
 var streams    = {};
