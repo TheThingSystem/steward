@@ -32,7 +32,7 @@ var Protect = exports.Device = function(deviceID, deviceUID, info) {
   for (param in info.params) {
     if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
   }
-  sensor.update(self.deviceID, info.params);
+  sensor.update(self.deviceID, normalize(info.params));
 
   self.changed();
   self.gateway = info.gateway;
@@ -63,8 +63,20 @@ Protect.prototype.update = function(self, params, status) {
   }
   if (updateP) {
     self.changed();
-    sensor.update(self.deviceID, params);
+    sensor.update(self.deviceID, normalize(params));
   }
+};
+
+var normalize = function(params) {
+  var param;
+
+  params = utility.clone(params);
+
+  for (param in params) {
+    if ((params.hasOwnProperty(param)) && (isNaN(params[param]))) params[param] = param === 'detected' ? '5' : '0';
+  }
+
+  return params;
 };
 
 

@@ -469,7 +469,7 @@ var traverse = function(result, whoami, depth) {
       return '<table class="children">' + children + '</table>';
 
     default:
-      return entity.name + ' [' + whoami + ']';
+      return entity.name + ((entity.name !== whoami) ? ' [' + whoami + ']' : '')
   }
 }
 

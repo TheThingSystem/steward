@@ -1,7 +1,5 @@
 // Samsung Smart Air Conditioners - http://www.samsung.com/au/air-conditioning/smart-zone/
 
-exports.start = function() {};
-
 var samsung     = require('samsung-airconditioner')
   , util        = require('util')
   , devices     = require('./../../core/device')

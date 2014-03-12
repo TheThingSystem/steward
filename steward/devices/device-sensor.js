@@ -69,39 +69,54 @@ var addvalue = function(measureID, streamID) {
 };
 
 exports.update = function(deviceID, params) {
-  var measureID, measureName, streamID;
+  var measureName;
 
   if (!exports.db) return false;
+
+  var f = function(measureName) {
+    return function() {
+      update(deviceID, measureName, params[measureName], params.lastSample);
+    };
+  };
 
   for (measureName in params) {
     if ((!params.hasOwnProperty(measureName)) || (!measures[measureName]) || (!params[measureName])) continue;
 
-    measureID = measures[measureName].id;
-    if ((!!streams[measureID]) && (!!streams[measureID][deviceID])) {
-      streamID = streams[measureID][deviceID];
+    setTimeout(f(measureName), 0);
+  }
 
-      exports.db.run('INSERT INTO readings(streamID, value, timestamp) VALUES($streamID, $value, $timestamp)',
-                     { $streamID : streamID, $value: params[measureName], $timestamp: params.lastSample },
-                     addvalue(measureID, streamID));
+  return true;
+};
 
-      if (broker.has('readings')) {
-        broker.publish('readings', deviceID, { streamID  : streamID.toString()
-                                             , measure   : { name   : measureName
-                                                           , type   : measures[measureName].type
-                                                           , label  : measures[measureName].units
-                                                           , symbol : measures[measureName].symbol
-                                                           }
-                                             , value     : params[measureName]
-                                             , timestamp : params.lastSample
-                                             });
-      }
-      continue;
+var update = function(deviceID, measureName, value, timestamp) {
+  var measureID, streamID;
+
+  measureID = measures[measureName].id;
+  if ((!!streams[measureID]) && (!!streams[measureID][deviceID])) {
+    streamID = streams[measureID][deviceID];
+
+    exports.db.run('INSERT INTO readings(streamID, value, timestamp) VALUES($streamID, $value, $timestamp)',
+                   { $streamID : streamID, $value: value, $timestamp: timestamp },
+                   addvalue(measureID, streamID));
+
+    if (broker.has('readings')) {
+      broker.publish('readings', deviceID, { streamID  : streamID.toString()
+                                           , measure   : { name   : measureName
+                                                         , type   : measures[measureName].type
+                                                         , label  : measures[measureName].units
+                                                         , symbol : measures[measureName].symbol
+                                                         }
+                                           , value     : value
+                                           , timestamp : timestamp
+                                           });
     }
 
-    exports.db.run('INSERT INTO streams(measureID, deviceID, created) VALUES($measureID, $deviceID, datetime("now"))',
-                   { $measureID: measureID, $deviceID: deviceID },
-                   addstream(measureName, deviceID, params[measureName], params.lastSample));
+    return true;
   }
+
+  exports.db.run('INSERT INTO streams(measureID, deviceID, created) VALUES($measureID, $deviceID, datetime("now"))',
+                 { $measureID: measureID, $deviceID: deviceID },
+                 addstream(measureName, deviceID, value, timestamp));
 
   return true;
 };

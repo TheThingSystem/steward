@@ -46,7 +46,7 @@ var create = function(logger, ws, api, message, tag) {
   if (!message.type) type = 'device';
   else {
     type = utility.key2value(types, message.type);
-     if (type === undefined)                                return error(true,  'missing type element');
+     if (type === undefined)                                return error(true,  'invalid type element');
   }
   if ((parentID !== 0) && (parent.groupType !== type))      return error(false, 'parent/group type mismatch');
 
@@ -283,7 +283,8 @@ var list = function(logger, ws, api, message, tag) {
 };
 
 var modify = function(logger, ws, api, message, tag) {
-  var actor, columns, group, group2, groupID, i, member, members, members2, operator, parent, results, s, s1, s3, triple, type;
+  var actor, columns, group, group2, groupID, i, member, memberlist, members, members2, members3, operator, parent, results, s,
+      s1, s3, triple, type;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'group modification', message.requestID, permanent, diagnostic);
@@ -322,7 +323,7 @@ var modify = function(logger, ws, api, message, tag) {
 
   if (!!message.type) {
     type = utility.key2value(types, message.type);
-    if (type === undefined)                                 return error(true,  'missing type element');
+    if (type === undefined)                                 return error(true,  'invalid type element');
 
     if ((!message.parentID) && (group.parentID !== 0)) parent = id2group(group.parentID);
     if ((!!parent) && (parent.groupType !== type))          return error(false, 'parent/group type mismatch');
@@ -343,13 +344,12 @@ var modify = function(logger, ws, api, message, tag) {
     }
   }
 
-  members = [];
   if (!!message.members) {
     members = message.members;
     if (!util.isArray(members))                             return error(true,  'members element not an array');
     if ((operator === operators.not) && members.length !== 1) return error(true,  'not operator requires 1 member');
     for (i = 0; i < members.length; i++) {
-    if (!members[i])                                        return error(true,  'null member element');
+      if (!members[i])                                      return error(true,  'null member element');
       member = members[i].split('/');
       if (member.length !== 2)                              return error(true,  'invalid member element');
       member[1] = member[1].toString();
@@ -382,13 +382,21 @@ var modify = function(logger, ws, api, message, tag) {
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
   if (!!members) {
+    members3 = members;
+
     members2 = [];
-    for (i = 0; i < message.members.length; i++) if (group.members.indexOf(message.members[i]) < 0) members2.push(members[i]);
+    memberlist = actorlist(group.members);
+    for (i = 0; i < message.members.length; i++) {
+      if (memberlist.indexOf(message.members[i][2]) < 0) members2.push(members[i]);
+    }
     members = members2;
 
     members2 = [];
-    for (i = 0; i < group.members.length; i++) if (message.members.indexOf(group.members[i]) < 0) members2.push(group.members[i]);
-
+    memberlist = [];
+    for (i = 0; i < members3.length; i++) memberlist.push(members3[i][2]);
+    for (i = 0; i < group.members.length; i++) {
+      if (memberlist.indexOf(group.members[i].actor) < 0) members2.push(group.members[i]);
+    }
   }
   var fixmembers = function() {
     var cnt, j;
@@ -409,10 +417,9 @@ var modify = function(logger, ws, api, message, tag) {
       if (--cnt <= 0) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
     };
 
-    cnt = (!!members) ? members.length : 0;
+    cnt = (!!members) ? (members.length + members2.length) : 0;
 
     groups[group.groupUID] = group2;
-    if (!!members) groups[group.members] = members;
 
     if (cnt === 0) {
       try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
@@ -423,7 +430,7 @@ var modify = function(logger, ws, api, message, tag) {
       member = members[i];
       triple = { actor: member[2], actorType: member[0], actorID: member[1] };
       triple[member[0] + 'ID'] = member[1];
-      group.members.push(triple);
+      groups[group.groupUID].members.push(triple);
 
       db.run('INSERT INTO members(groupID, actorType, actorID, created) '
              + 'VALUES($groupID, $actorType, $actorID, datetime("now"))',
@@ -431,11 +438,9 @@ var modify = function(logger, ws, api, message, tag) {
     }
 
     for (i = 0; i < members2.length; i++) {
-      member = members2[i].split('/');
-      triple = { actor: members2[i], actorType: member[0], actorID: member[1].toString() };
-      triple[member[0] + 'ID'] = member[1];
-      j = group.members.indexOf(members2[i]);
-      if (j >= 0) group.members.splice(j, 1);
+      triple = members2[i];
+      j = actorlist(groups[group.groupUID].members).indexOf(triple.actor);
+      if (j >= 0) groups[group.groupUID].members.splice(j, 1);
 
       db.run('DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID',
              { $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }, delmember);
