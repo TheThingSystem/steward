@@ -74,7 +74,7 @@ WeMo_OnOff.prototype.primer = function(self) {/* jshint multistr: true */
                                                  , result: stringify(result)
                                                  });
 
-    if (err) return;
+    if (!!err) return;
 
     try {
       self.observe(self, result.results[0]['u:GetBinaryStateResponse'][0]);
@@ -99,15 +99,15 @@ WeMo_OnOff.prototype.jumpstart = function(self, path) {
                                                  , headers : stringify(response.headers)
                                                  });
 
-    if (err) {
+    if (!!err) {
       self.logger.info('device/' + self.deviceID, { event: 'subscribe', diagnostic: err.message });
-      setTimeout(function() { self.jumpstart(self); }, secs * 30 * 1000);
+      self.timer = setTimeout(function() { self.jumpstart(self); }, 30 * 1000);
       return;
     }
 
     if ((response.statusCode !== 200) || (!response.headers.sid)) {
       self.sid = null;
-      setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
+      self.timer = setTimeout(function() { self.jumpstart(self, path); }, 30 * 1000);
       return;
     }
 
@@ -118,7 +118,7 @@ WeMo_OnOff.prototype.jumpstart = function(self, path) {
       if ((i = secs.indexOf('Second-')) >= 0) secs = secs.substring(i + 7);
       secs = parseInt(secs, 10) - 1;
       if (secs <= 10) secs = 10;
-      setTimeout(function() { self.jumpstart(self, path); }, secs * 1000);
+      self.timer = setTimeout(function() { self.jumpstart(self, path); }, secs * 1000);
     } else secs = 0;
 
     self.logger.info('device/' + self.deviceID, { subscribe: self.sid, sequence: self.seq, seconds: secs });
@@ -183,15 +183,33 @@ WeMo_OnOff.prototype.perform = function(self, taskID, perform, parameter) {/* js
                                                  , result : stringify(result)
                                                  });
 
-    if (err) return;
+    if (!!err) return;
 
     faults = result.faults;
     for (i = 0; i < faults.length; i++) {
       self.logger.error('device/' + self.deviceID,
                         { event: 'controller', perform: perform, parameter: parameter, diagonstic: stringify(faults[i]) });
     }
+    if (faults.length !== 0) return;
 
-    if ((faults.length === 0) && (perform === 'set')) self.setName(params.name);
+    switch (perform) {
+      case 'set':
+        self.setName(params.name);
+        return;
+
+       case 'off':
+       self.status = 'off';
+        break;
+
+       case 'on':
+        break;
+
+      default:
+        return;
+    }
+    self.changed();
+    if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
+    self.jumpstart(self);
   });
 
   return steward.performed(taskID);
@@ -208,7 +226,7 @@ WeMo_OnOff.prototype.notify = function(self, headers, content) {
                                                });
 
   try { parser.parseString(content, function(err, data) {
-    if (err) {
+    if (!!err) {
       self.logger.error('device/' + self.deviceID, { event: 'xml2js.Parser', content: content, diagnostic: err.message });
       return;
     }
