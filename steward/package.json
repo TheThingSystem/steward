@@ -70,7 +70,6 @@
     , "stack-trace"             : "0.0.6"
     , "suncalc"                 : "1.2.1"
     , "teslams"                 : "0.8.6"
-    , "tinycolor2"              : "0.9"
     , "underscore"              : "1.5.1"
     , "unofficial-nest-api"     : "git://github.com/TheThingSystem/unofficial_nodejs_nest.git"
     , "validator"               : "1.1.3"

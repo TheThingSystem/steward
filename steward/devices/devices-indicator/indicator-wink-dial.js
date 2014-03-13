@@ -122,7 +122,12 @@ Gauge.prototype.egress = function(self) {
                                          , brightness            : 75
                                          , channel_configuration : { channel_id: 10 }
                                          }, function(err, params) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDial', diagnostic: err.message});
+    if (!!err) {
+      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'setDial', diagnostic: err.message});
+      self.errorP = true;
+      return;
+    }
+    delete(self.errorP);
 
     if (!!params) self.update(self, params);
   });

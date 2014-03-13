@@ -2,7 +2,6 @@
 
 var lifx        = require('lifx')
   , util        = require('util')
-  , tinycolor   = require('tinycolor2')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
@@ -72,11 +71,11 @@ LIFX.prototype.update = function(self, state) {
                         , temperature : { temperature : Math.round(1000000 / state.kelvin) }
                         };
     } else {
-      self.info.color = { model       : 'rgb'
-                        , rgb         : tinycolor({ h : devices.degreesValue(state.hue, 65535)
-                                                  , s : devices.percentageValue(state.saturation, 65535) / 100
-                                                  , l : devices.percentageValue(state.brightness, 65535) / 100
-                                                  }).toRgb()
+      self.info.color = { model : 'rgb'
+                        , rgb   : lighting.hsl2rgb({ hue        : devices.degreesValue(state.hue, 65535)
+                                                   , saturation : devices.percentageValue(state.saturation, 65535)
+                                                   , brightness : devices.percentageValue(state.brightness, 65535)
+                                                   })
                         };
     }
   }
@@ -121,9 +120,10 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
         break;
 
       case 'rgb':
-        tc = tinycolor(state.color.rgb).toHsl();
-        state.color = { model : 'hue', hue: { hue: Math.round(tc.h), saturation: devices.percentageValue(tc.s, 1) } };
-        state.brightness = devices.percentageValue(tc.l, 1);
+        tc = lighting.rgb2hsl(state.color.rgb);
+        state.color = { model : 'hue', hue : lighting.rgb2hsl(state.color.rgb) };
+        if (!params.brightness) state.brightness = state.color.hue.brightness;
+        delete(state.color.hue.brightness);
         break;
 
       default:
@@ -149,12 +149,11 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
 
     if (state.color.model === 'hue') {
       state.color = { model       : 'rgb'
-                    , rgb         : tinycolor({ h : state.color.hue.hue
-                                              , s : state.color.hue.saturation / 100
-                                              , l : state.brightness           / 100
-                                              }).toRgb()
+                    , rgb         : lighting.hsl2rgb({ hue        : state.color.hue.hue
+                                                     , saturation : state.color.hue.saturation
+                                                     , brightness : state.brightness
+                                                     })
                     };
-      delete(state.color.rgb.a);
     }
   }
 
@@ -243,8 +242,7 @@ exports.start = function() {
       };
   devices.makers['/device/lighting/LIFX/bulb'] = LIFX;
 
-  lx = lifx.init();
-  lx.on('bulb', function(bulb) {
+  lx = lifx.init().on('bulb', function(bulb) {
     var info;
 
     info = { source     : 'LIFX'
@@ -269,6 +267,26 @@ exports.start = function() {
     if (!!devices.devices[info.id]) return;
 
     devices.discover(info);
+  }).on('bulbstate', function(bulbstate) {
+    var device,  udn;
+
+    udn = 'LIFX:' + bulbstate.bulb.lifxAddress.toString('hex');
+    if (!devices.devices[udn]) return update(udn, bulbstate.state);
+
+    device = devices.devices[udn].device;
+    if (!device) return update(udn, bulbstate.state);
+    device.update(device, bulbstate.state);
+  }).on('bulbonoff', function(bulbonoff) {
+    var device, onoff, udn;
+
+    onoff = { power: bulbonoff.on ? 65535 : 0 };
+
+    udn = 'LIFX:' + bulbonoff.bulb.lifxAddress.toString('hex');
+     if (!devices.devices[udn]) return update(udn, onoff);
+
+    device = devices.devices[udn].device;
+    if (!device) return update(udn, onoff);
+    device.update(device, onoff);
   });
   setInterval(function() { lx.findBulbs(); }, 30 * 1000);
 
@@ -281,28 +299,4 @@ exports.start = function() {
     device = devices.devices[udn].device;
     if (!!device) device.update(device, data);
   };
-
-  lx.on('bulbstate', function(bulbstate) {
-    var device,  udn;
-
-    udn = 'LIFX:' + bulbstate.bulb.lifxAddress.toString('hex');
-    if (!devices.devices[udn]) return update(udn, bulbstate.state);
-
-    device = devices.devices[udn].device;
-    if (!device) return update(udn, bulbstate.state);
-    device.update(device, bulbstate.state);
-  });
-
-  lx.on('bulbonoff', function(bulbonoff) {
-    var device, onoff, udn;
-
-    onoff = { power: bulbonoff.on ? 65535 : 0 };
-
-    udn = 'LIFX:' + bulbonoff.bulb.lifxAddress.toString('hex');
-     if (!devices.devices[udn]) return update(udn, onoff);
-
-    device = devices.devices[udn].device;
-    if (!device) return update(udn, onoff);
-    device.update(device, onoff);
-  });
 };

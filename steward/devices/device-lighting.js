@@ -1,4 +1,5 @@
-var util        = require('util')
+var colorconv   = require('color-convert')
+  , util        = require('util')
   , devices     = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
@@ -349,3 +350,21 @@ var colors = function () {
 };
 
 exports.colors = colors();
+
+
+exports.hsl2rgb = function(hsl) {
+  var rgb = colorconv.hsl.rgb([ hsl.hue, hsl.saturation, hsl.brightness ]);
+
+  return { r: rgb[0], g: rgb[1], b: rgb[2] };
+
+// return tinycolor({ h : hsl.hue, s : hsl.saturation / 100, l : hsl.brightness / 100 }).toRgb();
+};
+
+
+exports.rgb2hsl = function(rgb) {
+  var hsl = colorconv.rgb.hsl([ rgb.r, rgb.g, rgb.b ]);
+
+  return { hue: hsl[0], saturation: hsl[1], brightness: hsl[2] };
+
+//return tinycolor(rgb).toHsl();
+};

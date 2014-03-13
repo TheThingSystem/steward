@@ -174,7 +174,7 @@ exports.wake = function(params) {
   wakeonlan.wake(macaddress, { ipaddress: params.ipaddress }, function(err) {
     if (!!err) return logger.error('unable to wake ' + macaddress + ' for ' + params.ipaddress);
 
-   logger.notice('woke ' + macaddress + ' for ' + params.ipaddress);
+    logger.notice('woke ' + macaddress + ' for ' + params.ipaddress);
   });
 
   return true;

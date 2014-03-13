@@ -1,7 +1,6 @@
 // Yocto-Color: http://www.yoctopuce.com/EN/products/usb-actuators/yocto-color
 
-var tinycolor   = require('tinycolor2')
-  , util        = require('util')
+var util        = require('util')
   , yapi        = require('yoctolib')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
@@ -97,11 +96,12 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
     if (state.color.model === 'hue') {
       if (!state.brightness) return false;
 
-      state.color.model = 'rgb';
-      state.color.rgb = tinycolor({ h : state.color.hue.hue
-                                  , s : state.color.hue.saturation / 100
-                                  , l : state.brightness / 100
-                                  }).toRgb();
+      state.color = { model       : 'rgb'
+                    , rgb         : lighting.hsl2rgb({ hue        : state.color.hue.hue
+                                                     , saturation : state.color.hue.saturation
+                                                     , brightness : state.brightness
+                                                     })
+                    };
     } else if ((state.color.model !== 'rgb') || !lighting.validRGB(state.color.rgb)) return false;
 
     if ((state.color.rgb.r === 0) && (state.color.rgb.g === 0) && (state.color.rgb.b === 0)) state.on = false;

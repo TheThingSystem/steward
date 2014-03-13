@@ -42,7 +42,12 @@ Nimbus.prototype.scan = function(self) {
   if (!self.gateway.wink) return;
 
   self.gateway.wink.getDevice(self.params, function(err, params) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
+    if (!!err) {
+      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
+      self.errorP = true;
+      return;
+    }
+    delete(self.errorP);
 
     if (!!params) self.update(self, params);
   });
@@ -119,7 +124,7 @@ Nimbus.prototype.perform = function(self, taskID, perform, parameter) {
   self.name = params.name;
   self.changed();
   self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
-    if (!!err) return self.logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
 
     if (!!params) self.update(self, params);
   });

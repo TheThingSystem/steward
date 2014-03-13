@@ -9,6 +9,9 @@ var util        = require('util')
   ;
 
 
+var logger = sensor.logger;
+
+
 var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
@@ -24,7 +27,6 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'quiet';
   self.changed();
 
-  self.logger = sensor.logger;
   self.events = {};
   self.observations = {};
 
@@ -47,7 +49,12 @@ Spotter.prototype.scan = function(self) {
   if (!self.gateway.wink) return;
 
   self.gateway.wink.getDevice(self.params, function(err, params) {
-    if (!!err) return self.logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
+    if (!!err) {
+      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
+      self.errorP = true;
+      return;
+    }
+    delete(self.errorP);
 
     if (!!params) self.update(self, params);
   });
@@ -134,7 +141,7 @@ Spotter.prototype.perform = function(self, taskID, perform, parameter) {
   self.name = params.name;
   self.changed();
   self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
-    if (!!err) return self.logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
 
     if (!!params) self.update(self, params);
   });
