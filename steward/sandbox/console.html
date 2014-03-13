@@ -447,7 +447,7 @@ var traverse = function(result, whoami, depth) {
 
     case 'group':
       children = '';
-      operator = entity.status.split(' ')[0].toUpperCase();
+      operator = entity.operator.toUpperCase();
       c1 = (entity.members.length < 12) ? operator : '';
       if (entity.members.length < 2) {
         children += '<tr class="child">'

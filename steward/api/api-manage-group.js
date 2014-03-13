@@ -738,8 +738,9 @@ var proplist = exports.proplist = function(id, group) {
   var result = { uuid     : group.groupUID
                , name     : group.groupName
                , comments : group.groupComments
+               , type     : group.groupType
+               , operator : utility.value2key(operators, group.groupOperator)
                , members  : actorlist(group.members)
-               , status   : (utility.value2key(operators, group.groupOperator) || group.groupOperator) + ' ' + group.groupType
                };
 
   if (!!id) {

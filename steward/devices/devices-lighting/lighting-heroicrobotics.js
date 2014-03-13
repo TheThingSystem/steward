@@ -93,7 +93,7 @@ PixelPusher.prototype.addchild = function(self, led) {
 
   db.get('SELECT deviceID, deviceType, deviceName FROM devices WHERE deviceUID=$deviceUID',
          { $deviceUID: deviceUID }, function(err, row) {
-    if (err) {
+    if (!!err) {
       logger.error('device/' + self.deviceID, { event: 'SELECT device.deviceUID for LED ' + led, diagnostic: err.message });
       return;
     }
@@ -108,7 +108,7 @@ PixelPusher.prototype.addchild = function(self, led) {
            + 'VALUES($deviceUID, $parentID, $childID, $deviceType, $deviceName, datetime("now"))',
            { $deviceUID: deviceUID, $parentID: self.deviceID, $deviceType: whatami, $deviceName: self.strips[led].name,
              $childID: led }, function(err) {
-      if (err) {
+      if (!!err) {
         logger.error('device/' + self.deviceID,
                      { event: 'INSERT device.deviceUID for LED ' + led, diagnostic: err.message });
         return;
@@ -166,7 +166,7 @@ PixelPusher.prototype.perform = function(self, taskID, perform, parameter, led) 
 
     db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',
            { $deviceName: params.name, $deviceID : props.deviceID }, function(err) {
-      if (err) {
+      if (!!err) {
         return logger.error('devices', { event: 'UPDATE device.deviceName for ' + props.deviceID, diagnostic: err.message });
       }
 
@@ -392,7 +392,6 @@ PixelPusher.prototype.program = function(self, taskID, params, led) {
     self.pixels(self, taskID, true, { color : { model: 'rgb', pixels: pixels } }, led);
     iter++;
   }, interval);
-
 
   return true;
 };

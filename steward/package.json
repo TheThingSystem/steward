@@ -53,7 +53,7 @@
     , "openzwave"               : "0.0.32"
     , "pcap"                    : "git://github.com/TheThingSystem/node_pcap.git"
     , "pkginfo"                 : "0.3.0"
-    , "pixelpusher"             : "0.1.0"
+    , "pixelpusher"             : "0.1.1"
     , "polyline-encoded"        : "0.0.4"
     , "portfinder"              : "0.2.1"
     , "rfxcom"                  : "git://github.com/TheThingSystem/node-rfxcom.git"

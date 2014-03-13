@@ -276,10 +276,10 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
       for (j = 0; j < members.length; j++) {
         actor = members[j].actor;
         if (!!present[actor]) continue;
-        present[actor] = members[j];
+        if (member[0] !== 'group') present[actor] = members[j];
 
         member = actor.split('/');
-        if (member[0] === 'group') search2.push([ 'group', member[1], actor ]);
+        if (member[0] === 'group') search2.push({ actorType: 'group', actorID: member[1], actor: actor });
       }
     }
 
