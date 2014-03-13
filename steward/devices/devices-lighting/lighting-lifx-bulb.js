@@ -56,6 +56,8 @@ util.inherits(LIFX, lighting.Device);
      tags: <Buffer 00 00 00 00 00 00 00 00> } }
  */
 LIFX.prototype.update = function(self, state) {
+  logger.info('device/' + self.deviceID, { update: state });
+
   self.status = state.power ? 'on' : 'off';
   if ((state.kelvin > 0) || (state.hue > 0) || (state.saturation > 0)) {
     if ((state.kelvin > 0) && (state.hue === 0) && (state.saturation === 0)) {
@@ -149,7 +151,6 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
     }
   }
 
-// TBD: determine why not receiving update events... (if we can't fix this, we'll need to start polling...)
   self.status = state.on ? 'on' : 'off';
   if (state.on) {
     self.info.color = state.color;
@@ -262,6 +263,7 @@ exports.start = function() {
 
     devices.discover(info);
   });
+  setInterval(function() { lx.findBulbs(); }, 30 * 1000);
 
 // the LIFX stream is faster than the database on startup
   var update = function(udn, data) {
@@ -274,7 +276,6 @@ exports.start = function() {
   };
 
   lx.on('bulbstate', function(bulbstate) {
-console.log('>>> bulbstate');  console.log(util.inspect(bulbstate, { depth: null }));
     var device,  udn;
 
     udn = 'LIFX:' + bulbstate.bulb.lifxAddress.toString('hex');
@@ -286,13 +287,15 @@ console.log('>>> bulbstate');  console.log(util.inspect(bulbstate, { depth: null
   });
 
   lx.on('bulbonoff', function(bulbonoff) {
-console.log('>>> bulbonoff');  console.log(util.inspect(bulbonoff, { depth: null }));
-    var device, udn;
+    var device, onoff, udn;
+
+    onoff = { power: bulbonoff.on ? 65535 : 0 };
 
     udn = 'LIFX:' + bulbonoff.bulb.lifxAddress.toString('hex');
-    if (!devices.devices[udn]) return update(udn, { power: bulbonoff.on ? 65535 : 0 });
+     if (!devices.devices[udn]) return update(udn, onoff);
 
     device = devices.devices[udn].device;
-    if (!!device) device.update(device, { power: bulbonoff.on ? 65535 : 0 });
+    if (!device) return update(udn, onoff);
+    device.update(device, onoff);
   });
 };
