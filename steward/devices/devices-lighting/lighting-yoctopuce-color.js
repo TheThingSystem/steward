@@ -99,8 +99,8 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
 
       state.color.model = 'rgb';
       state.color.rgb = tinycolor({ h : state.color.hue.hue
-                                  , s : state.color.hue.saturation
-                                  , l : state.brightness
+                                  , s : state.color.hue.saturation / 100
+                                  , l : state.brightness / 100
                                   }).toRgb();
     } else if ((state.color.model !== 'rgb') || !lighting.validRGB(state.color.rgb)) return false;
 

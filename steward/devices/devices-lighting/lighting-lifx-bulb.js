@@ -57,7 +57,7 @@ util.inherits(LIFX, lighting.Device);
  */
 LIFX.prototype.update = function(self, state) {
   self.status = state.power ? 'on' : 'off';
-  if ((state.kelvin> 0) || (state.hue > 0) || (state.saturation > 0)) {
+  if ((state.kelvin > 0) || (state.hue > 0) || (state.saturation > 0)) {
     if ((state.kelvin > 0) && (state.hue === 0) && (state.saturation === 0)) {
       self.info.color = { model       : 'temperature'
                         , temperature : { temperature : Math.round(1000000 / state.kelvin) }
@@ -113,9 +113,8 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
 
       case 'rgb':
         tc = tinycolor(state.color.rgb).toHsl();
-        delete(state.color.rgb);
-        state.color.model = 'hue';
-        state.color.hue = { hue: Math.round(tc.h), saturation: devices.percentageValue(tc.s, 1) };
+        state.color = { model : 'hue', hue: { hue: Math.round(tc.h), saturation: devices.percentageValue(tc.s, 1) } };
+        state.brightness = devices.percentageValue(tc.l, 1);
         break;
 
       default:
@@ -132,7 +131,7 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
     color = { hue: 0, saturation: 0, luminance: 0, whiteColor: 0, fadeTime: 0 };
 
     if (state.color.model === 'hue') {
-      color.hue = devices.scaledPercentage(state.color.hue.hue / 360,  0, 65535);
+      color.hue = devices.scaledPercentage((state.color.hue.hue / 360) * 100,  0, 65535);
       color.saturation = devices.scaledPercentage(state.color.hue.saturation, 0, 65535);
     } else color.whiteColor = 1000000 / state.color.temperature.temperature;
     color.luminance = devices.scaledPercentage(state.brightness, 0, 65535);
@@ -146,6 +145,7 @@ LIFX.prototype.perform = function(self, taskID, perform, parameter) {
                                               , l : state.brightness           / 100
                                               }).toRgb()
                     };
+      delete(state.color.rgb.a);
     }
   }
 
