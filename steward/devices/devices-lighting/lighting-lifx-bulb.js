@@ -56,7 +56,14 @@ util.inherits(LIFX, lighting.Device);
      tags: <Buffer 00 00 00 00 00 00 00 00> } }
  */
 LIFX.prototype.update = function(self, state) {
-  logger.info('device/' + self.deviceID, { update: state });
+  logger.info('device/' + self.deviceID, { event      : 'update'
+                                         , hue        : state.hue
+                                         , saturation : state.saturation
+                                         , brightness : state.brightness
+                                         , kelvin     : state.kelvin
+                                         , dim        : state.dim
+                                         , power      : state.power
+                                         });
 
   self.status = state.power ? 'on' : 'off';
   if ((state.kelvin > 0) || (state.hue > 0) || (state.saturation > 0)) {
@@ -74,7 +81,7 @@ LIFX.prototype.update = function(self, state) {
     }
   }
   if (!!state.brightness) self.info.brightness = devices.percentageValue(state.brightness, 65535);
-  if ((!!state.bulblabel) && (state.bulblabel !== '')) self.setName(state.bulbLabel);
+  if ((!!state.bulbLabel) && (state.bulbLabel !== '')) self.setName(state.bulbLabel);
 
   self.changed();
 };
