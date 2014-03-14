@@ -29,7 +29,6 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'accessToken' ];
   self.changed();
   self.timer = null;
-  self.readyP = true;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -59,8 +58,6 @@ Cloud.prototype.login = function(self) {
   if (!!self.timer) clearInterval(self.timer);
   self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
   self.scan(self);
-  if (!!self.readyP) return;
-  self.readyP = true;
 
   self.lookup('lockitron', function(err, options) {
     if (!!err) logger.warning('device/' + self.deviceID, { event: 'lookup', diagnostic: err.message });
@@ -104,6 +101,7 @@ Cloud.prototype.login = function(self) {
 
       udn = 'lockitron:' + json.data.lock.id;
       if (!devices.devices[udn]) return;
+
       lock = devices.devices[udn].device;
       if (!!lock) lock.webhook(lock, 'webhook', json.data);
     });

@@ -77,8 +77,10 @@ Lock.prototype.webhook = function(self, event, data) {
                        return logger.warning('device/' + self.deviceID, { event: event, data: data });
                      }
 
-                     self.state = outcome === 'lock-updated-locked' ? 'locked' : 'unlocked';
-                     self.changed();
+                     self.status = outcome === 'lock-updated-locked' ? 'locked' : 'unlocked';
+                     now = new Date();
+                     self.info.lastSample = now.getTime();
+                     self.changed(now);
                    }
         }[activity.status || activity.human_outcome];
     if (!f) throw new Error('unknown activity status');
@@ -108,7 +110,11 @@ Lock.prototype.perform = function(self, taskID, perform, parameter) {
   if (!self.gateway.lockitron) return false;
 
   self.gateway.lockitron.roundtrip('GET', '/locks/' + self.serial + '/' + perform, null, function(err, results) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: perform, diagnostic: err.message });
+    if (!!err) {
+      self.status = 'error';
+      self.changed();
+      return logger.error('device/' + self.deviceID, { event: perform, diagnostic: err.message });
+    }
 
     self.webhook(self, perform, results);
   });
@@ -150,7 +156,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'lock', 'unlock' ]
                     , properties : { name       : true
-                                   , status     : [ 'locked', 'unlocked' ]
+                                   , status     : [ 'locked', 'unlocked', 'error' ]
                                    , location   : 'coordinates'
                                    , lastSample : 'timestamp'
                                    }

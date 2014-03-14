@@ -65,7 +65,6 @@ console.log(util.inspect(data, { depth: null }));
 
   updateP = false;
 
-
   if ((util.isArray(self.info.location)) && (data.type === 'trip:summary')) return;
   if (!!data.path) updateP = self.addpath(self, polyline.decode(data.path));
 

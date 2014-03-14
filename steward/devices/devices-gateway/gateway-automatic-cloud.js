@@ -80,7 +80,7 @@ Cloud.prototype.login = function(self) {
   }, function(request, response) {
     var body = '';
 
-console.log('>>> ' + request.method);
+console.log('>>> automatic request ' + request.method);
     if ((request.method !== 'GET') && (request.method !== 'POST')) {
       logger.info('device/' + self.deviceID, { event: 'request', method: request.method });
 
@@ -98,7 +98,7 @@ console.log('>>> ' + request.method);
     }).on('end', function() {
       var client, data, parts, requestURL, udn, vehicle;
 
-console.log('>>> end: ' + body);
+console.log('>>> automatic end: ' + body);
       var loser = function (message) {
         logger.error('device/' + self.deviceID, { event: 'request', diagnostic: message });
 
@@ -116,7 +116,7 @@ console.log(data);
         response.end();
 
         udn = 'automatic:' + data.vehicle.id;
-console.log('>>> WEBHOOK udn='+udn);
+console.log('>>> automatic WEBHOOK udn='+udn+' exists='+(!!devices.devices[udn]));
         if (!devices.devices[udn]) return;
 
         vehicle = devices.devices[udn].device;

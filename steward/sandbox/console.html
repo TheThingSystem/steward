@@ -561,7 +561,8 @@ var onactors = function(message) {
       status = entity.status || '';
       td_status = (status.indexOf(' ') !== -1)                                                                       ? 'group'
                   : ((status === 'error')  || (status === 'red')    || (status === 'reset')|| (status === 'unsafe')) ? 'alert'
-                  : ((status === 'orange') || (status === 'indigo') || (status === 'absent'))                        ? 'warning'
+                  : ((status === 'orange') || (status === 'indigo') || (status === 'absent')
+                                                                    || (status === 'unlocked'))                      ? 'warning'
                   : ((status === 'blue')   || (status === 'busy')   || (status === 'waiting'))                       ? 'blue'
                   : 'status';
       if (!!entity.updated) {
