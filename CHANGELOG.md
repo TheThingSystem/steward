@@ -1,6 +1,84 @@
 ChangeLog
 =======
 
+## Release 1.6 "Pecan Waffle" - TBD
+## Commit - TBD
+
+### Steward
+- properly latch event observations
+- APIs:
+    - all: more robustness
+    - groups: replace composite 'status' property with component 'type' and 'operator' properties
+- more device.expand robustness
+- refactor metric/customary handling
+
+### TAAS (Things as a Service)
+- no changes
+
+### TSRP (Thing Simple Reporting Protocol)
+- no changes
+
+### Places
+- use replacement interface to YQL, and robustness
+- better diagnostics for invalid parameters
+
+### Things
+- all:
+    - refactor geocaching code and additional robustness
+- mDNS and UPNP: no changes
+    - no changes
+- device/climate:
+    - samsung/control: NEW, thank you @CloCkWeRX
+- device/gateway
+    - flower-power/cloud: robustness
+    - yoctopuce/hub: determine measured property based on unit parsign
+- device/indicator:
+    - cassandra/nosql: NEW
+    - irtoy/infrared: moved to drivers-in-progress area
+    - wink/*:
+    - wink/gauge:
+        - use metric/customary setting
+        - supress multiple API connection errors
+    - wink/nimbus: supress multiple API connection errors
+- device/lighting:
+    - all: color model refactoring and robustness
+    - heroic-robotics/*: use node-pixelpusher version 0.1.1
+    - LIFX/bulb: NEW, thank you @RussNelson
+- device/media:
+    - camera/axis: moved to drivers-in-progress area
+- device/motive:
+    - automatic/vehicle: interpret polyline routes
+    - crazyflie/3d: moved to drivers-in-progress area
+    - irobot/floor: moved to drivers-in-progress area
+    - lockitron/lock: add 'error' status, if operations fail
+- device/presence:
+    - no changes
+- device/sensor:
+    - voc now a measured property
+    - fix race-condition when reporting multiple measurements "simultaneously"
+    - move co2/light/voc sensors from /device/climate
+    - nest/smoke: report measurements properly
+    - wink/spotter: supress multiple API connection errors
+- device/switch:
+    - wemo/onoff: do not reply on subscription to refresh
+    - wink/strip:
+        - typo in property name (was 'outlets', now 'plugs')
+	- supress multiple API connection errors
+
+### HTML5/D3 client
+- no changes
+
+### User management client (client.html)
+- no changes
+
+### Developer clients
+- console.html:
+    - when displaying entity names, append ID (if different)
+    - unlocked doors now reported as orange, not green
+
+### Utilities
+- no changes
+
 ## Release 1.5 "Ground Hog" - March 1, 2014
 ## Commit - ddc6a500d20b6065c6e5b19611afb224878e4c66
 

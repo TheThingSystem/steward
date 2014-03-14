@@ -70,7 +70,14 @@ Lock.prototype.webhook = function(self, event, data) {
     outcome = activity.kind || activity.human_type;
 
     f = { error  : function() {
-                     logger.error('device/' + self.deviceID, { event: event, diagnostic: outcome });
+                     if (outcome !== 'lock-offline') {
+                       return logger.error('device/' + self.deviceID, { event: event, diagnostic: outcome });
+                     }
+
+                     self.status = 'absent';
+                     now = new Date();
+                     self.info.lastSample = now.getTime();
+                     self.changed(now);
                    }
         , notice : function() {
                      if (outcome.indexOf('lock-updated-') !== 0) {
@@ -156,7 +163,7 @@ exports.start = function() {
                     , observe    : [ ]
                     , perform    : [ 'lock', 'unlock' ]
                     , properties : { name       : true
-                                   , status     : [ 'locked', 'unlocked', 'error' ]
+                                   , status     : [ 'locked', 'unlocked', 'absent', 'error' ]
                                    , location   : 'coordinates'
                                    , lastSample : 'timestamp'
                                    }

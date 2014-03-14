@@ -261,6 +261,20 @@ var start = function(port, secureP) {
 
     logger.info('listening on ' + wssT + '://*:' + portno);
 
+    var hack = '0.0.0.0';
+    http.createServer(function(request, response) {
+      response.writeHead(302, { Location   :  httpsT + '://' + hack + ':' + portno
+                              , Connection : 'close'
+                              });
+      response.end();
+    }).on('connection', function(socket) {
+      hack = socket.localAddress;
+    }).on('listening', function() {
+      logger.info('redirecting from http://*:80 to ' + httpsT + '://*:' + portno);
+    }).on('error', function(err) {
+      logger.info('unable to listen on http://*:80', { diagnostic: err.message });
+    }).listen(80);
+
     if (secureP) {
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
         var crt2, params;
@@ -282,20 +296,6 @@ var start = function(port, secureP) {
 
       return;
     }
-
-    var hack = '0.0.0.0';
-    http.createServer(function(request, response) {
-      response.writeHead(302, { Location   :  httpsT + '://' + hack + ':' + portno
-                              , Connection : 'close'
-                              });
-      response.end();
-    }).on('connection', function(socket) {
-      hack = socket.localAddress;
-    }).on('listening', function() {
-      logger.info('listening on http://*:80');
-    }).on('error', function(err) {
-      logger.info('unable to listen on http://*:80', { diagnostic: err.message });
-    }).listen(80);
 
     utility.acquire(logger, __dirname + '/../discovery', /^discovery-.*\.js$/, 10, -3, ' discovery', portno);
   });
