@@ -60,7 +60,6 @@ Vehicle.prototype.update = function(self, params, status) {
 };
 
 Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false */
-console.log(util.inspect(data, { depth: null }));
   var ignition, updateP;
 
   updateP = false;

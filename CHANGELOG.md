@@ -11,6 +11,7 @@ ChangeLog
     - groups: replace composite 'status' property with component 'type' and 'operator' properties
 - more device.expand robustness
 - refactor metric/customary handling
+- redirect port 80 traffic to correct http/https port
 
 ### TAAS (Things as a Service)
 - no changes
