@@ -75,7 +75,7 @@ Lock.prototype.webhook = function(self, event, data) {
                      }
 
                      self.status = 'absent';
-                     now = new Date();
+                     var now = new Date();
                      self.info.lastSample = now.getTime();
                      self.changed(now);
                    }
@@ -85,7 +85,7 @@ Lock.prototype.webhook = function(self, event, data) {
                      }
 
                      self.status = outcome === 'lock-updated-locked' ? 'locked' : 'unlocked';
-                     now = new Date();
+                     var now = new Date();
                      self.info.lastSample = now.getTime();
                      self.changed(now);
                    }
