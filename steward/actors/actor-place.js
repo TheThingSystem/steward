@@ -325,7 +325,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
       geocoder.geocode(place1.info.physical, function(err, result) {
         var components, geometry, i;
 
-        if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
+        if (!!err) return logger.warning('place/1', { event      : 'geocode'
                                                     , location   : place1.info.location
                                                     , diagnostic : result.status });
 
@@ -334,6 +334,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
         self.getWoeID(self);
         if (!!params.displayUnits) return;
 
+        place1.info.displayUnits = 'metric';
         components = result.results[0].address_components;
         for (i = 0; i < components.length; i++) if (components[i].types.indexOf('country') !== -1) {
           place1.info.displayUnits = components[i].long_name === 'United States' ? 'customary' : 'metric';
