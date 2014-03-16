@@ -449,22 +449,26 @@ Place.prototype.getWeather = function(self) {
 
   new yql.exec2('SELECT * FROM weather.forecast WHERE (woeid = @woeid) AND (u = "c")', { woeid: self.info.woeid }, {},
   function (err, response) {
-    var a, atmosphere, current, diff, forecasts, i, pubdate, wind;
+    var a, atmosphere, current, diff, forecasts, i,  next, now, pubdate, wind;
 
     if (!!err) return logger.error('place/1', { event: 'getWeather', diagnostic: err.message });
 
     try {
       pubdate = new Date(response.query.results.channel.item.pubDate);
-      diff = pubdate.getTime() + (75 * 60 * 1000) - new Date().getTime();
+      now = new Date().getTime();
+      diff = pubdate.getTime() + (75 * 60 * 1000) - now;
+
+      var retry = function() {
+        if (!!self.weatherID) return logger.warning('place/1', { event: 'getWeather', diagnostic: 'previously reset' });
+
+        logger.warning('place/1', { event: 'getWeather', diagnostic: 'reset to every 75 minutes' });
+        self.weatherID = setInterval(function() { self.getWeather(self); }, 75 * 60 * 1000);
+        self.getWeather(self);
+      };
+
       if (diff > 0) {
         if (!!self.weatherID) clearInterval(self.weatherID);
-        setTimeout(function() {
-          if (!!self.weatherID) return logger.warning('place/1', { event: 'getWeather', diagnostic: 'previously reset' });
-
-          logger.warning('place/1', { event: 'getWeather', diagnostic: 'reset to every 75 minutes' });
-          self.weatherID = setInterval(function() { self.getWeather(self); }, 75 * 60 * 1000);
-          self.getWeather(self);
-        }, diff + (5 * 60 * 1000));
+        setTimeout(retry, diff + (5 * 60 * 1000));
         logger.warning('place/1', { event      : 'getWeather'
                                   , diagnostic : 'check in ' + ((diff / 1000) + 5 * 60).toFixed(3) + ' seconds' });
       }
@@ -488,11 +492,24 @@ Place.prototype.getWeather = function(self) {
       self.info.forecasts = [];
       forecasts = response.query.results.channel.item.forecast;
       for (i = 0; i < forecasts.length; i++) {
+        next = new Date(forecasts[i].date).getTime();
+        if (now >= (next + (86400 * 1000))) {
+          self.info.conditions = { lastSample  : next
+/*
+                                 , code        : forecasts[i].code
+                                 , text        : forecasts[i].text.toLowerCase()
+ */
+                                 };
+          if (!!self.weatherID) clearInterval(self.weatherID);
+          setTimeout(retry, 15 * 60 * 1000);
+          continue;
+        }
+
         self.info.forecasts.push({ code            : forecasts[i].code
                                  , text            : forecasts[i].text.toLowerCase()
                                  , highTemperature : forecasts[i].high
                                  , lowTemperature  : forecasts[i].low
-                                 , nextSample      : new Date(forecasts[i].date).getTime()
+                                 , nextSample      : next
                                  });
       }
     } catch(ex) {

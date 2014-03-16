@@ -589,6 +589,16 @@ var onactors = function(message) {
               if (!!v) v = time_ago(v, false);
               break;
 
+            case 'conditions':
+              if (!!v.lastSample) v.lastSample = time_ago(v.lastSample, true);
+              v = serialize_array(v);
+              break;
+
+            case 'forecasts':
+              for (i = 0; i < v.length; i++) if (!!v[i].nextSample) v[i].nextSample = time_ago(v[i].nextSample, false);
+              v = serialize_array(v);
+              break;
+
             case 'temperature':
             case 'intTemperature':
             case 'extTemperature':
