@@ -2066,6 +2066,7 @@ function dayAhead(n) {
 	var days, now, result;
 	result = "";
 	
+        if (n-- === 1) return "today";
 	days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 	now = new Date();
 	result = (n === 1) ? "tomorrow" : days[((now.getDay() + n) % 7)];

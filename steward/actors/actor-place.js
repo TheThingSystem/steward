@@ -493,17 +493,17 @@ Place.prototype.getWeather = function(self) {
       forecasts = response.query.results.channel.item.forecast;
       for (i = 0; i < forecasts.length; i++) {
         next = new Date(forecasts[i].date).getTime();
+/*
         if (now >= (next + (86400 * 1000))) {
           self.info.conditions = { lastSample  : next
-/*
                                  , code        : forecasts[i].code
                                  , text        : forecasts[i].text.toLowerCase()
- */
                                  };
           if (!!self.weatherID) clearInterval(self.weatherID);
           setTimeout(retry, 15 * 60 * 1000);
           continue;
         }
+ */
 
         self.info.forecasts.push({ code            : forecasts[i].code
                                  , text            : forecasts[i].text.toLowerCase()
