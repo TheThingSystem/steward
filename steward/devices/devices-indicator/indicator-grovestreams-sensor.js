@@ -121,7 +121,7 @@ console.log('>>> logged in, !!err='+(!!err));
 
       if (!!err) return logger.error('device/' + self.deviceID, { event: 'addPoint', diagnostic: err.message });
     });    
-  }, 12 * 1000);
+  }, 15 * 1000);
 };
 util.inherits(GroveStreams, indicator.Device);
 
@@ -176,7 +176,10 @@ GroveStreams.prototype.update = function(self, deviceID, point) {
       self.update(self, deviceID, point);
     });
   }
-  if (!self.components[componentID].uid) return console.log('>>> waiting on component creation');
+  if (!self.components[componentID].uid) {
+    logger.info('device/' + self.deviceID, { event: 'addComponent wait', deviceID: deviceID });
+    return;
+  }
   componentUID = self.components[componentID].uid;
 
   streamID = point.measure.name;
@@ -199,7 +202,10 @@ GroveStreams.prototype.update = function(self, deviceID, point) {
       self.update(self, deviceID, point);
     });
   }
-  if (self.components[componentID].streams[streamID] === 0)  return console.log('>>> waiting on stream creation');
+  if (self.components[componentID].streams[streamID] === 0) {
+    logger.info('device/' + self.deviceID, { event: 'addStream wait', deviceID: deviceID, point: point });
+    return;
+  }
   streamUID = self.components[componentID].streams[streamID];
 
   if (!self.samples) self.samples = { };
