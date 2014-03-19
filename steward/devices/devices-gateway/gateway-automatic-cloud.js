@@ -70,8 +70,10 @@ Cloud.prototype.login = function(self) {
     for (user in self.info.users) {
       if (!self.info.users.hasOwnProperty(user)) continue;
 
-      client = new AutomaticAPI.AutomaticAPI({ clientID: self.info.clientID, clientSecret: self.info.clientSecret})
-                  .on('error', bgerror).setState(self.info.users[user].state);
+      client = new AutomaticAPI.AutomaticAPI({ clientID     : self.info.clientID
+                                             , clientSecret : self.info.clientSecret
+                                             , logger       : utility.logfnx(logger, 'device/' + self.deviceID)
+                                             }).on('error', bgerror).setState(self.info.users[user].state);
       self.info.users[user].client = client;
       self.scan(self, client);
     }
@@ -141,8 +143,10 @@ Cloud.prototype.login = function(self) {
         return response.end();
       }
 
-      client = new AutomaticAPI.AutomaticAPI({ clientID: self.info.clientID, clientSecret: self.info.clientSecret})
-                  .on('error', bgerror);
+      client = new AutomaticAPI.AutomaticAPI({ clientID     : self.info.clientID
+                                             , clientSecret : self.info.clientSecret
+                                             , logger       : utility.logfnx(logger, 'device/' + self.deviceID)
+                                             }).on('error', bgerror);
 
       requestURL = client.authenticateURL(null, 'http://' + ipaddr + ':' + portno + '/');
       parts = url.parse(requestURL, true);

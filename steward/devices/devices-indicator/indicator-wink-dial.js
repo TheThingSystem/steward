@@ -44,7 +44,7 @@ var Gauge = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   self.getState(function(err, state) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'getState', diagnostic: err.message});
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'getState', diagnostic: err.message });
     if (!state) return;
 
     self.info.actor = state.actor;
@@ -123,7 +123,7 @@ Gauge.prototype.egress = function(self) {
                                          , channel_configuration : { channel_id: 10 }
                                          }, function(err, params) {
     if (!!err) {
-      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'setDial', diagnostic: err.message});
+      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'setDial', diagnostic: err.message });
       self.errorP = true;
       return;
     }
@@ -148,7 +148,7 @@ Gauge.prototype.perform = function(self, taskID, perform, parameter) {
     self.name = params.name;
     self.changed();
     self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message });
 
       if (!!params) self.update(self, params);
     });

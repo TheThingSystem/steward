@@ -6,7 +6,8 @@
  */
 
 
-var dgram       = require('dgram')
+var crypto      = require('crypto')
+  , dgram       = require('dgram')
   , fs          = require('fs')
   , serialport  = require('serialport')
   , util        = require('util')
@@ -17,7 +18,8 @@ var dgram       = require('dgram')
   ;
 
 
-var logger2                  = utility.logger('discovery');
+var logger  = utility.logger('gateway');
+var logger2 = utility.logger('discovery');
 
 
 var Hublet = exports.Device = function(deviceID, deviceUID, info) {
@@ -32,6 +34,7 @@ var Hublet = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'ready';
   self.changed();
   self.info = {};
+  self.writer = info.writer;
 
   self.eui64 = '001bc5094';
   self.reels = {};
@@ -41,18 +44,49 @@ var Hublet = exports.Device = function(deviceID, deviceUID, info) {
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
+
+  self.getState(function(err, state) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'getState', diagnostic: err.message });
+    if (!state) return;
+
+    self.info.tailceiver = state.tailceiver;
+    delete(self.warnedP);
+    if (!!self.info.tailceiver) self.reelcall(self);
+  });
+
+  setInterval(function() { self.reelcall(self); }, 30 * 1000);
 };
 util.inherits(Hublet, gateway.Device);
 Hublet.prototype.perform = devices.perform;
 
 
+Hublet.prototype.reelcall = function(self) {
+  var device, reelReq, reelID;
+
+  if ((!self.writer) || (!self.info.tailceiver)) return;
+
+  device = devices.id2device(self.info.tailceiver.split('/')[1]);
+  if (!device) return;
+  if (device.whatami !== '/device/gateway/reelyactive/reelceiver') {
+    if (self.warnedP) return;
+
+    self.warnedP = true;
+    return logger.error('device/' + self.deviceID,
+                        { event: 'tailceiver', tailceiver: self.info.tailceiver, diagnostic: 'not a reelceiver' });
+  }
+
+  reelReq = 'f1';
+  reelID = device.deviceUID.substr(-8);
+  self.writer(reelEncrypt(reelReq + reelID + '0000000000000000000000', '55555555555555555555555555555555'));
+};
+
 Hublet.prototype.update = function(self, data, timestamp) {
   var i, info, j, prevID, reelID, tagID, udn, v, value;
 
   if (data.indexOf('78') === 0) return self.updateReelceiver(self, data, timestamp);
-
+  if (data.indexOf('71') === 0) return console.log('>>> reel call result: ' + data);
   if ((data.indexOf('04') !== 0) || (data.length < 16)) return;
 
   prevID = -1;
@@ -149,6 +183,46 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
   devices.discover(info);
 };
 
+Hublet.prototype.perform = function(self, taskID, perform, parameter) {
+  var params;
+
+  try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
+
+  if (perform !== 'set') return devices.perform(self, taskID, perform, parameter);
+
+  if (!!params.name) devices.perform(self, taskID, perform, parameter);
+
+  if (!!params.tailceiver) {
+    self.info.tailceiver = params.tailceiver;
+    self.setState({ tailceiver: self.info.tailceiver });
+    delete(self.warnedP);
+    self.reelcall(self);
+  }
+
+  return steward.performed(taskID);
+};
+
+var validate_perform = function(perform, parameter) {
+  var params = {}
+    , result = { invalid: [], requires: [] }
+    ;
+
+  if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
+
+  if (perform !== 'set') {
+    result.invalid.push('perform');
+    return result;
+  }
+
+  if (!!params.tailceiver) {
+    if ((typeof params.tailceiver !== 'string') || (params.tailceiver.split('/').length !== 2)) {
+      result.invalid.push('tailceiver');
+    }
+  }
+
+  return result;
+};
+
 
 var Reelceiver = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
@@ -182,13 +256,27 @@ Reelceiver.prototype.update = function(self, packet, timestamp) {
 };
 
 
+var reelEncrypt = function (sInput, sKey) {
+  var cipher, result;
+
+  cipher = crypto.createCipheriv('AES-128-ECB', new Buffer(sKey, 'hex'), '');
+  cipher.setAutoPadding(false);
+
+  result = cipher.update(new Buffer(sInput, 'hex'), null, 'hex');
+  result += cipher.final('hex');
+
+  return new Buffer(result, 'hex');
+};
+
+
 var scan = function(portno) {
-  dgram.createSocket('udp4').on('message', function(message, rinfo) {
+  var socket = dgram.createSocket('udp4');
+  socket.on('message', function(message, rinfo) {
     onmessage(message, { id          : rinfo.family.toLowerCase() + ':' + rinfo.address + ':' + rinfo.port
                        , address     : rinfo.address
                        , description : 'reel-to-Ethernet hublet'
                        , url         : 'udp://' + rinfo.address + ':' + rinfo.port
-                       });
+                       }, function(buffer) { socket.send(buffer, 0, buffer.length, rinfo.port, rinfo.address); });
   }).on('listening', function() {
     var address = this.address();
 
@@ -210,7 +298,7 @@ var scan = function(portno) {
         if (err) return logger2.error('gateway-reelyactive-reel', { event: 'serialport open', diagnostic: err.message });
 
         this.on('data', function(data) {
-          onmessage(data, { id: '/dev/ttyO1', address: 'Reel Cape', description: 'reel-to-cape hublet' });
+          onmessage(data, { id: '/dev/ttyO1', address: 'Reel Cape', description: 'reel-to-cape hublet' }, this.write);
         }).on('close', function() {
           logger2.error('gateway-reelyactive-reel', { event: 'serialport close', diagnostic: err.message });
         });
@@ -221,7 +309,7 @@ var scan = function(portno) {
   });
 };
 
-var onmessage = function(message, reel) {
+var onmessage = function(message, reel, writer) {
   var data, info, timestamp, udn;
 
   data = message.toString('hex');
@@ -230,7 +318,7 @@ var onmessage = function(message, reel) {
   udn = 'reelyActive:reel:' + reel.id;
   if (!!devices.devices[udn]) return update(udn, data, timestamp);
 
-  info = { params: { data: data, timestamp: timestamp }};
+  info = { params: { data: data, timestamp: timestamp }, writer: writer };
   info.device = { url          : reel.url
                 , name         : reel.description + ' (' + reel.address + ')'
                 , manufacturer : 'reelyActive'
@@ -272,11 +360,12 @@ exports.start = function() {
       { $info     : { type       : '/device/gateway/reelyactive/hublet'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
-                    , properties : { name   : true
-                                   , status : [ 'ready' ]
+                    , properties : { name       : true
+                                   , status     : [ 'ready' ]
+                                   , tailceiver : true
                                    }
                     }
-      , $validate : { perform    : devices.validate_perform
+      , $validate : { perform    : validate_perform
                     }
       };
   devices.makers['/device/gateway/reelyactive/hublet'] = Hublet;

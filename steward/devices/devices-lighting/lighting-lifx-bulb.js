@@ -55,14 +55,14 @@ util.inherits(LIFX, lighting.Device);
      tags: <Buffer 00 00 00 00 00 00 00 00> } }
  */
 LIFX.prototype.update = function(self, state) {
-  logger.info('device/' + self.deviceID, { event      : 'update'
-                                         , hue        : state.hue
-                                         , saturation : state.saturation
-                                         , brightness : state.brightness
-                                         , kelvin     : state.kelvin
-                                         , dim        : state.dim
-                                         , power      : state.power
-                                         });
+  logger.debug('device/' + self.deviceID, { event      : 'update'
+                                          , hue        : state.hue
+                                          , saturation : state.saturation
+                                          , brightness : state.brightness
+                                          , kelvin     : state.kelvin
+                                          , dim        : state.dim
+                                          , power      : state.power
+                                          });
 
   self.status = state.power ? 'on' : 'off';
   if ((state.kelvin > 0) || (state.hue > 0) || (state.saturation > 0)) {

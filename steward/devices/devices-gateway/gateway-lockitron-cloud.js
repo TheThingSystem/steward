@@ -44,7 +44,8 @@ util.inherits(Cloud, require('./../device-gateway').Device);
 Cloud.prototype.login = function(self) {
   self.lockitron = new Lockitron.LockitronAPI({ clientID     : 'n/a'
                                               , clientSecret : 'n/a'
-                                              , logger       : utility.logfnx(logger, 'device/' + self.deviceID) }).on('error',
+                                              , logger       : utility.logfnx(logger, 'device/' + self.deviceID)
+                                              }).on('error',
   function(err) {
     self.error(self, err);
 

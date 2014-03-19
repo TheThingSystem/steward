@@ -50,7 +50,7 @@ Spotter.prototype.scan = function(self) {
 
   self.gateway.wink.getDevice(self.params, function(err, params) {
     if (!!err) {
-      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message});
+      if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'getDevice', diagnostic: err.message });
       self.errorP = true;
       return;
     }
@@ -141,7 +141,7 @@ Spotter.prototype.perform = function(self, taskID, perform, parameter) {
   self.name = params.name;
   self.changed();
   self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message });
 
     if (!!params) self.update(self, params);
   });

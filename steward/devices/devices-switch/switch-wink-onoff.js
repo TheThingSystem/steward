@@ -70,7 +70,7 @@ OnOff.prototype.perform = function(self, taskID, perform, parameter) {
     self.name = params.name;
     self.changed();
     self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message});
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message });
 
       if (!!params) self.update(self, params);
     });
@@ -83,7 +83,7 @@ OnOff.prototype.perform = function(self, taskID, perform, parameter) {
   powered = perform === 'on' ? true : false;
   logger.info('device/' + self.deviceID, { perform: { on: powered } });
   self.gateway.wink.setOutlet(self.params, { powered : powered }, function(err, params) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setOutlet', diagnostic: err.message});
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setOutlet', diagnostic: err.message });
 
     if (!!params) self.update(self, params);
   });

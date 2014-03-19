@@ -9,6 +9,16 @@ var sqlite3     = require('sqlite3')
 
 var logger = exports.logger = utility.logger('sensor');
 
+
+// please update these two in parallel...
+exports.units = { Celsius     : { symbol: 'C',   units: 'celsius'                             }
+                , Decibels    : { symbol: 'dB',  units: 'decibels'                            }
+                , Lux         : { symbol: 'lx',  units: 'lux'                                 }
+                , Millibars   : { symbol: 'mb',  units: 'millibars'                           }
+                , PPM         : { symbol: 'ppm', units: 'ppm'                                 }
+                , Percentage  : { symbol: '%',   units: 'percentage', numberFormat: '000.000' }
+                , Voltage     : { symbol: 'V',   units: 'voltage'                             }
+                };
 var measures = exports.measures =
                  { airQuality  : { symbol: 'AQI', units: 'voltage',    type: 'contextDependentUnits' }
                  , co          : { symbol: 'co',  units: 'ppm',        type: 'contextDependentUnits' }
@@ -53,7 +63,7 @@ var addstream = function(measureName, deviceID, value, timestamp) {
                                                          , symbol : measures[measureName].symbol
                                                          }
                                            , value     : value
-                                           , timestamp : timestamp
+                                           , timestamp : timestamp || new Date().getTime()
                                            });
       }
   };
@@ -107,7 +117,7 @@ var update = function(deviceID, measureName, value, timestamp) {
                                                          , symbol : measures[measureName].symbol
                                                          }
                                            , value     : value
-                                           , timestamp : timestamp
+                                           , timestamp : timestamp || new Date().getTime()
                                            });
     }
 

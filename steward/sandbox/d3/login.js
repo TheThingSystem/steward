@@ -751,6 +751,18 @@ var bootable = { '':
                    , passphrase : ''
                    }
                  }
+               , grovestreams   :
+                 { text         : 'If you have an GroveStreams account, the steward can automatically upload measurements.'
+                 , instructions : 'Go to https://grovestreams.com, create an account and create an organization for the steward'
+                 , site         : 'https://grovestreams.com'
+                 , icon         : ''
+                 , name         : 'grovestreams'
+                 , actor        : '/device/indicator/grovestreams/sensor'
+                 , info         :
+                   { apikey       : ''
+                   , organization : ''
+                   }
+                 }
                , koubachi       :
                  { text         : 'If you have the Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
                  , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'
@@ -863,7 +875,7 @@ var bootable = { '':
                , xively         :
                  { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
                  , instructions : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed.'
-                 , site         : 'https://xlively.com/login'
+                 , site         : 'https://xively.com/login'
                  , icon         : ''
                  , name         : 'xively'
                  , actor        : '/device/indicator/xively/sensor'
