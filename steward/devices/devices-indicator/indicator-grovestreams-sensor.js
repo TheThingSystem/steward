@@ -59,7 +59,6 @@ var GroveStreams = exports.Device = function(deviceID, deviceUID, info) {
                                        , logger       : utility.logfnx(logger, 'device/' + self.deviceID)
                                        , location      : location
                                        }).login(function(err, users, components, units) {
-console.log('>>> logged in, !!err='+(!!err));
     var component, componentUID, i, streams, u, unit;
 
     if (!!err) {
@@ -97,7 +96,7 @@ console.log('>>> logged in, !!err='+(!!err));
 
   self.prime(self);
   setInterval(function() {
-    var component, components, componentUID, streamUID;
+    var component, components, componentUID, inflight, streamUID;
 
     if ((self.status !== 'ready') || (!self.samples) || (self.uploadP)) return;
     self.uploadP = true;
@@ -114,12 +113,36 @@ console.log('>>> logged in, !!err='+(!!err));
       }
       components.push(component);
     }
+    inflight = self.samples;
     delete(self.samples);
 
     self.client.addSamples({ component: components }, function(err) {
+      var componentUID, streamUID;
+
       delete(self.uploadP);
 
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'addPoint', diagnostic: err.message });
+      if (!!err) {
+        if (err.message === 'HTTP response 403') {
+          for (componentUID in inflight) {
+            if (!inflight.hasOwnProperty(componentUID)) continue;
+
+            if (!self.samples[componentUID]) self.samples[componentUID] = {};
+            for (streamUID in inflight[componentUID]) {
+              if (!inflight[componentUID].hasOwnProperty(streamUID)) continue;
+
+              if (!self.samples[componentUID][streamUID]) {
+                self.samples[componentUID][streamUID] = { streamUid: streamUID, data: [], time: [] };
+              }
+              self.samples[componentUID][streamUID].data =
+                  inflight[componentUID][streamUID].data.concat(self.samples[componentUID][streamUID].data);
+              self.samples[componentUID][streamUID].time =
+                  inflight[componentUID][streamUID].time.concat(self.samples[componentUID][streamUID].time);
+            }
+          }
+        }
+
+        return logger.error('device/' + self.deviceID, { event: 'addPoint', diagnostic: err.message });
+      }
     });    
   }, 15 * 1000);
 };

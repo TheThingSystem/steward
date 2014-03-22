@@ -1,5 +1,5 @@
-ChangeLog
-=======
+CHANGELOG
+=========
 
 ## Release 1.6 "Pecan Waffle" - TBD
 ## Commit - TBD
@@ -22,6 +22,8 @@ ChangeLog
 ### Places
 - use replacement interface to YQL, and robustness
 - better diagnostics for invalid parameters
+- default to metric for displayUnits
+- more accurate handling of forecast and current conditions
 
 ### Things
 - all:
@@ -32,9 +34,11 @@ ChangeLog
     - samsung/control: NEW, thank you @CloCkWeRX
 - device/gateway
     - flower-power/cloud: robustness
+    - reelyactive/reel: supress phantom tags
     - yoctopuce/hub: determine measured property based on unit parsign
 - device/indicator:
     - cassandra/nosql: NEW
+    - grovestream/sensor: NEW
     - irtoy/infrared: moved to drivers-in-progress area
     - wink/*:
     - wink/gauge:
@@ -48,10 +52,14 @@ ChangeLog
 - device/media:
     - camera/axis: moved to drivers-in-progress area
 - device/motive:
-    - automatic/vehicle: interpret polyline routes
+    - automatic/vehicle:
+        - interpret polyline routes
+        - add logging hook
+        - remove debugging
     - crazyflie/3d: moved to drivers-in-progress area
     - irobot/floor: moved to drivers-in-progress area
     - lockitron/lock: add 'error' status, if operations fail
+    - tesla/model-s: limit API calls to no more than six per minute
 - device/presence:
     - no changes
 - device/sensor:
@@ -67,7 +75,7 @@ ChangeLog
 	- supress multiple API connection errors
 
 ### HTML5/D3 client
-- no changes
+- more accurate handling of forecast and current conditions
 
 ### User management client (client.html)
 - no changes
@@ -176,7 +184,7 @@ ChangeLog
 - An [iOS library](https://github.com/TheThingSystem/steward-ios-library) to interface with the Things-as-a-service, client-side
 - A [node.js module](https://github.com/TheThingSystem/node-thing-client) to interface with TheThingSystem, as a thing
 - A [node.js module](https://github.com/TheThingSystem/node-taas-client) to interface with the Things-as-a-service, client-side
- 
+
 ### Utilities
 - no changes
 

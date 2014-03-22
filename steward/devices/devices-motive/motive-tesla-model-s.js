@@ -35,6 +35,8 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.newstate(self);
   self.gateway = info.gateway;
 
+  self.last6 = [];
+
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (request === 'attention') {
       if (self.status === 'reset') self.alert('please enable remote access from vehicle console');
@@ -51,6 +53,32 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
 util.inherits(ModelS, motive.Device);
 
 
+ModelS.prototype.checkAPI = function(self, call, retry) {
+  var diff, now;
+
+  now = new Date().getTime();
+
+  if (self.last6.length < 6) {
+    self.last6.push({ call: call, timestamp: now });
+    return true;
+  }
+
+  diff = self.last6[0].timestamp - (now - 60 * 1000);
+  if (diff >= 0) {
+    logger.info('device/' + self.deviceID, { event: 'self.checkAPI', call: call, early: (diff / 1000).toFixed(2) });
+    if (!!retry) {
+      if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
+      self.timer = setTimeout(retry, diff + 1);
+    }
+
+    return false;
+  }
+
+  self.last6.splice(0, 1);
+  self.last6.push({ call: call, timestamp: now });
+  return true;
+};
+
 ModelS.prototype.newstate = function(self, enabled) {
   var status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'ready' : 'reset');
 
@@ -65,6 +93,7 @@ ModelS.prototype.refresh = function(self) {
 
   if ((self.vehicle.state !== 'waiting') && (self.vehicle.tokens.length !== 0)) return self.scan(self);
 
+  if (!self.checkAPI(self, 'tesla.wake_up', function() { self.refresh(self); })) return;
   tesla.wake_up(self.vehicle.id, function(data) {
     if (utility.toType(data) === 'error') {
       if ((data.message.indexOf('503:') !== 0) && (data.message.indexOf('408:') !== 0)) {
@@ -73,6 +102,7 @@ ModelS.prototype.refresh = function(self) {
       return self.scan(self);
     }
 
+    if (!self.checkAPI(self, 'tesla.all', function() { self.refresh(self); })) return;
     tesla.all({ email: self.gateway.info.email, password: self.gateway.info.passphrase }, function(error, response, body) {
       var data, i, lastSample, streamingP;
 
@@ -104,6 +134,7 @@ ModelS.prototype.scan = function(self) {
   if (!!self.timer) clearTimeout(self.timer);
   self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 5 : 300 ) * 1000);
 
+  if (!self.checkAPI(self, 'tesla.mobile_enabled', function() { self.scan(self); })) return;
   tesla.mobile_enabled(self.vehicle.id, function(data) {
     if (utility.toType(data) === 'error') {
       if (data.message.indexOf('429:') === 0) {
@@ -120,6 +151,7 @@ ModelS.prototype.scan = function(self) {
 
     self.stream(self, false);
 
+    if (!self.checkAPI(self, 'tesla.get_vehicle_state')) return;
     tesla.get_vehicle_state(self.vehicle.id, function(data) {
       var didP, doors, sunroof;
 
@@ -158,6 +190,7 @@ ModelS.prototype.scan = function(self) {
       if (didP) self.changed();
     });
 
+    if (!self.checkAPI(self, 'tesla.get_climate_state')) return;
     tesla.get_climate_state(self.vehicle.id, function(data) {
       var didP, hvac;
 
@@ -189,6 +222,7 @@ ModelS.prototype.scan = function(self) {
       if (didP) self.changed();
     });
 
+  if (!self.checkAPI(self, 'tesla.get_drive_state')) return;
     tesla.get_drive_state(self.vehicle.id, function(data) {
       var didP, speed;
 
@@ -234,6 +268,7 @@ ModelS.prototype.scan = function(self) {
       }
     });
 
+    if (!self.checkAPI(self, 'tesla.get_charge_state')) return;
     tesla.get_charge_state(self.vehicle.id, function(data) {
       var charger, didP;
 
@@ -267,6 +302,7 @@ ModelS.prototype.stream = function(self, fastP) {
   if ((self.vehicle.streamingP) || (self.vehicle.tokens.length === 0)) return;
   self.vehicle.streamingP = true;
 
+  if (!self.checkAPI(self, 'tesla.stream', function() { self.stream(self, fastP); })) return;
   tesla.stream({ vehicle_id : self.vehicle.vehicle_id
                , email      : self.gateway.info.email
                , password   : self.vehicle.tokens[0]
@@ -414,6 +450,7 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   };
   f();
 
+  self.checkAPI(self, 'tesla.perform');
   return steward.performed(taskID);
 };
 

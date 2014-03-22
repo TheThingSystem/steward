@@ -38,6 +38,7 @@ var Hublet = exports.Device = function(deviceID, deviceUID, info) {
 
   self.eui64 = '001bc5094';
   self.reels = {};
+  self.seen  = {};
 
   self.update(self, info.params.data, info.params.timestamp);
 
@@ -86,7 +87,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
   var i, info, j, prevID, reelID, tagID, udn, v, value;
 
   if (data.indexOf('78') === 0) return self.updateReelceiver(self, data, timestamp);
-  if (data.indexOf('71') === 0) return console.log('>>> reel call result: ' + data);
+  if (data.indexOf('71') === 0) return logger.error('device/' + self.deviceID, { event: 'reelcall', data: data });
   if ((data.indexOf('04') !== 0) || (data.length < 16)) return;
 
   prevID = -1;
@@ -104,6 +105,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
     value = parseInt(data.substr(i + 2, 2), 16);
     v.push({ deviceID : 'device/' + devices.devices[udn].device.deviceID
            , reading  : (value < 128) ? (value + 128) : (value - 128)
+           , reelID   : reelID
            });
   }
   if (v.length === 0) return;
@@ -112,6 +114,11 @@ Hublet.prototype.update = function(self, data, timestamp) {
   tagID = self.eui64 + data.substr(4, 7);
   udn = 'uuid:2f402f80-da50-11e1-9b23-' + tagID;
   if (!!devices.devices[udn]) return update(udn, v, timestamp);
+// supress phantom tags
+  if (!self.seen[udn]) {
+    self.seen[udn] = { v: v, timestamp: timestamp };
+    return;
+  }
 
   info = { source: self.deviceID, params: { v: v, timestamp: timestamp } };
   info.device = { url          : null
@@ -276,7 +283,13 @@ var scan = function(portno) {
                        , address     : rinfo.address
                        , description : 'reel-to-Ethernet hublet'
                        , url         : 'udp://' + rinfo.address + ':' + rinfo.port
-                       }, function(buffer) { socket.send(buffer, 0, buffer.length, rinfo.port, rinfo.address); });
+                       }, function(buffer) { socket.send(buffer, 0, buffer.length, 50000, rinfo.address,
+                                             function(err, octets) {
+                                               if (!!err) return logger2.error('gateway-reelyactive-reel',
+                                                                               { event: 'send', diagnostic: err.message });
+                                               logger2.debug('gateway-reelyactive-reel', { event: 'send', size: octets });
+                                             });
+                                           });
   }).on('listening', function() {
     var address = this.address();
 

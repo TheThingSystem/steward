@@ -449,7 +449,7 @@ Place.prototype.getWeather = function(self) {
 
   new yql.exec2('SELECT * FROM weather.forecast WHERE (woeid = @woeid) AND (u = "c")', { woeid: self.info.woeid }, {},
   function (err, response) {
-    var a, atmosphere, current, diff, forecasts, i,  next, now, pubdate, wind;
+    var a, atmosphere, current, diff, forecasts, i, now, pubdate, wind;
 
     if (!!err) return logger.error('place/1', { event: 'getWeather', diagnostic: err.message });
 
@@ -492,24 +492,11 @@ Place.prototype.getWeather = function(self) {
       self.info.forecasts = [];
       forecasts = response.query.results.channel.item.forecast;
       for (i = 0; i < forecasts.length; i++) {
-        next = new Date(forecasts[i].date).getTime();
-/*
-        if (now >= (next + (86400 * 1000))) {
-          self.info.conditions = { lastSample  : next
-                                 , code        : forecasts[i].code
-                                 , text        : forecasts[i].text.toLowerCase()
-                                 };
-          if (!!self.weatherID) clearInterval(self.weatherID);
-          setTimeout(retry, 15 * 60 * 1000);
-          continue;
-        }
- */
-
         self.info.forecasts.push({ code            : forecasts[i].code
                                  , text            : forecasts[i].text.toLowerCase()
                                  , highTemperature : forecasts[i].high
                                  , lowTemperature  : forecasts[i].low
-                                 , nextSample      : next
+                                 , nextSample      : new Date(forecasts[i].date).getTime()
                                  });
       }
     } catch(ex) {
