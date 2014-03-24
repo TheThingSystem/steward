@@ -38,7 +38,8 @@ var Hublet = exports.Device = function(deviceID, deviceUID, info) {
 
   self.eui64 = '001bc5094';
   self.reels = {};
-  self.seen  = {};
+  self.ptags  = {};
+  self.pceivers  = {};
 
   self.update(self, info.params.data, info.params.timestamp);
 
@@ -115,8 +116,8 @@ Hublet.prototype.update = function(self, data, timestamp) {
   udn = 'uuid:2f402f80-da50-11e1-9b23-' + tagID;
   if (!!devices.devices[udn]) return update(udn, v, timestamp);
 // supress phantom tags
-  if (!self.seen[udn]) {
-    self.seen[udn] = { v: v, timestamp: timestamp };
+  if (!self.ptags[udn]) {
+    self.ptags[udn] = { v: v, timestamp: timestamp };
     return;
   }
 
@@ -166,6 +167,11 @@ Hublet.prototype.updateReelceiver = function(self, data, timestamp) {
            , radioVoltage     :(toUInt(21, 1) / 34) + 1.8
            };
   udn = 'uuid:2f402f80-da50-11e1-9b23-' + packet.deviceIdentifier;
+// supress phantom reelceivers
+  if (!self.pceivers[udn]) {
+    self.pceivers[udn] = { packet: packet, timestamp: timestamp };
+    return;
+  }
   if (!self.reels[packet.reelOffset]) self.reels[packet.reelOffset] = udn;
   if (!!devices.devices[udn]) return update(udn, packet, timestamp);
 
