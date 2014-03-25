@@ -95,7 +95,7 @@ var home = function(state) {
   img.setAttribute('onclick', 'javascript:showSettings()');
   chart.appendChild(img);
 
-if (true) {
+if (false) {
   img = document.createElement('img');
   img.setAttribute('id', 'to-voice');
   img.setAttribute('src', 'popovers/assets/microphone.svg');
