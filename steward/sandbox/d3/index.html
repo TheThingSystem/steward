@@ -45,6 +45,7 @@ body {
 
 <script type='text/javascript' src='d3.v2.js'></script>
 <script type='text/javascript' src='d3.steward.js'></script>
+<script type='text/javascript' src='steward.api.js'></script>
 <script type='text/javascript' src='onactors.js'></script>
 
 <link rel="stylesheet" href="master.css" type="text/css" media="screen" />
@@ -52,6 +53,7 @@ body {
 <script type='text/javascript' src='login.js'></script>
 <script type='text/javascript' src='drilldown.js'></script>
 <script type='text/javascript' src='apprentices.js'></script>
+<script type='text/javascript' src='voice.js'></script>
 <script type='text/javascript' src='popover.js'></script>
 <script type='text/javascript' src='colorpicker.min.js'></script> <!--https://github.com/DavidDurman/FlexiColorPicker-->
 
@@ -61,6 +63,15 @@ var ws2;          // Steward /manage socket
 var currDevice  = {actor: "", device: {}, entry: {}};   // To carry over actor from one request type to another
 var loginInfo   = {clientID: "", permissions: []};
 var readOnlyAccess = false;
+
+// var rID = 1024;
+// var callbacks = {};
+// var add_callback = function(cb) {
+//   callbacks[rID.toString()] = cb;
+// 
+//   return rID++;
+// };
+
 
 var login = function(evt) {
   var form         = document.forms.loginForm
@@ -156,7 +167,7 @@ var go = function(steward) {
 	    if (!message) throw new Error("invalid JSON: " + this.responseText);
 	  
         requestID = message.requestID.toString();
-	  
+
         if (message.hasOwnProperty("error")) {
           if (message.error.permanent) {
             priorityNotify(message.error.diagnostic);
@@ -164,7 +175,7 @@ var go = function(steward) {
             if (readOnlyAccess && (/unknown api\:/.test(message.error.diagnostic)) && 
               (/perform/.test(message.error.diagnostic))) {
                 notify("You have read-only access.");
-            } else notify(message.error.diagnostic);
+            } else if (!message.error.videlicet) notify(message.error.diagnostic);
           }
         }
         
@@ -172,52 +183,58 @@ var go = function(steward) {
           failure = message.result.status !== "success";
         }
         
-	    switch (requestID) {
-	      case "0": // Draw entire page & start listening for updates		  
-					state = stack.pop();
-					state.message = message;
-					stack.push(state);
-					(state.page)(state);
-					break;
-	      case "1": // Redraw page while updates already flowing
-					state = stack.pop();
-					state.message = message;
-					stack.push(state);
-					(state.page)(state);
-					break;
-	      case "2":  // Perform from popover
-					if (failure) notify("Setting the device property failed.");
-					break;
-	      case "3":  // Perform from settings
-					if (failure) notify("Sending new settings to the steward failed.");
-					break;
-		    case "4":  // Apprentice actors
-		      apprenticeActors = message;
-		      setTimeout(function() {
-                wsSend(JSON.stringify({ path: '/api/v1/activity/list/', requestID: 5, options: { depth: 'all' }}));}, 0); 
-              break;
-        case "5":  // Apprentice activities (to come)
-              prepare(apprentices.home, apprenticeActors, message);
-              break;
-	      case "7":  // Remote login
-					onlogin(message);
-					stack.push({ page: home });
-					refreshActors(0);
-					break;
-					default:
-					break;
-				}
+      // NOTE: This area will change radically in release 1.7 or 1.8 to remove hard-wired request ID numbers 
+      // while the client migrates to the callback system implemented here as the default case.
+      switch (requestID) {
+        case "0": // Draw entire page & start listening for updates		  
+          state = stack.pop();
+          state.message = message;
+          stack.push(state);
+          (state.page)(state);
+          break;
+        case "1": // Redraw page while updates already flowing
+          state = stack.pop();
+          state.message = message;
+          stack.push(state);
+          (state.page)(state);
+          break;
+        case "2":  // Perform from popover
+          if (failure) notify("Setting the device property failed.");
+          break;
+        case "3":  // Perform from settings
+          if (failure) notify("Sending new settings to the steward failed.");
+          break;
+        case "7":  // Remote login
+          onlogin(message);
+          stack.push({ page: home });
+          refreshActors(0);
+          break;
+        case "10":  // Apprentice actors
+          apprenticeActors = message;
+          setTimeout(function() {
+            wsSend(JSON.stringify({ path : '/api/v1/activity/list/', requestID: "11", options: { depth: 'all' }}));}, 10); 
+          break;
+        case "11":  // Apprentice activities (to come)
+          prepare(apprentices.home, apprenticeActors, message);
+          break;
+        case "12": // After various apprentice db management tasks, update local apprentices records
+          refreshActors(10);
+          break;
+        default:
+          if ((!!callbacks[requestID]) && ((callbacks[requestID])(message))) delete(callbacks[requestID]);
+          break;
+        }
       } catch(e) {
-	    console.log(e);
-	  }
+	      console.log(e);
+	    }
     }
   
     ws2.onclose = function(evt) { }
   
     ws2.onerror = function(evt) {
-	  notify(evt.reason); ;
-	  ws2.close()
-	  location.reload();
+	    notify(evt.reason);
+	    ws2.close()
+	    location.reload();
     }
 
   }

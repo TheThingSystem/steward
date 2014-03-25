@@ -618,4 +618,178 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 
 #sub-pane-two .action-button {height: 30px; margin: 5px; cursor: pointer}
 
+/* voice panels */
+
+#to-voice {
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    top: 30px;
+    padding: 2px;
+    background-color: transparent;
+    cursor: pointer;
 }
+
+#chart div.voice-instructions-1 {
+        position: absolute;
+        top: 350px;
+        left: 270px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        color: #fff;
+        font-weight: normal;
+        line-height: 27px;
+        margin-top: 2px;
+        margin-left: 6px;
+        padding-top: 3px;
+        text-align: center;
+        width: 200px;
+        height: 100px;
+}
+
+#chart .voice-instructions-2 {
+        position: absolute;
+        top: 160px;
+        left: 170px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        color: #fff;
+        font-weight: normal;
+        line-height: 27px;
+        margin-top: 2px;
+        margin-left: 6px;
+        padding-top: 3px;
+        text-align: center;
+        width: 400px;
+        height: 50px;
+}
+#chart .voice-instructions-3 {
+        position: absolute;
+        top: 300px;
+        left: 173px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        color: #fff;
+        font-weight: normal;
+        line-height: 27px;
+        margin-top: 2px;
+        margin-left: 6px;
+        padding-top: 3px;
+        text-align: center;
+        width: 400px;
+        height: 100px;
+}
+
+#chart .button-panel {
+        position: absolute;
+        top: 342px;
+        left: 210px;
+        width: 170px;
+        height: 120px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 18px;
+        color: #fff;
+        font-weight: normal;
+        line-height: 38px;
+        margin-top: 2px;
+        margin-left: 6px;
+        padding-top: 3px;
+        text-align: left;
+}
+
+#chart .appstore-panel {
+        position: absolute;
+        top: 342px;
+        left: 410px;
+        width: 170px;
+        height: 120px;
+}
+
+#chart div.recognizer-panel-button { position: static; height: 35px; width: 170px; cursor: pointer; }
+
+#instructions-cat { text-transform: capitalize; }
+
+.voice-title { white-space: nowrap; }
+
+#chart div.multiple-voice-instructions {
+        width: 100%; 
+        top: 30px;
+        left: 0px;
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 17px;
+        line-height: 15px;
+        font-weight: normal;
+        margin-top: 10px;
+        white-space: nowrap;
+        text-align: center;
+        color: #00adee;
+}
+
+#chart div.enumerations-viewport {
+        top: 56px;
+        width: 400px;
+        height: 360px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+}
+
+#enumerations-tray {
+        position: relative;
+        top: 0px;
+        width: 400px;
+        left: 0px;
+        vertical-align: top;
+        table-layout: fixed;
+}
+
+td.enumeration-checkbox {
+        text-align: center;
+        padding: 0px; margin: 0px;
+        text-transform: uppercase;
+        position: static;
+        height: 50px;
+        width: 30px;
+        overflow: hidden;
+        vertical-align: top;
+}
+
+.enumeration-edit {
+        font-family: "Roadgeek 2005 Series D";
+        font-size: 24px;
+        line-height: 46px;
+        font-weight: normal;
+        white-space: nowrap;
+        text-align: center;
+        padding: 0px; margin: 0px;
+        text-transform: uppercase;
+        position: static;
+        height: 50px;
+        width: 370px;
+        overflow: hidden;
+        vertical-align: top;
+}
+
+.voice-checkbox {position: relative; top: 13px; 
+      -ms-transform: scale(1.75);
+      -moz-transform: scale(1.75, 1.75);
+      -webkit-transform: scale(1.75);
+      transform: scale(1.75);
+}
+.voice-checkbox-span {float: left}
+
+.voice-category1 { position: absolute; top: 55px; left: 430px; cursor: pointer; }
+.voice-category2 { position: absolute; top: 98px; left: 527px; cursor: pointer; }
+.voice-category3 { position: absolute; top: 172px; left: 608px; cursor: pointer; }
+.voice-category4 { position: absolute; top: 270px; left: 657px; cursor: pointer; }
+.voice-category5 { position: absolute; top: 378px; left: 669px; cursor: pointer; }
+.voice-category6 { position: absolute; top: 485px; left: 645px; cursor: pointer; }
+.voice-category7 { position: absolute; top: 575px; left: 583px; cursor: pointer; }
+.voice-category8 { position: absolute; top: 640px; left: 497px; cursor: pointer; }
+.voice-category9 { position: absolute; top: 668px; left: 393px; cursor: pointer; }
+
+
+.voice-slider { position: absolute; left: 128px; top: 205px; background-image: url('popovers/assets/voice-slider.svg'); width: 22px; height: 395px; }
+.select-icon { position: absolute; left: 60px; background-color: #00adee; background-image: url('actors/lighting-downlight.svg');width: 45px; height: 45px; }
+
+.download-interstitial { position: absolute; top: 610px; left: 330px; cursor: pointer; }
+.download { position: absolute; top: 440px; left: 215px; cursor: pointer; }

@@ -95,6 +95,15 @@ var home = function(state) {
   img.setAttribute('onclick', 'javascript:showSettings()');
   chart.appendChild(img);
 
+if (true) {
+  img = document.createElement('img');
+  img.setAttribute('id', 'to-voice');
+  img.setAttribute('src', 'popovers/assets/microphone.svg');
+  img.setAttribute('title', 'To voice control settings...');
+  img.setAttribute('onclick', 'javascript:showVoiceSettings()');
+  chart.appendChild(img);
+}
+  
   chart = document.getElementById('chart');
 
   div = document.createElement('div');
@@ -281,7 +290,7 @@ if (false) {
   self.onUpdate = function(updates) {
     var actorID, update, refresh = false;
     lastUpdated = [];
-    
+    if (!document.getElementById('stage')) return;
     for (var i = 0; i < updates.length; i++) {
       update = updates[i];
 
