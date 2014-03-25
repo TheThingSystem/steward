@@ -9,7 +9,7 @@ var util        = require('util')
   ;
 
 
-// var logger = climate.logger;
+var logger = climate.logger;
 
 
 var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
@@ -77,11 +77,11 @@ Thermostat.operations =
          });
 
          devices.attempt_perform('away', params, function(value) {
-           if (value === 'on') {
-             nest.setAway();
-           } else {
-             nest.setHome();
-           }
+           var structureId = nest.getStructureId();
+
+// NB: sometimes we don't get back structures from the cloud... (not sure why)
+           if (!structureId) return logger.error('device/' + self.deviceID, { event: 'away', diagnostic: 'no structureID' });
+           nest.setAway(value === 'on', structureId);
          });
 
          devices.attempt_perform('hvac', params, function(value) {

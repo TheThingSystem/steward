@@ -144,7 +144,7 @@ var GroveStreams = exports.Device = function(deviceID, deviceUID, info) {
         return logger.error('device/' + self.deviceID, { event: 'addPoint', diagnostic: err.message });
       }
     });    
-  }, 15 * 1000);
+  }, 90 * 1000);
 };
 util.inherits(GroveStreams, indicator.Device);
 
