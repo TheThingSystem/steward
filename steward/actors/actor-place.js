@@ -180,6 +180,7 @@ var Place = exports.Place = function(info) {
     delete(info.name);
     delete(info.ipaddrs);
     delete(info.woeid);
+    if (!!steward.uuid) info.identity = steward.uuid;
     if (!!server.vous) {
       info.remote = server.vous;
 
@@ -724,6 +725,7 @@ exports.start = function() {
                                    , displayUnits: [ 'customary', 'metric' ]
                                    , physical    : true
                                    , location    : 'coordinates'
+                                   , identity    : true
                                    , remote      : true
                                    , review      : []
                                    , conditions  : { code        : true
