@@ -35,7 +35,7 @@ CHANGELOG
 - device/gateway
     - flower-power/cloud: robustness
     - reelyactive/reel: supress phantom tags
-    - yoctopuce/hub: determine measured property based on unit parsign
+    - yoctopuce/hub: determine measured property based on unit parsing
 - device/indicator:
     - cassandra/nosql: NEW
     - grovestream/sensor: NEW
