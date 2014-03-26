@@ -263,6 +263,8 @@ var showSettings = function() {
   
   if (document.getElementById('settings')) return;
   
+  if (document.getElementById('to-voice')) document.getElementById('to-voice').style.display = 'none';
+  
   img = document.getElementById("to-config");
   img.disabled = true;
   img.style.opacity = 0.3;
@@ -481,6 +483,8 @@ var closeSettings = function(evt) {
   var img = document.getElementById("to-config");
   img.disabled = false;
   img.style.opacity = 1;
+
+  if (document.getElementById('to-voice')) document.getElementById('to-voice').style.display = 'block';
   
   return false;
 }

@@ -44,8 +44,8 @@ var showVoiceSettings = function() {
 };
 
 var exportVoiceCommands = function() {
-    var a, actor, actors, cdate, edate, entry, fn, g, groupID, grousp, i, ifrm, pair, pairs, part0, part1, part2, part3, partN, q, q24, quad, taskID,
-        tasks, vocalia;
+    var a, actor, actors, cdate, edate, entry, fn, g, groupID, grousp, i, ifrm, pair, pairs, part0, part1, part2, part3, partC, partN, q, q24, quad, taskID,
+        tasks, url, vocalia;
     
     if (!voiceEntries.recognizer) {
       document.getElementById('voice-instructions-3').style.color = '#f00';
@@ -418,14 +418,22 @@ All recognized commands without filter\n\
         part1 += '<DT><A HREF="' + pairs[pair].task + '">' + pairs[pair].command + '</A>\n';
       }
     }
+    
+    partC = '<!-- Save this page as "' + fn + '" -->\n';
 
-     a = window.document.createElement('a');
-//     console.log(part0 + part1 + part2 + part3);
-     a.download = fn;
-     a.href = window.URL.createObjectURL(new Blob([part0 + part1 + part2 + part3], { type: 'text/plain' }));
-     document.body.appendChild(a);
-     a.click();
-     document.body.removeChild(a);
+    a = window.document.createElement('a');
+    if (a.hasOwnProperty('download')) {
+      a.download = fn;
+      url = window.URL.createObjectURL(new Blob([part0 + part1 + part2 + part3], { type: 'text/plain' }));
+      a.href = url
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      url = window.URL.createObjectURL(new Blob([partC + part0 + part1 + part2 + part3], { type: 'text/plain' }));
+      window.open(url, '_blank');
+    }
+    window.URL.revokeObjectURL(url);
 };
 
 
@@ -437,8 +445,8 @@ var voiceUtils = {
                , {name: 'media', img: 'popovers/assets/actors/media-video.svg', active: false, top: 0, left: 0}
                , {name: 'sensor', img: 'popovers/assets/actors/sensor-generic.svg', active: false, top: 0, left: 0}
                , {name: 'switch', img: 'popovers/assets/actors/switch-onoff.svg', active: false, top: 0, left: 0}
-               , {name: 'groups', img: 'categories/groups.svg', active: false, top: 0, left: 0}
-               , {name: 'tasks', img: 'categories/tasks.svg', active: false, top: 0, left: 0}
+               , {name: 'groups', img: 'categories/groups.svg', active: true, top: 0, left: 0}
+               , {name: 'tasks', img: 'categories/tasks.svg', active: true, top: 0, left: 0}
                ],
   defaultDevicePhrases : function(entry, q) {
       var lighting =             { on : { text: 'turn ' + entry.name + ' on', selected: true, id: 'on' + new Date().getTime() }
@@ -573,7 +581,7 @@ var voiceUtils = {
         
         for (i = 0; i < entries.length; i++) {
           entry = entries[i];
-          cluster = (entry.sort === '{{{') ? 'categories' : 'devices'; // no accounting for groups or tasks here yet
+          cluster = (entry.sort === '!!!') ? 'categories' : 'devices'; // no accounting for groups or tasks here yet
           for (phrase in entry.phrases) {
             id = (cluster === 'categories') ? entry.q : entry.entry.whoami;
             tr = document.createElement('tr');
@@ -634,7 +642,9 @@ var voiceUtils = {
             entries.push(device);
           }
         }
-        entries.sort(function(a,b) {return a.sort.toLowerCase() > b.sort.toLowerCase();});
+        entries.sort(function(a,b) {if (a.sort.toLowerCase() < b.sort.toLowerCase()) return -1;
+                                    if (a.sort.toLowerCase() > b.sort.toLowerCase()) return 1;
+                                    return 0;});
         return entries;
       }
     }
@@ -664,6 +674,8 @@ var voiceUtils = {
       chart.removeChild(document.getElementById('voice-slider'));
       chart.removeChild(document.getElementById('download-interstitial'));
     }
+    
+    voiceUtils.deselectAll();
     
     if (!document.getElementById('voice-instructions-3')) {
 			div = document.createElement('div');
@@ -723,6 +735,7 @@ var voiceUtils = {
 			div.setAttribute('class', 'appstore-panel');
 			div2 = document.createElement('div');
 			div2.setAttribute('class', 'recognizer-panel-button');
+			div2.setAttribute('title', 'Opens in a new tab/window');
 			div2.setAttribute('onclick', 'javascript: voiceUtils.toAppStore("tasker")');
 			img = document.createElement('img');
 			img.setAttribute('src', 'popovers/assets/android.png');
@@ -731,6 +744,7 @@ var voiceUtils = {
 			div.appendChild(div2);
 			div2 = document.createElement('div');
 			div2.setAttribute('class', 'recognizer-panel-button');
+			div2.setAttribute('title', 'Opens in a new tab/window');
 			div2.setAttribute('style', 'padding-top: 8px');
 			div2.setAttribute('onclick', 'javascript: voiceUtils.toAppStore("vocalia")');
 			img = document.createElement('img');
@@ -854,7 +868,7 @@ var voiceUtils = {
       var cat, cats, j, name, q, quad;
       quad = deviceType.split('/');
       q = quad[2] + '_' + quad[4];
-      name = (q === 'motive_lockitron') ? 'motive-lock' : quad[2];
+      name = (q === 'motive_lock') ? 'motive-lock' : quad[2];
       cats = voiceUtils.categories;
       for (j = 0; j < cats.length; j++) {
         cat = cats[j];
@@ -922,7 +936,7 @@ var buildVoiceEntries = function(actors, groups, tasks) {
     entry = actors[actor];
     quad = entry.whatami.split('/');
     q = quad[2] + '_' + quad[4];
-    catName = (q === 'motive_lockitron') ? 'motive-lock' : quad[2];
+    catName = (q === 'motive_lock') ? 'motive-lock' : quad[2];
     deviceObj = {
                  entry      : entry
                  , q        : q
@@ -940,7 +954,7 @@ var buildVoiceEntries = function(actors, groups, tasks) {
                  , phrases  : buildCategoryPhrases(entry, q)
                  , selected : true
                  , category : catName
-                 , sort     : '{{{'
+                 , sort     : '!!!'
                 };
       voiceEntries.categories.push(catObj);
       catObjCatalog[q] = catObj;
