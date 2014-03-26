@@ -198,7 +198,9 @@ exports.start = function() {
       var address = this.address();
 
       logger.info('OWL driver listening on multicast udp://' + LOCAL_BROADCAST_HOST + ':' + address.port);
-      this.addMembership(LOCAL_BROADCAST_HOST);
+      try { this.addMembership(LOCAL_BROADCAST_HOST); } catch(ex) {
+        logger.error('discovery-owl', { event: 'addMembership', diagnostic: ex.message });
+      }
     }).on('error', function(err) {
       logger.error('discovery-owl', { event: 'socket', diagnostic: err.message });
     }).bind(LOCAL_BROADCAST_PORT, LOCAL_BROADCAST_HOST);

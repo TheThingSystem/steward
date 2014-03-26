@@ -200,7 +200,9 @@ exports.start = function() {
     var address = this.address();
 
     logger.info('TSRP listening on multicast udp://' + ipaddr + ':' + address.port);
-    this.addMembership(ipaddr);
+    try { this.addMembership(ipaddr); } catch(ex) {
+      logger.error('discovery-tsrp', { event: 'addMembership', diagnostic: ex.message });
+    }
   }).on('error', function(err) {
     logger.error('reporting', { event: 'socket', diagnostic: err.message });
   }).bind(portno, ipaddr);

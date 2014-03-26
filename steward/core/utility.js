@@ -77,10 +77,13 @@ var logconfigs = {
 var devices = null;
 var places  = null;
 
+if (!winston.config.syslog.levels.fatal) winston.config.syslog.levels.fatal = winston.config.syslog.levels.emerg + 1;
+
 exports.logger = function(x) {
   if (winston.loggers.has(x)) return winston.loggers.get(x);
   var logger = winston.loggers.add(x, logconfigs[x] || { console: { level: 'debug' } });
   logger.setLevels(winston.config.syslog.levels);
+  if (!logger.fatal) logger.fatal = logger.emerg;
 
   logger.logaux = logger.log;
   logger.log = function(level, msg) {
@@ -119,7 +122,7 @@ exports.logger = function(x) {
 
     this.logaux(level !== 'fatal' ? level : 'emerg', '[' + x + '] ' + msg, meta, callback);
 
-    if (level === 'fatal') process.exit(1);
+    if ((level === 'emerg') || (level === 'fatal')) process.exit(1);
   };
 
   logger.debug('begin');

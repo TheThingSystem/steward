@@ -1,7 +1,8 @@
 exports.actors = {};
 exports.status  = {};
 
-var net         = require('net')
+var ifTable     = require('arp-a').ifTable
+  , net         = require('net')
   , os          = require('os')
   , pcap        = require('pcap')
   , util        = require('util')
@@ -349,6 +350,7 @@ var report = function(module, entry, now) {
 
 
 var loadedP = false;
+var failedN = 0;
 var ifaces = exports.ifaces = utility.clone(os.networkInterfaces());
 
 var listen = function(ifname, ifaddr) {
@@ -458,7 +460,7 @@ exports.readP = function(clientInfo) {
 
 
 exports.start = function() {
-  var captureP, errorP, ifa, ifaddrs, ifname, ifname2, noneP;
+  var captureP, errorP, ifa, ifaddrs, ifmac, ifname, ifname2, noneP;
 
   if (utility.acquiring > 0) return setTimeout(exports.start, 10);
 
@@ -475,10 +477,33 @@ exports.start = function() {
     return;
   }
 
-  if (loadedP) return setTimeout(exports.start, 10);
+  if (loadedP) {
+    failedN++;
+    if (failedN < 100) return setTimeout(exports.start, 10);
+
+      logger.info('start', { diagnostic: 'determine UUID address using method #2' });
+    for (ifname in ifaces) {
+      if ((!ifaces[ifname].macaddrs) || (ifaces[ifname].macaddrs.length === 0)) continue;
+
+      logger.info('start', { diagnostic: 'determining UUID using method #2' });
+      exports.uuid = '2f402f80-da50-11e1-9b23-' + ifaces[ifname].macaddrs[0].split(':').join('');
+      return exports.start();
+    }
+
+    logger.fatal('start', { diagnostic: 'unable to determine MAC address of any interface' });
+  }
   loadedP = true;
 
   utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js$/, 6, -3, ' actor');
+
+  ifmac = {};
+  ifTable(function(err, entry) {
+    if (!!err) return logger.error('arp-a.ifTable', { diagnostic: err.message });
+
+    if (!entry) return;
+    if (!ifmac[entry.name]) ifmac[entry.name] = [];
+    ifmac[entry.name].push(entry.mac);
+  });
 
   errorP = false;
   noneP = true;
@@ -498,6 +523,7 @@ exports.start = function() {
 
       logger.info('scanning ' + ifname);
       ifaces[ifname] = { addresses: ifaddrs, arp: {} };
+      if (!!ifmac[ifname]) ifaces[ifname].macaddrs = ifmac[ifname];
       try {
         pcap.createSession(ifname, 'arp').on('packet', listen(ifname, ifaddrs[ifa].address));
         captureP = true;
