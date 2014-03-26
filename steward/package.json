@@ -1,10 +1,11 @@
-{ "name"                      : "node-steward"
+{ "name"                        : "node-steward"
   , "readmeFilename"            : "README.md"
-  , "version"                   : "0.0.1"
+  , "version"                   : "1.5.1"
   , "private"                   : true
   , "engines"                   :
     { "node"                    : ">=0.10.22"
     }
+  , "license"                   : "MIT"
   , "dependencies"              :
     { "MD5"                     : "1.0.3"
     , "aerogel"                 : "git://github.com/TheThingSystem/aerogel.git"
