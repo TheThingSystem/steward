@@ -182,27 +182,27 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
     }
     exports.db.run('UPDATE clients SET clientAuthParams=$clientAuthParams WHERE clientID=$clientID',
                    { $clientID: clientID, $clientAuthParams: JSON.stringify(data.params) }, function(err) {
-      if (err) logger.error(tag, { event: 'UPDATE client.authParams for ' + clientID, diagnostic: err.message });
+      if (err) return logger.error(tag, { event: 'UPDATE client.authParams for ' + clientID, diagnostic: err.message });
+
+      results.result.client = clientID;
+      if (!internalP) {
+        results.result.authenticatorURL = data.google_auth_qr;
+        results.result.otpURL = data.url();
+      }
+      clients[uuid] = { clientID         : clientID
+                      , clientUID        : uuid
+                      , clientUserID     : user.userID
+                      , clientName       : clientName
+                      , clientComments   : clientComments
+                      , clientAuthAlg    : 'otpauth://totp'
+                      , clientAuthParams : data.params
+                      , clientAuthKey    : data.base32
+                      , clientLastLogin  : null
+                    };
+      user.clients.push(clientID);
+
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
     });
-
-    results.result.client = clientID;
-    if (!internalP) {
-      results.result.authenticatorURL = data.google_auth_qr;
-      results.result.otpURL = data.url();
-    }
-    clients[uuid] = { clientID         : clientID
-                    , clientUID        : uuid
-                    , clientUserID     : user.userID
-                    , clientName       : clientName
-                    , clientComments   : clientComments
-                    , clientAuthAlg    : 'otpauth://totp'
-                    , clientAuthParams : data.params
-                    , clientAuthKey    : data.base32
-                    , clientLastLogin  : null
-                  };
-    user.clients.push(clientID);
-
-    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
   });
 };
 
