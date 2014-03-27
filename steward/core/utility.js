@@ -1,13 +1,12 @@
 var fs          = require('fs')
   , EventBroker = require('observer').EventBroker
   , stacktrace  = require('stack-trace')
-  , stringify  = require('json-stringify-safe')
+  , stringify   = require('json-stringify-safe')
   , winston     = require('winston')
   , util        = require('util')
   ;
 
 
-// require('longjohn');
 process.addListener("uncaughtException", function (err) {
   var logger;
 
@@ -43,7 +42,11 @@ var beacon_ingress = function(category, level, message, meta) {
 };
 
 
+var configuration = {};
+
 exports.start = function() {
+  var category, setting, settings;
+
 // used to delay the server starting...
   exports.acquiring = 1;
 
@@ -53,6 +56,26 @@ exports.start = function() {
   broker.create('actors');
   broker.create('discovery');
   broker.create('readings');
+
+  try {
+    configuration = JSON.parse(fs.readFileSync(__dirname + '/../db/configuration.json', { encoding: 'utf8' }));
+  } catch(ex) {
+    if (ex.code !== 'ENOENT') exports.logger('steward').error('utility', { diagnostic: ex.message });
+  }
+
+  if (!configuration.logconfigs) return;
+
+  for (category in configuration.logconfigs) {
+    if (!configuration.logconfigs.hasOwnProperty(category)) continue;
+
+    if (!logconfigs[category]) {
+      logconfigs[category] = configuration.logconfigs[category];
+      continue;
+    }
+
+     settings = configuration.logconfigs[category];
+     for (setting in settings) if (settings.hasOwnProperty(setting)) logconfigs[category][setting] = settings[setting];
+  }
 };
 
 
@@ -157,10 +180,25 @@ var logfnx2 = function(logaux, prefix, errorP) {/* jshint unused: false */
 exports.acquiring = 0;
 
 exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
+  var category, exclude, include, tail;
+
   exports.acquiring++;
 
+  if (!!configuration.deviceTypes) {
+    tail = directory.split('/');
+    if ((tail.length > 0) && (tail[tail.length - 1].indexOf('devices-') === 0)) {
+      category = tail[tail.length - 1].substring(8);
+      if ((!!configuration.deviceTypes.include) && (util.isArray(configuration.deviceTypes.include[category]))) {
+        include = configuration.deviceTypes.include[category];
+      }
+      if ((!!configuration.deviceTypes.exclude) && (util.isArray(configuration.deviceTypes.exclude[category]))) {
+        exclude = configuration.deviceTypes.exclude[category];
+      }
+    }
+  }
+
   fs.readdir(directory, function(err, files) {
-    var didP, file, i;
+    var didP, file, i, module;
 
     if (err) { exports.acquiring--; return log.error('readdir', { diagnostic: err.message }); }
 
@@ -169,7 +207,17 @@ exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
       file = files[i];
       if (file.match(pattern)) {
         didP = true;
-        log.info('loading ' + file.slice(start, stop) + suffix);
+        module = file.slice(start, stop);
+        if ((!!include) && (include.indexOf(module) === -1)) {
+          log.info('not including ' + module + suffix);
+          continue;
+        }
+        if ((!!exclude) && (exclude.indexOf(module) !== -1)) {
+          log.info('excluding ' + module + suffix);
+          continue;
+        }
+
+        log.info('loading ' + module + suffix);
         require(directory + '/' + file).start(arg);
       }
     }
