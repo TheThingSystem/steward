@@ -762,7 +762,7 @@ exports.expand = function(line, defentity) {
       } else entity = id2device(parts[0]);
     }
     if (!entity) {
-      result += '.[';
+      result += '.[' + parts.join('.') + '].';
       continue;
     }
 

@@ -303,7 +303,7 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
     params.time = now[i];
     if (speakeasy.totp(params) === message.response.toString()) break;
   }
-  if (i >= now.length) results.error = { permanent: false, diagnostic: 'invalid clientID/response pair' };
+  if (i >= now.length) results.error = { permanent: false, diagnostic: 'invalid clientID/response pair (check your clock)' };
   else {
     results.result = proplist(null, user);
     results.result.client = proplist2(null, client, user);
