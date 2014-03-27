@@ -351,7 +351,7 @@ All recognized commands without filter\n\
            ], true);
     };
 
-    for (i = 0; i < voiceEntries.categories.length; i++ ) {
+    for (i = 0; i < voiceEntries.categories.length; i++) {
       entry = voiceEntries.categories[i];
       if (!entry.phrases) continue;
       g = h(entry.q);
@@ -365,13 +365,17 @@ All recognized commands without filter\n\
       task(partN, text,
            [ 'behavior=perform'
            , 'entity=group'
-           , 'id=' + groupID.split('/')[1]
+           , 'id=' + groupID
            ]);
     };
 
-    for (groupID in groups) {
-      if ((groups.hasOwnProperty(groupID)) || (groups[groupID].type === 'task')) perform3(groupID, groups[groupID].name);
+    for (i = 0; i < voiceEntries.groups.length; i++) {
+      entry = voiceEntries.groups[i].entry;
+      if (entry.type === 'task') perform3(entry.uuid, entry.name);
     }
+//     for (groupID in groups) {
+//       if ((groups.hasOwnProperty(groupID)) || (groups[groupID].type === 'task')) perform3(groupID, groups[groupID].name);
+//     }
 
 
     var perform4 = function(taskID, text) {
@@ -381,11 +385,15 @@ All recognized commands without filter\n\
       task(partN, text,
            [ 'behavior=perform'
            , 'entity=task'
-           , 'id=' + taskID.split('/')[1]
+           , 'id=' + taskID
            ]);
     };
 
-    for (taskID in tasks) if (tasks.hasOwnProperty(taskID)) perform4(taskID, tasks[taskID].name);
+    for (i = 0; i < voiceEntries.tasks.length; i++) {
+      entry = voiceEntries.tasks[i].entry;
+      perform4(entry.uuid, entry.name);
+    }
+//    for (taskID in tasks) if (tasks.hasOwnProperty(taskID)) perform4(taskID, tasks[taskID].name);
 
 
     if (voiceEntries.recognizer === "tasker") {
@@ -449,9 +457,9 @@ var voiceUtils = {
                , {name: 'tasks', img: 'categories/tasks.svg', active: true, top: 0, left: 0}
                ],
   defaultDevicePhrases : function(entry, q) {
-      var lighting =             { on : { text: 'turn ' + entry.name + ' on', selected: true, id: 'on' + new Date().getTime() }
-                                 , off : { text: 'turn ' + entry.name + ' off', selected: true, id: 'off' + new Date().getTime() }
-                                 , report: { text: 'tell me about ' + entry.name, selected: true, id: 'report' + new Date().getTime() } };
+      var lighting =             { on : { text: 'turn ' + entry.name + ' on', selected: true }
+                                 , off : { text: 'turn ' + entry.name + ' off', selected: true }
+                                 , report: { text: 'tell me about ' + entry.name, selected: true } };
 
       return { climate_control : { report: { text: 'tell me about ' + entry.name, selected: true } }            
              , climate_plant   : { report: { text: 'tell me about ' + entry.name, selected: true } } 
@@ -581,9 +589,9 @@ var voiceUtils = {
         
         for (i = 0; i < entries.length; i++) {
           entry = entries[i];
-          cluster = (entry.sort === '!!!') ? 'categories' : 'devices'; // no accounting for groups or tasks here yet
+          cluster = (cat.name === 'tasks' || cat.name === 'groups') ? cat.name : ((entry.sort === '!!!') ? 'categories' : 'devices');
           for (phrase in entry.phrases) {
-            id = (cluster === 'categories') ? entry.q : entry.entry.whoami;
+            id = { devices : entry.entry.whoami, categories : entry.q, groups : entry.entry.uuid, tasks : entry.entry.uuid }[cluster]; //(cluster === 'tasks' || cluster === 'groups') ? (cluster === 'categories') ? entry.q : entry.entry.whoami;
             tr = document.createElement('tr');
             tr.setAttribute('class', 'enumeration-row');
             td = document.createElement('td');
@@ -638,6 +646,18 @@ var voiceUtils = {
         }
         for (i = 0; i < voiceEntries.categories.length; i++) {
           device = voiceEntries.categories[i];
+          if (device.category === cat.name && !!device.phrases) {
+            entries.push(device);
+          }
+        }
+        for (i = 0; i < voiceEntries.groups.length; i++) {
+          device = voiceEntries.groups[i];
+          if (device.category === cat.name && !!device.phrases) {
+            entries.push(device);
+          }
+        }
+        for (i = 0; i < voiceEntries.tasks.length; i++) {
+          device = voiceEntries.tasks[i];
           if (device.category === cat.name && !!device.phrases) {
             entries.push(device);
           }
@@ -704,7 +724,7 @@ var voiceUtils = {
 			div2.setAttribute('class', 'recognizer-panel-button');
 			div2.setAttribute('id', 'tasker');
 			div2.setAttribute('style', 'background-color: ' + color_android);
-			div2.setAttribute('onclick', 'javascript: voiceUtils.toggleRecognizerChoice(event)');
+			div2.setAttribute('onclick', 'javascript: voiceUtils.toggleRecognizerChoice("tasker")');
 			img = document.createElement('img');
 			img.setAttribute('src', 'popovers/assets/android.svg');
 			img.setAttribute('style', 'float: left; padding: 5px 10px 5px 7px;');
@@ -718,7 +738,7 @@ var voiceUtils = {
 			div2.setAttribute('class', 'recognizer-panel-button');
 			div2.setAttribute('id', 'vocalia');
 			div2.setAttribute('style', 'margin-top: 11px; background-color: ' + color_ios);
-			div2.setAttribute('onclick', 'javascript: voiceUtils.toggleRecognizerChoice(event)');
+			div2.setAttribute('onclick', 'javascript: voiceUtils.toggleRecognizerChoice("vocalia")');
 			img = document.createElement('img');
 			img.setAttribute('src', 'popovers/assets/apple.svg');
 			img.setAttribute('style', 'float: left; padding: 5px 10px 5px 7px;');
@@ -769,14 +789,15 @@ var voiceUtils = {
     chart.removeChild(document.getElementById('appstore-panel'));
     chart.removeChild(document.getElementById('download'));
   },
-  toggleRecognizerChoice : function(event) {
+  toggleRecognizerChoice : function(recognizer) {
     document.getElementById('voice-instructions-3').style.color = '#fff';
-    event.target.parentNode.style.backgroundColor = '#f17440';
-    if (event.target.parentNode.id === 'tasker') {
+    if (recognizer === 'tasker') {
       document.getElementById('vocalia').style.backgroundColor = '#333';
+      document.getElementById('tasker').style.backgroundColor = '#f17440';
       voiceEntries.recognizer = 'tasker';
     } else {
       document.getElementById('tasker').style.backgroundColor = '#333';
+      document.getElementById('vocalia').style.backgroundColor = '#f17440';
       voiceEntries.recognizer = 'vocalia';
     }
     voiceUtils.saveVoiceEntries();
@@ -793,25 +814,8 @@ var voiceUtils = {
     }
   },
   findActiveCategories: function() {
-    var device, deviceType, storedEntries;
-    if (voiceEntries.hasOwnProperty('devices')) {
-      for (device in voiceEntries.devices) {
-        deviceType = voiceEntries.devices[device].entry.whatami;
-        activateIcon(deviceType);
-      }
-      return;
-    } else if (localStorage) {
-      storedEntries = JSON.parse(localStorage.getItem('voiceEntries'));
-      if (!!storedEntries) {
-        voiceEntries = storedEntries;
-          for (device in voiceEntries.devices) {
-            deviceType = voiceEntries.devices[device].entry.whatami;
-            activateIcon(deviceType);
-        }
-        return;
-        // TO DO: Reconcile stored values against newly retrieved actors/tasks
-      }
-    }
+    var device, deviceType, stewardID, storedEntries;
+
     list_task(ws2, '', { depth: 'all' }, function(message) {
       var uuidprefix = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
 
@@ -819,7 +823,7 @@ var voiceUtils = {
 
       if ((!message.result) && (!message.error)) return false;
       if ((!message.result) || (!message.result.tasks)) throw new Error('tasks listing failed');
-
+      
       tasks = {};
       for (taskID in message.result.tasks) {
         if ((message.result.tasks.hasOwnProperty(taskID))
@@ -828,10 +832,14 @@ var voiceUtils = {
       }
 
       list_actors(ws2, '', { depth: 'all' }, function(message) {
-        var actors, deviceID, devices, deviceType, entry, groupID, groups, taskID;
+        var actors, deviceID, devices, deviceType, entry, groupID, groups, stewardID, taskID;
 
         if ((!message.result) && (!message.error)) return false;
         if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
+
+        stewardID = message.result['/place']['place/1'].info.identity;
+
+        if (localStorage) storedEntries = JSON.parse(localStorage.getItem('voiceEntries' + stewardID));
 
         actors = {};
         for (deviceType in message.result) {
@@ -860,7 +868,7 @@ var voiceUtils = {
           }
         }
 
-        buildVoiceEntries(actors, groups, tasks);
+        buildVoiceEntries(actors, groups, tasks, storedEntries, stewardID);
       });
     });
     
@@ -881,13 +889,13 @@ var voiceUtils = {
     }
   },
   saveVoiceEntries: function() {
-    localStorage.setItem('voiceEntries', JSON.stringify(voiceEntries));
+    localStorage.setItem('voiceEntries' + voiceEntries.stewardID, JSON.stringify(voiceEntries));
   },
   setPhraseSelected: function(cluster, id, cmd, event) {
     var entry, i, lookup;
     for (i = 0; i < voiceEntries[cluster].length; i++) {
       entry = voiceEntries[cluster][i];
-      lookup = (cluster === 'categories') ? entry.q : entry.entry.whoami;
+      lookup = { devices : entry.entry.whoami, categories : entry.q, groups : entry.entry.uuid, tasks : entry.entry.uuid }[cluster];
       if (id === lookup) {
         voiceEntries[cluster][i].phrases[cmd].selected = event.target.checked;
         voiceUtils.saveVoiceEntries();
@@ -907,7 +915,7 @@ var voiceUtils = {
     }
     for (i = 0; i < voiceEntries[cluster].length; i++) {
       entry = voiceEntries[cluster][i];
-      lookup = (cluster === 'categories') ? entry.q : entry.entry.whoami;
+      lookup = { devices : entry.entry.whoami, categories : entry.q, groups : entry.entry.uuid, tasks : entry.entry.uuid }[cluster];
       if (id === lookup) {
         if (elem.textContent === '' || elem.textContent === '\n') {
           elem.textContent = voiceEntries[cluster][i].phrases[cmd].text;
@@ -921,15 +929,18 @@ var voiceUtils = {
   }
 }
 
-var buildVoiceEntries = function(actors, groups, tasks) {
-  var catName, catObj, catObjCatalog, deviceObj, entry, i, q, quad;
-  // TODO: Load from localStorage here.
+var buildVoiceEntries = function(actors, groups, tasks, storedEntries, stewardID) {
+  var actor, catName, catObj, catObjCatalog, deviceObj, entry, group, groupObj, i, newEntries, q, quad, task, taskObj;
   
-  voiceEntries.actors = actors;
-  voiceEntries.groups = groups;
-  voiceEntries.tasks = tasks;
-  voiceEntries.devices = [];
-  voiceEntries.categories = [];
+  newEntries = { groups : [], tasks : [], devices : [], categories : [] };
+  if (!storedEntries) {
+    voiceEntries.stewardID = stewardID;
+    voiceEntries.actors = actors;
+    voiceEntries.groups = [];
+    voiceEntries.tasks = [];
+    voiceEntries.devices = [];
+    voiceEntries.categories = [];
+  }
   catObjCatalog = {};
   
   for (actor in actors) if (actors.hasOwnProperty(actor)) {
@@ -945,7 +956,7 @@ var buildVoiceEntries = function(actors, groups, tasks) {
                  , category : catName
                  , sort     : entry.name
                 };
-    voiceEntries.devices.push(deviceObj);
+    newEntries.devices.push(deviceObj);
     
     if (!catObjCatalog.hasOwnProperty(q)) {
       catObj = {
@@ -956,11 +967,47 @@ var buildVoiceEntries = function(actors, groups, tasks) {
                  , category : catName
                  , sort     : '!!!'
                 };
-      voiceEntries.categories.push(catObj);
+      newEntries.categories.push(catObj);
       catObjCatalog[q] = catObj;
     }
   }
   catObjCatalog = {};
+  
+  for (group in groups) if (groups.hasOwnProperty(group)) {
+    entry = groups[group];
+    catName = 'groups';
+    groupObj = {
+                 entry      : entry
+                 , phrases  : buildGroupTaskPhrases(entry)
+                 , selected : true
+                 , category : catName
+                 , sort     : entry.name
+                };
+    newEntries.groups.push(groupObj);
+  }
+  
+  for (task in tasks) if (tasks.hasOwnProperty(task)) {
+    entry = tasks[task];
+    catName = 'tasks';
+    taskObj = {
+                 entry      : entry
+                 , phrases  : buildGroupTaskPhrases(entry)
+                 , selected : true
+                 , category : catName
+                 , sort     : entry.name
+                };
+    newEntries.tasks.push(taskObj);
+  }
+  
+  if (storedEntries) {
+    reconcile(newEntries, storedEntries)
+  } else {
+    voiceEntries.devices = newEntries.devices;
+    voiceEntries.categories = newEntries.categories;
+    voiceEntries.groups = newEntries.groups || [];
+    voiceEntries.tasks = newEntries.tasks || [];
+  }
+  voiceUtils.saveVoiceEntries();
 //  console.log(voiceEntries);
   
   function buildDevicePhrases(entry, q) {
@@ -969,6 +1016,14 @@ var buildVoiceEntries = function(actors, groups, tasks) {
   
   function buildCategoryPhrases(entry, q) {
     return voiceUtils.defaultCategoryPhrases(entry, q);
+  }
+  
+  function buildGroupTaskPhrases(entry) {
+    return { perform : { selected : true, text : entry.name } };
+  }
+  
+  function reconcile(newEntries, storedEntries) {
+    voiceEntries = storedEntries;
   }
 }
 
