@@ -9,9 +9,13 @@ CHANGELOG
 - APIs:
     - all: more robustness
     - groups: replace composite 'status' property with component 'type' and 'operator' properties
+    - thing creation: remove race condition
+    - client login: indicate that clockskew may be a cause of failure "(check your clock)"
 - more device.expand robustness
 - refactor metric/customary handling
 - redirect port 80 traffic to correct http/https port
+- add secondary algorithm for generating UUID (in case ARP scan fails)
+- add support for db/configuration.json (experimental, not documented yet)
 
 ### TAAS (Things as a Service)
 - no changes
@@ -24,6 +28,7 @@ CHANGELOG
 - better diagnostics for invalid parameters
 - default to metric for displayUnits
 - more accurate handling of forecast and current conditions
+- add identity (UUID) property
 
 ### Things
 - all:
@@ -31,10 +36,11 @@ CHANGELOG
 - mDNS and UPNP: no changes
     - no changes
 - device/climate:
+    - nest/control: robustness check when setting to home/away
     - samsung/control: NEW, thank you @CloCkWeRX
 - device/gateway
     - flower-power/cloud: robustness
-    - reelyactive/reel: supress phantom tags
+    - reelyactive/reel: supress phantom reelceivers and tags
     - yoctopuce/hub: determine measured property based on unit parsing
 - device/indicator:
     - cassandra/nosql: NEW
