@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-## Release 1.6 "Pecan Waffle" - TBD
-## Commit - TBD
+## Release 1.6 "Pecan Waffle" - March 29, 2014
+## Commit - df14aeda4c4379fe1122845e24adeb7db6fb7f7e
 
 ### Steward
 - properly latch event observations
