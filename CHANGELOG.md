@@ -34,7 +34,6 @@ CHANGELOG
 - all:
     - refactor geocaching code and additional robustness
 - mDNS and UPNP: no changes
-    - no changes
 - device/climate:
     - nest/control: robustness check when setting to home/away
     - samsung/control: NEW, thank you @CloCkWeRX
@@ -44,7 +43,7 @@ CHANGELOG
     - yoctopuce/hub: determine measured property based on unit parsing
 - device/indicator:
     - cassandra/nosql: NEW
-    - grovestream/sensor: NEW
+    - grovestreams/sensor: NEW
     - irtoy/infrared: moved to drivers-in-progress area
     - wink/*:
     - wink/gauge:
