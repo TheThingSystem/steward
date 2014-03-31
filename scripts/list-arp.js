@@ -1,5 +1,6 @@
 var net        = require('net')
   , os         = require('os')
+  , ifTable    = require('../steward/node_modules/arp-a').ifTable
   , pcap       = require('../steward/node_modules/pcap')
   ;
 
@@ -46,6 +47,12 @@ var pinger = function(ipaddr) {
   }).connect(8888, ipaddr);
 };
 
+
+ifTable(function(err, entry) {
+  if (!!err) return console.log(err.message);
+
+  if (!!entry) console.log(entry);
+});
 
 var captureP, errorP, noneP;
 var ifa, ifname, ifaddrs, ifaces;
