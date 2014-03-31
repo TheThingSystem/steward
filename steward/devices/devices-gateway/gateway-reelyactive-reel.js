@@ -88,7 +88,7 @@ Hublet.prototype.update = function(self, data, timestamp) {
   var i, info, j, prevID, reelID, tagID, udn, v, value;
 
   if (data.indexOf('78') === 0) return self.updateReelceiver(self, data, timestamp);
-  if (data.indexOf('71') === 0) return logger.error('device/' + self.deviceID, { event: 'reelcall', data: data });
+  if (data.indexOf('71') === 0) return logger.info('device/' + self.deviceID, { event: 'reelcall', data: data });
   if ((data.indexOf('04') !== 0) || (data.length < 16)) return;
 
   prevID = -1;
