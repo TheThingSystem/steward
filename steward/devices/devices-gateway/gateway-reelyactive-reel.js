@@ -80,7 +80,7 @@ Hublet.prototype.reelcall = function(self) {
   }
 
   reelReq = 'f1';
-  reelID = device.deviceUID.substr(-8);
+  reelID = '0' + device.deviceUID.substr(-7);
   self.writer(reelEncrypt(reelReq + reelID + '0000000000000000000000', '55555555555555555555555555555555'));
 };
 
