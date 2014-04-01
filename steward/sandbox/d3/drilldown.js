@@ -4,7 +4,7 @@ var actors           = {}
   , tags             = {}
   , containers       = {}
   , multiple_arcs    = []
-  , lastUpdated
+  , lastUpdated      = []
   , lastIconTrayPage = 1
   , lastStageScroll  = 0
   , firstLoad        = true
@@ -304,7 +304,7 @@ if (false) {
       
       }
       if (/\/place/.test(update.whatami)) {
-        lastUpdated.push(update.updated);
+        if (!!lastUpdated && !!update.updated) lastUpdated.push(update.updated);
         if (document.getElementById("wxicon")) {
           document.getElementById("wxicon").src = weather_icon(update.info.conditions.code, update.info.solar);
         }
@@ -317,7 +317,7 @@ if (false) {
       } else {
         refresh = true;
       }
-      lastUpdated.push(update.updated);
+      if (!!lastUpdated && !!update.updated) lastUpdated.push(update.updated);
     }
     lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
     if (refresh) refreshActors(1);
@@ -357,7 +357,7 @@ var onUpdate_drilldown = function(updates) {
     update = updates[i];
     if (update.whatami.match(/\/device\/gateway\//)) continue;
     if (update.whatami.match(/\/place/)) {
-      lastUpdated.push(update.updated);
+      if (!!lastUpdated && !!update.updated) lastUpdated.push(update.updated);
       continue;
     }
     

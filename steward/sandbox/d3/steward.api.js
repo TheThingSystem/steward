@@ -108,6 +108,13 @@ var list_task = function(ws, taskID, options, cb) {
                          }));
 };
 
+var list_users = function(ws, cb) {
+  ws.send(JSON.stringify({ path      : '/api/v1/user/list/'
+                         , requestID : add_callback(cb)
+                         , options   : { depth: 'all' }
+                         }));
+};
+
 var modify_activity = function(ws, activityID, name, armed, event, task, cb) {
   ws.send(JSON.stringify({ path      : '/api/v1/activity/modify/' + activityID
                          , requestID : add_callback(cb)
