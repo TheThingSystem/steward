@@ -56,6 +56,7 @@ function dragmove(d) {
 			rotateAngle = Math.max(rotateAngle, 0);
 			rotateAngle = Math.min(rotateAngle, 100);
 			newPerform.parameter.volume = rotateAngle;
+	  	newPerform.perform = "set";
 			break;
 		case "track-progress-knob":
 			max = 500;
@@ -1184,9 +1185,11 @@ var showPop = function(device) {
 	  var elem = event.target;
 	  if (newPerform.parameter.muted === "off") {
 	  	newPerform.parameter.muted = "on";
+	  	newPerform.perform = "set";
 	  	elem.src = "popovers/assets/media-button-five-off.svg";
 	  } else {
 	  	newPerform.parameter.muted = "off";
+	  	newPerform.perform = "set";
 	  	elem.src = "popovers/assets/media-button-five-on.svg";
 	  }
 	  sendData();
