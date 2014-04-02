@@ -210,7 +210,7 @@ var insprototype = function(logger, thingPath, name, comments, props, tag) {
 
 
 var register = exports.register = function(logger, ws, api, message, tag) {
-  var info, props, id, results, thingID, udn;
+  var changedP, device, info, props, id, results, thingID, udn, updated;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'thing registration', message.requestID, permanent, diagnostic);
@@ -259,9 +259,37 @@ var register = exports.register = function(logger, ws, api, message, tag) {
     info.deviceType = props.devicetype;
     info.id = info.device.unit.udn;
 
-// TBD: see if we still have a connection to the thing...
     if (!!devices.devices[info.id]) {
-      results.things[thingID] = { error: { permanent: false, diagnostic: 'UDN is already registered' } };
+      device = devices.devices[info.id].device;
+      if ((!device) || (!!device.ws)) {
+        results.things[thingID] = { error: { permanent: false, diagnostic: 'UDN is already registered' } };
+        continue;
+      }
+
+      device.ws = info.params.ws;
+      device.clientSerialNo = device.ws.clientInfo.clientSerialNo;
+      device.thingID = info.params.thingID;
+
+      changedP = false;
+      if ((!!props.name) && (props.name !== device.name)) {
+        changedP = true;
+        device.name = props.name.toString();
+      }
+      if ((!!props.status) && (props.status !== device.status)) {
+        changedP = true;
+        device.status = props.status.toString();
+      }
+      if (!!props.updated) {
+        try {
+          updated = new Date(props.updated).getTime();
+          if (!isNaN(updated)) device.updated = updated;
+        } catch(ex) { }
+      }
+      device.ping(device);
+      if (!!props.uptime) device.bootime = device.updated - props.uptime;
+      device.addinfo(props.info, changedP);
+
+      results.things[thingID] = { success: true, thingID: id };
       continue;
     }
     results.things[thingID] = { success: true, thingID: id };
@@ -291,13 +319,17 @@ var update = function(logger, ws, api, message, tag) {
       results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid thingID' } };
       continue;
     }
-// NB: should check clientID here too...
 
     child = devices.devices[thingIDs[thingID].udn];
     if (!child)                                             return error(true, 'internal error');
     device = child.device;
+    if (device.clientSerialNo !== ws.clientInfo.clientSerialNo) {
+      results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid clientID' } };
+      continue;
+    }
     if (!device.thingID) {
       results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid thing' } };
+      continue;
     }
 
     props = message.things[thingID];
@@ -488,6 +520,7 @@ var Thing = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.params.name;
   self.ws = info.params.ws;
+  self.clientSerialNo = self.ws.clientInfo.clientSerialNo;
   self.thingID = info.params.thingID;
   self.status = info.params.status;
   delete(info.params);
@@ -503,6 +536,19 @@ var Thing = function(deviceID, deviceUID, info) {
   self.changed();
 
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
+    if (!self.ws) return;
+
+    if (request === 'logout') {
+      if (eventID !== self.clientSerialNo) return;
+
+      delete(self.ws);
+      delete(self.clientSerialNo);
+      delete (self.thingID);
+      if (!!self.timer) { clearTimeout(self.timer); delete(self.timer); }
+      self.status = 'absent';
+      return self.changed();
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'observe') return self.observe(self, eventID, observe, parameter);

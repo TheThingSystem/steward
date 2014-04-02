@@ -49,7 +49,7 @@ var GroveStreams = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  if (places.place1.info.location) {
+  if ((!!places.place1) && (!!places.place1.info.location)) {
     location = { latitude: places.place1.info.location[0], longitude: places.place1.info.location[1] };
     if (places.place1.info.location.length > 2) location.altitude = places.place1.info.location[2];
   }

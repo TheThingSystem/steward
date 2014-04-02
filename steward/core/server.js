@@ -147,6 +147,7 @@ var start = function(port, secureP) {
         meta.message = message;
         logger.info(tag, meta);
 
+        broker.publish('actors', 'logout', ws.clientInfo.clientSerialNo);
         delete(logins[tag]);
       });
 

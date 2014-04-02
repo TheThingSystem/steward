@@ -411,17 +411,23 @@ exports.forEachAddress = function(callback) {
   }
 };
 
+
+var clientN = 0;
+
 exports.clientInfo = function(connection, secureP) {
   var props;
 /*
   var ifname;
  */
 
-  props = { loopback      : false
-          , subnet        : false
-          , local         : false
-          , remoteAddress : connection.remoteAddress
-          , secure        : secureP };
+  props = { loopback       : false
+          , subnet         : false
+          , local          : false
+          , remoteAddress  : connection.remoteAddress
+          , remotePort     : connection.remotePort
+          , secure         : secureP
+          , clientSerialNo : clientN++
+          };
 
 // NB: note that https://127.0.0.1 is remote access
   if (connection.remoteAddress === '127.0.0.1') props.loopback = !secureP;

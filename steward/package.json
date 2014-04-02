@@ -10,7 +10,7 @@
     { "MD5"                     : "1.0.3"
     , "aerogel"                 : "git://github.com/TheThingSystem/aerogel.git"
     , "airplay"                 : "git://github.com/TheThingSystem/node-airplay.git"
-    , "arp-a"                   : "0.2.2"
+    , "arp-a"                   : "0.3.0"
     , "async"                   : "0.2.9"
     , "axiscam"                 : "0.0.4"
     , "automatic-api"           : "0.9.3"
