@@ -54,7 +54,7 @@ var Sonos_Audio = exports.Device = function(deviceID, deviceUID, info) {
     if (method === 'notify') self.notify(self, headers, content);
   });
 
-// we poll because '/MediaRenderer/RenderingControl/Event' dosen't inform us of changes in volume/mutedness
+// we poll because '/MediaRenderer/RenderingControl/Event' doesn't inform us of changes in volume/mutedness
   self.refresh(self);
 
   self.jumpstart(self, '/MediaRenderer/AVTransport/Event');

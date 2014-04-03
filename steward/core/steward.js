@@ -349,8 +349,6 @@ var report = function(module, entry, now) {
 };
 
 
-var loadedP = false;
-var failedN = 0;
 var ifaces = exports.ifaces = utility.clone(os.networkInterfaces());
 
 var listen = function(ifname, ifaddr) {
@@ -465,51 +463,29 @@ exports.readP = function(clientInfo) {
 };
 
 
+var ifmac = {};
+
 exports.start = function() {
-  var captureP, errorP, ifa, ifaddrs, ifmac, ifname, ifname2, noneP;
+  ifTable(function(err, entry) {
+    var mac;
 
-  if (utility.acquiring > 0) return setTimeout(exports.start, 10);
-
-  if (!!exports.uuid) {
-    logger.notice('start', { uuid: exports.uuid });
-    server.start();
-    setInterval(scan, 3 * 1000);
-    setInterval(function() {
-      var module, now;
-
-      now = new Date();
-      for (module in exports.status) if (exports.status.hasOwnProperty(module)) report(module, exports.status[module], now);
-    }, 15 * 1000);
-    return;
-  }
-
-  if (loadedP) {
-    failedN++;
-    if (failedN < 100) return setTimeout(exports.start, 10);
-
-      logger.info('start', { diagnostic: 'determine UUID address using method #2' });
-    for (ifname in ifaces) {
-      if ((!ifaces[ifname].macaddrs) || (ifaces[ifname].macaddrs.length === 0)) continue;
-
-      logger.info('start', { diagnostic: 'determining UUID using method #2' });
-      exports.uuid = '2f402f80-da50-11e1-9b23-' + ifaces[ifname].macaddrs[0].split(':').join('');
-      return exports.start();
+    if ((!!err) || (!entry)) {
+      if (!!err) logger.error('arp-a.ifTable', { diagnostic: err.message });
+      return pass1();
     }
 
-    logger.fatal('start', { diagnostic: 'unable to determine MAC address of any interface' });
-  }
-  loadedP = true;
-
-  utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js$/, 6, -3, ' actor');
-
-  ifmac = {};
-  ifTable(function(err, entry) {
-    if (!!err) return logger.error('arp-a.ifTable', { diagnostic: err.message });
-
-    if (!entry) return;
+    mac = entry.mac.split(':').join('');
+    if (mac.length === 0) return;
+    while (mac.substring(0, 1) === '0') mac = mac.substring(1);
+    if (mac.length === 0) return;
+    
     if (!ifmac[entry.name]) ifmac[entry.name] = [];
     ifmac[entry.name].push(entry.mac);
   });
+};
+
+var pass1 = function() {
+  var captureP, errorP, ifa, ifaddrs, ifname, ifname2, noneP;
 
   errorP = false;
   noneP = true;
@@ -534,7 +510,6 @@ exports.start = function() {
         pcap.createSession(ifname, 'arp').on('packet', listen(ifname, ifaddrs[ifa].address));
         captureP = true;
       } catch(ex) {
-// NB: referencing ifname in this exception catch confuses jshint about whether ifname is var'd above...
         logger.error('unable to scan ' + ifname, { diagnostic: ex.message });
         errorP = true;
       }
@@ -566,5 +541,43 @@ exports.start = function() {
 
   exports.status.logs = { reporter: function(logger, ws) { ws.send(JSON.stringify(utility.signals)); } };
 
-  setTimeout(exports.start, 10);
+  utility.acquire(logger, __dirname + '/../actors', /^actor-.*\.js$/, 6, -3, ' actor');
+
+  return pass2();
+};
+
+
+var failedN = 0;
+
+var pass2 = function() {
+  var ifname;
+
+  if (utility.acquiring > 0) return setTimeout(pass2, 10);
+
+  if (!!exports.uuid) {
+    logger.notice('start', { uuid: exports.uuid });
+    server.start();
+    setInterval(scan, 3 * 1000);
+    setInterval(function() {
+      var module, now;
+
+      now = new Date();
+      for (module in exports.status) if (exports.status.hasOwnProperty(module)) report(module, exports.status[module], now);
+    }, 15 * 1000);
+    return;
+  }
+
+  failedN++;
+  if (failedN < 100) return setTimeout(pass2, 10);
+
+  logger.info('start', { diagnostic: 'determine UUID address using method #2' });
+  for (ifname in ifaces) {
+    if ((!ifaces[ifname].macaddrs) || (ifaces[ifname].macaddrs.length === 0)) continue;
+
+    logger.info('start', { diagnostic: 'determining UUID using method #2' });
+    exports.uuid = '2f402f80-da50-11e1-9b23-' + ifaces[ifname].macaddrs[0].split(':').join('');
+    return pass2();
+  }
+
+  logger.fatal('start', { diagnostic: 'unable to determine MAC address of any interface' });
 };
