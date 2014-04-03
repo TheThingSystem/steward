@@ -598,14 +598,16 @@ var go = function(steward, i) {
 var insertClientButton = function() {
   var img, td
   var search = window.location.search.substring(1);
-  search = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
-  if (!!search.clientURL) {
-    td = document.createElement('td');
-    img = document.createElement('img');
-    img.src = 'd3/popovers/assets/back-to-client-login.svg'
-    img.setAttribute('onclick', "javascript:window.location.href = '" + decodeURIComponent(search.clientURL) + "'");
-    td.appendChild(img);
-    document.getElementById('authTestButtons').appendChild(td);
+  if (!!search) {
+    search = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}')
+    if (!!search.clientURL) {
+      td = document.createElement('td');
+      img = document.createElement('img');
+      img.src = 'd3/popovers/assets/back-to-client-login.svg'
+      img.setAttribute('onclick', "javascript:window.location.href = '" + decodeURIComponent(search.clientURL) + "'");
+      td.appendChild(img);
+      document.getElementById('authTestButtons').appendChild(td);
+    }
   }
 }
 
