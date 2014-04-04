@@ -53,6 +53,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
          , device   : true
          , cloud    : true
          , none     : true }[message.role])                 return error(true,  'invalid role element');
+    if (exports.count() === 0) message.role = 'master';
 
     if (!message.clientName) message.clientName = '';
 
@@ -79,7 +80,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
   client = id2user(ws.clientInfo.userID);
   createP = ws.clientInfo.loopback
            || ((!!client) && (client.role === 'master'))
-           || ((!!user) ? (user.userID === ws.clientInfo.userID) : ws.clientInfo.subnet)
+           || ((!!user) ? (user.userID === ws.clientInfo.userID) : (exports.count() === 0))
            || (internalP && ws.clientInfo.local);
 
   if (!createP) {
