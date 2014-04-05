@@ -22,6 +22,7 @@ table.short-form td { padding: 10px; }
 .form-container { background: url('d3/popovers/assets/window.form.svg') no-repeat; width: 600px; height: 250px; padding: 30px; margin: 30px auto; }
 .form-container-short { background: url('d3/popovers/assets/window.form.short.svg') no-repeat; width: 600px; height: 180px; padding: 30px; margin: 30px auto; }
 .form-container table { width: 600px; }
+.clickable-text { text-decoration: underline; cursor: pointer; }
 
 /* log in screen elements */
 #login {
@@ -36,7 +37,21 @@ table.short-form td { padding: 10px; }
 		margin: -10px 90px;
 }
 
-  
+#qr-replay {
+        position: absolute;
+        width: 600px;
+        height: 220px;
+        text-align: left;
+}
+
+#qr-replay table {
+		width: 420px;
+		margin: -14px 20px;
+		vertical-align: top;
+}
+
+#closeme { position: absolute; top: -15px; left: 616px; }
+
 @font-face {
   font-family: "Roadgeek 2004 Series C";
   src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
@@ -53,6 +68,8 @@ table.short-form td { padding: 10px; }
 <script type='text/javascript' src='d3/d3.v2.js'></script>
 
 <script>
+
+var loginInfo = { role: '', hasUsers: false, clients: {}, users: {} };
 
 var reqno = 1;
 var callbacks = {};
@@ -144,23 +161,7 @@ var validate_create = function() {
       otpURL.href = message.result.otpURL;
       status.innerHTML = '<strong><font color="green">success.</strong></font>';
 
-      otpWords.innerHTML = '';
-      w = otpURL.search;
-      x = w.indexOf('secret=');
-      if (x !== -1) {
-        w = w.substring(x + 7);
-        x = w.indexOf('&');
-        if (x !== -1) w = w.substring(0, x);
-        y = '';
-        z = 0;
-        while (w.length > 0) {
-          if (!(z++ % 8)) y += '</tr><tr>';
-          y += '<td>' + w.substring(0, 4) + '</td>';
-          w = w.substring(4);
-        }
-        y = '<table><tr>' + y + '</tr></table>';
-        otpWords.innerHTML = y;
-      }
+      otpWords.innerHTML = extractOTP(otpURL);
 
       x = name.indexOf('/');
       if (x !== -1) name = name.slice(0, x);
@@ -178,6 +179,26 @@ var validate_create = function() {
 
   return false;
 };
+
+var extractOTP = function(elem) {
+  var w, x, y, z;
+  w = elem.search;
+  x = w.indexOf('secret=');
+  if (x !== -1) {
+    w = w.substring(x + 7);
+    x = w.indexOf('&');
+    if (x !== -1) w = w.substring(0, x);
+    y = '';
+    z = 0;
+    while (w.length > 0) {
+      if (!(z++ % 8)) y += '</tr><tr>';
+      y += '<td>' + w.substring(0, 4) + '</td>';
+      w = w.substring(4);
+    }
+    y = '<table><tr>' + y + '</tr></table>';
+    return y;
+  }
+}
 
 var validate_test = function() {
   var test     = document.forms.testForm
@@ -220,6 +241,8 @@ var listall = function(fromCreation) {
     
     if (message.hasOwnProperty('result') && message.result.hasOwnProperty('users')) {
       users = message.result.users;
+      loginInfo.hasUsers = (Object.keys(users).length > 0);
+      if (loginInfo.hasUsers) expandRoleList();
     } else users = {};
     for (x in message.result.users) {
       if (!message.result.users.hasOwnProperty(x)) continue;
@@ -239,17 +262,17 @@ var listall = function(fromCreation) {
 
         clientID = y.split('/').slice(1).join('/');
 
-        table += '<tr><td>';
+        table += '<tr><td><span id="user_' + clientID.replace('/', '_') + '">';
         if (firstP) {
           firstP = false;
-          table += user.name + '&nbsp;&nbsp;</td><td>' + (user.role || '******') + '&nbsp;&nbsp;</td><td>' + user.comments;
-        } else table += '</td><td></td><td>';
+          table += user.name + '</span>&nbsp;&nbsp;</td><td>' + (user.role || '******') + '&nbsp;&nbsp;</td><td>' + user.comments;
+        } else table += '</span></td><td></td><td>';
         table += '&nbsp;&nbsp;</td><td>' + clientID + '&nbsp;&nbsp</td><td>' + client.name + '&nbsp;&nbsp;</td><td>'
                  + client.comments + '&nbsp;&nbsp;</td><td>' + last_login(client.lastLogin) + '</td></tr>';
       }
 
       if (firstP) {
-        table += '<tr><td>' + user.name + '&nbsp;&nbsp;</td><td></td><td>' + user.comments
+        table += '<tr><td><span id="user_' + clientID.replace('/', '_') + '">' + user.name + '</span>&nbsp;&nbsp;</td><td></td><td>' + user.comments
                  + '&nbsp;&nbsp;</td><td></td><td></td><td></td><td>' + last_login(user.lastLogin) + '</td></tr>';
       }
     }
@@ -270,6 +293,18 @@ var listall = function(fromCreation) {
     }
     return false;
   };
+  
+  function expandRoleList() {
+    var i, option, roles = ['resident', 'guest', 'monitor'];
+    var elem = document.getElementById('userRole');
+    if (elem.options.length === 1) {
+      for (i = 0; i < roles.length; i++) {
+        option = document.createElement('option');
+        option.textContent = roles[i];
+        elem.appendChild(option);
+      }
+    }
+  }
 };
 
 var last_login = function(time) {
@@ -334,7 +369,9 @@ var showLogin = function() {
 
   d3.select("#login")
     .style("top", "-240px")
-    .transition()
+    .transition().each('end', function() {
+        if (document.loginForm.userName) document.loginForm.userName.focus();
+    })
     .duration(500)
     .style("top", function() { var top = window.pageYOffset || document.documentElement.scrollTop; return top + 150 + "px" });
     
@@ -351,7 +388,6 @@ var hideLogin = function() {
     .transition()
     .duration(300)
     .style("opacity", 1);
-  disableCreate(false);
 }
 
 var submitLogin = function(evt) {
@@ -380,24 +416,137 @@ var login = function() {
   }
   
   authenticate_user(ws, name, code, function(message) {
+    var client, elem;
     if (!!message.result) {
-      loginStatus.innerHTML = '<strong><font color="green">authorized as ' + message.result.role  + '.</strong></font>';
-      disableCreate(false);
+      loginInfo.role = message.result.role;
+      loginStatus.innerHTML = '<strong><font color="green">authorized as ' + loginInfo.role  + '.</strong></font>';
+      disableCreate(loginInfo.role !== 'master');
       setTimeout(function() {
         hideLogin();
       }, 2 * 1000);
-//      return true;
+      list_users(ws, function(message) {
+        if (loginInfo.role === 'master') {
+          if (message.hasOwnProperty('result') 
+            && message.result.hasOwnProperty('users')
+            && message.result.hasOwnProperty('clients')) {
+            loginInfo.users = message.result.users;
+            loginInfo.clients = message.result.clients;
+            for (client in loginInfo.clients) {
+              elem = document.getElementById(client.replace(/\//g, '_'));
+              elem.setAttribute('class', 'clickable-text');
+              elem.addEventListener('click', replayQR);
+            }
+          }
+        }
+      });
     }
 
     if (!!message.error) {
       loginStatus.innerHTML = '<strong><font color="red">' + message.error.diagnostic + '</strong></font>';
-//      return true;
     }
 
     return false;
   });
   return false;
 };
+
+var replayQR = function(event) {
+  var client, clientID, clientInfo, div, i, img, replay, table, td, tr, user, userInfo;
+  
+  if (document.getElementById('qr-replay')) return;
+  
+  client = event.target.id.replace(/_/g, '/');
+  clientID = client.split('/').slice(1).join('/');
+  clientInfo = loginInfo.clients[client];
+  userInfo = loginInfo.users[client.split('/').slice(0,2).join('/')];
+  
+  d3.select("#main")
+    .style("opacity", 1)
+    .transition()
+    .duration(500)
+    .style("opacity", 0.3);
+  div = d3.select("body")
+  	.append("div")
+  	.attr("id", "qr-replay")
+  	.classed("form-container", true)
+  	.style("display", "block")
+  	.style("left", "-660px")
+  	.style("top", "920px");
+  div.transition()
+  	.duration(700)
+  	.style("left", function() { return ((document.body.offsetWidth / 2) - 322) + "px"; });
+  table = div.append("table")
+    .classed("short-form", true);
+    
+  div.append("img")
+    .attr("id", "closeme")
+    .attr("src", "d3/popovers/assets/close.svg")
+    .attr("onclick", "javascript:closeReplayQR()");
+      
+  tr = table.append("tr");
+  tr.append("td").text("Short Name:");
+  tr.append("td")
+  	.append("span")
+  	  .text(userInfo.name);
+  tr.append("td")
+    .attr("width", "20")
+    .html("&nbsp;");
+  tr.append("td")
+    .attr("rowspan", "3")
+    .append("a")
+    .attr("id", "otpURLReplay")
+    .attr("href", "")
+    .append("img")
+    .attr("src", clientInfo.authenticatorURL)
+    .attr("width", "166")
+    .attr("height", "166");
+    
+  document.getElementById('otpURLReplay').addEventListener('click', function(e) { e.preventDefault(); });
+  
+  tr = table.append("tr");
+  tr.append("td").text("Descriptive Name:");
+  tr.append("td")
+  	.append("span")
+  	.text(userInfo.comments);
+  tr.append("td")
+    .attr("width", "20")
+    .html("&nbsp;");
+
+  tr = table.append("tr")
+    .style("vertical-align", "top");
+  tr.append("td").text("Permissions");
+  tr.append("td")
+  	.append("span")
+  	.text(userInfo.role);
+  tr.append("td")
+    .attr("width", "20")
+    .html("&nbsp;");
+    
+  tr = table.append("tr");
+  tr.append("td")
+    .attr("colspan", "4")
+    .attr("id", "otpWordsReplay")
+    .style("text-align", "center")
+    .style("line-height", "10px")
+    .style("margin-left", "-12px")
+    .style("color", "green");
+    
+  document.getElementById('otpURLReplay').href = clientInfo.otpURL;
+  document.getElementById('otpWordsReplay').innerHTML = extractOTP(document.getElementById('otpURLReplay'));
+}
+
+var closeReplayQR = function() {
+  d3.select("#qr-replay")
+    .transition()
+    .duration(500)
+    .style("opacity", 0)
+    .remove();
+  d3.select("#main")
+    .style("opacity", 0)
+    .transition()
+    .duration(300)
+    .style("opacity", 1);
+}
 
 // http://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
 var time_ago = function(time, agoP) {
@@ -639,7 +788,7 @@ var main = function() {
 
 	<p>Clients authenticate to the steward, and the user associated with a client is authorised to invoke various API calls. A single user may use multiple clients.<p>
 
-	<p>If no users are configured on the steward, then an unauthenticated API call from a device on the same network as the steward may be used to create the initial user and client. The steward responds with <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords</a> (TOTP) information allowing the client to authenticate itself.</p>
+	<p>If no users are configured on the steward, then an unauthenticated API call from a device on the same network as the steward may be used to create the initial user and client with master permissions. The steward responds with <a href='http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm'>time-based one-time passwords</a> (TOTP) information allowing the client to authenticate itself.</p>
 
 	<p>if you are on your home network you can create authentication credentials using a smart phone running <a href='https://support.google.com/accounts/answer/1066447'>Google Authenticator</a>, <a href='https://www.authy.com/'>Authy</a>, or some other app that implements TOTP. There are several out there for all major platforms and desktops,
 	e.g., <a href='https://itunes.apple.com/us/app/securitoken/id467479279?mt=12'>SecuriToken</a> for the Mac.
@@ -659,17 +808,14 @@ Input a short name (e.g., "user") and a longer, more descriptive name (e.g., "Us
 <tr><td>Short Name:</td>
     <td style="padding-left: 15px;"><input type='text' name='userName' /></td>
     <td width='20'>&nbsp;</td>
-    <td rowspan='4'><a id='otpURL' href=''><img name='qrcode' src='qrcode.png' width='166' height='166' /></a></span></td>
+    <td rowspan='4'><a id='otpURL' href='' onclick="return false;"><img name='qrcode' src='qrcode.png' width='166' height='166' /></a></span></td>
 </tr>
 <tr><td>Descriptive Name:</td>
     <td style="padding-left: 15px; padding-top: 10px;"><input type='text' name='userComments' /></td>
 </tr>
 <tr><td>Permissions:</td>
-    <td style="padding-left: 15px; padding-top: 10px;"><select name='userRole'>
+    <td style="padding-left: 15px; padding-top: 10px;"><select id='userRole' name='userRole'>
       <option selected>master</option>
-      <option>resident</option>
-      <option>guest</option>
-      <option>monitor</option>
     </select></td>
 </tr>
 <tr valign='top'>
@@ -713,7 +859,7 @@ Clients authenticate to the steward, while in turn the user associated with a cl
 
 <h1>Listing of Users and Clients</h1>
 
-<p>A list of existing users and clients that are registered with the steward.</p>
+<p>A list of existing users and clients that are registered with the steward. To redisplay the QR code for a user, click the underlined user name below (master permissions authentication required).</p>
 
 <div id='user-container'>
 </div>
