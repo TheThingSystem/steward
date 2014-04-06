@@ -713,12 +713,9 @@ var drawArcs = function(arcs) {
   function arcLabelHTML(labelText) {
     var result = "";
     switch (labelText.toLowerCase()) {
+      case "distance":
       case "location":
-        if (currDevice.device.info.hasOwnProperty("locations") && currDevice.device.info.locations.length > 0) {
-          result += "<span class='clickable-text' onclick='javascript:showLocations(event)'>" + labelText + "</span>";
-        } else {
-          result += labelText;
-        }
+        result += "<span class='clickable-text' onclick='javascript:showLocation(event)'>" + labelText + "</span>";
         break;
       default:
         result += labelText;
@@ -2143,8 +2140,11 @@ var multiple_drilldown = function(name, members) {
   }
 };
 
-var showLocations = function(evt) {
-  var allLocs, count, i, image, j, lines, loc, locArray, locs, map, mapOptions, mapCanvas, marker, roadAtlassStyles, roadMapType, styledMapOptions;
+var showLocation = function(evt) {
+  var allLocs, count, hasLocations, i, image, j, lines, loc, locArray, locs, map, mapOptions, mapCanvas, marker, roadAtlassStyles, roadMapType, styledMapOptions;
+  
+  hasLocations = currDevice.device.info.hasOwnProperty('locations');
+  
   if (!document.getElementById('googleMapsAPI')) {
     loadScript();
   } else {
@@ -2162,7 +2162,7 @@ var showLocations = function(evt) {
 		div.setAttribute('id', 'closeme');
 		img = document.createElement('img');
 		img.setAttribute('src', 'popovers/assets/close.svg');
-		img.setAttribute('onclick', 'javascript:showLocations()');
+		img.setAttribute('onclick', 'javascript:showLocation()');
 		div.appendChild(img);
 		chart.appendChild(div);
     
@@ -2249,14 +2249,6 @@ var showLocations = function(evt) {
 		map.mapTypes.set('usroadatlas', roadMapType);
 		map.setMapTypeId('usroadatlas');
     
-    locs = [];
-    allLocs = currDevice.device.info.locations;
-    
-    for (i = 0; i < allLocs.length; i++) {
-      locArray = allLocs[i].split(',');
-      locs[i] = new google.maps.LatLng(parseFloat(locArray[0]), parseFloat(locArray[1]))
-    }
-    
     image = {
       url: 'popovers/assets/actors/t.svg'
     };
@@ -2266,37 +2258,47 @@ var showLocations = function(evt) {
       map: map
     });
     
-    lines = [];
-    function addLine(i, start, end) {
-      lines[i] = new google.maps.Polyline({
-        path: [start, end],
-        strokeColor: '#9b00c1',
-        strokeWeight: 4,
-        map: map
-      });
-      if (count === locs.length - 1) {
-        count = 0;
-        for (j = 0; j < lines.length; j++) {
-          lines[j].setMap(null);
+    if (hasLocations) {
+      locs = [];
+      allLocs = currDevice.device.info.locations;
+    
+      for (i = 0; i < allLocs.length; i++) {
+        locArray = allLocs[i].split(',');
+        locs[i] = new google.maps.LatLng(parseFloat(locArray[0]), parseFloat(locArray[1]))
+      }
+    
+      lines = [];
+      function addLine(i, start, end) {
+        lines[i] = new google.maps.Polyline({
+          path: [start, end],
+          strokeColor: '#9b00c1',
+          strokeWeight: 4,
+          map: map
+        });
+        if (count === locs.length - 1) {
+          count = 0;
+          for (j = 0; j < lines.length; j++) {
+            lines[j].setMap(null);
+          }
         }
       }
-    }
     
-    count = 0;
-    function drawLines() {
-      window.setInterval(function() {
-        addLine(count, locs[count], locs[++count]);
-      }, 800);
-    }
+      count = 0;
+      function drawLines() {
+        window.setInterval(function() {
+          addLine(count, locs[count], locs[++count]);
+        }, 800);
+      }
     
-    if (locs.length > 1) drawLines();
+      if (locs.length > 1) drawLines();
+    }
   }
     
   function loadScript() {
     var script = document.createElement('script');
     script.id = 'googleMapsAPI';
     script.type = 'text/javascript';
-    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=showLocations';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=showLocation';
     document.body.appendChild(script);
   }
 }
