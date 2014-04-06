@@ -91,7 +91,9 @@ ModelS.prototype.newstate = function(self, enabled) {
 ModelS.prototype.refresh = function(self) {
   if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
 
-  if ((self.vehicle.state !== 'waiting') && (self.vehicle.tokens.length !== 0)) return self.scan(self);
+  if ((self.vehicle.state !== 'waiting') && (self.vehicle.tokens.length !== 0)) {
+    return setTimeout(function() { self.scan(self); }, 60 * 1000);
+  }
 
   if (!self.checkAPI(self, 'tesla.wake_up', function() { self.refresh(self); })) return;
   tesla.wake_up(self.vehicle.id, function(data) {
@@ -222,7 +224,7 @@ ModelS.prototype.scan = function(self) {
       if (didP) self.changed();
     });
 
-  if (!self.checkAPI(self, 'tesla.get_drive_state')) return;
+    if (!self.checkAPI(self, 'tesla.get_drive_state')) return;
     tesla.get_drive_state(self.vehicle.id, function(data) {
       var didP, speed;
 

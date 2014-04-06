@@ -79,7 +79,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
 
   client = id2user(ws.clientInfo.userID);
   createP = ws.clientInfo.loopback
-           || ((!!client) && (client.role === 'master'))
+           || ((!!client) && (client.userRole === 'master'))
            || ((!!user) ? (user.userID === ws.clientInfo.userID) : (exports.count() === 0))
            || (internalP && ws.clientInfo.local);
 
@@ -88,7 +88,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
 
     params.event = 'access';
     params.diagnostic = 'unauthorized';
-    params.role = (!!client) ? client.role : '';
+    params.role = (!!client) ? client.userRole : '';
     params.resource = (!!user) ? ('user/' + user.userID) : '';
     params.internalP = internalP;
     logger.warning(tag, params);
