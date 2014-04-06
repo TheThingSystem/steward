@@ -431,10 +431,12 @@ var login = function() {
             && message.result.hasOwnProperty('clients')) {
             loginInfo.users = message.result.users;
             loginInfo.clients = message.result.clients;
-            for (client in loginInfo.clients) {
-              elem = document.getElementById(client.replace(/\//g, '_'));
-              elem.setAttribute('class', 'clickable-text');
-              elem.addEventListener('click', replayQR);
+            if (window.location.protocol === 'https:') {
+              for (client in loginInfo.clients) {
+                elem = document.getElementById(client.replace(/\//g, '_'));
+                elem.setAttribute('class', 'clickable-text');
+                elem.addEventListener('click', replayQR);
+              }
             }
           }
         }
@@ -859,7 +861,7 @@ Clients authenticate to the steward, while in turn the user associated with a cl
 
 <h1>Listing of Users and Clients</h1>
 
-<p>A list of existing users and clients that are registered with the steward. To redisplay the QR code for a user, click the underlined user name below (master permissions authentication required).</p>
+<p>A list of existing users and clients that are registered with the steward. To redisplay the QR code for a user, click the underlined user name below (master permissions and https: authentication required).</p>
 
 <div id='user-container'>
 </div>
