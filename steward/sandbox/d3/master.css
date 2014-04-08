@@ -308,6 +308,8 @@ p.actor-name {
 
 .form-container table { width: 600px; }
 table.short-form td { padding: 10px; font-size: 18px; text-align: left; }
+table.cloud-table { width: 800px; margin-top: 20px; }
+table.cloud-table td { vertical-align: top; }
 
 .button-replica {font-family: 'Roadgeek 2005 Series D'; color: #6FCDF4; }
 

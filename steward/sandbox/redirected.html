@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>&#x24e3; steward authorization</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<style>
+  body {
+    background: #16161D;
+    color: white;
+  	font-size: 13pt;
+	font-family: "Trebuchet MS";    
+	text-align: center;
+  }
+  
+a { color: #fff; }  
+h1 { text-transform: uppercase; font-size: 22pt; font-family: "Roadgeek 2005 Series D";  }
+
+#main { text-align: left; margin: 20px 72px; }
+
+table.short-form td { padding: 10px; }
+
+.form-container { background: url('d3/popovers/assets/window.form.svg') no-repeat; width: 600px; height: 250px; padding: 30px; margin: 30px auto; }
+.form-container-short { background: url('d3/popovers/assets/window.form.short.svg') no-repeat; width: 600px; height: 180px; padding: 30px; margin: 30px auto; }
+.form-container table { width: 600px; }
+
+/* log in screen elements */
+#login {
+        position: absolute;
+        width: 600px;
+        height: 210px;
+        text-align: center;
+}
+
+#login form {
+		width: 420px;
+		margin: -10px 90px;
+}
+
+  
+@font-face {
+  font-family: "Roadgeek 2004 Series C";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series C.otf");
+}
+
+@font-face {
+  font-family: "Roadgeek 2005 Series D";
+  src: url("d3/roadgeek2005v2-complete/Roadgeek 2005 Series D.otf");
+}
+
+  
+</style>
+
+<script type='text/javascript'>
+
+var closeme = function() {
+  window.close();
+};
+
+var main = function() {
+  var search = window.location.search.substring(1);
+  search = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+  if (search.title) {
+    document.getElementById('title').textContent = search.title;
+  }
+  if (search.message) {
+    document.getElementById('message').textContent = search.message;
+  }
+
+};
+
+</script>
+</head>
+
+<body onload='main()'>
+<img src="d3/images/thing.sys.logo.black.svg" />
+
+<div id='main' style='margin: 30px 300px; text-align: center;'>
+	<h1 id='title'></h1>
+
+	<p id='message'></p>
+
+</div>
+<img src="d3/popovers/assets/close-button.svg" onclick='closeme()' />
+
+</body>
+</html>
