@@ -735,8 +735,9 @@ var single_device_drilldown = function(state, arcs, instructions) {
 };
 
 var single_device_arcs = function(device) {
-  var a0, a1, arcs, brightness, color, delta, level, now, prop, v, v2;
+  var a0, a1, arcs, brightness, color, delta, metric, level, now, prop, v, v2;
 
+  metric = place_info.displayUnits === 'metric';
   arcs = [];
 
   now = new Date().getTime();
@@ -898,7 +899,7 @@ var single_device_arcs = function(device) {
       case 'location':
         if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
           dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
-          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' mi')
+          cooked = (dist >= 1) ? (metric) ? (dist.toFixed(0) + ' km' ) : ((dist / 1.60934).toFixed(0) + ' mi')
                                : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
                                : place.name;
           if ((dist >= 1) && (!!device.info.physical)) {
@@ -923,7 +924,7 @@ var single_device_arcs = function(device) {
         arcs.splice(a0+1,0, { name   : prop
                            , raw    : v2
                            , label  : 'ACCURACY'
-                           , cooked : '&plusmn; ' + v2 + 'm / ' + Math.round(v * 3.28084) + 'ft'
+                           , cooked : (metric) ? '&plusmn; ' + v2 + 'm' : Math.round(v * 3.28084) + 'ft'
                            , value  : clip2bars(v2, 0, 100)
                            , index  : a1 - 0.10
                            });
@@ -1009,8 +1010,9 @@ var single_climate_instructions = function(device) {
 
 
 var climate_device_arcs = function(device) {
-  var arcs, i, now, prop, props, v;
+  var arcs, i, metric, now, prop, props, v;
 
+  metric = place_info.displayUnits === 'metric';
   arcs = [];
 
   if (!device.info.lastSample) device.info.lastSample = device.updated;
@@ -1048,7 +1050,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'TEMPERATURE'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, v >= 18 ? 18 : 0, v <= 28 ? 28 : 100)
                           , index  : 0.60
                           });
@@ -1080,7 +1082,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'GOAL'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, 18, 28)
                           , index  : 0.50
                           });
@@ -1299,7 +1301,7 @@ var climate_device_arcs = function(device) {
         }
         if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
           dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
-          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' mi')
+          cooked = (dist >= 1) ? (metric) ? (dist.toFixed(0) + ' km') : ((dist / 1.60934).toFixed(0) + ' mi')
                                : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
                                : place.name;
           if ((dist >= 1) && (!!device.info.physical)) {
@@ -1587,7 +1589,7 @@ var motive_device_arcs = function(device) {
       case 'location':
         if ((!!place.info) && (!!place.info.location) && (!!place.info.location[1])) {
           dist = getDistanceFromLatLonInKm(v[0], v[1], place.info.location[0], place.info.location[1]);
-          cooked = (dist >= 1) ? (dist.toFixed(0) + ' km' + ' / ' + (dist / 1.60934).toFixed(0) + ' mi')
+          cooked = (dist >= 1) ? (metric) ? (dist.toFixed(0) + ' km') : ((dist / 1.60934).toFixed(0) + ' mi')
                                : (dist > 0) && (device.info.velocity > 0) ? 'nearby'
                                : place.name;
           if ((dist >= 1) && (!!device.info.physical)) {
@@ -1611,7 +1613,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'SPEED'
-                          , cooked : (v > 0) ? ((v / 1000).toFixed(0) + ' km/h' + ' / ' + (v * 2.23694).toFixed(0) + ' mph')
+                          , cooked : (v > 0) ? (metric) ? ((v / 1000).toFixed(0) + ' km/h') : ((v * 2.23694).toFixed(0) + ' mph')
                                              : 'stationary'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.50
@@ -1640,7 +1642,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'ODOMETER'
-                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' mi'
+                          , cooked : (metric) ? v.toFixed(0) + ' km' : (v / 1.60934).toFixed(0) + ' mi'
                           , value  : clip2bars(v % 20000, 0, 20000)
                           , index  : 0.30
                           });
@@ -1663,7 +1665,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(6, 0, { name   : prop
                           , raw    : v
                           , label  : 'INTERIOR'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, 17, 32)
                           , index  : 0.10
                           });
@@ -1934,7 +1936,9 @@ var single_weather_drilldown = function(state) {
 };
 
 var weather_arcs = function(device) {
-  var arcs, codeValues, prop, v, v2;
+  var arcs, codeValues, metric, prop, v, v2;
+  
+  metric = place_info.displayUnits === 'metric';
   
   arcs = [];
   
@@ -1976,7 +1980,7 @@ var weather_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : (prop === 'temperature') ? 'TEMPERATURE' : 'HIGH TEMP'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, v >= -30 ? -30 : 0, v <= 50 ? 50 : 100)
                           , index  : 0.60
                           });
@@ -1994,7 +1998,7 @@ var weather_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'LOW TEMP'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, v >= -30 ? -30 : 0, v <= 50 ? 50 : 100)
                           , index  : 0.50
                           });
@@ -2012,7 +2016,7 @@ var weather_arcs = function(device) {
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'WIND CHILL'
-                          , cooked : v.toFixed(2) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(2) + '&deg;F'
+                          , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, v >= -30 ? -30 : 0, v <= 50 ? 50 : 100)
                           , index  : 0.30
                           });
@@ -2021,7 +2025,7 @@ var weather_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'VISIBILITY'
-                          , cooked : v.toFixed(0) + ' km' + ' / ' + (v / 1.60934).toFixed(0) + ' mi'
+                          , cooked : (metric) ? v.toFixed(0) + ' km' : (v / 1.60934).toFixed(0) + ' mi'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.20
                           });
