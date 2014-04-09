@@ -21,7 +21,7 @@ var UPnP_Audio = exports.Device = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = '/device/media/sonos/audio';
+  self.whatami = '/device/media/upnp/audio';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -353,11 +353,11 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device.media.sonos = steward.actors.device.media.sonos ||
-      { $info     : { type: '/device/media/sonos' } };
+  steward.actors.device.media.upnp = steward.actors.device.media.upnp ||
+      { $info     : { type: '/device/media/upnp' } };
 
-  steward.actors.device.media.sonos.audio =
-      { $info     : { type       : '/device/media/sonos/audio'
+  steward.actors.device.media.upnp.audio =
+      { $info     : { type       : '/device/media/upnp/audio'
                     , observe    : [ ]
                     , perform    : [ 'play'
                                    , 'stop'
