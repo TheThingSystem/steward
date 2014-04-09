@@ -146,12 +146,12 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
       return self.wake();
 
     case 'play':
-      param0 = (!!params.url) && (params.url.length) ? params.url : null;
+      param0 = (!!params.url) && (params.url.length) ? devices.expand(params.url) : null;
       break;
 
     case 'queueNext':
       if (!params.url) return false;
-      param0 = params.url;
+      param0 = devices.expand(params.url);
       break;
 
     case 'stop':
@@ -321,12 +321,12 @@ var validate_perform = function(perform, parameter) {
       break;
 
     case 'play':
-      if (!!params.url) try { validator.check(params.url).isUrl(); } catch(ex) { result.invalid.push('url'); }
+      if (!!params.url) try { validator.check(devicex.expand(params.url)).isUrl(); } catch(ex) { result.invalid.push('url'); }
       break;
 
     case 'queueNext':
       if (!params.url) result.requires.push('url');
-      else try { validator.check(params.url).isUrl(); } catch(ex) { result.invalid.push('url'); }
+      else try { validator.check(devices.expand(params.url)).isUrl(); } catch(ex) { result.invalid.push('url'); }
       break;
 
     case 'stop':

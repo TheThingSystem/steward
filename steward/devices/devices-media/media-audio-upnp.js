@@ -139,7 +139,7 @@ UPnP_Audio.prototype.perform = function(self, taskID, perform, parameter) {
       return self.wake();
 
     case 'play':
-      param0 = (!!params.url) && (params.url.length) ? params.url : null;
+      param0 = (!!params.url) && (params.url.length) ? devices.expand(params.url) : null;
       break;
 
     case 'stop':
@@ -336,7 +336,7 @@ var validate_perform = function(perform, parameter) {
       break;
 
     case 'play':
-      if (!!params.url) try { validator.check(params.url).isUrl(); } catch(ex) { result.invalid.push('url'); }
+      if (!!params.url) try { validator.check(devices.expand(params.url)).isUrl(); } catch(ex) { result.invalid.push('url'); }
       break;
 
     case 'stop':
