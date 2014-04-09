@@ -71,6 +71,7 @@
     , "ssh-keygen"              : "git://github.com/TheThingSystem/ssh-keygen.git"
     , "stack-trace"             : "0.0.6"
     , "suncalc"                 : "1.2.1"
+    , "telldus-live"            : "0.2.0"
     , "teslams"                 : "0.8.6"
     , "underscore"              : "1.5.1"
     , "unofficial-nest-api"     : "git://github.com/TheThingSystem/unofficial_nodejs_nest.git"

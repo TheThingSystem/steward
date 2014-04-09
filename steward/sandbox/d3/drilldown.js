@@ -1528,11 +1528,11 @@ var getTimeString = function(v) {
   v = Math.round(v / 1000);
 
   text = ('0' + (v % 60)).substr(-2);
-  v = Math.round(v / 60);
+  v = Math.floor(v / 60);
 
   if (v !== 0) {
     text = ('0' + (v % 60)).substr(-2) + ':' + text;
-    v = Math.round(v / 60);
+    v = Math.floor(v / 60);
   } else text = '00:' + text;
   if (v !== 0) text = ('0' + v).substr(-2) +':' + text;
 
@@ -1566,6 +1566,7 @@ var single_motive_instructions = function(device) {
 var motive_device_arcs = function(device) {
   var arcs, cooked, dist, i, prop, props, v;
 
+  metric = place_info.displayUnits === 'metric';
   arcs = [];
   props = sortprops(device.info, [ 'lastSample', 'location', 'velocity', 'heading', 'odometer', 'charger', 'intTemperature' ]);
 
@@ -1613,7 +1614,7 @@ var motive_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'SPEED'
-                          , cooked : (v > 0) ? (metric) ? ((v / 1000).toFixed(0) + ' km/h') : ((v * 2.23694).toFixed(0) + ' mph')
+                          , cooked : (v > 0) ? (metric) ? ((v * 3.6).toFixed(0) + ' km/h') : ((v * 2.23694).toFixed(0) + ' mph')
                                              : 'stationary'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.50
