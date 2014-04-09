@@ -321,7 +321,7 @@ var validate_perform = function(perform, parameter) {
       break;
 
     case 'play':
-      if (!!params.url) try { validator.check(devicex.expand(params.url)).isUrl(); } catch(ex) { result.invalid.push('url'); }
+      if (!!params.url) try { validator.check(devices.expand(params.url)).isUrl(); } catch(ex) { result.invalid.push('url'); }
       break;
 
     case 'queueNext':
