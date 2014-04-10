@@ -54,9 +54,7 @@ Sensor.prototype.update = function(self, params, status) {
     updateP = true;
   }
 
-console.log('>>> link: status='+status);
   status = (status !== 'Hardware Error') ? 'present' : 'error';
-console.log('>>> link: status='+status);
   if (self.status !== status) {
     self.status = status;
     updateP = true;
@@ -110,7 +108,6 @@ Plant.prototype.update = function(self, params, status) {
     updateP = true;
   }
 
-console.log('>>> plant: status='+status);
   color = self.info.needsWater === 'true' ? 'orange' : 'green';
   switch(status) {
     case 'Link Missing':
@@ -127,7 +124,6 @@ console.log('>>> plant: status='+status);
     default:
       break;
   }
-console.log('>>> plant: color='+color);
   if (self.status !== color) {
     self.status = color;
     updateP = true;
