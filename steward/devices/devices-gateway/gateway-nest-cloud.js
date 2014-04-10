@@ -191,7 +191,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
 
   params.status = status;
   info =  { source: self.deviceID, gateway: self, params: params };
-  info.device = { url                          : 'tcp://' + station.local_ip
+  info.device = { url                          : 'ip://' + station.local_ip
                 , name                         : name + ': ' + data.name
                 , manufacturer                 : 'Nest Labs'
                 , model        : { name        : station.type

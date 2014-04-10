@@ -160,6 +160,12 @@ exports.prime = function(ipaddr, macaddr) {
 
 exports.ip2mac = function(ipaddr) { return arptab[ipaddr]; };
 
+exports.mac2ip = function(macaddr) {
+  var ipaddr;
+
+  for (ipaddr in arptab) if ((arptab.hasOwnProperty(ipaddr)) && (arptab[ipaddr] === macaddr)) return ipaddr;
+};
+
 exports.wake = function(params) {
   var macaddress;
 

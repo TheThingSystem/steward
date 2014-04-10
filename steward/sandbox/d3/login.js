@@ -853,6 +853,18 @@ var clouds = { '':
                    { apikey     : ''
                    }
                  }
+               , plantlink      :
+                 { text         : 'If you have a PlantLink system, the steward can manage it for you.'
+                 , instructions : 'Enter your email address and password.'
+                 , site         : 'https://myplantlink.com/dashboard'
+                 , icon         : ''
+                 , name         : 'plantlink'
+                 , actor        : '/device/gateway/plantlink/cloud'
+                 , info         :
+                   { email      : ''
+                   , passphrase : ''
+                   }
+                 }
                , prowl          :
                  { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
                  , instructions : 'Go to http://www.prowlapp.com, create an account, and generate an API key.'
