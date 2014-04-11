@@ -150,7 +150,7 @@ var showLogin = function(changeLogin) {
 			td.append("img")
 					.attr("src", "popovers/assets/login.svg")
 					.style("cursor", "pointer")
-					.on("click", submitLogin);
+					.attr("onclick", "javascript:submitLogin(event)");
 			tr = table.append("tr")
 				.append("td")
 				.attr("colspan", "4")
