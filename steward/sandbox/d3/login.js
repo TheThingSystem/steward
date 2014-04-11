@@ -665,7 +665,7 @@ var fillPlaceFields = function() {
 }
 
 var savePlace = function(evt) {
-    perform_actors(ws2 || wsx, 'place', 'set', place_info, function() { });
+    if (!!ws2 || !!wsx) perform_actors(ws2 || wsx, 'place', 'set', place_info, function() { });
 }
 
 var addCloud = function(evt) {
