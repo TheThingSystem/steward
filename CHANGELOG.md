@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+## Release 1.7 "Salt Pretzel - TBD
+## Commit - TBD
+
+### Steward
+### TAAS (Things as a Service)
+### TSRP (Thing Simple Reporting Protocol)
+### Places
+### Things
+### HTML5/client
+### User policy client
+### Developer console
+### Utilities
+
 ## Release 1.6 "Pecan Waffle" - March 29, 2014
 ## Commit - df14aeda4c4379fe1122845e24adeb7db6fb7f7e
 

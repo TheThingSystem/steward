@@ -53,7 +53,7 @@
     , "node-winkapi"            : "0.1.2"
     , "observer"                : "1.1.0"
     , "openzwave"               : "0.0.32"
-    , "pcap"                    : "git://github.com/TheThingSystem/node_pcap.git"
+    , "pcap"                    : "1.2.0"
     , "pkginfo"                 : "0.3.0"
     , "pixelpusher"             : "0.1.1"
     , "polyline-encoded"        : "0.0.4"
