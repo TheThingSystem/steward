@@ -63,7 +63,7 @@ new SSDP().on('response', function(msg, rinfo) {
       var i, json, s;
 
       f();
-      json = JSON.parse(xml2json.toJson(data));
+      try { json = JSON.parse(xml2json.toJson(data)); } catch(ex) { return console.log(data); }
       console.log(util.inspect(json, { depth: null }));
 
       if ((!json.root) || (!json.root.URLBase)
