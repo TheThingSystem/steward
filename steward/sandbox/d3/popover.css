@@ -117,11 +117,11 @@
 	.track-progress-knob { position: absolute; top: 2px; left: 0px; width: 14px; }
 
 #media-controls-wrapper { position: absolute; top: 386px; left: 38px; width: 220px; height: 70px;  }
-	.media-button-two { width: 55px; height: 60px; position: absolute; top: 0px; left: 0px; }
-	.media-button-three { width: 55px; height: 60px; position: absolute; top: 0px; left: 75px; }
-	.media-button-four { width: 55px; height: 60px; position: absolute; top: 0px; left: 150px; }
+	.media-button-two { width: 63px; height: 63px; position: absolute; top: 0px; left: 0px; }
+	.media-button-three { width: 63px; height: 63px; position: absolute; top: 0px; left: 75px; }
+	.media-button-four { width: 63px; height: 63px; position: absolute; top: 0px; left: 150px; }
 	img.media-button { width: 50px; }
-	img.media-button-big { width: 63px; }
+	img.media-button-big { width: 63px; height: 63px; }
 
 #equalizer { position: absolute; top: 345px; left: 258px; }
 

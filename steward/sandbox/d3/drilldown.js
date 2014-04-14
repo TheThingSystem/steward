@@ -1428,7 +1428,7 @@ var single_presence_instructions = function(device) {
 };
 
 var media_device_arcs = function(device) {
-  var arcs, prop, text, v;
+  var anchor, arcs, prop, text, v;
 
   arcs = [];
 
@@ -1450,6 +1450,11 @@ var media_device_arcs = function(device) {
     if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
     switch (prop) {
       case 'track':
+        if (!!v.title && v.title.indexOf('http') === 0) {
+          anchor = document.createElement('a');
+          anchor.href = v.title;
+          v.title = decodeURIComponent(anchor.pathname.replace(/(^\/?)/,''))
+        }
         text = v.title || '';
         if ((text.length > 0) && (!!v.artist)) text += ' / ' + v.artist;
         if ((text.length > 0) && (!!v.album))  text += ' / ' + v.album;

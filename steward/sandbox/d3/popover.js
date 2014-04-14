@@ -5,12 +5,14 @@ var onOffKnob = { "diam": 18 };
 var onOffSlider = { "min": 25, "max": 71 - onOffKnob.diam };
 var onOffSliderMotive = { "min": 53, "max": 99 - onOffKnob.diam };
 var newPerform = { "path":"", "requestID":"2", "perform":"", "parameter":{} };
+var performParams = { 'perform':'', 'parameter':{} };
 
 // d3 drag functions
 var drag = d3.behavior.drag()
     .origin(Object)
+    .on("dragstart", clearPerformParams)
     .on("drag", dragmove)
-    .on("dragend", sendData);
+    .on("dragend", sendPerform);
 
 function dragmove(d) {
 	var max, min, bx1, bx2, by1, by2, elem;
@@ -30,6 +32,7 @@ function dragmove(d) {
 				var pct = 100 - parseInt(((by1 - max + 1)/(min - max)) * 100);
 				d3.select("#slider-readout").text(pct + "%").style("top", by1 + 7 + "px");
 				newPerform.parameter.brightness = pct;
+				performParams = { perform:'on', parameter: {brightness : pct} };
 				return by1 + "px";
 			});
 			break;
@@ -37,7 +40,6 @@ function dragmove(d) {
 			var currAngle = 0;
 			elem = d3.event.sourceEvent.target;
 			var exy = [d3.event.sourceEvent.offsetX, d3.event.sourceEvent.offsetY];
-			//      console.log("exy:" + exy[0] + "," + exy[1]);
 			var dxy = [elem.width/2, elem.height/2];
 			var angle = (angleBetweenPoints(exy, dxy) * (180/Math.PI));
 			if (elem.style.transform) {
@@ -56,7 +58,7 @@ function dragmove(d) {
 			rotateAngle = Math.max(rotateAngle, 0);
 			rotateAngle = Math.min(rotateAngle, 100);
 			newPerform.parameter.volume = rotateAngle;
-	  	newPerform.perform = "set";
+			performParams = { perform:'set', parameter: {volume : rotateAngle} };
 			break;
 		case "track-progress-knob":
 			max = 500;
@@ -68,6 +70,7 @@ function dragmove(d) {
 				bx2 = Math.min(bx2, max);
 				var pct = bx2/(max - min);
 				newPerform.parameter.track.position = parseInt((newPerform.parameter.track.duration * pct), 10);
+			  performParams = { perform:'set', parameter: {'track' : newPerform.parameter.track} };
 				return bx2 + "px";
 			});
 			break;
@@ -88,7 +91,7 @@ function dragmove(d) {
 				  .html(function() { return (isMetric) ? cels.toFixed(1) + "&deg;C" : fahr.toFixed(1) + "&deg;F" })
 				  .style("left", bx2 - 5 + "px");
 				newPerform.parameter.goalTemperature = cels;
-				
+			  performParams = { perform:'set', parameter: {'goalTemperature' : cels} };
 				return bx2 + "px";
 			});
 			break;
@@ -110,8 +113,7 @@ function dragmove(d) {
 				  .html(function() { return (isMetric) ? cels.toFixed(1) + "&deg;C" : fahr.toFixed(1) + "&deg;F" })
 				  .style("left", bx2 - 5 + offset + "px");
 				newPerform.parameter.hvac = cels;
-				newPerform.perform = "hvac";
-				
+			  performParams = { perform:'hvac', parameter: {'hvac' : cels} };
 				return bx2 + "px";
 			});
 			break;
@@ -128,6 +130,7 @@ function dragmove(d) {
 				d3.select("#fantime-slider-readout").style("top", by1 + 7 + "px");
 				d3.select("#fantime-readout").text(parseInt((pct * 90 / 100), 10));
 				newPerform.parameter.fan = (pct * 90 / 100) * 60 * 1000;
+			  performParams = { perform:'set', parameter: {'fan' : newPerform.parameter.fan} };
 				return by1 + "px";
 			});
 			break;
@@ -142,6 +145,7 @@ function dragmove(d) {
 				bx2 = Math.min(bx2, max);
 				var pct = (bx2 - min)/(max - min);
 				newPerform.parameter.level = parseInt((pct * 100), 10);
+			  performParams = { perform:'set', parameter: {'level' : newPerform.parameter.level} };
 				return bx2 + "px";
 			});
 			break;
@@ -201,8 +205,8 @@ var showPop = function(device) {
 		break
   }
 
-   var deviceID = device.actor.slice(device.actor.lastIndexOf("/"));
-   newPerform.path = "/api/v1/device/perform" + deviceID;
+   var deviceID = device.actor.slice(device.actor.lastIndexOf("/") + 1);
+   newPerform.path = "/api/v1/device/perform/" + deviceID;
    newPerform.parameter = device.info;
 
    d3.select("body").append("div")
@@ -670,26 +674,33 @@ var showPop = function(device) {
        elem.src = "popovers/assets/" + type + "-button.svg";
        newPerform.perform = "sunroof";
        newPerform.parameter.sunroof = type;
-       sendData();
+       clearPerformParams();
+       performParams = {perform:'sunroof', parameter:newPerform.parameter.sunroof};
      }
      
      function motiveCommand(event, type) {
+       clearPerformParams();
        switch(type) {
          case "lights":
            newPerform.perform = "lights";
+           performParams.perform = "lights";
            break;
          case "horn":
            newPerform.perform = "horn";
+           performParams.perform = "horn";
            break;
          case "doors":
            newPerform.perform = "doors"
+           performParams.perform = "doors";
            if (event.target.src.indexOf("lock-on") !== -1) {
              event.target.src = "popovers/assets/lock-off.svg";
              newPerform.parameter.doors = "unlock";
+             performParams.parameter.doors = "unlock";
              event.target.nextSibling.textContent = "LOCK DOORS"
            } else {
              event.target.src = "popovers/assets/lock-on.svg";
              newPerform.parameter.doors = "lock";
+             performParams.parameter.doors = "lock";
              event.target.nextSibling.textContent = "UNLOCK DOORS"
            }
            break;
@@ -697,17 +708,19 @@ var showPop = function(device) {
            if (event.target.src.indexOf("lock-on") !== -1) {
              event.target.src = "popovers/assets/lock-off.svg";
              newPerform.perform = "unlock";
+             performParams.perform = "unlock";
              event.target.nextSibling.textContent = "LOCK"
            } else {
              event.target.src = "popovers/assets/lock-on.svg";
              newPerform.perform = "lock";
+             performParams.perform = "lock";
              event.target.nextSibling.textContent = "UNLOCK"
            }
            break;
          default:
            break;
        }
-       sendData();
+       sendPerform();
      }
      
      function hasLockPerform() {
@@ -1165,9 +1178,12 @@ var showPop = function(device) {
 	  var elem = event.target;
 	  if (newPerform.perform !== "play") {
 	  	newPerform.perform = "play";
-	  	elem.src = "popovers/assets/media-button-two.svg";
-	  	document.getElementById("media-button-three").src = "popovers/assets/media-button-three-off.svg";
-	  	sendData();
+	  	perform_device(ws2, deviceID, newPerform.perform, '', function(message) { 
+	  	  if (!!message.result && !!message.result.status && message.result.status === 'success') {
+    	  	elem.src = "popovers/assets/media-button-two.svg";
+	  	    document.getElementById("media-button-three").src = "popovers/assets/media-button-three-off.svg";	  		  	  
+	  	  }
+	    });
 	  }
 	};
 	
@@ -1175,24 +1191,30 @@ var showPop = function(device) {
 	  var elem = event.target;
 	  if (newPerform.perform !== "pause") {
 	  	newPerform.perform = "pause";
-	  	elem.src = "popovers/assets/media-button-three.svg";
-	  	document.getElementById("media-button-two").src = "popovers/assets/media-button-two-off.svg";
-	  	sendData();
+	  	perform_device(ws2, deviceID, newPerform.perform, '', function(message) { 
+	  	  if (!!message.result && !!message.result.status && message.result.status === 'success') {
+	  	    elem.src = "popovers/assets/media-button-three.svg";
+	  	    document.getElementById("media-button-two").src = "popovers/assets/media-button-two-off.svg";
+	  	  }
+      });
 	  }
 	};
 	
 	function mediaToggleMute(event) {
 	  var elem = event.target;
-	  if (newPerform.parameter.muted === "off") {
+	  var isMuted = (newPerform.parameter.muted === "on");
+	  if (!isMuted) {
 	  	newPerform.parameter.muted = "on";
 	  	newPerform.perform = "set";
-	  	elem.src = "popovers/assets/media-button-five-off.svg";
 	  } else {
 	  	newPerform.parameter.muted = "off";
 	  	newPerform.perform = "set";
-	  	elem.src = "popovers/assets/media-button-five-on.svg";
 	  }
-	  sendData();
+	  perform_device(ws2, deviceID, newPerform.perform, {muted: newPerform.parameter.muted}, function(message) { 
+	  	if (!!message.result && !!message.result.status && message.result.status === 'success') {
+        elem.src = (newPerform.parameter.muted === 'on') ? "popovers/assets/media-button-five-off.svg" : "popovers/assets/media-button-five-on.svg";
+      }
+    });
 	};
 	
 	function setDeviceName() {
@@ -1213,13 +1235,8 @@ var showPop = function(device) {
 	  if (elem.textContent === "" || elem.textContent === "\n") {
 	    elem.textContent = device.name;
 	  } else if (elem.textContent !== device.name) {
-	    var cmd = { path     : newPerform.path,
-	                perform  : "set",
-	                requestID: "2",
-	                parameter: { name : elem.textContent} };
-	    cmd.parameter = JSON.stringify(cmd.parameter);
+  	  perform_device(ws2, deviceID, 'set', { name : elem.textContent }, function(message) {});
 	    elem.scrollLeft = 0;
-      wsSend(JSON.stringify(cmd));
 	  }
 	};
 
@@ -1670,18 +1687,24 @@ var updatePopover = function(device, update) {
   }
   
   function updateMediaPop() {
-	if (document.getElementById("device-status")) {
-	  d3.select("#device-status")
-		.style("background-color", statusColor(update));
-	  d3.select("#device-status-detail")
-		.text(update.status);
-	}
-    if (update.info.volume) {
-	  d3.select("#volume-control-indicator")
-		.style("transform", "rotate(" + calcVolRotation(update.info.volume) + "deg)")
-		.style("-webkit-transform", "rotate(" + calcVolRotation(update.info.volume) + "deg)");
-    }
+    var anchor;
+	  if (document.getElementById("device-status")) {
+	    d3.select("#device-status")
+		    .style("background-color", statusColor(update));
+	    d3.select("#device-status-detail")
+		    .text(update.status);
+	  }
+//     if (update.info.volume) {
+// 	    d3.select("#volume-control-indicator")
+// 		    .style("transform", "rotate(" + calcVolRotation(update.info.volume) + "deg)")
+// 		    .style("-webkit-transform", "rotate(" + calcVolRotation(update.info.volume) + "deg)");
+//     }
     if (update.info.track) {
+      if (!!update.info.track.title && update.info.track.title.indexOf('http') === 0) {
+        anchor = document.createElement('a');
+        anchor.href = update.info.track.title;
+        update.info.track.title = decodeURIComponent(anchor.pathname.replace(/(^\/?)/,''))
+      }
       d3.select("#display-album")
         .text(function() {return update.info.track.album || "album"});
       d3.select("#display-artist")
@@ -1689,23 +1712,23 @@ var updatePopover = function(device, update) {
       d3.select("#display-track")
         .text(function() {return update.info.track.title || "title"});
     }
-	if (update.info.hasOwnProperty("track") && update.info.track.hasOwnProperty("position")) {
+	  if (update.info.hasOwnProperty("track") && update.info.track.hasOwnProperty("position")) {
       d3.select("#track-progress-knob")
         .transition()
         .duration(300)
         .style("left", calcTrackProgress(update.info.track) + "px");
-	}
-	d3.select("#media-button-two")
-	  .attr("src", function() {return (update.status === "playing") ? "popovers/assets/media-button-two.svg" : "popovers/assets/media-button-two-off.svg";});
-	d3.select("#media-button-three")
+	  }
+	  d3.select("#media-button-two")
+	    .attr("src", function() {return (update.status === "playing") ? "popovers/assets/media-button-two.svg" : "popovers/assets/media-button-two-off.svg";});
+	  d3.select("#media-button-three")
       .attr("src", function() {return (update.status === "paused") ? "popovers/assets/media-button-three.svg" : "popovers/assets/media-button-three-off.svg";});
     if (update.info.muted) {
       d3.select("#media-button-four")
         .attr("src", function() {return (update.info.muted === "off") ? "popovers/assets/media-button-five-on.svg" : "popovers/assets/media-button-five-off.svg";});
     }
 
-	newPerform.perform = update.status;
-	newPerform.parameter = update.info;
+	  newPerform.perform = update.status;
+//	  newPerform.parameter = update.info;
   }
   
   function updateMotivePop() {
@@ -1960,6 +1983,15 @@ function hasAlertPerform() {
 
 function hasNoPerform() {
 	return (stack[0].message.result.actors[currDevice.device.deviceType].perform.toString() === '');
+}
+
+function clearPerformParams() {
+  performParams = { 'perform':'', 'parameter':{} };
+}
+
+function sendPerform() {
+  var deviceID = currDevice.actor.slice(currDevice.actor.lastIndexOf("/") + 1);
+	perform_device(ws2, deviceID, performParams.perform, performParams.parameter, function(message) {});
 }
 
 function sendData(device) {
