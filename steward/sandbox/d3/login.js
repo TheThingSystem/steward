@@ -66,7 +66,7 @@ var showLogin = function(changeLogin) {
 			form.append("img")
 				.attr("src", "popovers/assets/create-account-only.svg")
 				.style("cursor", "pointer")
-				.on("click", goClientBootstrap);
+				.on("click", function() { goClientBootstrap(true); });
 			if (ws2 || wsx) {
 				form.append("img")
 					.attr("src", "popovers/assets/developer-mode.svg")
@@ -180,15 +180,25 @@ var showLogin = function(changeLogin) {
     return ((/iPhone/.test(navigator.userAgent)) || (/iPad/.test(navigator.userAgent)));
   }
   
-  function goClientBootstrap() {
+  function goClientBootstrap(firstUser) {
 		var clientURL =
 		    { hostname : window.location.hostname
 				, port     : (window.location.protocol.indexOf('https:') === 0) ? '8888' : '8887'
 				, protocol : window.location.protocol
 				, path     : '/d3/index.html'
 				};
+		var bootstrapURL = clientURL;
     clientURL = encodeURIComponent(clientURL.protocol + '//' + clientURL.hostname + ':' + clientURL.port + clientURL.path);
-    var bootstrapURL = '../client.html?clientURL=' + clientURL;
+		bootstrapURL.path = '/../client.html';
+		if (firstUser) {
+		  bootstrapURL.hostname = (bootstrapURL.hostname !== 'steward.local') ? '127.0.0.1' : 'steward.local';
+		  bootstrapURL.port = '8887';
+		  bootstrapURL.protocol = 'http:';
+		}
+    bootstrapURL = bootstrapURL.protocol + '//' + 
+                   bootstrapURL.hostname + ':' + 
+                   bootstrapURL.port + 
+                   bootstrapURL.path + '?clientURL=' + clientURL;
     window.location.href = bootstrapURL;
   }
 };
