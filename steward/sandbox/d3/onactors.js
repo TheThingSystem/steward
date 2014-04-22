@@ -212,7 +212,7 @@ var statusColor2 = function(entry) {
       switch (color.model) {
         case 'temperature': return d3.mired.rgb(color.temperature);
         case 'cie1931':     return d3.cie1931.rgb(color.cie1931.x ,color.cie1931.y);
-        case 'hue':         return d3.hsl(color.hue, color.saturation / 100, entry.info.brightness / 100).rgb();
+        case 'hue':         return d3.hsl(color.hue.hue, color.hue.saturation / 100, entry.info.brightness / 100).rgb();
         case 'rgb':         return d3.rgb(color.rgb.r, color.rgb.g, color.rgb.b);
         default:            break;
       }

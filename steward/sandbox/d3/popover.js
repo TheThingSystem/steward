@@ -30,9 +30,10 @@ function dragmove(d) {
 					by1 = by2;
 				}
 				var pct = 100 - parseInt(((by1 - max + 1)/(min - max)) * 100);
+				pct = (pct === 0) ? 1 : pct;
 				d3.select("#slider-readout").text(pct + "%").style("top", by1 + 7 + "px");
 				newPerform.parameter.brightness = pct;
-				performParams = { perform:'on', parameter: {brightness : pct} };
+				performParams = { perform: newPerform.perform, parameter: newPerform.parameter };
 				return by1 + "px";
 			});
 			break;
@@ -1265,7 +1266,7 @@ var ColorPickerMgr = {
         		addCIE(color.cie1931.x ,color.cie1931.y);
         		break;
         	case 'hue':         
-        		addHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100));
+        		addHSV((color.hue.hue, color.hue.saturation / 100, currDevice.device.info.brightness / 100));
         		break;
         	case 'rgb':         
         		addRGB(color.rgb.r, color.rgb.g, color.rgb.b);
@@ -1390,8 +1391,8 @@ var ColorPickerMgr = {
 		 cp = ColorPicker(document.getElementById("color-picker"),
 	
 		 function(hex, hsv, rgb) {
-		   newPerform.parameter.color.hue = hsv.h;
-		   newPerform.parameter.color.saturation = hsv.s;
+		   newPerform.parameter.color.hue.hue = (!hsv.h || hsv.h < 0) ? 0 : hsv.h;
+		   newPerform.parameter.color.hue.saturation = (!hsv.s) ? 0 : hsv.s;
 		 });
 		 
 		 cp.setHsv({h:h, s:s, v:v});
@@ -1457,7 +1458,7 @@ var ColorPickerMgr = {
         		updateCIE(color.cie1931.x ,color.cie1931.y);
         		break;
         	case 'hue':         
-        		updateHSV((color.hue, color.saturation / 100, currDevice.device.info.brightness / 100));
+        		updateHSV((color.hue.hue, color.hue.saturation / 100, currDevice.device.info.brightness / 100));
         		break;
         	case 'rgb':         
         		updateRGB(color.rgb.r, color.rgb.g, color.rgb.b);
@@ -1498,14 +1499,17 @@ var ColorPickerMgr = {
        };
        
        function updateHSV(h, s, v) {
+    		 if (!h) h = 0;
+		     if (!s) s = 0;
+		     if (!v) v = 1;
          if (colorModelHasChanged('hue')) {
            removeCIEPicker();
            ColorPickerMgr.addColorPicker(d3.select("#pop-substrate"), info);
          } else {
 		   cp = ColorPicker(document.getElementById("color-picker"),
 		     function(hex, hsv, rgb) {
-		       newPerform.parameter.color.hue = hsv.h;
-		       newPerform.parameter.color.saturation = hsv.s;
+		       newPerform.parameter.color.hue.hue = (!hsv.h || hsv.h < 0) ? 0 : hsv.h;
+		       newPerform.parameter.color.hue.saturation = (!hsv.s) ? 0 : hsv.s;
 		     });
 		   cp.setHsv({h:h, s:s, v:v});
 		 }
@@ -1991,7 +1995,8 @@ function clearPerformParams() {
 
 function sendPerform() {
   var deviceID = currDevice.actor.slice(currDevice.actor.lastIndexOf("/") + 1);
-	perform_device(ws2, deviceID, performParams.perform, performParams.parameter, function(message) {});
+//  console.log("Perform: " + performParams.perform + "   /    " + JSON.stringify(performParams.parameter));
+	if (!!performParams) perform_device(ws2, deviceID, performParams.perform, performParams.parameter, function(message) { console.log(message) });
 }
 
 function sendData(device) {
