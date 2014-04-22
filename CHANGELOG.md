@@ -40,13 +40,14 @@ CHANGELOG
         - invoke reverseGeocode prototype with logging argument
 	- API call rate limiting robustness
 
-### HTML5/client
+### HTML5/D3 client
 - ensure that the first user created for a steward has the 'master' role
 - remote access authentication robustness
 - developer mode consistency
 - honor place/1 displayUnits setting
 - display location and distance arcs for all device types
 - media player UI improvements and fixes (e.g., volume control, duration calculation)
+- lighting UI brightness fix
 
 ### User policy client
 - allow 'master' role to redisplay QR codes
