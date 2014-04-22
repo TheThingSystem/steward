@@ -10,7 +10,7 @@ var polyline    = require('polyline-encoded')
   ;
 
 
-// var logger   = motive.logger;
+var logger   = motive.logger;
 
 
 var Vehicle = exports.device = function(deviceID, deviceUID, info) {
@@ -71,8 +71,8 @@ Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false
     if (!util.isArray(self.info.location)) {
       self.info.location = [ 0, 0 ];
       self.info.accuracy = data.location.accuracy_m;
-      setInterval(function() { self.reverseGeocode(self); }, 60 * 1000);
-      setTimeout(function() { self.reverseGeocode(self); }, 0);
+      setInterval(function() { self.reverseGeocode(self, logger); }, 60 * 1000);
+      setTimeout(function() { self.reverseGeocode(self, logger); }, 0);
     }
     if ((self.info.location[0] != data.location.lat) || (self.info.location[1] != data.location.lon)) {
       self.info.location[0] = data.location.lat;

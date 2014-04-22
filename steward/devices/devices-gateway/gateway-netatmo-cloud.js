@@ -68,12 +68,12 @@ Cloud.prototype.login = function(self) {
   self.netatmo.logger = utility.logfnx(logger, 'device/' + self.deviceID);
 
   self.netatmo.on('error', function(err) {
-    self.error(self, err);
+    self.error(self, 'background', err);
 
     if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
     setTimeout(function() { self.login(self); }, 30 * 1000);
   }).setConfig(client1, client2, self.info.email, self.info.passphrase).getToken(function(err) {
-    if (!!err) { self.netatmo = null; return self.error(self, err); }
+    if (!!err) { self.netatmo = null; return self.error(self, 'setConfig', err); }
 
     self.status = 'ready';
     self.changed();
@@ -84,10 +84,10 @@ Cloud.prototype.login = function(self) {
   });
 };
 
-Cloud.prototype.error = function(self, err) {
+Cloud.prototype.error = function(self, event, err) {
   self.status = (err.message.indexOf('connect') !== -1) ? 'error' : 'reset';
   self.changed();
-  logger.error('device/' + self.deviceID, { diagnostic: err.message });
+  logger.error('device/' + self.deviceID, { event: event, diagnostic: err.message });
 };
 
 Cloud.prototype.scan = function(self) {
@@ -96,7 +96,7 @@ Cloud.prototype.scan = function(self) {
   self.netatmo.getDevices(function(err, results) {
     var coordinates, i, id, j, modules, place, station, stations;
 
-    if (!!err) return self.error(self, err);
+    if (!!err) return self.error(self, 'getDevices', err);
 
     if (results.status !== 'ok') {
       return logger.error('device/' + self.deviceID, { operation: 'getDevices', results: results });

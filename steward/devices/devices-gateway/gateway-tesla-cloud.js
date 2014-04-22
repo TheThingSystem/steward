@@ -48,10 +48,13 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Cloud, require('./../device-gateway').Device);
 
 
-Cloud.prototype.error = function(self, err) {
+Cloud.prototype.error = function(self, err, body) {
+  var props = { diagnostic: err.message };
+
+  if (!!body) props.body = body;
   self.status = (err.message.indexOf('connect') !== -1) ? 'error' : 'reset';
   self.changed();
-  logger.error('device/' + self.deviceID, { diagnostic: err.message });
+  logger.error('device/' + self.deviceID, props);
 
   if (self.fails < 11) self.fails++;
 
@@ -63,10 +66,11 @@ Cloud.prototype.scan = function(self) {
   tesla.all({ email: self.info.email, password: self.info.passphrase }, function (error, response, body) {
     var data, i;
 
-    if (error) return self.error(self, error);
+console.log('>>> body=' + body);
+    if (error) return self.error(self, error, body);
     if (response.statusCode !== 200) return self.error(self, new Error('response statusCode ' + response.statusCode));
-    try { data = JSON.parse(body); } catch(ex) { return self.error(self, ex); }
-    if (!util.isArray(data)) return self.error(self, new Error('expecting an array from Tesla Motors cloud service'));
+    try { data = JSON.parse(body); } catch(ex) { return self.error(self, ex, body); }
+    if (!util.isArray(data)) return self.error(self, new Error('expecting an array from Tesla Motors cloud service'), body);
     self.status = 'ready';
     self.fails = 0;
 
@@ -86,7 +90,7 @@ Cloud.prototype.addvehicle = function(self, vehicle) {
   colors = { PBSB : 'Black'
            , PBCW : 'Solid White'
            , PMSS : 'Silver'
-           , PMTG : 'dolphin gray metallic'
+           , PMTG : 'Dolphin gray metallic'
            , PMAB : 'Metallic Brown'
            , PMMB : 'Metallic Blue'
            , PMSG : 'Metallic Green'

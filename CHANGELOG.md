@@ -5,14 +5,58 @@ CHANGELOG
 ## Commit - TBD
 
 ### Steward
+- platforms with multiple interfaces no longer race the CPU
+- more startup robustness
+- more user creation robustness
+- more robustness in UUID calculation on startup
+- APIs:
+    - thing creation: more robustness
+
 ### TAAS (Things as a Service)
+- no changes
+
 ### TSRP (Thing Simple Reporting Protocol)
+- no changes
+
 ### Places
+- no changes
+
 ### Things
+- device/climate/plantlink/*: NEW
+- device/gateway:
+    - */cloud: better diagnostics
+    - plantlink/cloud: NEW
+    - reelyactive/reelceiver: better (though not perfect) reel discovery
+- device/indicator:
+    - grovestreams/sensor: robustness additions
+- device/media:
+    - */audio: invoke device.expand on URL parameter
+    - sonos/audio: fix typo when validating 'play' command
+    - upnp/audio: NEW (ROCKI for the win!)
+- device/motive:
+    - automatic/vehicle: invoke reverseGeocode prototype with logging argument
+    - lockitron/lock: fix travis' complaint (that jshint missed)
+    - tesla/model-s:
+        - invoke reverseGeocode prototype with logging argument
+	- API call rate limiting robustness
+
 ### HTML5/client
+- ensure that the first user created for a steward has the 'master' role
+- remote access authentication robustness
+- developer mode consistency
+- honor place/1 displayUnits setting
+- display location and distance arcs for all device types
+- media player UI improvements and fixes (e.g., volume control, duration calculation)
+
 ### User policy client
+- allow 'master' role to redisplay QR codes
+
 ### Developer console
+- no changes
+
 ### Utilities
+- list-arp.js: report ifTable contents
+- list-ssdp.js: more output to aid in future debugging
 
 ## Release 1.6 "Pecan Waffle" - March 29, 2014
 ## Commit - df14aeda4c4379fe1122845e24adeb7db6fb7f7e

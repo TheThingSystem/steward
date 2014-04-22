@@ -35,6 +35,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.newstate(self);
   self.gateway = info.gateway;
 
+  self.calls = {};
   self.last6 = [];
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -54,18 +55,20 @@ util.inherits(ModelS, motive.Device);
 
 
 ModelS.prototype.checkAPI = function(self, call, retry) {
-  var diff, now;
+  var c, diff, now, then;
 
   now = new Date().getTime();
 
   if (self.last6.length < 6) {
+    self.calls[call] = now;
+// console.log('>>> calls='+JSON.stringify(self.calls));
     self.last6.push({ call: call, timestamp: now });
     return true;
   }
 
-  diff = self.last6[0].timestamp - (now - 60 * 1000);
+  diff = self.last6[0].timestamp - (now - (60 * 1000));
   if (diff >= 0) {
-    logger.info('device/' + self.deviceID, { event: 'self.checkAPI', call: call, early: (diff / 1000).toFixed(2) });
+    logger.info('device/' + self.deviceID, { event: 'checkAPI', call: call, early: (diff / 1000).toFixed(2) });
     if (!!retry) {
       if (!!self.timer) { clearTimeout(self.timer); self.timer = null; }
       self.timer = setTimeout(retry, diff + 1);
@@ -74,14 +77,29 @@ ModelS.prototype.checkAPI = function(self, call, retry) {
     return false;
   }
 
+  then = now - (5 * 60 * 1000);
+  if ((!retry) && (!!self.calls[call]) && (self.calls[call] > then)) {
+    for (c in self.calls) {
+      if ((!self.calls.hasOwnProperty(c)) || (call === c) || (self.calls[c] >= then)) continue;
+
+      logger.info('device/' + self.deviceID,
+                  { event: 'checkAPI', call: call, defer: c, late: (now - self.calls[c]).toFixed(2) });
+      return false;
+    }
+  }
+
+  self.calls[call] = now;
+// console.log('>>> calls='+JSON.stringify(self.calls));
   self.last6.splice(0, 1);
   self.last6.push({ call: call, timestamp: now });
   return true;
 };
 
 ModelS.prototype.newstate = function(self, enabled) {
-  var status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'ready' : 'reset');
+  var status;
 
+  status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'ready' : 'reset');
+// console.log('>>> status=' + status);
   if ((self.status === null) || (status === 'asleep')) status = 'waiting';
   if (self.status == status) return;
   self.status = status;
@@ -96,10 +114,10 @@ ModelS.prototype.refresh = function(self) {
   }
 
   if (!self.checkAPI(self, 'tesla.wake_up', function() { self.refresh(self); })) return;
-  tesla.wake_up(self.vehicle.id, function(data) {
+  tesla.wake_up(self.vehicle.id, function(data, body) {
     if (utility.toType(data) === 'error') {
       if ((data.message.indexOf('503:') !== 0) && (data.message.indexOf('408:') !== 0)) {
-        logger.error('device/' + self.deviceID, { event: 'wake_up', diagnostic: data.message });
+        logger.error('device/' + self.deviceID, { event: 'wake_up', diagnostic: data.message , body: body});
       }
       return self.scan(self);
     }
@@ -137,7 +155,7 @@ ModelS.prototype.scan = function(self) {
   self.timer = setTimeout(function() { self.refresh(self); }, (self.vehicle.updatingP ? 5 : 300 ) * 1000);
 
   if (!self.checkAPI(self, 'tesla.mobile_enabled', function() { self.scan(self); })) return;
-  tesla.mobile_enabled(self.vehicle.id, function(data) {
+  tesla.mobile_enabled(self.vehicle.id, function(data, body) {
     if (utility.toType(data) === 'error') {
       if (data.message.indexOf('429:') === 0) {
         self.updatingP = false;
@@ -145,21 +163,20 @@ ModelS.prototype.scan = function(self) {
         self.timer = setTimeout(function() { self.refresh(self); }, 600 * 1000);
       }
       if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-      return logger.error('device/' + self.deviceID, { event: 'mobile_enabled', diagnostic: data.message });
+      return logger.error('device/' + self.deviceID, { event: 'mobile_enabled', diagnostic: data.message , body: body});
     }
 
     self.newstate(self, data.result);
-    if (!data.result) return;
+    if ((!data.result) || (self.status === 'asleep')) return;
 
     self.stream(self, false);
 
-    if (!self.checkAPI(self, 'tesla.get_vehicle_state')) return;
-    tesla.get_vehicle_state(self.vehicle.id, function(data) {
+    if (self.checkAPI(self, 'tesla.get_vehicle_state')) tesla.get_vehicle_state(self.vehicle.id, function(data, body) {
       var didP, doors, sunroof;
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_vehicle_state', diagnostic: data.message });
+        return logger.error('device/' + self.deviceID, { event: 'get_vehicle_state', diagnostic: data.message , body: body});
       }
 
       didP = false;
@@ -192,13 +209,12 @@ ModelS.prototype.scan = function(self) {
       if (didP) self.changed();
     });
 
-    if (!self.checkAPI(self, 'tesla.get_climate_state')) return;
-    tesla.get_climate_state(self.vehicle.id, function(data) {
+    if (self.checkAPI(self, 'tesla.get_climate_state')) tesla.get_climate_state(self.vehicle.id, function(data, body) {
       var didP, hvac;
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_climate_state', diagnostic: data.message });
+        return logger.error('device/' + self.deviceID, { event: 'get_climate_state', diagnostic: data.message , body: body});
       }
 
       didP = false;
@@ -224,21 +240,20 @@ ModelS.prototype.scan = function(self) {
       if (didP) self.changed();
     });
 
-    if (!self.checkAPI(self, 'tesla.get_drive_state')) return;
-    tesla.get_drive_state(self.vehicle.id, function(data) {
+    if (self.checkAPI(self, 'tesla.get_drive_state')) tesla.get_drive_state(self.vehicle.id, function(data, body) {
       var didP, speed;
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_drive_state', diagnostic: data.message });
+        return logger.error('device/' + self.deviceID, { event: 'get_drive_state', diagnostic: data.message , body: body});
       }
 
       didP = false;
 
       if (!util.isArray(self.info.location)) {
         self.info.location = [ 0, 0 ];
-        setInterval(function() { self.reverseGeocode(self); }, 60 * 1000);
-        setTimeout(function() { self.reverseGeocode(self); }, 0);
+        setInterval(function() { self.reverseGeocode(self, logger); }, 60 * 1000);
+        setTimeout(function() { self.reverseGeocode(self, logger); }, 0);
       }
       if ((self.info.location[0] != data.latitude) || (self.info.location[1] != data.longitude)) {
         didP = true;
@@ -270,13 +285,12 @@ ModelS.prototype.scan = function(self) {
       }
     });
 
-    if (!self.checkAPI(self, 'tesla.get_charge_state')) return;
-    tesla.get_charge_state(self.vehicle.id, function(data) {
+    if (self.checkAPI(self, 'tesla.get_charge_state')) tesla.get_charge_state(self.vehicle.id, function(data, body) {
       var charger, didP;
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_charge_state', diagnostic: data.message });
+        return logger.error('device/' + self.deviceID, { event: 'get_charge_state', diagnostic: data.message , body: body});
       }
       if ((!self.vehicle_speed) && (typeof data.charging_state === 'undefined')) {
         return logger.error('device/' + self.deviceID, { event: 'get_charge_state', data: data });
@@ -436,10 +450,10 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   }
   if (!f) return false;
 
-  cb = function(data) {
+  cb = function(data, body) {
     if (utility.toType(data) === 'error') {
       logger.error('device/' + self.deviceID,
-                   { event: 'perform', perform: perform, parameter: parameter, diagnostic: data.message });
+                   { event: 'perform', perform: perform, parameter: parameter, diagnostic: data.message , body: body});
     } else if (!data.result) {
       logger.error('device/' + self.deviceID,
                    { event: 'perform', perform: perform, parameter: parameter, diagnostic: 'failed' });
@@ -534,7 +548,7 @@ exports.start = function() {
                                    , 'sunroof'  // open, comfort, vent, or closed
                                    ]
                     , properties : { name           : true
-                                   , status         : [ 'ready', 'reset', 'waiting' ]
+                                   , status         : [ 'ready', 'reset', 'waiting', 'asleep' ]
                                    , lastSample     : 'timestamp'
                                    , charger        : [ 'connected'
                                                       , 'charging'

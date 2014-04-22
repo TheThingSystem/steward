@@ -63,35 +63,33 @@ Lock.prototype.update = function(self, params, status) {
 };
 
 Lock.prototype.webhook = function(self, event, data) {
-  var activity, f, outcome;
+  var activity, f, g, outcome;
+
+  g = function(status) {
+    var now = new Date();
+
+    self.status = status;
+    self.info.lastSample = now.getTime();
+    self.changed(now);
+  };
 
   try {
     activity = data.activity;
     outcome = activity.kind || activity.human_type;
 
     f = { error  : function() {
-                     var now;
-
                      if (outcome !== 'lock-offline') {
                        return logger.error('device/' + self.deviceID, { event: event, diagnostic: outcome });
                      }
 
-                     self.status = 'absent';
-                     now = new Date();
-                     self.info.lastSample = now.getTime();
-                     self.changed(now);
+                     g('absent');
                    }
         , notice : function() {
-                     var now;
-
                      if (outcome.indexOf('lock-updated-') !== 0) {
                        return logger.warning('device/' + self.deviceID, { event: event, data: data });
                      }
 
-                     self.status = outcome === 'lock-updated-locked' ? 'locked' : 'unlocked';
-                     now = new Date();
-                     self.info.lastSample = now.getTime();
-                     self.changed(now);
+                     g(outcome === 'lock-updated-locked' ? 'locked' : 'unlocked');
                    }
         }[activity.status || activity.human_outcome];
     if (!f) throw new Error('unknown activity status');

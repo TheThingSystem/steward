@@ -47,7 +47,7 @@ Cloud.prototype.login = function(self) {
                                   , clientSecret : self.info.clientSecret
                                   , logger       : utility.logfnx(logger, 'device/' + self.deviceID)
                                   }).login(self.info.email, self.info.passphrase, function(err) {
-    if (!!err) { self.wink = null; return self.error(self, err); }
+    if (!!err) { self.wink = null; return self.error(self, 'login', err); }
 
     self.status = 'ready';
     self.changed();
@@ -56,17 +56,17 @@ Cloud.prototype.login = function(self) {
     self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
     self.scan(self);
   }).on('error', function(err) {
-    self.error(self, err);
+    self.error(self, 'background', err);
 
     if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
     setTimeout(function() { self.login(self); }, 30 * 1000);
   });
 };
 
-Cloud.prototype.error = function(self, err) {
+Cloud.prototype.error = function(self, event, err) {
   self.status = (err.message.indexOf('connect') !== -1) ? 'error' : 'reset';
   self.changed();
-  logger.error('device/' + self.deviceID, { diagnostic: err.message });
+  logger.error('device/' + self.deviceID, { event: event, diagnostic: err.message });
 };
 
 Cloud.prototype.scan = function(self) {
@@ -75,7 +75,7 @@ Cloud.prototype.scan = function(self) {
   self.wink.getDevices(function(err, results) {
     var device, deviceType, i, info, udn;
 
-    if (!!err) return self.error(self, err);
+    if (!!err) return self.error(self, 'getDevices', err);
 
     for (i = 0; i < results.length; i++) {
       device = results[i];
