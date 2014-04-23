@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-## Release 1.7 "Salt Pretzel - TBD
+## Release 1.7 "Salt Pretzel" - TBD
 ## Commit - TBD
 
 ### Steward
@@ -45,9 +45,9 @@ CHANGELOG
 - remote access authentication robustness
 - developer mode consistency
 - honor place/1 displayUnits setting
-- display location and distance arcs for all device types
+- display location and distance arcs for all location-aware device types
 - media player UI improvements and fixes (e.g., volume control, duration calculation)
-- lighting UI brightness fix
+- improved handling of hue color model
 
 ### User policy client
 - allow 'master' role to redisplay QR codes
