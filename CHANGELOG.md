@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-## Release 1.7 "Salt Pretzel" - TBD
-## Commit - TBD
+## Release 1.7 "Salt Pretzel" - April 28, 2014
+## Commit - ea6ddff00026c4402d51cbf671c1dbc349a61c64
 
 ### Steward
 - platforms with multiple interfaces no longer race the CPU
