@@ -87,5 +87,6 @@
     , "xmlhttprequest"          : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
     , "yoctolib"                : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
     , "yql"                     : "git://github.com/TheThingSystem/node-yql.git"
+    , "zbee"                    : "git://github.com/stormboy/node-zbee.git"
     }
 }

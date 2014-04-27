@@ -132,7 +132,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
     state.name = params.name;
 
     logger.debug('device/' + self.deviceID, { perform: state });
-    self.roundtrip(self, 'device/' + self.deviceID, { method: 'PUT', pathname: '/api/' + self.username + '/config'}, state,
+    self.roundtrip(self, 'device/' + self.deviceID, { method: 'PUT', pathname: '/api/' + self.username + '/config' }, state,
                    function(err, state, response, result) {
       var i, errors;
 
@@ -209,7 +209,7 @@ Hue.prototype.perform = function(self, taskID, perform, parameter, id, oops) {
 
   logger.debug('device/' + self.lights[id].deviceID, { perform: state });
   self.roundtrip(self, 'device/' + self.deviceID,
-                 { method: 'PUT', pathname: '/api/' + self.username + '/lights/' + id + '/state'}, state,
+                 { method: 'PUT', pathname: '/api/' + self.username + '/lights/' + id + '/state' }, state,
                  function(err, state, response, result) {
     var i, errors;
 
