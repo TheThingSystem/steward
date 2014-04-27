@@ -328,7 +328,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
 
         if (!!err) return logger.warning('place/1', { event      : 'geocode'
                                                     , location   : place1.info.location
-                                                    , diagnostic : result.status });
+                                                    , diagnostic : err.message });
 
         geometry = result.results[0].geometry;
         place1.info.location = [ geometry.location.lat, geometry.location.lng ];
@@ -352,7 +352,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
       geocoder.reverseGeocode(place1.info.location[0], place1.info.location[1], function(err, result) {
         if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
                                                     , location   : place1.info.location
-                                                    , diagnostic : result.status });
+                                                    , diagnostic : err.message });
 
         place1.info.physical = result.results[0].formatted_address;
         if (!!params.displayUnits) return;
@@ -367,7 +367,7 @@ Place.prototype.perform = function(self, taskID, perform, parameter) {
     geocoder.reverseGeocode(place1.info.location[0], place1.info.location[1], function(err, result) {
       if (!!err) return logger.warning('place/1', { event      : 'reverseGeocode'
                                                   , location   : place1.info.location
-                                                  , diagnostic : result.status });
+                                                  , diagnostic : err.message });
 
       place1.info.displayUnits =
           (result.results[result.results.length - 1].formatted_address === 'United States') ? 'customary' : 'metric';
