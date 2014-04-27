@@ -366,6 +366,8 @@ var report = function(logger, ws, api, message, tag) {
     return manage.error(ws, tag, 'thing reporting', message.requestID, permanent, diagnostic);
   };
 
+  if ((!!message.tasks) && (!message.events))               return true;
+
   if (!message.events)                                      return error(true,  'missing event element');
 
   results = { requestID: message.requestID, events: {} };
@@ -602,13 +604,15 @@ Thing.prototype.perform = function(self, taskID, perform, parameter) {
   taskIDs[id] = { taskID: taskID, clientID: self.ws.clientInfo.clientID, remoteAddress: self.ws.clientInfo.remoteAddress };
 
   requestID++;
-  message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), events: {} };
+  message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), tasks: {} };
   message.tasks[id] = { thingID   : thingUDNs[self.id]
                       , perform   : perform
                       , parameter : typeof parameter !== 'string' ? stringify(parameter) : parameter
                       , testOnly  : false };
 
   try { self.ws.send(JSON.stringify(message)); } catch(ex) { console.log(ex); }
+
+  return true;
 };
 
 // TBD: later, not sure how to deal with async/sync interaction
