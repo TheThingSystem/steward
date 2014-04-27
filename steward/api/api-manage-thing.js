@@ -323,7 +323,7 @@ var update = function(logger, ws, api, message, tag) {
     child = devices.devices[thingIDs[thingID].udn];
     if (!child)                                             return error(true, 'internal error');
     device = child.device;
-    if (device.clientSerialNo !== ws.clientInfo.clientSerialNo) {
+    if ((!device) || (device.clientSerialNo !== ws.clientInfo.clientSerialNo)) {
       results.things[thingID] = { error : { permanent: false, diagnostic: 'invalid clientID' } };
       continue;
     }

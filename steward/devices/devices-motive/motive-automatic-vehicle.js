@@ -109,6 +109,7 @@ Vehicle.prototype.webhook = function(self, event, data) {/* jshint unused: false
   if (updateP) self.changed();
 };
 
+
 exports.start = function() {
   steward.actors.device.motive.automatic = steward.actors.device.motive.automatic ||
       { $info     : { type: '/device/motive/automatic' } };

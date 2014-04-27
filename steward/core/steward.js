@@ -478,7 +478,7 @@ exports.start = function() {
     if (mac.length === 0) return;
     while (mac.substring(0, 1) === '0') mac = mac.substring(1);
     if (mac.length === 0) return;
-    
+
     if (!ifmac[entry.name]) ifmac[entry.name] = [];
     ifmac[entry.name].push(entry.mac);
   });
