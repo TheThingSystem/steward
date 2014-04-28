@@ -1018,7 +1018,7 @@ var climate_device_arcs = function(device) {
   if (!device.info.lastSample) device.info.lastSample = device.updated;
   props = sortprops(device.info, [ 'lastSample',
                                  , 'temperature',     'airQuality',      'voc'
-                                 , 'goalTemperature', 'flame',           'moisture', 'needsWater',    'text'
+                                 , 'goalTemperature', 'flame',           'moisture', 'waterVolume',   'needsWater',    'text'
                                  , 'humidity',        'co2',             'smoke',    'light',         'flow',
                                                       'needsMist',       'rssi'
                                  , 'hvac',            'noise',           'co',       'concentration', 'nextSample',
@@ -1105,6 +1105,17 @@ var climate_device_arcs = function(device) {
                           , cooked : v.toFixed(3) + ' mb'
                           , value  : clip2bars(v, 50, 250)
                           , index  : 0.50
+                          });
+        break;
+
+      case 'waterVolume':
+        if (!!device.info.moisture) break;
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'WATER CONCENTRATION'
+                          , cooked : v + '%'
+                          , value  : clip2bars(v, 21, 70)
+                          , index  : 0.40
                           });
         break;
 

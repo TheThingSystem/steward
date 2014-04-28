@@ -146,7 +146,7 @@ exports.start = function() {
                                    , status       : [ 'present', 'error' ]
                                    , placement    : true
                                    , lastSample   : 'timestamp'
-                                   , moisture     : 'millibars'
+                                   , waterVolume  : 'percentage'
                                    , rssi         : 's8'
                                    , batteryLevel : 'percentage'
                                    }

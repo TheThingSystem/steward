@@ -607,6 +607,7 @@ var onactors = function(message) {
               break;
 
             case 'humidity':
+            case 'waterVolume':
             case 'level':
             case 'batteryLevel':
               if (!isNaN(v)) v = v.toFixed(2) + '%';

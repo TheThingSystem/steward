@@ -145,6 +145,7 @@ Cloud.prototype.scan = function(self) {
                , placement    : sensors[k].location_name
                , lastSample   : new Date(sample.capture_ts).getTime()
                , moisture     : sample.vwc_percent >= 0 ? sample.vwc_percent * Math.pow(10, antoine - 2) : undefined
+               , waterVolume  : sample.vwc_percent >= 0 ? sample.vwc_percent.toFixed(2) : undefined
                , temperature  : sample.air_temperature_celsius
                , light        : sample.par_umole_m2s * 54
                };

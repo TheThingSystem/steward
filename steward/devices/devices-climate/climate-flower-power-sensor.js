@@ -128,6 +128,7 @@ exports.start = function() {
                                    , location     : 'coordinates'
                                    , lastSample   : 'timestamp'
                                    , moisture     : 'millibars'
+                                   , waterVolume  : 'percentage'
                                    , temperature  : 'celsius'
                                    , light        : 'lux'
                                    }

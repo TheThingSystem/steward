@@ -128,6 +128,7 @@ exports.start = function() {
                                    , lastSample   : 'timestamp'
                                    , nextSample   : 'timestamp'
                                    , moisture     : 'millibars'
+                                   , waterVolume  : 'percentage'
                                    , temperature  : 'celsius'
                                    , light        : 'lux'
                                    , batteryLevel : 'percentage'

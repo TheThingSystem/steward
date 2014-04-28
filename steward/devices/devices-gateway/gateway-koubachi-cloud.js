@@ -129,6 +129,7 @@ Cloud.prototype.addstation = function(self, station) {
            , lastSample   : last.getTime()
            , nextSample   : next
            , moisture     : (station.recent_soilmoisture_reading_si_value / 100).toFixed(2)    // pascals to mbars
+           , waterVolume  : parseInt(station.recent_soilmoisture_reading_value, 10).toFixed(2)
            , temperature  : station.recent_temperature_reading_si_value.toFixed(2) - 273.15    // kevlin to celsius
            , light        : station.recent_light_reading_si_value.toFixed(1)
            , batteryLevel : (station.virtual_battery_level * 100).toFixed(2)
