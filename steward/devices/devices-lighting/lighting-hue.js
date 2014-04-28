@@ -362,6 +362,8 @@ Hue.prototype.addlight = function(self, id, props) {
     return;
   }
 
+  if (!props.state.reachable) return;
+
   switch (props.modelid.substr(0, 3)) {
     case 'LLC':
       whatami = '/device/lighting/hue/uplight';

@@ -1,4 +1,4 @@
-// http://www.quirky.com/shop/633-Pivot-Power-Genius
+// Telldus on/off switches
 
 var util        = require('util')
   , devices     = require('./../../core/device')
@@ -47,7 +47,7 @@ OnOff.prototype.update = function(self, params) {
     updateP = true;
   }
 
-  status = self.params.props.powered ? 'on' : 'off';
+  status = self.params.online === '0' ? 'absent' : self.params.status;
   if (status !== self.status) {
     self.status = status;
     updateP = true;
@@ -64,13 +64,14 @@ OnOff.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (perform === 'set') {
     if (!params.name) return false;
-    if (!self.gateway.wink) return false;
+    if (!self.gateway.telldus) return false;
 
 // short-ciruit round-trip time to cloud
     self.name = params.name;
     self.changed();
-    self.gateway.wink.setDevice(self.params, { name: params.name }, function(err, params) {
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message });
+    self.gateway.telldus.setDeviceName(self.params, params.name, function(err, params) {
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDeviceName', diagnostic: err.message });
+console.log('>>> setDeviceName results');console.log(util.inspect(params, { depth: null }));
 
       if (!!params) self.update(self, params);
     });
@@ -78,12 +79,14 @@ OnOff.prototype.perform = function(self, taskID, perform, parameter) {
     return steward.performed(taskID);
   }
 
+  if (!self.gateway.telldus) return false;
   if ((perform !== 'on' && perform !== 'off') || perform === self.status) return false;
 
   powered = perform === 'on' ? true : false;
   logger.info('device/' + self.deviceID, { perform: { on: powered } });
-  self.gateway.wink.setOutlet(self.params, { powered : powered }, function(err, params) {
-    if (!!err) return logger.error('device/' + self.deviceID, { event: 'setOutlet', diagnostic: err.message });
+  self.gateway.telldus.onOffDevice(self.params, powered, function(err, params) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'onOffDevice', diagnostic: err.message });
+console.log('>>> onoff results');console.log(util.inspect(params, { depth: null }));
 
     if (!!params) self.update(self, params);
   });
@@ -112,19 +115,24 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device['switch'].wink = steward.actors.device['switch'].wink ||
-      { $info     : { type: '/device/switch/wink' } };
+  steward.actors.device['switch'].telldus = steward.actors.device['switch'].telldus ||
+      { $info     : { type: '/device/switch/telldus' } };
 
-  steward.actors.device['switch'].wink.onoff =
-      { $info     : { type       : '/device/switch/wink/onoff'
+  steward.actors.device['switch'].telldus.onoff =
+      { $info     : { type       : '/device/switch/telldus/onoff'
                     , observe    : [ ]
                     , perform    : [ 'off', 'on' ]
                     , properties : { name     : true
-                                   , status   : [ 'on', 'off' ]
+                                   , status   : [ 'on', 'off', 'absent' ]
                                    }
                     }
       , $validate : { perform    : validate_perform
                     }
       };
-  devices.makers['/device/switch/wink/onoff'] = OnOff;
+  devices.makers['/device/switch/telldus/onoff'] = OnOff;
+
+  steward.actors.device['switch'].nexa = steward.actors.device['switch'].nexa || { $info: { type: '/device/switch/nexa' } };
+  steward.actors.device['switch'].nexa.onoff = utility.clone(steward.actors.device['switch'].telldus.onoff);
+  steward.actors.device['switch'].nexa.onoff.$info.type = '/device/switch/nexa/onoff';
+  devices.makers['/device/switch/nexa/onoff'] = OnOff;
 };

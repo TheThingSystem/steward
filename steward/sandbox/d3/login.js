@@ -712,216 +712,230 @@ var place_info   = { name        : 'Home'
                    };
 
 var clouds = { '':
-                 { text         : 'Choose a cloud service to enter its authentication credentials.'
-                 , instructions : ''
-                 , info         : {}
+                 { text           : 'Choose a cloud service to enter its authentication credentials.'
+                 , instructions   : ''
+                 , info           : {}
                  }
-               , automatic      :
-                 { text         : 'If you have one or more Automatic devices, the steward can manage them for you.'
-                 , instructions : 'Enter your OAuth info. To get OAuth info, go to the Automatic website, login, click on "Sign up for API Access", and follow the directions.'
-                 , site         : 'http://www.automatic.com'
-                 , icon         : ''
-                 , name         : 'automatic'
-                 , actor        :'/device/gateway/automatic/cloud'
-                 , info         :
-                   { clientID   : ''
+               , automatic        :
+                 { text           : 'If you have one or more Automatic devices, the steward can manage them for you.'
+                 , instructions   : 'Enter your OAuth info. To get OAuth info, go to the Automatic website, login, click on "Sign up for API Access", and follow the directions.'
+                 , site           : 'http://www.automatic.com'
+                 , icon           : ''
+                 , name           : 'automatic'
+                 , actor          :'/device/gateway/automatic/cloud'
+                 , info           :
+                   { clientID     : ''
                    , clientSecret : ''
                    }
                  , authorizeText : 'Click here to add a new vehicle for the steward to manage.'
                  }
-               , cassandra      :
-                 { text         : 'If you have an account on a Cassandra server, the steward can automatically upload measurements.'
-                 , instructions : 'Enter a URL, e.g., "nosqls://cluster" and your username/password for the server'
-                 , site         : ''
-                 , icon         : ''
-                 , name         : 'cassandra'
-                 , actor        : '/device/indicator/cassandra/nosql'
-                 , info         :
-                   { url        : ''
-                   , username   : ''
-                   , passphrase : ''
-                   , crtPath    : ''
+               , cassandra        :
+                 { text           : 'If you have an account on a Cassandra server, the steward can automatically upload measurements.'
+                 , instructions   : 'Enter a URL, e.g., "nosqls://cluster" and your username/password for the server'
+                 , site           : ''
+                 , icon           : ''
+                 , name           : 'cassandra'
+                 , actor          : '/device/indicator/cassandra/nosql'
+                 , info           :
+                   { url          : ''
+                   , username     : ''
+                   , passphrase   : ''
+                   , crtPath      : ''
                    }
                  }
-               , dweetio        :
-                 { text         : 'The steward can automatically upload measurements to dweet.io'
-                 , instructions : 'No account is necessary. The key is an optional identifier for your use.'
-                 , site         : 'https://dweet.io/'
-                 , icon         : ''
-                 , name         : 'dweet'
-                 , actor        : '/device/indicator/dweetio/sensor'
-                 , info         :
-                   { key        : ''
+               , dweetio          :
+                 { text           : 'The steward can automatically upload measurements to dweet.io'
+                 , instructions   : 'No account is necessary. The key is an optional identifier for your use.'
+                 , site           : 'https://dweet.io/'
+                 , icon           : ''
+                 , name           : 'dweet'
+                 , actor          : '/device/indicator/dweetio/sensor'
+                 , info           :
+                   { key          : ''
                    }
                  }
-               , ecobee         :
-                 { text         : 'If you have the Ecobee SmartSi thermostat, the steward can manage it for you.'
-                 , instructions : 'Go to https://plus.google.com/communities/113042377519941328693 and ask for help, sorry!'
-                 , site         : 'https://www.ecobee.com'
-                 , icon         : ''
-                 , name         : 'ecobee'
-                 , actor        : '/device/gateway/ecobee/cloud'
-                 , info         :
-                   { appKey     : ''
+               , ecobee           :
+                 { text           : 'If you have the Ecobee SmartSi thermostat, the steward can manage it for you.'
+                 , instructions   : 'Go to https://plus.google.com/communities/113042377519941328693 and ask for help, sorry!'
+                 , site           : 'https://www.ecobee.com'
+                 , icon           : ''
+                 , name           : 'ecobee'
+                 , actor          : '/device/gateway/ecobee/cloud'
+                 , info           :
+                   { appKey       : ''
                    }
                  }
-               , 'flower power' :
-                 { text         : 'If you have the Parrot Flower Power, the steward can manage it for you.'
-                 , instructions : 'Enter your OAuth info, along with your Flower Power email address and password. To get OAuth info, go to https://apiflowerpower.parrot.com/api_access/signup.'
-                 , site         : 'http://www.parrot.com/flowerpower'
-                 , icon         : ''
-                 , name         : 'flower-power'
-                 , actor        :'/device/gateway/flower-power/cloud'
-                 , info         :
-                   { accessID   : ''
+               , 'flower power'   :
+                 { text           : 'If you have the Parrot Flower Power, the steward can manage it for you.'
+                 , instructions   : 'Enter your OAuth info, along with your Flower Power email address and password. To get OAuth info, go to https://apiflowerpower.parrot.com/api_access/signup.'
+                 , site           : 'http://www.parrot.com/flowerpower'
+                 , icon           : ''
+                 , name           : 'flower-power'
+                 , actor          :'/device/gateway/flower-power/cloud'
+                 , info           :
+                   { accessID     : ''
                    , accessSecret : ''
-                   , email      : ''
-                   , passphrase : ''
+                   , email        : ''
+                   , passphrase   : ''
                    }
                  }
-               , grovestreams   :
-                 { text         : 'If you have an GroveStreams account, the steward can automatically upload measurements.'
-                 , instructions : 'Go to https://grovestreams.com, create an account and create an organization for the steward'
-                 , site         : 'https://grovestreams.com'
-                 , icon         : ''
-                 , name         : 'grovestreams'
-                 , actor        : '/device/indicator/grovestreams/sensor'
-                 , info         :
+               , grovestreams     :
+                 { text           : 'If you have an GroveStreams account, the steward can automatically upload measurements.'
+                 , instructions   : 'Go to https://grovestreams.com, create an account and create an organization for the steward'  
+                 , site           : 'https://grovestreams.com'
+                 , icon           : ''
+                 , name           : 'grovestreams'
+                 , actor          : '/device/indicator/grovestreams/sensor'
+                 , info           :
                    { apikey       : ''
                    , organization : ''
                    }
                  }
-               , koubachi       :
-                 { text         : 'If you have the Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'
-                 , site         : 'https://mykoubachi.com'
-                 , icon         : ''
-                 , name         : 'koubachi'
-                 , actor        : '/device/gateway/koubachi/cloud'
-                 , info         :
-                   { appkey     : ''
-                   , credentials: ''
+               , koubachi         :
+                 { text           : 'If you have the Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
+                 , instructions   : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'
+                 , site           : 'https://mykoubachi.com'
+                 , icon           : ''
+                 , name           : 'koubachi'
+                 , actor          : '/device/gateway/koubachi/cloud'
+                 , info           :
+                   { appkey       : ''
+                   , credentials  : ''
                    }
                  }
-               , lockitron      :
-                 { text         : 'If you have a Lockitron account, the steward can let you lock and unlock your locks'
-                 , instructions : 'Go to https://api.lockitron.com, create an account, and generate an accessToken.'
-                 , site         : 'https://api.lockitron.com/'
-                 , icon         : ''
-                 , name         : 'lockitron'
-                 , actor        : '/device/gateway/lockitron/cloud'
-                 , info         :
-                   { accessToken: ''
+               , lockitron        :
+                 { text           : 'If you have a Lockitron account, the steward can let you lock and unlock your locks'
+                 , instructions   : 'Go to https://api.lockitron.com, create an account, and generate an accessToken.'
+                 , site           : 'https://api.lockitron.com/'
+                 , icon           : ''
+                 , name           : 'lockitron'
+                 , actor          : '/device/gateway/lockitron/cloud'
+                 , info           :
+                   { accessToken  : ''
                    }
                  }
-               , mqtt           :
-                 { text         : 'If you have an account on an MQTT broker, the steward can automatically upload measurements.'
-                 , instructions : 'Enter a URL, e.g., "mqtts://broker/topic" and your username/password for the broker'
-                 , site         : ''
-                 , icon         : ''
-                 , name         : 'mqtt'
-                 , actor        : '/device/indicator/mqtt/text'
-                 , info         :
-                   { url        : ''
-                   , username   : ''
-                   , passphrase : ''
-                   , crtPath    : ''
+               , mqtt             :
+                 { text           : 'If you have an account on an MQTT broker, the steward can automatically upload measurements.'  
+                 , instructions   : 'Enter a URL, e.g., "mqtts://broker/topic" and your username/password for the broker'
+                 , site           : ''
+                 , icon           : ''
+                 , name           : 'mqtt'
+                 , actor          : '/device/indicator/mqtt/text'
+                 , info           :
+                   { url          : ''
+                   , username     : ''
+                   , passphrase   : ''
+                   , crtPath      : ''
                    }
                  }
-               , nest           :
-                 { text         : 'If you have the Nest thermostat, the steward can manage it for you.'
-                 , instructions : 'Enter your email address and password.'
-                 , site         : 'https://home.nest.com'
-                 , icon         : ''
-                 , name         : 'nest'
-                 , actor        : '/device/gateway/nest/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
+               , nest             :
+                 { text           : 'If you have the Nest thermostat, the steward can manage it for you.'
+                 , instructions   : 'Enter your email address and password.'
+                 , site           : 'https://home.nest.com'
+                 , icon           : ''
+                 , name           : 'nest'
+                 , actor          : '/device/gateway/nest/cloud'
+                 , info           :
+                   { email        : ''
+                   , passphrase   : ''
                    }
                  }
-               , netatmo        :
-                 { text         : 'If you have the Netatmo weather station, the steward can manage it for you.'
-                 , instructions : 'Enter your email and password.'
-                 , site         : 'https://my.netatmo.com'
-                 , icon         : ''
-                 , name         : 'netatmo'
-                 , actor        :'/device/gateway/netatmo/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
+               , netatmo          :
+                 { text           : 'If you have the Netatmo weather station, the steward can manage it for you.'
+                 , instructions   : 'Enter your email and password.'
+                 , site           : 'https://my.netatmo.com'
+                 , icon           : ''
+                 , name           : 'netatmo'
+                 , actor          :'/device/gateway/netatmo/cloud'
+                 , info           :
+                   { email        : ''
+                   , passphrase   : ''
                    }
                  }
-               , nma            :
-                 { text         : 'If you have a Notify my Android account, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Go to http://www.notifymyandroid.com, create an account, and generate an API key.'
-                 , site         : 'https://www.notifymyandroid.com/login.php'
-                 , icon         : ''
-                 , name         : 'nma'
-                 , actor        : '/device/indicator/nma/text'
-                 , info         :
-                   { apikey     : ''
+               , nma              :
+                 { text           : 'If you have a Notify my Android account, the steward can automatically update you with alerts, etc.'
+                 , instructions   : 'Go to http://www.notifymyandroid.com, create an account, and generate an API key.'
+                 , site           : 'https://www.notifymyandroid.com/login.php'
+                 , icon           : ''
+                 , name           : 'nma'
+                 , actor          : '/device/indicator/nma/text'
+                 , info           :
+                   { apikey       : ''
                    }
                  }
-               , plantlink      :
-                 { text         : 'If you have a PlantLink system, the steward can manage it for you.'
-                 , instructions : 'Enter your email address and password.'
-                 , site         : 'https://myplantlink.com/dashboard'
-                 , icon         : ''
-                 , name         : 'plantlink'
-                 , actor        : '/device/gateway/plantlink/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
+               , plantlink        :
+                 { text           : 'If you have a PlantLink system, the steward can manage it for you.'
+                 , instructions   : 'Enter your email address and password.'
+                 , site           : 'https://myplantlink.com/dashboard'
+                 , icon           : ''
+                 , name           : 'plantlink'
+                 , actor          : '/device/gateway/plantlink/cloud'
+                 , info           :
+                   { email        : ''
+                   , passphrase   : ''
                    }
                  }
-               , prowl          :
-                 { text         : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
-                 , instructions : 'Go to http://www.prowlapp.com, create an account, and generate an API key.'
-                 , site         : 'https://prowlapp.com/login.php'
-                 , icon         : ''
-                 , name         : 'prowler'
-                 , actor        : '/device/indicator/prowl/text'
-                 , info         :
-                   { apikey     : ''
+               , prowl            :
+                 { text           : 'If you have a Prowl account, the steward can automatically update you with alerts, etc.'
+                 , instructions   : 'Go to http://www.prowlapp.com, create an account, and generate an API key.'
+                 , site           : 'https://prowlapp.com/login.php'
+                 , icon           : ''
+                 , name           : 'prowler'
+                 , actor          : '/device/indicator/prowl/text'
+                 , info           :
+                   { apikey       : ''
                    }
                  }
-               , tesla          :
-                 { text         : 'If you have the Tesla Model S, the steward can manage it for you.'
-                 , instructions : 'Enter your email address and password.'
-                 , site         : 'https://teslamotors.com/mytesla'
-                 , icon         : ''
-                 , name         : 'tesla'
-                 , actor        : '/device/gateway/tesla/cloud'
-                 , info         :
-                   { email      : ''
-                   , passphrase : ''
+               , 'telldus live'   :
+                 { text           : 'If you have one or more TellStick Net devices, the steward can manage them for you.'
+                 , instructions   : 'Go to http://login.telldus.com to create a Telldus Live account, then go to http://api.telldus.com and "Generate a private token for my user only"'
+                 , site           : 'http://login.telldus.com'
+                 , icon           : ''
+                 , name           : 'telldus-live'
+                 , actor          :'/device/gateway/telldus-live/cloud'
+                 , info           :
+                   { publicKey    : ''
+                   , privateKey   : ''
+                   , token        : ''
+                   , tokenSecret  : ''
                    }
                  }
-               , wink           :
-                 { text         : 'If you have one or more Quirky smart devices, the steward can manage them for you.'
-                 , instructions : 'Enter your OAuth info, along with your Wink email and password. To get OAuth info, send an email to questions@quirkyinc.com.'
-                 , site         : 'http://www.quirky.com'
-                 , icon         : ''
-                 , name         : 'quirky'
-                 , actor        :'/device/gateway/wink/cloud'
-                 , info         :
-                   { clientID   : ''
+               , tesla            :
+                 { text           : 'If you have the Tesla Model S, the steward can manage it for you.'
+                 , instructions   : 'Enter your email address and password.'
+                 , site           : 'https://teslamotors.com/mytesla'
+                 , icon           : ''
+                 , name           : 'tesla'
+                 , actor          : '/device/gateway/tesla/cloud'
+                 , info           :
+                   { email        : ''
+                   , passphrase   : ''
+                   }
+                 }
+               , wink             :
+                 { text           : 'If you have one or more Quirky smart devices, the steward can manage them for you.'
+                 , instructions   : 'Enter your OAuth info, along with your Wink email and password. To get OAuth info, send an email to questions@quirkyinc.com.'
+                 , site           : 'http://www.quirky.com'
+                 , icon           : ''
+                 , name           : 'quirky'
+                 , actor          :'/device/gateway/wink/cloud'
+                 , info           :
+                   { clientID     : ''
                    , clientSecret : ''
-                   , email      : ''
-                   , passphrase : ''
+                   , email        : ''
+                   , passphrase   : ''
                    }
                  }
-               , xively         :
-                 { text         : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'
-                 , instructions : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed.'
-                 , site         : 'https://xively.com/login'
-                 , icon         : ''
-                 , name         : 'xively'
-                 , actor        : '/device/indicator/xively/sensor'
-                 , info         :
-                   { apikey     : ''
-                   , feed       : ''
+               , xively           :
+                 { text           : 'If you have an Xively (nee cosm) account, the steward can automatically upload measurements.'  
+                 , instructions   : 'Go to https://xively.com/login, create an account, and get a device key (apikey) and feed.'
+                 , site           : 'https://xively.com/login'
+                 , icon           : ''
+                 , name           : 'xively'
+                 , actor          : '/device/indicator/xively/sensor'
+                 , info           :
+                   { apikey       : ''
+                   , feed         : ''
                    }
                  }
                };
