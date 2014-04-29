@@ -801,7 +801,7 @@ var scanning = {};
 
 exports.scan_usb = function(logger2, tag, fingerprints, callback) {
   serialport.list(function(err, info) {
-    var i, j;
+    var i, j, k;
 
     var f = function(comName) {
       return function(err) { if (!!err) delete(scanning[comName]); };
@@ -823,6 +823,10 @@ exports.scan_usb = function(logger2, tag, fingerprints, callback) {
           if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
           if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
           if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
+          if (!info[i].serialNumber) {
+            k = info[i].comName.lastIndexOf('-');
+            if (k !== -1) info[i].serialNumber = info[i].comName.substr(k + 1);
+          }
 
           if (!!scanning[info[i].comName]) continue;
           scanning[info[i].comName] = true;

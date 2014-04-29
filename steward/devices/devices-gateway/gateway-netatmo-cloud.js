@@ -142,6 +142,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
     return 5;
   };
 
+// console.log('>>> type='+station.type);console.log(util.inspect(data, { depth: null }));
   params = { location     : coordinates
            , lastSample   : (!!data.K) ? (data.K * 1000) : null
            , temperature  : (!!data.a) ? data.a          : null
@@ -149,7 +150,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
            , co2          : (!!data.h) ? data.h          : null
            , noise        : (!!data.S) ? data.S          : null
            , pressure     : (!!data.e) ? data.e          : null
-// temporary
+// placeholder: z
            , waterLevel   : (!!data.z) ? data.z          : null
            , batteryLevel : batteryLevel()
            , rssi         : station.rf_status

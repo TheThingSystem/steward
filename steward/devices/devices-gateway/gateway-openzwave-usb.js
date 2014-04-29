@@ -1,4 +1,4 @@
-// OpenZ-Wave - using a USB stick
+// Open Z-Wave - using a USB stick
 
 var openzwave
   , utility     = require('./../../core/utility')
