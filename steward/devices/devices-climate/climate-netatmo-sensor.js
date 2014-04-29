@@ -72,6 +72,7 @@ exports.start = function() {
                     , perform    : [ ]
                     , properties : { name        : true
                                    , status      : [ 'present' ]
+                                   , placement   : true
                                    , location    : 'coordinates'
                                    , lastSample  : 'timestamp'
                                    , temperature : 'celsius'
@@ -84,4 +85,20 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['/device/climate/netatmo/meteo'] = Sensor;
+
+  steward.actors.device.climate.netatmo.rain =
+      { $info     : { type       : '/device/climate/netatmo/rain'
+                    , observe    : [ ]
+                    , perform    : [ ]
+                    , properties : { name        : true
+                                   , status      : [ 'present' ]
+                                   , placement   : true
+                                   , location    : 'coordinates'
+                                   , lastSample  : 'timestamp'
+                                   , rain        : 'millimeters'
+                                   }
+                    }
+      , $validate : { perform    : devices.validate_perform }
+      };
+  devices.makers['/device/climate/netatmo/rain'] = Sensor;
 };

@@ -1,6 +1,47 @@
 CHANGELOG
 =========
 
+## Release 1.8 "Barbecue Ribs" - May 28, 2014
+## Commit - TBD
+
+### Steward
+- APIs:
+    - no changes
+
+### TAAS (Things as a Service)
+- no changes
+
+### TSRP (Thing Simple Reporting Protocol)
+- no changes
+
+### Places
+- no changes
+
+### Things
+- device/climate:
+- device/gateway:
+- device/indicator:
+- device/lighting:
+- device/media:
+- device/motive:
+- device/presence:
+- device/sensor:
+- device/switch:
+- device/wearable:
+
+### HTML5/D3 client
+- no changes
+
+### User policy client
+- no changes
+
+### Developer console
+- no changes
+
+### Utilities
+- no changes
+
+
 ## Release 1.7 "Salt Pretzel" - April 28, 2014
 ## Commit - ea6ddff00026c4402d51cbf671c1dbc349a61c64
 
@@ -58,6 +99,7 @@ CHANGELOG
 ### Utilities
 - list-arp.js: report ifTable contents
 - list-ssdp.js: more output to aid in future debugging
+
 
 ## Release 1.6 "Pecan Waffle" - March 29, 2014
 ## Commit - df14aeda4c4379fe1122845e24adeb7db6fb7f7e
@@ -150,6 +192,7 @@ CHANGELOG
 
 ### Utilities
 - no changes
+
 
 ## Release 1.5 "Ground Hog" - March 1, 2014
 ## Commit - ddc6a500d20b6065c6e5b19611afb224878e4c66
@@ -251,6 +294,7 @@ CHANGELOG
 ### Utilities
 - no changes
 
+
 ## Release 1.4 "Resolutions" - January 24, 2014
 ## Commit - 9ca2c07b2d7b8e470b5cfe94d697449b5579af8f
 
@@ -346,6 +390,7 @@ CHANGELOG
 - add list-ssdp.js and list-notify.js to mimic steward's algorithm for listening for SSDP responses
 - run.sh reminds developers that the steward will restart in 10 seconds after failure
 - include developers' .jshintrc in repository
+
 
 ## Release 1.3 "Rudolf" - December 23, 2013
 ## Commit - 62986813b4b6e745ad8d56e3d859f7f30bed4afd

@@ -37,6 +37,7 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'passphrase' ];
   self.changed();
   self.timer = null;
+  self.seen = {};
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var macaddr;
@@ -148,6 +149,8 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
            , co2          : (!!data.h) ? data.h          : null
            , noise        : (!!data.S) ? data.S          : null
            , pressure     : (!!data.e) ? data.e          : null
+// temporary
+           , waterLevel   : (!!data.z) ? data.z          : null
            , batteryLevel : batteryLevel()
            , rssi         : station.rf_status
            };
@@ -159,6 +162,11 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
 
     return sensor.update(sensor, params);
   }
+  if (!!self.seen[udn]) return;
+  self.seen[udn] = true;
+
+  if ((station.type !== 'NAMain') && (station.type.indexOf('NAModule') === -1)) return;
+  params.placement = { NAModule1: true, NAModule3 : true }[station.type] ? 'outdoors' : 'indoors';
 
   info =  { source: self.deviceID, gateway: self, params: params };
   info.device = { url                          : null
@@ -173,7 +181,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = '/device/climate/netatmo/meteo';
+  info.deviceType = station.type !== 'NAModule3' ? '/device/climate/netatmo/meteo' : '/device/climate/netatmo/rain';
   info.id = info.device.unit.udn;
   macaddrs[station._id.split('-').join('').split(':').join('').toLowerCase()] = true;
 
