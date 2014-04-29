@@ -9,7 +9,6 @@ var util        = require('util')
 
 
 var logger  = exports.logger = utility.logger('gateway');
-var logger2                  = utility.logger('discovery');
 
 
 var Gateway = exports.Device = function(deviceID, deviceUID, info) {
@@ -29,7 +28,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {/* jshint unused: false */
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
   self.xstick.on('init', function() {
@@ -155,6 +154,8 @@ var fingerprints  =
   ];
 
 var scan = function() {
+  var logger2 = utility.logger('discovery');
+
   devices.scan_usb(logger2, 'zigbee-xstick', fingerprints, function(driver, callback) {
     var comName, info, udn;
 
