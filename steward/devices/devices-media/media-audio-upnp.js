@@ -17,7 +17,7 @@ var sonos       = require('sonos')
 var logger = media.logger;
 
 var UPnP_Audio = exports.Device = function(deviceID, deviceUID, info) {
-  var o, options, self;
+  var i, o, options, self, services;
 
   self = this;
 
@@ -31,9 +31,24 @@ var UPnP_Audio = exports.Device = function(deviceID, deviceUID, info) {
   self.sid = null;
   self.seq = 0;
 
-  options = {};
-  if (info.device.model.name === 'gmediarender') {
-    options.endpoints = { transport: '/upnp/control/rendertransport1' , rendering: '/upnp/control/rendercontrol1' };
+  options = { endpoints: {} };
+  if ((!!info.upnp.root)
+         && (!!info.upnp.root.device)
+         && (!!info.upnp.root.device[0])
+         && (!!info.upnp.root.device[0].serviceList)
+         && (!!info.upnp.root.device[0].serviceList[0])
+         && (!!info.upnp.root.device[0].serviceList[0].service)
+         && (util.isArray(info.upnp.root.device[0].serviceList[0].service))) {
+    services = info.upnp.root.device[0].serviceList[0].service;
+
+    for (i = 0; i < services.length; i++) {
+      if (services[i].serviceId[0] === 'urn:upnp-org:serviceId:AVTransport') {
+        options.endpoints.transport = services[i].controlURL[0];
+        options.endpoints.subscription = services[i].eventSubURL[0];
+      } else if (services[i].serviceId[0] === 'urn:upnp-org:serviceId:RenderingControl') {
+        options.endpoints.rendering = services[i].controlURL[0];
+      }
+    }
   }
 
   o = url.parse(info.url);
@@ -55,9 +70,7 @@ var UPnP_Audio = exports.Device = function(deviceID, deviceUID, info) {
 
 // we poll because '/MediaRenderer/RenderingControl/Event' doesn't inform us of changes in volume/mutedness
   self.refresh(self);
-
-  self.jumpstart(self, '/upnp/event/rendertransport1');
-//  self.jumpstart(self, '/MediaRenderer/AVTransport/Event');
+  self.jumpstart(self, options.endpoints.subscription);
 };
 util.inherits(UPnP_Audio, media.Device);
 

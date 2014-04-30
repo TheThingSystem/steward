@@ -97,7 +97,7 @@ results = [
   model: 'selflearning-dimmer:nexa',
   online: '1',
   editable: 1,
-  parameter: 
+  parameter:
    [ { name: 'house', value: '51002' },
      { name: 'unit', value: '1' } ],
   status: 'off' }

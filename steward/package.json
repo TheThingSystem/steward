@@ -55,6 +55,7 @@
     , "openzwave"               : "0.0.32"
     , "pcap"                    : "1.2.0"
     , "pkginfo"                 : "0.3.0"
+    , "pioneer-avr"             : "git://github.com/TheThingSystem/node-pioneer-avr.git"
     , "pixelpusher"             : "0.1.1"
     , "polyline-encoded"        : "0.0.4"
     , "portfinder"              : "0.2.1"

@@ -58,7 +58,7 @@ OnOff.prototype.update = function(self, params) {
 
 
 OnOff.prototype.perform = function(self, taskID, perform, parameter) {
-  var params, powered;
+  var name, params, powered;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -67,13 +67,16 @@ OnOff.prototype.perform = function(self, taskID, perform, parameter) {
     if (!self.gateway.telldus) return false;
 
 // short-ciruit round-trip time to cloud
+    name = self.name;
     self.name = params.name;
     self.changed();
-    self.gateway.telldus.setDeviceName(self.params, params.name, function(err, params) {
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDeviceName', diagnostic: err.message });
-console.log('>>> setDeviceName results');console.log(util.inspect(params, { depth: null }));
-
-      if (!!params) self.update(self, params);
+    self.gateway.telldus.setDeviceName(self.params, params.name, function(err, results) {
+      if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
+      if (!!err) {
+        self.name = name;
+        self.changed();
+        return logger.error('device/' + self.deviceID, { event: 'setDeviceName', diagnostic: err.message });
+      }
     });
 
     return steward.performed(taskID);
@@ -84,11 +87,12 @@ console.log('>>> setDeviceName results');console.log(util.inspect(params, { dept
 
   powered = perform === 'on' ? true : false;
   logger.info('device/' + self.deviceID, { perform: { on: powered } });
-  self.gateway.telldus.onOffDevice(self.params, powered, function(err, params) {
+  self.gateway.telldus.onOffDevice(self.params, powered, function(err, results) {
+    if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'onOffDevice', diagnostic: err.message });
-console.log('>>> onoff results');console.log(util.inspect(params, { depth: null }));
 
-    if (!!params) self.update(self, params);
+    self.params.status = powered ? 'on' : 'off';
+    self.update(self, self.params);
   });
 
   return steward.performed(taskID);

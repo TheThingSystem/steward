@@ -183,7 +183,9 @@ ModelS.prototype.scan = function(self) {
 
       sunroof = (!data.sun_roof_installed)            ? 'none'
                 : (data.sun_roof_state !== 'unknown') ? data.sun_roof_state
-                : (data.sun_roof_percent_open !== 0)  ? 'open' : 'closed';
+                : (data.sun_roof_percent_open === 0)  ? 'closed'
+                : (data.sun_roof_percent_open <=  15) ? 'vent'
+                : (data.sun_roof_percent_open <=  80) ? 'comfort' : 'open';
       if (self.info.sunroof !== sunroof) {
         didP = true;
         self.info.sunroof = sunroof;

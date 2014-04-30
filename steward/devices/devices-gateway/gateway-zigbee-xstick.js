@@ -79,7 +79,7 @@ util.inherits(Gateway, require('./../device-gateway').Device);
 
 
 Gateway.operations =
-{ init       : function(self, taskID, params, validateP) {
+{ init      : function(self, taskID, params, validateP) {
                 if (!!validateP) return true;
                 if (!self.xstick) return false;
 
@@ -88,7 +88,6 @@ Gateway.operations =
                 self.xstick.save();
                 return steward.performed(taskID);
               }
-
 , allow     : function(self, taskID, params, validateP) {
                 if (!!validateP) return true;
                 if (!self.xstick) return false;

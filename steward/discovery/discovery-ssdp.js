@@ -182,17 +182,19 @@ exports.ssdp_discover = function(info, options, callback) {
         if (!data.root.device[0].modelDescription) data.root.device[0].modelDescription = [''];
         if (!data.root.device[0].modelNumber) data.root.device[0].modelNumber = [''];
 
-        info.device = {
-            url          : (!!data.root.URLBase) ? data.root.URLBase[0] : options.protocol + '//' + options.host + '/'
-          , name         : data.root.device[0].friendlyName[0]
-          , manufacturer : data.root.device[0].manufacturer[0]
-          , model        : {
-                name        : data.root.device[0].modelName[0]
+        info.upnp = data;
+
+        info.device =
+          { url             : (!!data.root.URLBase) ? data.root.URLBase[0] : options.protocol + '//' + options.host + '/'
+          , name            : data.root.device[0].friendlyName[0]
+          , manufacturer    : data.root.device[0].manufacturer[0]
+          , model           :
+              { name        : data.root.device[0].modelName[0]
               , description : data.root.device[0].modelDescription[0]
               , number      : data.root.device[0].modelNumber[0]
               }
-          , unit         : {
-                serial      : data.root.device[0].serialNumber[0]
+          , unit            :
+              { serial      : data.root.device[0].serialNumber[0]
               , udn         : data.root.device[0].UDN[0]
               }
           };

@@ -64,7 +64,7 @@ Dimmer.prototype.update = function(self, params) {
 
 
 Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
-  var level, params;
+  var level, name, params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -75,11 +75,13 @@ Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 // short-ciruit round-trip time to cloud
     self.name = params.name;
     self.changed();
-    self.gateway.telldus.setDeviceName(self.params, params.name, function(err, params) {
-      if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDeviceName', diagnostic: err.message });
-console.log('>>> setDeviceName results');console.log(util.inspect(params, { depth: null }));
-
-      if (!!params) self.update(self, params);
+    self.gateway.telldus.setDeviceName(self.params, params.name, function(err, results) {
+      if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
+      if (!!err) {
+        name = self.name;
+        self.changed();
+        return logger.error('device/' + self.deviceID, { event: 'setDeviceName', diagnostic: err.message });
+      }
     });
 
     return steward.performed(taskID);
@@ -94,11 +96,13 @@ console.log('>>> setDeviceName results');console.log(util.inspect(params, { dept
   level = devices.scaledPercentage(level, 0, 255);
 
   logger.info('device/' + self.deviceID, { perform: { on: level } });
-  self.gateway.telldus.dimDevice(self.params, level, function(err, params) {
+  self.gateway.telldus.dimDevice(self.params, level, function(err, results) {
+    if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'dimDevice', diagnostic: err.message });
-console.log('>>> dimDevice results');console.log(util.inspect(params, { depth: null }));
 
-    if (!!params) self.update(self, params);
+    self.params.status = level > 0 ? 'on' : 'off';
+    self.params.level = level;
+    self.update(self, self.params);
   });
 
   return steward.performed(taskID);
