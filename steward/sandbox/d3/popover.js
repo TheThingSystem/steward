@@ -1003,8 +1003,8 @@ var showPop = function(device) {
      	.attr("class", "level-knob")
       .attr("id", "level-knob")
      	.attr("src", "popovers/assets/knob.large.off.svg");
-     elem.call(drag);
      if (hasLevel) {
+       elem.call(drag);
        if (device.status === "on") {
 		     elem
 		       .attr("src", "popovers/assets/knob.large.svg");
@@ -1996,7 +1996,7 @@ function clearPerformParams() {
 function sendPerform() {
   var deviceID = currDevice.actor.slice(currDevice.actor.lastIndexOf("/") + 1);
 //  console.log("Perform: " + performParams.perform + "   /    " + JSON.stringify(performParams.parameter));
-	if (!!performParams) perform_device(ws2, deviceID, performParams.perform, performParams.parameter, function(message) { console.log(message) });
+	if (!!performParams) perform_device(ws2, deviceID, performParams.perform, performParams.parameter, function(message) { });
 }
 
 function sendData(device) {

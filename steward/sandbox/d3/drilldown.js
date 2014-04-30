@@ -4,7 +4,7 @@ var actors           = {}
   , tags             = {}
   , containers       = {}
   , multiple_arcs    = []
-  , lastUpdated      = []
+  , lastUpdated
   , lastIconTrayPage = 1
   , lastStageScroll  = 0
   , firstLoad        = true
@@ -120,7 +120,7 @@ if (true) {
   div.innerHTML = 'Touch a thing for more info.';
   chart.appendChild(div);
   
-  lastUpdated = place.updated;
+  if (place.updated) lastUpdated = place.updated;
   
   span = (place.info.conditions) ? 
           ('<span style="background-color: #fff; position: absolute; left: 0px; top: -7px; width: 26px;">'
@@ -289,7 +289,7 @@ if (false) {
 
   self.onUpdate = function(updates) {
     var actorID, update, refresh = false;
-    lastUpdated = [];
+    lastUpdated = [lastUpdated];
     if (!document.getElementById('stage')) return;
     for (var i = 0; i < updates.length; i++) {
       update = updates[i];
@@ -357,8 +357,12 @@ var onUpdate_drilldown = function(updates) {
     update = updates[i];
     if (update.whatami.match(/\/device\/gateway\//)) continue;
     if (update.whatami.match(/\/place/)) {
-      if (!!lastUpdated && !!update.updated) lastUpdated.push(update.updated);
-      continue;
+      if (!!lastUpdated && !!update.updated) {
+        lastUpdated = [lastUpdated];
+        lastUpdated.push(update.updated);
+        lastUpdated = lastUpdated.sort(function(a, b) {return b - a;})[0];
+        continue;
+      }
     }
     
     actors[update.whoami].info = update.info;

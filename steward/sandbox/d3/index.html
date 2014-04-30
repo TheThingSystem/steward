@@ -294,9 +294,9 @@ var go = function(steward) {
 		  onUpdate_drilldown(message[".updates"]);
 		}
       }
-    } catch(ex) {
-      console.log("Update error: " + ex.message + " with update for: " + message[".updates"][0].whoami);
-    }
+     } catch(ex) {
+       console.log("Update error: " + ex.message + " with update for: " + message[".updates"][0].whoami);
+     }
    }
     
   ws.onclose = function(evt) { if (!readOnlyAccess) notify("Connection lost. Restart steward and refresh browser."); };
