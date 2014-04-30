@@ -300,6 +300,7 @@ ModelS.prototype.scan = function(self) {
 
       didP = false;
 
+// charging, complete, disconnected, starting, stopped
       charger = (!self.vehicle.speed)    ? data.charging_state.toLowerCase()
                 : self.vehicle.power < 0 ? 'regenerating' : 'drawing';
            if (charger === 'complete') charger = 'completed';
