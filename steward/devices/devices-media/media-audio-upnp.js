@@ -33,11 +33,10 @@ var UPnP_Audio = exports.Device = function(deviceID, deviceUID, info) {
 
   options = { endpoints: {} };
   if ((!!info.upnp.root)
-         && (!!info.upnp.root.device)
+         && (util.isArray(info.upnp.root.device))
          && (!!info.upnp.root.device[0])
-         && (!!info.upnp.root.device[0].serviceList)
+         && (util.isArray(info.upnp.root.device[0].serviceList))
          && (!!info.upnp.root.device[0].serviceList[0])
-         && (!!info.upnp.root.device[0].serviceList[0].service)
          && (util.isArray(info.upnp.root.device[0].serviceList[0].service))) {
     services = info.upnp.root.device[0].serviceList[0].service;
 

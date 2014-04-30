@@ -7,6 +7,7 @@ var avr         = require('pioneer-avr')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , utility     = require('./../../core/utility')
+  , discovery   = require('./../../discovery/discovery-ssdp')
   , media       = require('./../device-media')
   ;
 
@@ -25,9 +26,7 @@ var Pioneer_AVR = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   o = url.parse(info.url);
-console.log('>>> info.upnp');
-console.log(util.inspect(info.upnp, { depth: null }));
-  o.port = info.upnp.root.device[0]['av:X_ipRemoteTcpPort'].$t;
+  o.port = info.upnp.root.device[0]['av:X_ipRemoteTcpPort'][0].$t;
   self.url = url.format(o);
   self.connect(self);
   self.inputs = utility.clone(avr.Inputs);
@@ -208,6 +207,12 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
 
-  
-//  devices.makers['urn:schemas-upnp-org:device:ZonePlayer:1'] = Pioneer_AVR;
+  discovery.upnp_register('/device/media/pioneer/receiver', function(upnp) {
+    if ((upnp.root.device[0]['av:X_ipRemoteReady'][0].$t !== 1)
+            || (isNaN(upnp.root.device[0]['av:X_ipRemoteTcpPort'][0].$t))) {
+      return;
+    }
+
+    return '/device/media/pioneer/receiver';
+  });
 };

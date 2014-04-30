@@ -160,6 +160,8 @@ exports.ssdp_discover = function(info, options, callback) {
       }
 
       try { parser.parseString(content, function(err, data) {
+        var pair;
+
         if (!!err) {
           if (content === 'status=ok') return;    // Chromecast (when playing)
           return logger.error('discovery', { event      : 'parser.parseString'
@@ -199,14 +201,20 @@ exports.ssdp_discover = function(info, options, callback) {
               }
           };
         info.url = info.device.url;
-        info.deviceType = info.device.model.name;
-        info.deviceType2 = data.root.device[0].deviceType[0];
-        if ((!!data.root.device[0].serviceList)
-                && (!!data.root.device[0].serviceList[0].service)
-                && (!!data.root.device[0].serviceList[0].service[0])) {
-          info.deviceType3 = data.root.device[0].serviceList[0].service[0].serviceType[0];
+
+        for (pair in pairings) if (pairings.hasOwnProperty(pair)) {
+          try { info.deviceType = pairings[pair](info.upnp); } catch(ex) { continue; }
+          if (!!info.deviceType) break;
         }
-// NB: pity we don't have a pattern matcher and could put in a /device/... whatami path here...
+        if (!info.deviceType) {
+          info.deviceType = info.device.model.name;
+          info.deviceType2 = data.root.device[0].deviceType[0];
+          if ((!!data.root.device[0].serviceList)
+                  && (!!data.root.device[0].serviceList[0].service)
+                  && (!!data.root.device[0].serviceList[0].service[0])) {
+            info.deviceType3 = data.root.device[0].serviceList[0].service[0].serviceType[0];
+          }
+        }
         info.id = info.device.unit.udn;
         if (!!devices.devices[info.id]) return;
 
@@ -222,6 +230,13 @@ exports.ssdp_discover = function(info, options, callback) {
     if (!!callback) return callback(err);
     logger.error('discovery', { event: 'http.get', options: options, diagnostic: err.message });
   });
+};
+
+
+var pairings = {};
+
+exports.upnp_register = function(deviceType, f) {
+  pairings[deviceType] = f;
 };
 
 
