@@ -232,6 +232,6 @@ var scan = function() {
                           , ssdp   : { LOCATION : 'http://127.0.0.1:4444/ssdp.xml', ST: 'upnp:rootdevice' }
                           , device : { }
                           }, url.parse('http://127.0.0.1:4444/ssdp.xml'), function(err) {
-    if (!!err) { setTimeout(scan, 30 * 1000); }
+    if (!!err) return setTimeout(scan, 30 * 1000);
   });
 };

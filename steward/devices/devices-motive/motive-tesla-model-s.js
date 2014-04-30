@@ -233,6 +233,11 @@ ModelS.prototype.scan = function(self) {
         self.info.intTemperature = data.inside_temp;
       }
 
+      if ((!!data.driver_temp_setting) && (self.info.goalTemperature !== data.driver_temp_setting)) {
+        didP = true;
+        self.info.goalTemperature = data.driver_temp_setting;
+      }
+
       if ((!!data.outside_temp) && (self.info.extTemperature !== data.outside_temp)) {
         didP = true;
         self.info.extTemperature = data.outside_temp;
@@ -309,6 +314,15 @@ ModelS.prototype.scan = function(self) {
         didP = true;
 
         self.info.charger = charger;
+      }
+
+      if (!util.isArray(self.info.batteryLevel)) self.info.batteryLevel = [ 0, 0, 0 ];
+      if ((self.info.batteryLevel[0] != data.battery_level)
+              || (self.info.batteryLevel[1] != data.charge_limit_soc)
+              || (self.info.batteryLevel[2] != data.charge_limit_soc_max)) {
+        didP = true;
+
+        self.info.batteryLevel = [ data.battery_level, data.charge_limit_soc, data.charge_limit_soc_max ];
       }
 
       self.info.lastSample = new Date().getTime();
@@ -559,9 +573,12 @@ exports.start = function() {
                                                       , 'disconected'
                                                       , 'drawing'
                                                       , 'regenerating' ]
+                                   , batteryLevel   : 'array'
+
                                    , hvac           : [ 'on', 'off', 'celsius' ]
                                    , intTemperature : 'celsius'
                                    , extTemperature : 'celsius'
+                                   , goalTemperature: 'celsius'
 
                                    , location       : 'coordinates'
 //                                 , accuracy       : 'meters'
