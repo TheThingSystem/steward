@@ -95,7 +95,7 @@ exports.start = function() {
                                    , placement   : true
                                    , location    : 'coordinates'
                                    , lastSample  : 'timestamp'
-                                   , rain        : 'millimeters'
+                                   , waterLevel  : 'millimeters'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

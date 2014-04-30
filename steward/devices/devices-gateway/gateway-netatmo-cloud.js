@@ -142,16 +142,14 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
     return 5;
   };
 
-// console.log('>>> type='+station.type);console.log(util.inspect(data, { depth: null }));
   params = { location     : coordinates
-           , lastSample   : (!!data.K) ? (data.K * 1000) : null
-           , temperature  : (!!data.a) ? data.a          : null
-           , humidity     : (!!data.b) ? data.b          : null
-           , co2          : (!!data.h) ? data.h          : null
-           , noise        : (!!data.S) ? data.S          : null
-           , pressure     : (!!data.e) ? data.e          : null
-// placeholder: z
-           , waterLevel   : (!!data.z) ? data.z          : null
+           , lastSample   : (!isNaN(data.K)) ? (data.K * 1000) : null
+           , temperature  : (!isNaN(data.a)) ? data.a          : null
+           , humidity     : (!isNaN(data.b)) ? data.b          : null
+           , co2          : (!isNaN(data.h)) ? data.h          : null
+           , noise        : (!isNaN(data.S)) ? data.S          : null
+           , pressure     : (!isNaN(data.e)) ? data.e          : null
+           , waterLevel   : (!isNaN(data.f)) ? data.f          : null
            , batteryLevel : batteryLevel()
            , rssi         : station.rf_status
            };

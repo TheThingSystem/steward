@@ -613,6 +613,10 @@ var onactors = function(message) {
               if (!isNaN(v)) v = v.toFixed(2) + '%';
               break;
 
+            case 'waterLevel':
+              if (!isNaN(v)) v = v.toFixed(2) + 'mm';
+              break;
+
             case 'battery':
               v += ' volts';
               break;
