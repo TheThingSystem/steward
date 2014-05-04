@@ -92,7 +92,10 @@ Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
   if ((perform !== 'on' && perform !== 'off') || perform === self.status) return false;
 
   if (perform === 'off') level = 0;
-  else if (perform === 'on') level = (params.level > 0 && params.level < 100) ? params.level: 50;
+  else if (perform === 'on') {
+    if (!params.level) params.level = self.info.level;
+    level = (params.level > 0 && params.level < 100) ? params.level: 50;
+  }
   level = devices.scaledPercentage(level, 0, 255);
 
   logger.info('device/' + self.deviceID, { perform: { on: level } });
@@ -101,7 +104,8 @@ Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'dimDevice', diagnostic: err.message });
 
     self.params.status = level > 0 ? 'on' : 'off';
-    self.params.level = level;
+    if (perform === 'on') self.params.level = params.level;
+console.log('>>> ' + JSON.stringify(self.params));
     self.update(self, self.params);
   });
 
