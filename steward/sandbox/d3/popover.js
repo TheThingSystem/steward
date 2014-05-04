@@ -146,7 +146,7 @@ function dragmove(d) {
 				bx2 = Math.min(bx2, max);
 				var pct = (bx2 - min)/(max - min);
 				newPerform.parameter.level = parseInt((pct * 100), 10);
-			  performParams = { perform:'set', parameter: {'level' : newPerform.parameter.level} };
+			  performParams = { perform: newPerform.perform, parameter: newPerform.parameter };
 				return bx2 + "px";
 			});
 			break;
