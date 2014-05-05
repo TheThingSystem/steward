@@ -1017,6 +1017,8 @@ var showPop = function(device) {
      } else {
 		   elem
 			  .style("left", bigHorSlider.max + "px");
+			 div
+			  .style("opacity", 0.4);
      }
 // If we decide to add readout box to level slider
 //      if (hasLevel) {
