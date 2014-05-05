@@ -118,10 +118,16 @@ Cloud.prototype.scan = function(self) {
         coordinates = [ place.location[1], place.location[0] ];
         if (!!place.altitude) coordinates.push(place.altitude);
       } else coordinates = null;
-      self.addstation(self, station, station.station_name, station.last_data_store[station._id], coordinates);
+      self.addstation(self, station, station.station_name,
+                      util.isArray(station.last_data_store) ? station.last_data_store[station._id] : station.last_data_store,
+                      coordinates);
       for (j = 0; j < station.modules.length; j++) {
         id = station.modules[j];
-        if (!!modules[id]) self.addstation(self, modules[id], station.station_name, station.last_data_store[id], coordinates);
+        if (!!modules[id]) {
+          self.addstation(self, modules[id], station.station_name, 
+                          util.isArray(station.last_data_store) ? station.last_data_store[id]
+                                                                : modules[id].last_data_store, coordinates);
+        }
       }
     }
   });

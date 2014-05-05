@@ -61,8 +61,8 @@ ModelS.prototype.checkAPI = function(self, call, retry) {
 
   if (self.last6.length < 6) {
     self.calls[call] = now;
-// console.log('>>> calls='+JSON.stringify(self.calls));
     self.last6.push({ call: call, timestamp: now });
+logger.info('device/' + self.deviceID, { event: 'checkAPI', call: call, proceed: true });
     return true;
   }
 
@@ -89,9 +89,9 @@ ModelS.prototype.checkAPI = function(self, call, retry) {
   }
 
   self.calls[call] = now;
-// console.log('>>> calls='+JSON.stringify(self.calls));
   self.last6.splice(0, 1);
   self.last6.push({ call: call, timestamp: now });
+logger.info('device/' + self.deviceID, { event: 'checkAPI', call: call, proceed: true });
   return true;
 };
 
@@ -99,7 +99,6 @@ ModelS.prototype.newstate = function(self, enabled) {
   var status;
 
   status = (self.vehicle.state !== 'online') ? self.vehicle.state : (enabled ? 'ready' : 'reset');
-// console.log('>>> status=' + status);
   if ((self.status === null) || (status === 'asleep')) status = 'waiting';
   if (self.status == status) return;
   self.status = status;
@@ -185,7 +184,7 @@ ModelS.prototype.scan = function(self) {
                 : (data.sun_roof_state !== 'unknown') ? data.sun_roof_state
                 : (data.sun_roof_percent_open === 0)  ? 'closed'
                 : (data.sun_roof_percent_open <=  15) ? 'vent'
-                : (data.sun_roof_percent_open <=  80) ? 'comfort' : 'open';
+                : (data.sun_roof_percent_open <=  80) ? 'open' : 'comfort';
       if (self.info.sunroof !== sunroof) {
         didP = true;
         self.info.sunroof = sunroof;
@@ -248,7 +247,7 @@ ModelS.prototype.scan = function(self) {
     });
 
     if (self.checkAPI(self, 'tesla.get_drive_state')) tesla.get_drive_state(self.vehicle.id, function(data, body) {
-      var didP, speed;
+      var charger, didP, diff, distance, site, speed;
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
@@ -267,6 +266,21 @@ ModelS.prototype.scan = function(self) {
         self.info.location[0] = data.latitude;
         self.info.location[1] = data.longitude;
         self.addlocation(self);
+
+        self.info.station = null;
+        for (charger in self.gateway.chargers) if (self.gateway.chargers.hasOwnProperty(charger)) {
+          site = self.gateway.chargers[charger];
+          diff = Math.round(utility.getDistanceFromLatLonInKm(self.info.location[0], self.info.location[1],
+                                                              site.location[0], site.location[1]));
+          if ((!self.info.station) || (diff < distance)) {
+            self.info.station = { name     : site.name
+                                , distance : diff
+                                , location : site.location
+                                , physical : site.physical
+                                };
+            distance = diff;
+          }
+        }
       }
 
       if (self.info.heading !== data.heading) {
@@ -274,13 +288,13 @@ ModelS.prototype.scan = function(self) {
         self.info.heading = data.heading;
       }
 
-      if (!!data.speed) {
-        speed = data.speed * 0.44704;    // miles/hour -> meters/second
-        if (self.info.velocity !== speed) {
-          didP = true;
-          self.info.velocity = speed;
-        }
-      } else if (!self.info.velocity) self.info.velocity = '0';
+      speed = (!!data.speed) ? data.speed * 0.44704 : 0;    // miles/hour -> meters/second
+      if (self.info.velocity !== speed) {
+        didP = true;
+        self.info.velocity = speed;
+      }
+      if (!self.info.cycleTime) self.info.cycleTime = 0;
+      if (speed > 0) self.info.cycleTime = 0; else if (self.info.cycleTime === 0) self.info.cycleTime = new Date().getTime();
 
       self.info.lastSample = new Date().getTime();
       if (didP) self.changed();
@@ -316,13 +330,18 @@ ModelS.prototype.scan = function(self) {
         self.info.charger = charger;
       }
 
-      if (!util.isArray(self.info.batteryLevel)) self.info.batteryLevel = [ 0, 0, 0 ];
+      if (!util.isArray(self.info.batteryLevel)) self.info.batteryLevel = [ 0, 0, 0, 0 ];
       if ((self.info.batteryLevel[0] != data.battery_level)
               || (self.info.batteryLevel[1] != data.charge_limit_soc)
-              || (self.info.batteryLevel[2] != data.charge_limit_soc_max)) {
+              || (self.info.batteryLevel[2] != data.charge_limit_soc_max)
+              || (self.info.batteryLevel[3] != data.time_to_full_charge)) {
         didP = true;
 
-        self.info.batteryLevel = [ data.battery_level, data.charge_limit_soc, data.charge_limit_soc_max ];
+        self.info.batteryLevel = [ data.battery_level
+                                 , data.charge_limit_soc
+                                 , data.charge_limit_soc_max
+                                 , data.time_to_full_charge
+                                 ];
       }
 
       self.info.lastSample = new Date().getTime();
@@ -374,13 +393,16 @@ ModelS.prototype.stream = function(self, fastP) {
         self.info.location[2] = parseInt(sample.elevation, 10);
       }
 
-      if (!!sample.speed) {
-        speed = sample.speed * 0.44704;    // miles/hour -> meters/second
-        if (self.info.velocity !== speed) {
-          didP = true;
-          self.info.velocity = speed;
+      if (!self.info.cycleTime) self.info.cycleTime = new Date().getTime();
+      speed = (!!sample.speed) ? sample.speed * 0.44704 : 0;    // miles/hour -> meters/second
+      if (self.info.velocity !== speed) {
+        didP = true;
+
+        if (((speed === 0) && (self.info.velocity !== 0)) || ((speed !== 0) && (self.info.velocity === 0))) {
+          self.info.cycleTime = new Date().getTime();
         }
-      } else if (!self.info.velocity) self.info.velocity = '0';
+        self.info.velocity = speed;
+      }
 
       odometer = sample.odometer * 1.60934;    // miles -> kilometers
       if (self.info.odometer != odometer) {
@@ -570,7 +592,7 @@ exports.start = function() {
                                    , charger        : [ 'connected'
                                                       , 'charging'
                                                       , 'completed'
-                                                      , 'disconected'
+                                                      , 'disconnected'
                                                       , 'drawing'
                                                       , 'regenerating' ]
                                    , batteryLevel   : 'array'
@@ -586,6 +608,7 @@ exports.start = function() {
                                    , distance       : 'kilometers'
                                    , heading        : 'degrees'
                                    , velocity       : 'meters/second'
+                                   , cycleTime      : 'timestamp'
                                    , odometer       : 'kilometers'
                                    , range          : 'kilometers'
 

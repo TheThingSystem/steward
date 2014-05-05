@@ -3,6 +3,7 @@ var arp         = require('arp-a')
   , geocoder    = require('geocoder')
   , serialport  = require('serialport')
   , stringify   = require('json-stringify-safe')
+  , suncalc     = require('suncalc')
   , url         = require('url')
   , util        = require('util')
   , wakeonlan   = require('wake_on_lan')
@@ -739,7 +740,7 @@ exports.traverse = function(actors, prefix, depth) {
 
 // expansion of '.[deviceID.property].'
 exports.expand = function(line, defentity) {
-  var entity, field, info, p, part, parts, result, who, x;
+  var entity, field, info, now, p, part, parts, result, times, who, x;
 
   if (typeof line !== 'string') return line;
   result = '';
@@ -788,6 +789,32 @@ exports.expand = function(line, defentity) {
       }
       info = info[part];
       field = info;
+
+      if ((part === 'location') && (util.isArray(info)) && ((p + 1) < parts.length) && (parts[p + 1] === 'solar')) {
+        p++;
+        now = new Date();
+        times = suncalc.getTimes(now.getTime(), info[0], info[1]);
+        if ((!!times) && (times.solarNoon.getDate() != now.getDate())) {
+          now.setDate(now.getDate() + 1);
+          times = suncalc.getTimes(now.getTime(), info[0], info[1]);
+        }
+        if (!times) {
+          field = '';
+          break;
+        }
+
+             if ((times.nightEnd      <= now) && (now < times.dawn))          field = 'dawn';
+        else if ((times.dawn          <= now) && (now < times.sunrise))       field = 'morning-twilight';
+        else if ((times.sunrise       <= now) && (now < times.sunriseEnd))    field = 'sunrise';
+        else if ((times.sunriseEnd    <= now) && (now < times.goldenHourEnd)) field = 'morning';
+        else if ((times.goldenHourEnd <= now) && (now < times.goldenHour))    field = 'daylight';
+        else if ((times.goldenHour    <= now) && (now < times.sunsetStart))   field = 'evening';
+        else if ((times.sunsetStart   <= now) && (now < times.sunset))        field = 'sunset';
+        else if ((times.sunset        <= now) && (now < times.dusk))          field = 'evening-twilight';
+        else if ((times.dusk          <= now) && (now < times.night))         field = 'dusk';
+        else if ((times.night         <= now) || (now < times.nightEnd))      field = 'night';
+        else                                                                  field = 'kairos';
+      }
     }
     result += field;
   }

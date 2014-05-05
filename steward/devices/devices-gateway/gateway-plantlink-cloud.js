@@ -135,7 +135,7 @@ Cloud.prototype.scan = function(self) {
       if (!link.last_measurements) link.last_measurements = [];
       if (link.last_measurements.length === 0) link.last_measurements[0] = { updated: link.updated };
 
-console.log('>>> waterVolume=' + link.last_measurements[0].moisture * 100 + ' raw=' + link.last_measurements[0].moisture_raw_reading);
+// link.moisture_raw_reading = twos complement raw voltage reading
       params = { placement       : link.placement
                , lastSample      : link.last_measurements[0].updated * 1000
                , waterVolume     : (link.last_measurements[0].moisture * 100).toFixed(2)

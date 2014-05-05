@@ -304,7 +304,7 @@ exports.start = function() {
     newaddrs[macaddr] = ipaddr;
   });
 
-// NB: needed on RPi where disk is a bit slow... (may eventually be needed for other gateways)
+// NB: we really ought to load the gateway files last...
   require('./../devices-climate/climate-nest-control').start();
   require('./../devices-sensor/sensor-nest-smoke').start();
 };

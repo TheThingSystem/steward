@@ -222,6 +222,15 @@ exports.start = function() {
   steward.actors.device.gateway.yoctopuce.virtual.$info.type = '/device/gateway/yoctopuce/virtual';
   devices.makers.VirtualHub = Hub;
 
+// NB: we really ought to load the gateway files last...
+  require('./../devices-climate/climate-yoctopuce-meteo.js').start();
+  require('./../devices-sensor/sensor-yoctopuce-4-20mA-Rx.js').start();
+  require('./../devices-sensor/sensor-yoctopuce-co2.js').start();
+  require('./../devices-lighting/lighting-yoctopuce-color.js').start();
+  require('./../devices-sensor/sensor-yoctopuce-light.js').start();
+  require('./../devices-lighting/lighting-yoctopuce-powercolor.js').start();
+  require('./../devices-sensor/sensor-yoctopuce-voc.js').start();
+
   scan();
 };
 
