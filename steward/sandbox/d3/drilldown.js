@@ -82,6 +82,7 @@ var home = function(state) {
 
   message = state.message;
   place = thePlace(message);
+  place_info.displayUnits = place.info.displayUnits;
   devices = mostDevices(message);
   names = allNames(message);
   tags = allTags(message);
