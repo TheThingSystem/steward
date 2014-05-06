@@ -203,6 +203,9 @@ exports.start = function() {
     try { this.addMembership(ipaddr); } catch(ex) {
       logger.error('discovery-tsrp', { event: 'addMembership', diagnostic: ex.message });
     }
+    try { this.setMulticastLoopback(true); } catch(ex) {
+      logger.error('discovery-tsrp', { event: 'setMulticastLoopback', diagnostic: ex.message });
+    }
   }).on('error', function(err) {
     logger.error('reporting', { event: 'socket', diagnostic: err.message });
   }).bind(portno, ipaddr);
