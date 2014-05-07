@@ -146,6 +146,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
   deviceID = message.path.slice(api.prefix.length + 1);
   if (deviceID.length === 0)                                return error(true,  'missing deviceID');
 
+if (!message.perform)logger.info(tag,message);
   if (!message.perform)                                     return error(true,  'missing perform element');
   if (!message.perform.length)                              return error(true,  'empty perform element');
 

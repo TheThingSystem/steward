@@ -108,6 +108,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
   if (suffix.length === 0)                               return error(true,  'missing actor prefix');
   if (suffix.indexOf('group') === 0)                     return error(true,  'group may not be used as actor prefix');
 
+if (!message.perform)logger.info(tag,message);
   if (!message.perform)                                  return error(true,  'missing perform element');
   if (!message.perform.length)                           return error(true,  'empty perform element');
 

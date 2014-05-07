@@ -99,13 +99,14 @@ Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
   level = devices.scaledPercentage(level, 0, 255);
 
   logger.info('device/' + self.deviceID, { perform: { on: level } });
+console.log('>>> dimmer perform command ' + JSON.stringify({ perform: { on: level } }));
   self.gateway.telldus.dimDevice(self.params, level, function(err, results) {
     if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'dimDevice', diagnostic: err.message });
 
     self.params.status = level > 0 ? 'on' : 'off';
     if (perform === 'on') self.params.level = params.level;
-console.log('>>> ' + JSON.stringify(self.params));
+console.log('>>> dimmer new parameters ' + JSON.stringify(self.params));
     self.update(self, self.params);
   });
 
