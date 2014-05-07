@@ -165,7 +165,7 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
       return false;
   }
 
-console.log('>>> sonos perform: ' + e + JSON.stringify(param0 || {}));
+console.log('>>> sonos perform: ' + e + ' ' + JSON.stringify(param0 || {}));
   if (!!param0) {
     self.sonos[e](param0, function(err, data) {/* jshint unused: false */
       if (err) self.error(self, err, e);
