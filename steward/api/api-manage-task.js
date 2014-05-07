@@ -41,7 +41,7 @@ var create = function(logger, ws, api, message, tag) {
   entity = actor.$lookup(actorID);
   if (!entity)                    return error(false, 'unknown entity ' + message.actor);
 
-if (!message.perform)logger.info(tag,message);
+if (!message.perform)logger.error(tag,message);
   if (!message.perform)           return error(true,  'missing perform element');
   if (!message.perform.length)    return error(true,  'empty perform element');
 

@@ -491,7 +491,7 @@ var perform = exports.perform = function(logger, ws, api, message, tag) {
   if (group.groupType === 'task') return perform2(logger, ws, message, group, tag);
   else if (group.groupType !== 'device')                    return error(true,  'invalid groupType: ' + group.groupType);
 
-if (!message.perform)logger.info(tag,message);
+if (!message.perform)logger.error(tag,message);
   if (!message.perform)                                     return error(true,  'missing perform element');
   if (!message.perform.length)                              return error(true,  'empty perform element');
 

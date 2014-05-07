@@ -256,6 +256,8 @@ Sonos_Audio.prototype.refresh = function(self) {
   self.sonos.currentTrack(function(err, track) {
     if (err) return self.error(self, err,  'currentTrack');
 
+     self.status = 'idle';
+
     if ((track !== undefined)
           && ((self.info.track.position !== (track.position * 1000))
                || (self.info.track.duration !== (track.duration * 1000)))) {
@@ -285,7 +287,7 @@ Sonos_Audio.prototype.refresh = function(self) {
     }
   });
 
-  self.refreshID = setTimeout (function() { self.refresh(self); }, (self.status === 'idle') ? (5 * 1000) : 350);
+  self.refreshID = setTimeout (function() { self.refresh(self); }, (self.status === 'idle') ? (5 * 1000) : 500);
 };
 
 Sonos_Audio.prototype.error = function(self, err, event) {
