@@ -5,6 +5,7 @@ var Roku        = require('roku')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
   , media       = require('./../device-media')
+  , utility     = require('./../../core/utility')
   ;
 
 
@@ -12,8 +13,7 @@ var Roku        = require('roku')
 
 
 var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
-  var self;
-  self = this;
+  var self = this;
 
   self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
@@ -26,6 +26,14 @@ var Roku_Video = exports.Device = function(deviceID, deviceUID, info) {
   self.roku = new Roku(info.url);
   self.status = 'idle';
   self.changed();
+
+  self.info = { };
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return self.perform(self, taskID, perform, parameter);
+  });
 
   // TODO: it would be nice if roku supported querying or any sort of
   //       feedback.  The rest api right now is mostly input based,
@@ -46,25 +54,26 @@ Roku_Video.operations =
               device.delay(500);
              }
 
-, previous : function(device, params) {/* jshint unused: false */
-               device.press(Roku.REV);
-             }
-
 , play     : function(device, params) {/* jshint unused: false */
-               if (params.url) {
+               if (params && params.url) {
                  device.launch(params.url);
                } else {
                  device.press(Roku.PLAY);
                }
              }
 
-, pause :    function(device, params) {/* jshint unused: false */
+, pause    : function(device, params) {/* jshint unused: false */
                device.press(Roku.PLAY);
              }
 
-, next :     function(device, params) {/* jshint unused: false */
+, previous : function(device, params) {/* jshint unused: false */
+               device.press(Roku.REV);
+             }
+
+, next     : function(device, params) {/* jshint unused: false */
                device.press(Roku.FWD);
              }
+
 };
 
 
@@ -73,12 +82,10 @@ Roku_Video.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (!!Roku_Video.operations[perform]) {
-    Roku_Video.operations[perform](this.roku, params);
-    return steward.performed(taskID);
-  }
+  if (!Roku_Video.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
-  return devices.perform(self, taskID, perform, parameter);
+  Roku_Video.operations[perform](this.roku, params);
+  return steward.performed(taskID);
 };
 
 var validate_perform = function(perform, parameter) {
@@ -88,9 +95,9 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!!Roku_Video.operations[perform]) return result;
+  if (!Roku_Video.operations[perform]) return devices.validate_perform(perform, parameter);
 
-  return devices.validate_perform(perform, parameter);
+  return result;
 };
 
 

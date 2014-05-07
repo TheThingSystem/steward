@@ -132,7 +132,7 @@ var validate_perform = function(perform, parameter) {
 
   if (!!parameter) try { params = JSON.parse(parameter); } catch(ex) { result.invalid.push('parameter'); }
 
-  if (!AppleTV.operations[perform])   return devices.validate_perform(perform, parameter);
+  if (!AppleTV.operations[perform]) return devices.validate_perform(perform, parameter);
 
   devices.validate_param('name',     params, result, false,                { });
   devices.validate_param('position', params, result, media.validPosition,  { });
