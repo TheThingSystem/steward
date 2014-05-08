@@ -96,14 +96,12 @@ var home = function(state) {
   img.setAttribute('onclick', 'javascript:showSettings()');
   chart.appendChild(img);
 
-if (true) {
   img = document.createElement('img');
   img.setAttribute('id', 'to-voice');
   img.setAttribute('src', 'popovers/assets/microphone.svg');
   img.setAttribute('title', 'To voice control settings...');
   img.setAttribute('onclick', 'javascript:showVoiceSettings()');
   chart.appendChild(img);
-}
   
   chart = document.getElementById('chart');
 
@@ -289,10 +287,10 @@ if (false) {
   setTimeout(updateAgo, 1000);
 
   self.onUpdate = function(updates) {
-    var actorID, update, refresh = false;
+    var actorID, device, i, j, update, refresh = false;
     lastUpdated = [lastUpdated];
     if (!document.getElementById('stage')) return;
-    for (var i = 0; i < updates.length; i++) {
+    for (i = 0; i < updates.length; i++) {
       update = updates[i];
 
       if ((update.info.whatami && update.info.whatami.match(/\/device\/gateway\//)) ||
@@ -315,6 +313,14 @@ if (false) {
       if (document.getElementById(actorID)) {
         document.getElementById(actorID).style.backgroundColor = statusColor(update);
         document.getElementById(actorID + '-label').style.color = statusColor(update);
+        list_actors(ws2, '', { depth: 'all' }, function(message) {
+          devices = mostDevices(message);
+          actors = { };
+          for (j = 0; j < devices.length; j++) {
+            device = devices[j];
+            actors[device.actor] = device;
+          }
+        });
       } else {
         refresh = true;
       }
