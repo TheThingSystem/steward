@@ -72,7 +72,9 @@ var create = function(logger, ws, api, message, tag) {
                                        return error(true, 'invalid task ' + message.task);
   }
 
-  if (!!activities[uuid])              return error(false, 'duplicate uuid', 'activity/' + activities[uuid].activityID);
+  if (!!activities[uuid])              return error(false, 'duplicate uuid',
+                                                    (!!activities[uuid].activityID) ? 'activity/' + activities[uuid].activityID 
+                                                                                    : null);
   activities[uuid] = {};
 
   results = { requestID: message.requestID };

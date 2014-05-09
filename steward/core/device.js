@@ -740,7 +740,7 @@ exports.traverse = function(actors, prefix, depth) {
 
 // expansion of '.[deviceID.property].'
 exports.expand = function(line, defentity) {
-  var entity, field, info, now, p, part, parts, result, term, times, who, x;
+  var entity, field, info, now, p, part, parts, result, term, then, times, who, x;
 
   if (typeof line !== 'string') return line;
   result = '';
@@ -820,6 +820,14 @@ exports.expand = function(line, defentity) {
         else if ((times.dusk          <= now) && (now < times.night))         field = 'dusk';
         else if ((times.night         <= now) || (now < times.nightEnd))      field = 'night';
         else                                                                  field = 'kairos';
+      } else if ((!isNaN(field)) && ((p + 1) < parts.length) && (parts[p + 1] === 'ago')) {
+        p++;
+        then = new Date(field);
+        if (!then) {
+          field = '';
+          break;
+        }
+        field = Math.round((new Date().getTime() - field) / 1000);
       }
     }
     result += field;

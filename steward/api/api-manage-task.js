@@ -68,7 +68,8 @@ if (!message.perform)logger.error(tag,message);
     if (!actor.$lookup(guard[1])) return error(false, 'unknown guard ' + message.actor);
   }
 
-  if (!!tasks[uuid])              return error(false, 'duplicate uuid', 'task/' + tasks[uuid].taskID);
+  if (!!tasks[uuid])              return error(false, 'duplicate uuid',
+                                               (!!tasks[uuid].taskID) ? 'task/' + tasks[uuid].taskID : null);
   tasks[uuid] = {};
 
   results = { requestID: message.requestID };

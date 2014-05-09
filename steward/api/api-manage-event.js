@@ -57,7 +57,9 @@ var create = function(logger, ws, api, message, tag) {
     }
   }
 
-  if (!!events[uuid])             return error(false, 'duplicate uuid', 'event/' + events[uuid].eventID);
+  if (!!events[uuid])             return error(false, 'duplicate uuid',
+                                               (!!events[uuid].eventID) ? 'event/' + events[uuid].eventID : null);
+
   events[uuid] = {};
 
   results = { requestID: message.requestID };
