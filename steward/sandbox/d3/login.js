@@ -204,10 +204,7 @@ var showLogin = function(changeLogin) {
 };
   
 function setDeveloperMode() {
-  if (!!place_info) {
-    place_info.strict = 'off';
-    savePlace();
-  }
+  savePlaceInfo({strict: 'off'});
 	hideLogin();
   var steward = { hostname : window.location.hostname
 				        , port     : window.location.port
@@ -230,12 +227,9 @@ var hideLogin = function() {
 }
 
 var submitLogin = function(evt) {
-    if (!!evt.keyCode && evt.keyCode !== 13) return true;
-    if (!!place_info) {
-      place_info.strict = 'on';
-      savePlace();
-    }
-    login();
+  if (!!evt.keyCode && evt.keyCode !== 13) return true;
+  savePlaceInfo({strict: 'on'});
+  login();
 }
 
 var showReauth = function() {
@@ -434,10 +428,10 @@ var showSettings = function() {
   document.body.appendChild(div);
   
   
-  document.getElementById("stewardName").addEventListener('change', function(evt) {place_info.name = evt.target.value; savePlace(event); });
-  document.getElementById("physical").addEventListener('change', function(evt) {place_info.physical = evt.target.value; savePlace(event); });
-  document.getElementById("latitude").addEventListener('change', function(evt) {place_info.location[0] = evt.target.value; savePlace(event); });
-  document.getElementById("longitude").addEventListener('change', function(evt) {place_info.location[1] = evt.target.value; savePlace(event); });
+  document.getElementById("stewardName").addEventListener('change', function(evt) {savePlaceInfo({name: evt.target.value}); });
+  document.getElementById("physical").addEventListener('change', function(evt) {savePlaceInfo({physical: evt.target.value}); });
+  document.getElementById("latitude").addEventListener('change', function(evt) {savePlaceInfo({location: [evt.target.value, document.getElementById("longitude").value]}); });
+  document.getElementById("longitude").addEventListener('change', function(evt) {savePlaceInfo({location: [document.getElementById("latitude").value, evt.target.value]}); });
   document.getElementById("displayUnits").addEventListener('change', pickDisplayUnits);
   document.getElementById("strictLAN").addEventListener('change', pickStrict);
   document.getElementById("cloudChoice").addEventListener('change', pickCloud);
@@ -519,13 +513,11 @@ var closeSettings = function(evt) {
 }
 
 var pickStrict = function(evt) {
-  place_info.strict = evt.target.value || '';
-  savePlace();
+  savePlaceInfo({strict: evt.target.value});
 }
 
 var pickDisplayUnits = function(evt) {
-  place_info.displayUnits = evt.target.value || '';
-  savePlace();
+  savePlaceInfo({displayUnits: evt.target.value});
 }
 
 // Create pair of label & text input elements for networked products
@@ -600,10 +592,9 @@ var stowInfo = function(evt) {
 function geolocate() {
   navigator.geolocation.getCurrentPosition(
 	function(pos) {
-	  place_info.location = [ pos.coords.latitude, pos.coords.longitude ];
 	  document.getElementById("latitude").value  = pos.coords.latitude;
 	  document.getElementById("longitude").value = pos.coords.longitude;
-	  savePlace();
+	  savePlaceInfo({location: [pos.coords.latitude, pos.coords.longitude]});
 	},
 	function(err) {
 	  switch (err.code) {
@@ -639,11 +630,10 @@ function geocode() {
 			if (message.status === 'OK') {
 			  message = message.results[0];
 			  physical.value = message.formatted_address;
-			  place_info.physical = message.formatted_address;
-			  place_info.location = [ message.geometry.location.lat, message.geometry.location.lng ];
+			  savePlaceInfo({physical: message.formatted_address});
 			  document.getElementById("latitude").value  = message.geometry.location.lat;
 			  document.getElementById("longitude").value = message.geometry.location.lng;
-			  savePlace();
+			  savePlaceInfo({location: [ message.geometry.location.lat, message.geometry.location.lng]});
 			  
 			} else {
 			  notify("Sorry, the address cannot be converted to coordinates.");
@@ -664,18 +654,21 @@ function geocode() {
 
 var fillPlaceFields = function() {
   var entry, keys;
-  document.getElementById("stewardName").value = place_info.name = place.name || "";
-  document.getElementById("physical").value = place_info.physical = place.info.physical || "";
+  document.getElementById("stewardName").value = place.name || "";
+  document.getElementById("physical").value = place.info.physical || "";
   if (place.info.location) {
-	  document.getElementById("latitude").value = place_info.location[0] = place.info.location[0] || "";
-	  document.getElementById("longitude").value = place_info.location[1] = place.info.location[1] || "";
+	  document.getElementById("latitude").value = place.info.location[0] || "";
+	  document.getElementById("longitude").value = place.info.location[1] || "";
   }
-  document.getElementById("displayUnits").value = place_info.displayUnits = place.info.displayUnits || "";
-  document.getElementById("strictLAN").value = place_info.strict = place.info.strict || "";
+  document.getElementById("displayUnits").value = place.info.displayUnits || "";
+  document.getElementById("strictLAN").value = place.info.strict || "";
 }
 
-var savePlace = function(evt) {
-    if (!!ws2 || !!wsx) perform_actors(ws2 || wsx, 'place', 'set', place_info, function() { });
+var savePlaceInfo = function(options) {
+//console.log("Sending: " + JSON.stringify(options));
+  if (!!ws2 || !!wsx) perform_actors(ws2 || wsx, 'place', 'set', options, function(message) {
+    if (message.hasOwnProperty("result")) list_actors(ws2, '', {depth: 'all'}, function(message) {place = thePlace(message)} )
+  });
 }
 
 var addCloud = function(evt) {
@@ -703,13 +696,6 @@ var addCloud = function(evt) {
   }
   return false;
 }
-
-var place_info   = { name        : 'Home'
-                   , physical    : ''
-                   , location    : [ 39.50000, -98.35000 ]
-                   , displayUnits: 'customary'
-                   , strict      : 'on'
-                   };
 
 var clouds = { '':
                  { text           : 'Choose a cloud service to enter its authentication credentials.'

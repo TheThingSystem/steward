@@ -82,7 +82,6 @@ var home = function(state) {
 
   message = state.message;
   place = thePlace(message);
-  place_info.displayUnits = place.info.displayUnits;
   devices = mostDevices(message);
   names = allNames(message);
   tags = allTags(message);
@@ -748,7 +747,7 @@ var single_device_drilldown = function(state, arcs, instructions) {
 var single_device_arcs = function(device) {
   var a0, a1, arcs, brightness, color, delta, metric, level, now, prop, v, v2;
 
-  metric = place_info.displayUnits === 'metric';
+  metric = place.info.displayUnits === 'metric';
   arcs = [];
 
   now = new Date().getTime();
@@ -1023,7 +1022,7 @@ var single_climate_instructions = function(device) {
 var climate_device_arcs = function(device) {
   var arcs, i, metric, now, prop, props, v;
 
-  metric = place_info.displayUnits === 'metric';
+  metric = place.info.displayUnits === 'metric';
   arcs = [];
 
   if (!device.info.lastSample) device.info.lastSample = device.updated;
@@ -1604,7 +1603,7 @@ var single_motive_instructions = function(device) {
 var motive_device_arcs = function(device) {
   var arcs, cooked, dist, i, prop, props, v;
 
-  metric = place_info.displayUnits === 'metric';
+  metric = place.info.displayUnits === 'metric';
   arcs = [];
   props = sortprops(device.info, [ 'lastSample', 'location', 'velocity', 'heading', 'odometer', 'charger', 'intTemperature' ]);
 
@@ -1977,7 +1976,7 @@ var single_weather_drilldown = function(state) {
 var weather_arcs = function(device) {
   var arcs, codeValues, metric, prop, v, v2;
   
-  metric = place_info.displayUnits === 'metric';
+  metric = place.info.displayUnits === 'metric';
   
   arcs = [];
   

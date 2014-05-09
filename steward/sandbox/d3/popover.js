@@ -1971,7 +1971,7 @@ function motiveGoalTempText(info) {
 }
 
 function isPlaceMetric() {
-  return (place_info.displayUnits === "metric");
+  return (place.info.displayUnits === "metric");
 }
 
 function asFahrenheit(celsius) {
