@@ -740,7 +740,7 @@ exports.traverse = function(actors, prefix, depth) {
 
 // expansion of '.[deviceID.property].'
 exports.expand = function(line, defentity) {
-  var entity, field, info, now, p, part, parts, result, times, who, x;
+  var entity, field, info, now, p, part, parts, result, term, times, who, x;
 
   if (typeof line !== 'string') return line;
   result = '';
@@ -754,7 +754,8 @@ exports.expand = function(line, defentity) {
       continue;
     }
 
-    parts = line.substring(0, x).split('.');
+    term = line.substring(0, x);
+    parts = term.split('.');
     line = line.substring(x + 2);
 
     entity = null;
@@ -783,6 +784,11 @@ exports.expand = function(line, defentity) {
     for (p = 1; p < parts.length; p++) {
       part = parts[p];
       if (!info) return null;
+      if (utility.toType(info[part]) === 'null') {
+        field = '';
+        logger.warning('info[' + part + '] is null, derived from ' + term);
+        break;
+      }
       if ((typeof info[part] === 'undefined') || (info[part].length === 0)) {
         field = '';
         break;

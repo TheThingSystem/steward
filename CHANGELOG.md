@@ -5,32 +5,45 @@ CHANGELOG
 ## Commit - TBD
 
 ### Steward
-- APIs:
-    - no changes
+- APIs: no changes
+    - thing perform and update robustness
+- Discovery
+    - allow SSDP hook for discovery
 
 ### TAAS (Things as a Service)
 - no changes
 
 ### TSRP (Thing Simple Reporting Protocol)
-- no changes
+- support loopback multicast (in case kumoapp-tsrp is running on the same system)
 
 ### Places
-- no changes
+- robustness when geocoding fails
 
 ### Things
 - device/climate:
+    - netatmo/*: support new API result
+    - netatmo/rain: NEW
+    - plantlink/soil: use 'waterVolume' (percentage) as an alternative to 'moisture' (millibars)
 - device/gateway:
 - device/indicator:
 - device/lighting:
 - device/media:
+    - upnp/audio: robustness
+    - pioneer/receiver: NEW
+    - roku/video: enabled
+    - sonos/audio: robustness
 - device/motive:
+    - tesla/model-s: udpated for better energy, security monitoring
+       (cf., [tesla.js](https://github.com/TheThingSystem/node-taas-client/blob/master/tesla.js) in node-taas-client)
 - device/presence:
 - device/sensor:
 - device/switch:
 - device/wearable:
 
 ### HTML5/D3 client
-- no changes
+- if slider disabled, do not allow interaction
+- dimmer setting robustness
+- display units now properly set on startup
 
 ### User policy client
 - no changes

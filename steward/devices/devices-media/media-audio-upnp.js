@@ -85,6 +85,11 @@ UPnP_Audio.prototype.jumpstart = function(self, path) {
                                             , headers : stringify(response.headers)
                                             });
 
+    if ((response.statusCode === 500) && (self.sid === null) && (!response.headers.sid)) {
+      logger.error('device/' + self.deviceID, { event: 'subscribe', diagnostic: 'subscribe not available' });
+      return;
+    }
+
     if (err) {
       self.error(self, err, 'subscribe');
       setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
