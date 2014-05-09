@@ -340,7 +340,7 @@ ModelS.prototype.scan = function(self) {
         self.info.batteryLevel = [ data.battery_level
                                  , data.charge_limit_soc
                                  , data.charge_limit_soc_max
-                                 , data.time_to_full_charge
+                                 , data.time_to_full_charge || 0
                                  ];
       }
 

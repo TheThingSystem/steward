@@ -44,6 +44,7 @@ CHANGELOG
 - if slider disabled, do not allow interaction
 - dimmer setting robustness
 - display units now properly set on startup
+- robustness when setting values for place/1
 
 ### User policy client
 - no changes
