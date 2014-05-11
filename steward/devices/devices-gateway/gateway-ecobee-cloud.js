@@ -587,4 +587,8 @@ exports.start = function() {
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;
   });
+
+  utility.acquire2(__dirname + '/../*/*-ecobee-*.js', function(err) {
+    if (!!err) logger('ecobee-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

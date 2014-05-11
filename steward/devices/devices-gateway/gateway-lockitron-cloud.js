@@ -226,4 +226,8 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/lockitron/cloud'] = Cloud;
+
+  utility.acquire2(__dirname + '/../*/*-lockitron-*.js', function(err) {
+    if (!!err) logger('lockitron-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

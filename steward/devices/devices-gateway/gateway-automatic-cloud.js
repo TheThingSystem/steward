@@ -324,4 +324,8 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/automatic/cloud'] = Cloud;
+
+  utility.acquire2(__dirname + '/../*/*-automatic-*.js', function(err) {
+    if (!!err) logger('automatic-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

@@ -194,4 +194,8 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/wink/cloud'] = Cloud;
+
+  utility.acquire2(__dirname + '/../*/*-wink-*.js', function(err) {
+    if (!!err) logger('wink-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

@@ -1,5 +1,7 @@
 var fs          = require('fs')
+  , glob        = require('glob')
   , EventBroker = require('observer').EventBroker
+  , path        = require('path')
   , stacktrace  = require('stack-trace')
   , stringify   = require('json-stringify-safe')
   , winston     = require('winston')
@@ -178,8 +180,9 @@ var logfnx2 = function(logaux, prefix, errorP) {/* jshint unused: false */
 
 
 exports.acquiring = 0;
+var acquired = {};
 
-exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
+exports.acquire = function(logger, directory, pattern, start, stop, suffix, arg) {
   var category, exclude, include, tail;
 
   exports.acquiring++;
@@ -198,9 +201,9 @@ exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
   }
 
   fs.readdir(directory, function(err, files) {
-    var didP, file, i, module;
+    var absolute, didP, file, i, module;
 
-    if (err) { exports.acquiring--; return log.error('readdir', { diagnostic: err.message }); }
+    if (err) { exports.acquiring--; return logger.error('readdir', { diagnostic: err.message }); }
 
     didP = false;
     for (i = 0; i < files.length; i++) {
@@ -209,20 +212,51 @@ exports.acquire = function(log, directory, pattern, start, stop, suffix, arg) {
         didP = true;
         module = file.slice(start, stop);
         if ((!!include) && (include.indexOf(module) === -1)) {
-          log.info('not including ' + module + suffix);
+          logger.info('not including ' + module + suffix);
           continue;
         }
         if ((!!exclude) && (exclude.indexOf(module) !== -1)) {
-          log.info('excluding ' + module + suffix);
+          logger.info('excluding ' + module + suffix);
           continue;
         }
 
-        log.info('loading ' + module + suffix);
-        require(directory + '/' + file).start(arg);
+        absolute = path.resolve(directory + '/' + file);
+        if (!!acquired[absolute]) {
+          logger.info('loaded ' + module + suffix);
+          continue;
+        }
+        acquired[absolute] = true;
+
+        logger.info('loading ' + module + suffix);
+        require(absolute).start(arg);
       }
     }
-    if (!didP) log.warning('no loadable modules found in ' + directory + ' for ' + pattern);
+    if (!didP) logger.warning('no loadable modules found in ' + directory + ' for ' + pattern);
     exports.acquiring--;
+  });
+};
+
+exports.acquire2 = function(pattern, cb) {
+  exports.acquiring++;
+
+  glob (pattern, { silent: true }, function(err, files) {
+    var file, i;
+
+    if (!!err) {
+      exports.acquiring--;
+      return cb(err);
+    }
+
+    for (i = 0; i < files.length; i++) {
+      file = files[i];
+      if (!!acquired[file]) continue;
+      acquired[file] = true;
+
+      require(file).start();
+    }
+
+    exports.acquiring--;
+    return cb(null);
   });
 };
 

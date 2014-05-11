@@ -302,4 +302,8 @@ exports.start = function() {
     logger.debug(tag, { ipaddr: ipaddr, macaddr: macaddr });
     newaddrs[macaddr] = ipaddr;
   });
+
+  utility.acquire2(__dirname + '/../*/*-koubachi-*.js', function(err) {
+    if (!!err) logger('koubachi-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

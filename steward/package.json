@@ -24,6 +24,7 @@
     , "eureka-dongle"           : "0.1.0"
     , "flower-power-cloud"      : "0.2.0"
     , "geocoder"                : "0.1.0"
+    , "glob"                    : "3.2.9"
     , "greenwave-gop"           : "0.0.2"
     , "grovestreams-api"        : "0.2.3"
     , "irobot"                  : "git://github.com/TheThingSystem/irobot.git"

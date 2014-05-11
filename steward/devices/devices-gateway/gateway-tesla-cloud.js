@@ -275,4 +275,8 @@ exports.start = function() {
 
   getChargers();
   setInterval(getChargers, 24 * 60 * 60 * 1000);
+
+  utility.acquire2(__dirname + '/../*/*-tesla-*.js', function(err) {
+    if (!!err) logger('tesla-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

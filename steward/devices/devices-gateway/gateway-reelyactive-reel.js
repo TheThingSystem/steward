@@ -374,5 +374,9 @@ exports.start = function() {
       };
   devices.makers['/device/gateway/reelyactive/reelceiver'] = Reelceiver;
 
-  scan(7018);
+  utility.acquire2(__dirname + '/../*/*-reelyactive-*.js', function(err) {
+    if (!!err) logger('reelyactive-reel', { event: 'glob', diagnostic: err.message });
+
+    scan(7018);
+  });
 };

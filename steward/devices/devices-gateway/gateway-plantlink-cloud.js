@@ -349,6 +349,10 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['/device/gateway/plantlink/station'] = Station;
+
+  utility.acquire2(__dirname + '/../*/*-plantlink-*.js', function(err) {
+    if (!!err) logger('plantlink-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };
 
 

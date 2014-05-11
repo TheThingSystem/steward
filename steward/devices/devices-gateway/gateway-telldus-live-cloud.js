@@ -325,4 +325,8 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/telldus-live/cloud'] = Cloud;
+
+  utility.acquire2(__dirname + '/../*/*-telldus-*.js', function(err) {
+    if (!!err) logger('telldus-live-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

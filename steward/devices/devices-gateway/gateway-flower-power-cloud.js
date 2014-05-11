@@ -263,4 +263,8 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/gateway/flower-power/cloud'] = Cloud;
+
+  utility.acquire2(__dirname + '/../*/*-flower-power-*.js', function(err) {
+    if (!!err) logger('flower-power-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

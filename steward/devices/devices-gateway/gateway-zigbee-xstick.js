@@ -210,5 +210,9 @@ exports.start = function() {
       };
   devices.makers['/device/gateway/zigbee/xstick2-zb'] = Gateway;
 
-  scan();
+  utility.acquire2(__dirname + '/../*/*-zigbee-*.js', function(err) {
+    if (!!err) logger('zigbee-xstick2-zb', { event: 'glob', diagnostic: err.message });
+
+    scan();
+  });
 };

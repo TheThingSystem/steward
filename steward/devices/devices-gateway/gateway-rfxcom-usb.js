@@ -251,5 +251,9 @@ exports.start = function() {
       };
   devices.makers['/device/gateway/rfxcom/usb'] = Gateway;
 
-  scan();
+  utility.acquire2(__dirname + '/../*/*-oregon-scientific-*.js', function(err) {
+    if (!!err) logger('rfxcom-usb', { event: 'glob', diagnostic: err.message });
+
+    scan();
+  });
 };

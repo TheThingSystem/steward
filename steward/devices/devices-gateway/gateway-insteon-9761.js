@@ -1166,5 +1166,10 @@ exports.start = function() {
 
   require('./../../discovery/discovery-portscan').pairing([ 9761 ], pair);
 
-  scan();
+
+  utility.acquire2(__dirname + '/../*/*-insteon-*.js', function(err) {
+    if (!!err) logger('insteon-9761', { event: 'glob', diagnostic: err.message });
+
+    scan();
+  });
 };

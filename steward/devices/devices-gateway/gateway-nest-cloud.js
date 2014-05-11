@@ -304,7 +304,7 @@ exports.start = function() {
     newaddrs[macaddr] = ipaddr;
   });
 
-// NB: we really ought to load the gateway files last...
-  require('./../devices-climate/climate-nest-control').start();
-  require('./../devices-sensor/sensor-nest-smoke').start();
+  utility.acquire2(__dirname + '/../*/*-nest-*.js', function(err) {
+    if (!!err) logger('nest-cloud', { event: 'glob', diagnostic: err.message });
+  });
 };

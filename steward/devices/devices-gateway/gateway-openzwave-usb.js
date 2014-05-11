@@ -399,5 +399,9 @@ exports.start = function() {
     for (comName in scanning) if (scanning.hasOwnProperty(comName)) { try { scanning[comName].disconnect(); } catch(ex) {} }
   });
 
-  scan();
+  utility.acquire2(__dirname + '/../*/*-zwave-*.js', function(err) {
+    if (!!err) logger('openzwave-usb', { event: 'glob', diagnostic: err.message });
+
+    scan();
+  });
 };
