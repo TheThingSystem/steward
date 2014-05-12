@@ -315,7 +315,7 @@ UPnP_Audio.prototype.refresh = function(self) {
     }
   });
 
-  self.refreshID = setTimeout (function() { self.refresh(self); }, (self.status === 'idle') ? (5 * 1000) : 350);
+  self.refreshID = setTimeout(function() { self.refresh(self); }, (self.status === 'idle') ? (5 * 1000) : 350);
 };
 
 UPnP_Audio.prototype.error = function(self, err, event) {
