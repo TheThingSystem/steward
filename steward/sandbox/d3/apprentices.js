@@ -172,7 +172,7 @@ var sendPaneArmed = function(paneIndex, armed) {
 }
 
 var goPaneDetail = function(n) {
-  var div, div2, div3, div4, events, groupNr_event, groupNr_task, hasSubTasks, j, k, oneEvent, oneTask, oneUUID, panes, subEvents, tasks;
+  var div, div2, div3, div4, events, groupNr_event, groupNr_task, hasSubTasks, isGuardedTask, j, k, oneEvent, oneTask, oneUUID, panes, subEvents, tasks;
   var actorWidth = 58, actorHeight = 80, paneWidth = 802, maxIcons = 12;
   panes = livingPanes();
   apprentices.currPaneIndex = n;
@@ -246,6 +246,7 @@ var goPaneDetail = function(n) {
     }
     for (j = 0; j < tasks.length; j++) {
       oneTask = tasks[j];
+      isGuardedTask = (!!oneTask.guard);
       groupNr_task = [];
       if (!hasSubTasks) {
       	groupNr_task = [(apprentices.d.groups[oneTask.uuid].id).match(/\/(.+)$/)[1]];
@@ -280,7 +281,14 @@ var goPaneDetail = function(n) {
           .attr('class', 'apprentice-actor-home')
           .style('top', function(d, i) { return (actorHeight * (Math.floor(i / maxIcons))) + 'px';})
           .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px'})
-          .on('click', function(d, i) { if (hasSubTasks) {toggleSubTask(i, n, j-1, groupNr)} else {toggleTask(i, n, j-1, groupNr_task)} });
+          .on('click', function(d, i) { if (isGuardedTask) {
+                                          toggleGuardedTask(i, n, j-1, groupNr_task) 
+                                        } else if (hasSubTasks) {
+                                          toggleSubTask(i, n, j-1, groupNr)
+                                        } else { 
+                                          toggleTask(i, n, j-1, groupNr_task)
+                                        }
+                                      });
       div4.append('p')
          .attr('class', 'actor-name')
          .attr('id', function(d, i) { return 'name_' + actor2ID(oneTask.actors[i].device); })
@@ -317,7 +325,7 @@ var goPaneDetail = function(n) {
     if (events[eventIndex].actors[i].selected) {
       newColor = '#00ba00';
       sendIt(JSON.stringify({ path      : '/api/v1/event/create/' + uuid
-                             , requestID : add_callback(function(message) { onCreateEventOrTask(message, 'event', eventIndex, groupNr) })
+                             , requestID : add_callback(function(message) { if (message.result) {onCreateEventOrTask(message, 'event', eventIndex, groupNr)} })
                              , name      : events[eventIndex].title
                              , actor     : device
                              , observe   : '.condition'
@@ -327,7 +335,7 @@ var goPaneDetail = function(n) {
       newColor = '#666';
       rowID = apprentices.d.events[uuid].id.match(/\/(.+)$/)[1];
       sendIt(JSON.stringify({ path      : '/api/v1/event/delete/' + rowID
-                             , requestID : add_callback(function(message) { onCreateEventOrTask(message, 'event', eventIndex, groupNr) })
+                             , requestID : add_callback(function(message) { if (message.result) {onCreateEventOrTask(message, 'event', eventIndex, groupNr)} })
                             }));
     }
 
@@ -341,7 +349,7 @@ var goPaneDetail = function(n) {
   }
 
   function toggleTask(i, n, taskIndex, groupNr) {
-    var device, members, newColor, perform, rowID, task, uuid;
+    var device, guardEvent = null, members, newColor, perform, rowID, task, uuid;
     members = [];
     device = tasks[taskIndex].actors[i].device;
     tasks[taskIndex].actors[i].selected = !tasks[taskIndex].actors[i].selected;
@@ -355,31 +363,21 @@ var goPaneDetail = function(n) {
     }
     if (tasks[taskIndex].actors[i].selected) {
       newColor = '#00ba00';
+      if (!!tasks[taskIndex].guard && apprentices.d.events[uuid]) guardEvent = apprentices.d.events[uuid].id;
       sendIt(JSON.stringify({ path       : '/api/v1/task/create/' + uuid
-                             , requestID : add_callback(function(message) { onCreateEventOrTask(message, 'task', taskIndex, groupNr) })
+                             , requestID : add_callback(function(message) { if (message.result) {onCreateEventOrTask(message, 'task', taskIndex, groupNr)} })
                              , name      : tasks[taskIndex].title
                              , actor     : device
                              , perform   : perform.match(/\.(.+)$/)[1]
                              , parameter : parameterize(tasks[taskIndex][perform])
-                             , guard     : null
+                             , guard     : guardEvent
                              }));
-//       sendIt(JSON.stringify({ path       : '/api/v1/task/create/' + uuid
-//                              , requestID : add_callback(function(message) { refreshApprenticeActors(message, 'task') })
-//                              , name      : tasks[taskIndex].title
-//                              , actor     : device
-//                              , perform   : perform.match(/\.(.+)$/)[1]
-//                              , parameter : parameterize(tasks[taskIndex][perform])
-//                              , guard     : null
-//                              }));
     } else {
       newColor = '#666';
       rowID = apprentices.d.tasks[uuid].id.match(/\/(.+)$/)[1];
       sendIt(JSON.stringify({ path      : '/api/v1/task/delete/' + rowID
-                             , requestID : add_callback(function(message) { onCreateEventOrTask(message, 'task', taskIndex, groupNr) })
+                             , requestID : add_callback(function(message) { if (message.result) {onCreateEventOrTask(message, 'task', taskIndex, groupNr)} })
                                 }));
-//       sendIt(JSON.stringify({ path      : '/api/v1/task/delete/' + rowID
-//                              , requestID : add_callback(function(message) { refreshApprenticeActors(message, 'task') })
-//                                 }));
     }
 
     d3.select('#name_' + actor2ID(device))
@@ -389,14 +387,45 @@ var goPaneDetail = function(n) {
     checkPane(panes[n]);
     updatePanesList();
     checkActivator(n);
-//     rowID = apprentices.d.groups[tasks.uuid].id.match(/\/(.+)$/)[1];
-//     for (j = 0; j < tasks.actors.length; j++) {
-//       if (tasks.actors[j].selected) {
-//         uuid = tasks.uuid + ":" + tasks.actors[j].device.replace(/\//, ":");
-//         members.push(apprentices.d.tasks[uuid].id);
-//       }
-//     }
-//     setTimeout(function() {updateGroupMembers(rowID, members)}, 0);
+  }
+  
+  function onToggleGuardEvent(i, n, taskIndex, groupNr) {
+    sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
+	                         , requestID : add_callback(function(message1) { if (message1.result) {
+	                                          apprentices.d = organize(message1); toggleTask(i, n, taskIndex, groupNr); console.log('onToggleGuardEvent callback');
+	                                          console.log(message1);} })
+	                         , options   : { depth: 'all' }
+	         }));  
+  };
+  
+  function toggleGuardedTask(i, n, taskIndex, groupNr) {
+    var device, rowID, task, uuid;
+    device = tasks[taskIndex].actors[i].device;
+    uuid = tasks[taskIndex].uuid + ":" + device.replace(/\//, ":");
+  
+    if (!tasks[taskIndex].actors[i].selected) {
+      console.log('create guard event');
+      sendIt(JSON.stringify({ path       : '/api/v1/event/create/' + uuid
+                             , requestID : add_callback(function(message) { if (message.result) {
+                                             onToggleGuardEvent(i, n, taskIndex, groupNr);
+                                             console.log('toggleGuardedTask/event/create callback');
+                                             console.log(message);}
+                             })
+                             , name      : tasks[taskIndex].title
+                             , actor     : device
+                             , observe   : '.condition'
+                             , parameter : parameterize(tasks[taskIndex].guard['.condition'])
+                             }));
+
+    } else {
+      console.log('delete guard event');
+      rowID = apprentices.d.events[uuid].id.match(/\/(.+)$/)[1];
+      sendIt(JSON.stringify({ path       : '/api/v1/event/delete/' + rowID
+                             , requestID : add_callback(function(message) { if (message.result) {
+                                             onToggleGuardEvent(i, n, taskIndex, groupNr);
+                                             console.log('toggleGuardedTask/event/delete callback');}
+                            })}));
+    }
   }
   
   function toggleSubTask(i, n, taskIndex, groupNr) {
@@ -414,10 +443,6 @@ var livingPanes = function() {
 }
 
 var updateGroupMembers = function(groupNr, members) {
-//   sendIt(JSON.stringify({ path      : '/api/v1/group/modify/' + groupNr
-//                         , requestID : ++reqno
-//                         , members   : members
-//                         }));
   sendIt(JSON.stringify({ path      : '/api/v1/group/modify/' + groupNr
                         , requestID : add_callback(function(message) { refreshApprenticeActors(message); })
                         , members   : members
@@ -431,10 +456,6 @@ var refreshApprenticeActors = function(message) {
                         , requestID : add_callback(function(message1) { refreshActivities(message1) })
                         , options   : { depth: 'all' }
                         }));
-//   wsSend(JSON.stringify({ path      : '/api/v1/actor/list/'
-//                         , requestID : add_callback(function(message1) { refreshActivities(message1, type, message.result) })
-//                         , options   : { depth: 'all' }
-//                         }));
 }
 
 var refreshActivities = function(message) {
@@ -442,10 +463,6 @@ var refreshActivities = function(message) {
   if (!message.result) return;
   apprenticeActors = message;
 	
-// 	sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
-// 	                       , requestID : add_callback(function(message1) { prepare(apprentices.home, apprenticeActors, message1) })
-// 	                       , options: { depth: 'all' }
-// 	                       })); 
 	sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
 	                       , requestID : add_callback(function(message1) { if (message1.result) {
 	                       apprentices.d = organize(message1); console.log(message1); } })
