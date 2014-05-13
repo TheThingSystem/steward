@@ -84,16 +84,15 @@ OnOff.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!self.gateway.telldus) return false;
   if ((perform !== 'on' && perform !== 'off') || perform === self.status) return false;
-
   powered = perform === 'on' ? true : false;
+
   logger.info('device/' + self.deviceID, { perform: { on: powered } });
-console.log('>>> onoff perform command ' + JSON.stringify({ perform: { on: powered } }));
+
   self.gateway.telldus.onOffDevice(self.params, powered, function(err, results) {
     if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'onOffDevice', diagnostic: err.message });
 
     self.params.status = powered ? 'on' : 'off';
-console.log('>>> onoff new parameters ' + JSON.stringify(self.params));
     self.update(self, self.params);
   });
 

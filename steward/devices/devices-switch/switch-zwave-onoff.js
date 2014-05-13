@@ -101,12 +101,11 @@ ZWave_OnOff.prototype.perform = function(self, taskID, perform, parameter) {
 
     return ((!params.name) || self.setName(params.name, taskID));
   }
-
   if ((perform !== 'on' && perform !== 'off') || perform === self.status) return false;
 
   logger.info('device/' + self.deviceID, { perform: { on: (perform === 'on' ? true : false) } });
-  self.driver['switch' + (perform === 'on' ? 'On' : 'Off')](self.peripheral.nodeid);
 
+  self.driver['switch' + (perform === 'on' ? 'On' : 'Off')](self.peripheral.nodeid);
   return steward.performed(taskID);
 };
 
