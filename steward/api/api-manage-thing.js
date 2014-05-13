@@ -41,6 +41,7 @@ var pair = function(logger, ws, api, message, tag) {
   return users.create(logger,
                      { clientInfo : ws.clientInfo
                      , send       : function(data) { pair2(logger, ws, data, tag); }
+                     , ws2        : ws
                      },
                      { prefix     : '/api/v1/user/create'
                      },
@@ -85,6 +86,7 @@ var hello = function(logger, ws, api, message, tag) {
   return users.authenticate(logger,
                            { clientInfo : ws.clientInfo
                            , send       : function(data) { hello2(logger, ws, data, tag); }
+                           , ws2        : ws
                            },
                            { prefix     : '/api/v1/user/authenticate'
                            },
@@ -475,7 +477,7 @@ exports.start = function() {
                    });
   manage.apis.push({ prefix   : '/api/v1/thing/hello'
                    , route    : hello
-                   , access   : manage.access.level.attach
+                   , access   : manage.access.level.none    // does its own checking...
                    , required : { thingID  : 'id'
                                 , response : true
                                 }

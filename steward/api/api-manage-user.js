@@ -8,6 +8,7 @@ var fs          = require('fs')
   , steward     = require('./../core/steward')
   , manage      = require('./../routes/route-manage')
   , utility     = require('./../core/utility')
+  , broker      = utility.broker
   ;
 
 
@@ -271,7 +272,7 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
 };
 
 var authenticate = exports.authenticate = function(logger, ws, api, message, tag) {
-  var client, clientID, date, i, meta, now, pair, params, results, stamp, user;
+  var client, clientID, date, entry, i, meta, now, pair, params, results, stamp, user, ws2;
 
   var error = function(permanent, diagnostic) {
     return manage.error(ws, tag, 'user authentication', message.requestID, permanent, diagnostic);
@@ -326,7 +327,21 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
     stamp = utility.clone(meta);
     stamp.tag = tag;
     stamp.timestamp = new Date();
-    server.logins[tag] = stamp;
+    server.logins[tag] = { stamp: stamp };
+
+    if (!!ws.ws2) {
+      for (entry in server.logins) if (server.logins.hasOwnProperty(entry)) {
+        ws2 = server.logins[entry].ws;
+        if ((!ws2) || (ws2.clientInfo.clientID !== ws.clientInfo.clientID)) continue;
+
+        ws2.close(1001, 'automatic close');
+        delete(server.logins[entry]);
+        broker.publish('actors', 'logout', ws2.clientInfo.clientSerialNo);
+        break;
+      }
+
+      server.logins[tag].ws = ws.ws2;
+    }
 
     now = new Date();
 // http://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime

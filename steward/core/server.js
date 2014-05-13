@@ -153,7 +153,7 @@ var start = function(port, secureP) {
 
       if (!routes[pathname]) {
         logger.warning(tag, { event: 'route', transient: false, diagnostic: 'unknown path: ' + pathname });
-        return ws.close(404, 'not found');
+        return ws.close(1008, 'not found');
       }
 
 // NB: each route is responsible for access control, both at start and per-message
