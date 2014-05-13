@@ -96,16 +96,10 @@ Gateway.prototype.announce = function(self, data) {
 console.log('>>> data');
 console.log(util.inspect(data, { depth: null }));
 
-  if (data.isLighting) {
-    deviceType = data.isDimmable ? '/device/lighting/insteon/led' : '/device/switch/insteon/onoff';
-  } else if (data.isDimmable) {
-    deviceType = '/device/switch/insteon/dimmer';
-  } else if (data.isThermostat) {
-//  deviceType = '/device/climate/insteon/control';
+  if ((!data.deviceCategory) || (!data.device.subCategory)) {
+    return logger.warning('device/' + self.deviceID, { event: 'unable to determine deviceType', data: data });
   }
-  if (!deviceType) return logger.warning('device/' + self.deviceID, { event: 'unable to determine deviceType', data: data });
-
-  deviceType = 0;
+  deviceType = 'Insteon.' + (new Buffer([data.deviceCategory.id, data.deviceSubcategory.id])).toString('hex');
 
   info = { source: self.deviceID, gateway: self };
   info.device = { url          : null
