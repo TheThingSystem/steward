@@ -28,17 +28,24 @@ STEWARD=/usr/local/bin/node
 STEW_PID=/var/run/steward.pid
 STEW_ARGS="/home/pi/steward/platforms/raspberry_pi/server.js"
 STEW_FILE="/var/log/steward.log"
-
 PID=
 
+BLUETOOTH_ENABLE=true
+if [ -r /etc/default/steward ]; then
+    . /etc/default/steward
+fi
+
 case "$1" in
-start) echo "Bringing up Bluetooth LE dongle"
-   $HCI hci0 up
-   echo -n "Start bluetoothd... "
-   $BLUETOOTH >> $BLUE_FILE 2>&1 &
-   PID=$!
-   echo "pid is $PID"
-   echo $PID >> $BLUE_PID
+start)
+   if [ "$BLUETOOTH_ENABLE" = "true" ]; then
+       echo "Bringing up Bluetooth LE dongle"
+       $HCI hci0 up
+       echo -n "Start bluetoothd... "
+       $BLUETOOTH >> $BLUE_FILE 2>&1 &
+       PID=$!
+       echo "pid is $PID"
+       echo $PID >> $BLUE_PID
+    fi
    
    if [ ! -f /home/pi/steward/steward/db/server.key ]; then
 	 echo -n "Creating server key..."
@@ -75,17 +82,25 @@ EOF
    echo "pid is $PID"
    echo $PID >> $STEW_PID
    ;;
-stop)   echo -n "Stop steward services..."
-   echo -n "killing "
-   echo -n `cat $STEW_PID`
-   kill `cat $STEW_PID`
-   rm $STEW_PID
-   echo -n " "
-   echo `cat $BLUE_PID`
-   kill `cat $BLUE_PID`
-   rm $BLUE_PID
-   echo "Shutting down Bluetooth LE dongle"
-   $HCI hci0 down
+stop)
+   echo -n "Stop steward services..."
+   if [ -e $STEW_PID ]; then
+       echo -n "killing "
+       echo `cat $STEW_PID`
+       kill `cat $STEW_PID`
+       rm $STEW_PID
+   else
+       echo "steward was not running"
+   fi
+   if [ -e $BLUE_PID ]; then
+       echo -n "Stop Bluetooth..."
+       echo -n "killing "
+       echo `cat $BLUE_PID`
+       kill `cat $BLUE_PID`
+       rm $BLUE_PID
+       echo "Shutting down Bluetooth LE dongle"
+       $HCI hci0 down
+   fi
    ;;
 restart)
    $0 stop

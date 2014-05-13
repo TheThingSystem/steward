@@ -1,0 +1,4 @@
+# start bluetooth when starting the steward
+#  only allowed values are "true"  and "false"
+BLUETOOTH_ENABLE=true
+
