@@ -8,7 +8,7 @@ var http        = require('http')
 var locations = {};
 
 new SSDP().on('response', function(msg, rinfo) {
-  var f, fetch, i, info, j, location, lines;
+  var f, fetch, i, info, j, location, lines, options;
 
   lines = msg.toString().split("\r\n");
   info = {};
@@ -67,7 +67,8 @@ new SSDP().on('response', function(msg, rinfo) {
   if (!!locations[location]) return;
   locations[location] = true;
 
-  http.request(url.parse(location), function(response) {
+  options = url.parse(location);
+  http.request(options, function(response) {
     var data = '';
 
     response.on('data', function(chunk) {
@@ -82,8 +83,9 @@ new SSDP().on('response', function(msg, rinfo) {
         return f(location, response.headers, data);
       }
 
-      if ((!json.root) || (!json.root.URLBase)
-            || (!json.root.device.serviceList) || (!util.isArray(json.root.device.serviceList.service))) return;
+      if ((!!json.root) && (!json.root.URLBase)) json.root.URLBase = options.protocol + '//' + options.host + '/';
+
+      if ((!json.root) || (!json.root.device.serviceList) || (!util.isArray(json.root.device.serviceList.service))) return;
 
       for (i = 0; i < json.root.device.serviceList.service.length; i++) {
         s = json.root.device.serviceList.service[i];
