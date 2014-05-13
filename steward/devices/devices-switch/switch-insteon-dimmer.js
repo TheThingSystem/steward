@@ -20,12 +20,13 @@ var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.url = info.url;
   self.status = 'waiting';
   self.changed();
   self.gateway = info.gateway;
   self.insteon = info.device.unit.serial;
   self.info = {};
+
+  if (!self.gateway.roundtrip) self.light = new self.gateway.insteon.light(self.insteon);
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -33,7 +34,7 @@ var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  self.gateway.upstream[self.insteon] = self;
+  if (!!self.gateway.upstream) self.gateway.upstream[self.insteon] = self;
   self.refresh(self);
   setInterval(function() { self.refresh(self); }, 30 * 1000);
 };
@@ -41,7 +42,13 @@ util.inherits(Insteon_Dimmer, plug.Device);
 
 
 Insteon_Dimmer.prototype.refresh = function(self) {
-  self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
+  if (!self.light) return self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
+
+  self.light.level(function(err, level) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'light.level', diagnostic: err.message });
+
+    self.level(self, level);
+  });
 };
 
 Insteon_Dimmer.prototype.callback = function(self, messageType, message) {
@@ -49,7 +56,7 @@ Insteon_Dimmer.prototype.callback = function(self, messageType, message) {
     case '0250':
       switch (message.substr(message.length - 6, 2)) {
         case '20':
-          return self.level(self, message.substr(-2));
+          return self.level(self, devices.percentageValue(parseInt(message.substr(-2), 16), 255));
 
         default:
           break;
@@ -64,7 +71,7 @@ Insteon_Dimmer.prototype.callback = function(self, messageType, message) {
       switch (message.substr(message.length - 8, 4)) {
         case '0011':
         case '0013':
-          return self.level(self, message.substr(-4));
+          return self.level(self, devices.percentageValue(parseInt(message.substr(-4), 16), 255));
 
         default:
           break;
@@ -77,8 +84,8 @@ Insteon_Dimmer.prototype.callback = function(self, messageType, message) {
   return logger.warning('device/' + self.deviceID, { event: 'unexpected message', message: message });
 };
 
-Insteon_Dimmer.prototype.level = function(self, lvl) {
-  var level = devices.percentageValue(parseInt(lvl, 16), 255);
+Insteon_Dimmer.prototype.level = function(self, level) {
+  level = devices.boundedValue(level, 0, 100);
 
   if (level === 0) {
     if ((self.status === 'off') && (self.info.level === level)) return;
@@ -120,7 +127,13 @@ Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-  self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '00' + (state.on ? ('11' + state.level) : '1300'));
+  if (!self.light) {
+    self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '00' + (state.on ? ('11' + state.level) : '1300'));
+  } else if (state.on) {
+    self.light.turnOn(state.level);
+  } else {
+    self.light.turnOff();
+  }
   return steward.performed(taskID);
 };
 

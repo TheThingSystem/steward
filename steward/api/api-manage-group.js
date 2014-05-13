@@ -90,7 +90,7 @@ var create = function(logger, ws, api, message, tag) {
   }
 
   if (!!groups[uuid])                                       return error(false, 'duplicate uuid',
-                                                                         (!!groups[uuid].groupID) 
+                                                                         (!!groups[uuid].groupID)
                                                                            ? 'group/' + groups[uuid].groupID : null);
   groups[uuid] = {};
 

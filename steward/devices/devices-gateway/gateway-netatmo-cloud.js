@@ -124,7 +124,7 @@ Cloud.prototype.scan = function(self) {
       for (j = 0; j < station.modules.length; j++) {
         id = station.modules[j];
         if (!!modules[id]) {
-          self.addstation(self, modules[id], station.station_name, 
+          self.addstation(self, modules[id], station.station_name,
                           util.isArray(station.last_data_store) ? station.last_data_store[id]
                                                                 : modules[id].last_data_store, coordinates);
         }

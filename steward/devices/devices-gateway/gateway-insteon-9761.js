@@ -1,3 +1,5 @@
+exports.start = function() {}; return;
+
 // +++ needs work to deal with unexpected messages and new device types
 // Insteon hub: http://www.insteon.com/2242-222-insteon-hub.html
 // Insteon SmartLinc: http://www.insteon.com/2412N-smartlinc-central-controller.html
@@ -1164,12 +1166,10 @@ exports.start = function() {
   steward.actors.device.gateway.insteon.powerlinc.$info.type = '/device/gateway/insteon/powerlinc';
   devices.makers['/device/gateway/insteon/powerlinc'] = Gateway;
 
-  require('./../../discovery/discovery-portscan').pairing([ 9761 ], pair);
-
-
   utility.acquire2(__dirname + '/../*/*-insteon-*.js', function(err) {
     if (!!err) logger('insteon-9761', { event: 'glob', diagnostic: err.message });
 
+    require('./../../discovery/discovery-portscan').pairing([ 9761 ], pair);
     scan();
   });
 };

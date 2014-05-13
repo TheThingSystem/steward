@@ -79,8 +79,6 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
                                                                               + clients[uuid].clientID
                                                                           : null);
 
-
-                                                                     
     if (!!name2client(user, name))                          return error(false, 'duplicate name');
     clients[uuid] = {};
   }

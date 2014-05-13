@@ -73,7 +73,7 @@ var create = function(logger, ws, api, message, tag) {
   }
 
   if (!!activities[uuid])              return error(false, 'duplicate uuid',
-                                                    (!!activities[uuid].activityID) ? 'activity/' + activities[uuid].activityID 
+                                                    (!!activities[uuid].activityID) ? 'activity/' + activities[uuid].activityID
                                                                                     : null);
   activities[uuid] = {};
 

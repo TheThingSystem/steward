@@ -27,6 +27,7 @@
     , "glob"                    : "3.2.9"
     , "greenwave-gop"           : "0.0.2"
     , "grovestreams-api"        : "0.2.3"
+    , "home-controller"         : "0.4.0"
     , "irobot"                  : "git://github.com/TheThingSystem/irobot.git"
     , "json-stringify-safe"     : "4.0.0"
     , "koubachi"                : "0.0.4"

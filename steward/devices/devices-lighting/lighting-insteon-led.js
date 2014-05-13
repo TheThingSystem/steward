@@ -26,13 +26,15 @@ var Insteon = exports.Device = function(deviceID, deviceUID, info) {
   self.insteon = info.device.unit.serial;
   self.info = { color: { model: 'rgb', rgb: { r: 255, g: 255, b: 255 }, fixed: true } };
 
+  if (!self.gateway.roundtrip) self.light = new self.gateway.insteon.light(self.insteon);
+
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  self.gateway.upstream[self.insteon] = self;
+  if (!!self.gateway.upstream) self.gateway.upstream[self.insteon] = self;
   self.refresh(self);
   setInterval(function() { self.refresh(self); }, 30 * 1000);
 };
@@ -40,7 +42,13 @@ util.inherits(Insteon, lighting.Device);
 
 
 Insteon.prototype.refresh = function(self) {
-  self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
+  if (!self.light) return self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
+
+  self.light.level(function(err, brightness) {
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'light.level', diagnostic: err.message });
+
+    self.brightness(self, brightness);
+  });
 };
 
 Insteon.prototype.callback = function(self, messageType, message) {
@@ -48,7 +56,7 @@ Insteon.prototype.callback = function(self, messageType, message) {
     case '0250':
       switch (message.substr(message.length - 6, 2)) {
         case '20':
-          return self.brightness(self, message.substr(-2));
+          return self.brightness(self, devices.percentageValue(parseInt(message.substr(-2), 16), 255));
 
         default:
           break;
@@ -63,7 +71,7 @@ Insteon.prototype.callback = function(self, messageType, message) {
       switch (message.substr(message.length - 8, 4)) {
         case '0011':
         case '0013':
-          return self.brightness(self, message.substr(-4));
+          return self.brightness(self, devices.percentageValue(parseInt(message.substr(-4), 16), 255));
 
         default:
           break;
@@ -76,8 +84,8 @@ Insteon.prototype.callback = function(self, messageType, message) {
   return logger.warning('device/' + self.deviceID, { event: 'unexpected message', message: message });
 };
 
-Insteon.prototype.brightness = function(self, bri) {
-  var brightness = devices.percentageValue(parseInt(bri, 16), 255);
+Insteon.prototype.brightness = function(self, brightness) {
+  brightness = devices.boundedValue(brightness, 0, 100);
 
   if (brightness === 0) {
     if ((self.status === 'off') && (self.info.brightness === brightness)) return;
@@ -121,7 +129,13 @@ Insteon.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-  self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '00' + (state.on ? ('11' + state.brightness) : '1300'));
+  if (!self.light) {
+    self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '00' + (state.on ? ('11' + state.brightness) : '1300'));
+  } else if (state.on) {
+    self.light.turnOn(state.brightness);
+  } else {
+    self.light.turnOff();
+  }
   return steward.performed(taskID);
 };
 
