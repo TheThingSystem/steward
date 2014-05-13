@@ -58,7 +58,7 @@ Cloud.prototype.login = function(self) {
     self.changed();
 
     if (!!self.timer) clearInterval(self.timer);
-    self.timer = setInterval(function() { self.scan(self); }, 300 * 1000);
+    self.timer = setInterval(function() { self.scan(self); }, 60 * 1000);
     self.scan(self);
   }).on('error', function(err) {
     self.error(self, 'background', err);

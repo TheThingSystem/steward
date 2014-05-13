@@ -1,4 +1,4 @@
-exports.start = function() {}; return;
+// exports.start = function() {}; return;
 
 // Insteon hub: http://www.insteon.com/2242-222-insteon-hub.html
 // Insteon SmartLinc: http://www.insteon.com/2412N-smartlinc-central-controller.html
@@ -73,6 +73,8 @@ Gateway.prototype.scan = function(self) {
       return function(err, info) {
         if (!!err) return logger.error('device/' + self.device, { event: 'info', id: id, diagnostic: err.message });
 
+console.log('>>> info id=' + id);
+console.log(util.inspect(info, { depth: null }));
         self.announce(self, info);
       };
     };
@@ -93,10 +95,7 @@ Gateway.prototype.scan = function(self) {
 Gateway.prototype.announce = function(self, data) {
   var deviceType, info;
 
-console.log('>>> data');
-console.log(util.inspect(data, { depth: null }));
-
-  if ((!data.deviceCategory) || (!data.device.subCategory)) {
+  if ((!data) || (!data.deviceCategory) || (!data.deviceSubcategory)) {
     return logger.warning('device/' + self.deviceID, { event: 'unable to determine deviceType', data: data });
   }
   deviceType = 'Insteon.' + (new Buffer([data.deviceCategory.id, data.deviceSubcategory.id])).toString('hex');
