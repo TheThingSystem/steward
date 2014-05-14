@@ -15,7 +15,7 @@ var db;
 
 
 var create = function(logger, ws, api, message, tag) {
-  var actor, actorID, actorType, entity, event, group, guard, p, parts, results, uuid, v;
+  var actor, actorID, actorType, entity, group, guard, p, parts, results, uuid, v;
 
   var error = function(permanent, diagnostic, viz) {
     return manage.error(ws, tag, 'task creation', message.requestID, permanent, diagnostic, viz);
@@ -70,7 +70,7 @@ var create = function(logger, ws, api, message, tag) {
         break;
 
       case 'event':
-        if (!events.id2event(event[1]))return error(false, 'unknown guard ' + message.guard);
+        if (!events.id2event(guard[1]))return error(false, 'unknown guard ' + message.guard);
         break;
 
       default:

@@ -1,4 +1,4 @@
-// exports.start = function() {}; return;
+exports.start = function() {}; return;
 
 // Insteon hub: http://www.insteon.com/2242-222-insteon-hub.html
 // Insteon SmartLinc: http://www.insteon.com/2412N-smartlinc-central-controller.html

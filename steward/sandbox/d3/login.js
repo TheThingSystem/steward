@@ -872,6 +872,18 @@ var clouds = { '':
                    { apikey       : ''
                    }
                  }
+               , pushover          :
+                 { text           : 'If you have a Pushover account, the steward can automatically update you with alerts, etc.'
+                 , instructions   : 'Go to http://pushover.net, create an account to get a user key, and create an application to generate an API key.'
+                 , site           : 'https://pushover.net/login'
+                 , icon           : ''
+                 , name           : 'pushover'
+                 , actor          : '/device/indicator/pushover/text'
+                 , info           :
+                   { apikey       : ''
+                   , userkey      : ''
+                   }
+                 }
                , 'telldus live'   :
                  { text           : 'If you have one or more TellStick Net devices, the steward can manage them for you.'
                  , instructions   : 'Go to http://login.telldus.com to create a Telldus Live account, then go to http://api.telldus.com and "Generate a private token for my user only"'
