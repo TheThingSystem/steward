@@ -23,10 +23,10 @@ var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   self.status = 'waiting';
   self.changed();
   self.gateway = info.gateway;
-  self.insteon = info.device.unit.serial;
+  self.insteonID = info.device.unit.serial;
   self.info = {};
 
-  if (!self.gateway.roundtrip) self.light = new self.gateway.insteon.light(self.insteon);
+  if (!self.gateway.roundtrip) self.light = self.gateway.insteon.light(self.insteonID);
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -34,7 +34,7 @@ var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  if (!!self.gateway.upstream) self.gateway.upstream[self.insteon] = self;
+  if (!!self.gateway.upstream) self.gateway.upstream[self.insteonID] = self;
   self.refresh(self);
   setInterval(function() { self.refresh(self); }, 30 * 1000);
 };
@@ -42,7 +42,7 @@ util.inherits(Insteon_Dimmer, plug.Device);
 
 
 Insteon_Dimmer.prototype.refresh = function(self) {
-  if (!self.light) return self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '001900');
+  if (!self.light) return self.gateway.roundtrip(self.gateway, '0262' + self.insteonID + '001900');
 
   self.light.level(function(err, level) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'light.level', diagnostic: err.message });
@@ -128,11 +128,22 @@ Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
   logger.info('device/' + self.deviceID, { perform: state });
 
   if (!self.light) {
-    self.gateway.roundtrip(self.gateway, '0262' + self.insteon + '00' + (state.on ? ('11' + state.level) : '1300'));
+    self.gateway.roundtrip(self.gateway, '0262' + self.insteonID + '00' + (state.on ? ('11' + state.level) : '1300'));
   } else if (state.on) {
-    self.light.turnOn(state.level);
+    self.light.turnOn(params.level, function(err, results) {/* jshint unused: false */
+      if (!!err) return logger.info('device/' + self.deviceID, { event: 'turnOn', diagnostic: err.message });
+
+      self.level(self, params.level);
+    });
   } else {
-    self.light.turnOff();
+    self.light.turnOffFast(function(err, results) {/* jshint unused: false */
+      if (!!err) return logger.info('device/' + self.deviceID, { event: 'turnOffFast', diagnostic: err.message });
+
+      if (self.status !== 'off') {
+        self.status = 'off';
+        self.changed();
+      }
+    });
   }
   return steward.performed(taskID);
 };
@@ -160,6 +171,8 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
+  var pair;
+
   steward.actors.device['switch'].insteon = steward.actors.device['switch'].insteon ||
       { $info     : { type: '/device/switch/insteon' } };
 
@@ -182,4 +195,13 @@ exports.start = function() {
   devices.makers['Insteon.0112'] = Insteon_Dimmer;
   devices.makers['Insteon.01ef'] = Insteon_Dimmer;
   devices.makers['Insteon.0120'] = Insteon_Dimmer;
+
+  try {
+    pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
+
+    pair ({ '/device/switch/insteon/dimmer'      : { maker   : Insteon_Dimmer
+                                                   , entries : [ '0100', '010e', '010f', '0111', '0112', '01ef', '0120'  ]
+                                                   }
+          });
+  } catch(ex) { }
 };

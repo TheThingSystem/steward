@@ -52,7 +52,7 @@ Cloud.prototype.login = function(self) {
 
   if (!!self.timer) clearInterval(self.timer);
 
-  var bgerror = function(err) { logger.error('device/' + self.device, { event: 'background', diagnostic: err.message }); };
+  var bgerror = function(err) { logger.error('device/' + self.deviceID, { event: 'background', diagnostic: err.message }); };
 
   self.lookup('automatic', function(err, options) {
     var client, user;

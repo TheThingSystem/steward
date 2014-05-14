@@ -51,13 +51,13 @@ Gateway.prototype.setup = function(self) {
   self.insteon = new Insteon().on('connect', function() {
     self.scan(self);
   }).on('command', function(command) {
-    logger.warning('device/' + self.device, { event: 'command', command: command });
+    logger.warning('device/' + self.deviceID, { event: 'command', command: command });
   }).on('close', function() {
-    logger.warning('device/' + self.device, { event: 'close' });
+    logger.warning('device/' + self.deviceID, { event: 'close' });
 
     setTimeout(function() { self.setup(self); }, 5 * 1000);
   }).on('error', function(err) {
-    logger.error('device/' + self.device, { event: 'background', diagnostic: err.message });
+    logger.error('device/' + self.deviceID, { event: 'background', diagnostic: err.message });
   });
 
   self.insteon.connect(self.portscan.ipaddr, self.portscan.portno);
@@ -67,11 +67,11 @@ Gateway.prototype.scan = function(self) {
   self.insteon.links(function(err, links) {
     var i, id;
 
-    if (!!err) return logger.error('device/' + self.device, { event: 'links', diagnostic: err.message });
+    if (!!err) return logger.error('device/' + self.deviceID, { event: 'links', diagnostic: err.message });
 
     var f = function(id) {
       return function(err, info) {
-        if (!!err) return logger.error('device/' + self.device, { event: 'info', id: id, diagnostic: err.message });
+        if (!!err) return logger.error('device/' + self.deviceID, { event: 'info', id: id, diagnostic: err.message });
 
 console.log('>>> info id=' + id);
 console.log(util.inspect(info, { depth: null }));
@@ -93,31 +93,34 @@ console.log(util.inspect(info, { depth: null }));
 };
 
 Gateway.prototype.announce = function(self, data) {
-  var deviceType, info;
+  var info, productID;
 
   if ((!data) || (!data.deviceCategory) || (!data.deviceSubcategory)) {
-    return logger.warning('device/' + self.deviceID, { event: 'unable to determine deviceType', data: data });
+    return logger.warning('device/' + self.deviceID, { event: 'unable to determine device category', data: data });
   }
-  deviceType = 'Insteon.' + (new Buffer([data.deviceCategory.id, data.deviceSubcategory.id])).toString('hex');
+  productID = 'Insteon.' + (new Buffer([data.deviceCategory.id, data.deviceSubcategory.id])).toString('hex');
+  if (!deviceTypes[productID]) {
+    return logger.warning('device/' + self.deviceID, { event: 'unable to determine product category', data: data });
+  }
 
   info = { source: self.deviceID, gateway: self };
   info.device = { url          : null
                 , name         : 'Insteon ' + sixtoid(data.id)
                 , manufacturer : ''
                 , model        : { name        : data.deviceCategory.name
-                                 , description : data.productKey
-                                 , number      : data.deviceCategory.id + data.deviceSubCategory.id
+                                 , description : data.productKey || ''
+                                 , number      : data.deviceCategory.id + data.deviceSubcategory.id
                                  }
                 , unit         : { serial      : data.id
                                  , udn         : 'insteon:' + sixtoid(data.id)
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = deviceType;
+  info.deviceType = deviceTypes[productID];
   info.id = info.device.unit.udn;
   if (!!devices.devices[info.id]) return;
 
-  logger.info('device/' + self.deviceID, { id: sixtoid(data.id), productKey: data.productKey });
+  logger.info('device/' + self.deviceID, { id: sixtoid(data.id), category: data.deviceCategory.name });
   devices.discover(info);
 };
 
@@ -239,6 +242,20 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
   socket.setTimeout(3 * 1000);
 };
 
+
+var deviceTypes = {};
+
+exports.pair = function(pairings) {
+  var deviceType, entries, i;
+
+  for (deviceType in pairings) {
+    if (!pairings.hasOwnProperty(deviceType)) continue;
+    entries = pairings[deviceType].entries;
+
+    devices.makers[deviceType] = pairings[deviceType].maker;
+    for (i = 0; i < entries.length; i++) deviceTypes['Insteon.' + entries[i]] = deviceType;
+  }
+};
 
 exports.start = function() {
   steward.actors.device.gateway.insteon = steward.actors.device.gateway.insteon ||
