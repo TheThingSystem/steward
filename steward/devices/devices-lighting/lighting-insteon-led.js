@@ -212,10 +212,10 @@ exports.start = function() {
   try {
     pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
 
-    pair ({ '/device/lighting/insteon/bulb'      : { maker   : '/device/lighting/insteon/bulb'
+    pair ({ '/device/lighting/insteon/bulb'      : { maker   : Insteon_LED
                                                    , entries : [ '013a', '013b', '013c', '014c', '014d', '0151'  ]
                                                    }
-          , '/device/lighting/insteon/downlight' : { maker   : '/device/lighting/insteon/downlight'
+          , '/device/lighting/insteon/downlight' : { maker   : Insteon_LED
                                                    , entries : [ '0149', '014a', '014b', '014e', '014f'          ]
                                                    }
           });
