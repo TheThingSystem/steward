@@ -80,7 +80,7 @@ Gateway.prototype.setup = function(self) {
     self.callbacks = {};
 
     if (!!self.comName) {
-      self.stream = new serialport.SerialPort(self.comName);
+      self.stream = new serialport.SerialPort(self.comName, { baudrate: 19200, databits: 8, parity: 'none', stopbits: 1 });
       return self.stream.on('open', function() {
         self.status = 'ready';
         self.changed();
@@ -1122,7 +1122,7 @@ var scan1 = function(driver) {
       default:     info.deviceType += 'powerlinc'; break;
     }
     info.id = info.device.unit.udn;
-    if (!!devices.devices[info.id]) return stream.destroy();
+    if (!!devices.devices[info.id]) return stream.close();
 
     logger2.info(driver.comName, { id: address, description: deviceType, firmware: firmware });
     devices.discover(info);
