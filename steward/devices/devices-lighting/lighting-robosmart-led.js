@@ -138,11 +138,9 @@ RoboSmart.prototype.perform = function(self, taskID, perform, parameter) {
   else {
     state.on = true;
 
-    if ((!!params.brightness) && (!lighting.validBrightness(params.brightness))) return false;
     if (!params.brightness) params.brightness = self.info.brightness;
+    if ((!lighting.validBrightness(params.brightness)) || (params.brightness === 0)) params.brightness = 100;
     state.brightness = roboSmartBrightness(params.brightness);
-
-    if (params.brightness === 0) state.on = false;
   }
 
   logger.info('device/' + self.deviceID, { perform: state });

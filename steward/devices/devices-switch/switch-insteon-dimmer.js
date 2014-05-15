@@ -121,7 +121,7 @@ Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
     state.on = true;
 
     if (!params.level) params.level = self.info.level;
-    if ((params.level <= 0) || (params.level > 100)) params.level = 100;
+    if ((!plug.validLevel(params.level)) || (params.level === 0)) params.level = 100;
     state.level = insteonLevel(params.level);
   }
 

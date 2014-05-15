@@ -101,17 +101,18 @@ ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
   state = {};
   if (perform === 'off') state.level = 0;
-  else if (perform === 'on') state.level = (params.level > 0 && params.level < 100) ? params.level : 50;
-  else return false;
-
+  else if (perform === 'off') return false;
+  else {
+    if (!params.level) params.level = self.info.level;
+    if ((!plug.validLevel(params.level)) || (params.level === 0)) params.level = 100;
+    state.level = params.level;
+  }
   state.status = state.level > 0 ? 'on' : 'off';
 
-  if (self.status !== state.status || self.info.level !== state.level) {
-    logger.info('device/' + self.deviceID, state);
-    self.driver.setLevel(self.peripheral.nodeid, state.level);
-    self.changed();
-    return steward.performed(taskID);
-  }
+  logger.info('device/' + self.deviceID, state);
+  self.driver.setLevel(self.peripheral.nodeid, state.level);
+  self.update(self, 'value changed', 0x26, { index: 0, value: state.level });
+  return steward.performed(taskID);
 };
 
 

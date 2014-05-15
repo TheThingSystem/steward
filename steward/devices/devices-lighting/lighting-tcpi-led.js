@@ -160,7 +160,7 @@ var childprops = function(self, led) {
 };
 
 GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led) {
-  var bri, params, props, state;
+  var params, props, state;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -191,18 +191,16 @@ GreenWaveGOP.prototype.perform = function(self, taskID, perform, parameter, led)
   else {
     state.on = true;
 
-    if ((!!params.brightness) && (!!props.state.brightness.min) && (!!props.state.brightness.max)) {
-      if (!lighting.validBrightness(params.brightness)) return false;
-      state.brightness = params.brightness;
-      bri = devices.scaledPercentage(state.brightness, props.state.brightness.min,  props.state.brightness.max);
+    if ((!!props.state.brightness.min) && (!!props.state.brightness.max)) {
+      if (!params.brightness) params.brightness = self.info.brightness;
+      if ((!lighting.validBrightness(params.brightness)) || (params.brightness === 0)) params.brightness = 100;
+      state.brightness = devices.scaledPercentage(params.brightness, props.state.brightness.min,  props.state.brightness.max);
     }
-
-    if (bri === 0) state.on = false;
   }
 
   logger.notice('device/' + self.deviceID, { perform: state });
 
-  self.controller.setBulbLevel(led, state.on, bri);
+  self.controller.setBulbLevel(led, state.on, state.brightness);
 
   self.bulbs[led].state.on = state.on;
   if (state.on) self.bulbs[led].state.brightness.level = state.brightness;

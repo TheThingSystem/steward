@@ -48,14 +48,18 @@ Dimmer.prototype.update = function(self, params) {
   }
 
   status = self.params.online === '0' ? 'absent' : self.params.status;
-  if (status !== self.status) {
-    self.status = status;
-    updateP = true;
+
+  if (status === 'dim') {
+    level = Math.round((1 - (255 - self.params.statevalue) / 255) * 100);
+    status = level > 0 ? 'on' : 'off';
+    if (level !== self.info.level) {
+      self.info.level = level;
+      updateP = true;
+    }
   }
 
-  level = Math.round((1 - (255 - self.params.statevalue) / 255) * 100);
-  if (level !== self.info.level) {
-    self.info.level = level;
+  if (status !== self.status) {
+    self.status = status;
     updateP = true;
   }
 
@@ -96,7 +100,7 @@ console.log('>>> dimmer  previous setting ' + JSON.stringify({ status: self.stat
   if (perform === 'off') params.level = 0;
   else if (perform === 'on') {
     if (!params.level) params.level = self.info.level;
-    if (!plug.validLevel(params.level)) params.level = 100;
+    if ((!plug.validLevel(params.level)) || (params.level === 0)) params.level = 100;
   }
   level = devices.scaledPercentage(params.level, 0, 255);
 
