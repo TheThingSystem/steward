@@ -5,10 +5,16 @@ CHANGELOG
 ## Commit - TBD
 
 ### Steward
-- APIs: no changes
+- condition evaluation robustness
+- APIs:
+    - duplicate UUID robustness on .../create
+    - task creation robustness for guard
     - thing perform and update robustness
+    - automatically logout a thing when it logs in again
 - Discovery
     - allow SSDP hook for discovery
+- Device Expansion
+    - add *.solar, *.ago expanation
 
 ### TAAS (Things as a Service)
 - no changes
@@ -25,13 +31,18 @@ CHANGELOG
     - netatmo/rain: NEW
     - plantlink/soil: use 'waterVolume' (percentage) as an alternative to 'moisture' (millibars)
 - device/gateway:
+    - defer scanning until all subordinates loaded
+    - insteon/*: replace driver with (home-controller)[https://github.com/automategreen/home-controller] package
 - device/indicator:
+    - pushover/text: NEW
 - device/lighting:
 - device/media:
     - upnp/audio: robustness
     - pioneer/receiver: NEW
     - roku/video: enabled
-    - sonos/audio: robustness
+    - sonos/audio:
+        - detect 'zoned' status
+        - robustness
 - device/motive:
     - tesla/model-s: udpated for better energy, security monitoring
        (cf., [tesla.js](https://github.com/TheThingSystem/node-taas-client/blob/master/tesla.js) in node-taas-client)
@@ -53,8 +64,10 @@ CHANGELOG
 - no changes
 
 ### Utilities
-- no changes
-
+- start-up script: add argument to enable/disable bluetooth
+- list-ssdp:
+    - robustness
+    - dive into root UPnP devices only
 
 ## Release 1.7 "Salt Pretzel" - April 28, 2014
 ## Commit - ea6ddff00026c4402d51cbf671c1dbc349a61c64
