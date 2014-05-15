@@ -1,7 +1,8 @@
-exports.start = function() {}; return;
+// exports.start = function() {}; return;
 
-// Insteon hub: http://www.insteon.com/2242-222-insteon-hub.html
+// Insteon hub:       http://www.insteon.com/2242-222-insteon-hub.html
 // Insteon SmartLinc: http://www.insteon.com/2412N-smartlinc-central-controller.html
+// Insteon PowerLinc: http://www.insteon.com/2413U-PowerLinc-USB.html
 
 var Insteon     = require('home-controller').Insteon
   , serialport  = require('serialport')
@@ -88,7 +89,6 @@ Gateway.prototype.scan = function(self) {
       var i, id;
 
       if (!!err) return logger.error('device/' + self.deviceID, { event: 'links', diagnostic: err.message });
-console.log('>>> links='+JSON.stringify(links));
 
       var f = function(id) {
         return function(err, info) {
@@ -115,7 +115,6 @@ console.log('>>> links='+JSON.stringify(links));
 Gateway.prototype.announce = function(self, data) {
   var address, info, productCode;
 
-console.log('>>> ' + JSON.stringify(data));
   if ((!data) || (!data.deviceCategory) || (!data.deviceSubcategory)) {
     return logger.warning('device/' + self.deviceID, { event: 'unable to determine device category', data: data });
   }
@@ -446,6 +445,6 @@ exports.start = function() {
     if (!!err) logger('insteon-automategreen', { event: 'glob', diagnostic: err.message });
 
     require('./../../discovery/discovery-portscan').pairing([ 9761 ], pair);
-//  scan();
+    scan();
   });
 };
