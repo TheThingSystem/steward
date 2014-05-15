@@ -282,7 +282,7 @@ Sonos_Audio.prototype.refresh2 = function(self) {
     if (self.status === 'zoned') return;
     if (!!err) return self.error(self, err,  'currentTrack');
 
-     self.status = 'idle';
+     if (self.status === 'error') self.status = 'idle';
 
     if ((track !== undefined)
           && ((self.info.track.position !== (track.position * 1000))
