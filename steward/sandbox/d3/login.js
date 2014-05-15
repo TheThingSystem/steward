@@ -777,6 +777,19 @@ var clouds = { '':
                    , organization : ''
                    }
                  }
+               , instapush          :
+                 { text           : 'If you have a Instapush account, the steward can automatically update you with alerts, etc.'
+                 , instructions   : 'Go to http://instapush.im, create an account to get a user token, and then create an application to get an application ID and secret'
+                 , site           : 'https://instapush.im/auth/login'
+                 , icon           : ''
+                 , name           : 'instapush'
+                 , actor          : '/device/indicator/instapush/text'
+                 , info           :
+                   { token        : ''
+                   , appID        : ''
+                   , secret       : ''
+                   }
+                 }
                , koubachi         :
                  { text           : 'If you have the Koubachi plant sensor, the steward can automatically update you with alerts, etc.'
                  , instructions   : 'Go to http://labs.koubachi.com and sign up. You will get back an appkey and credentials to fill-in below.'

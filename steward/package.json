@@ -28,6 +28,7 @@
     , "greenwave-gop"           : "0.0.2"
     , "grovestreams-api"        : "0.2.3"
     , "home-controller"         : "0.4.2"
+    , "instapush"               : "git://github.com/TheThingSystem/instapush-nodejs.git"
     , "irobot"                  : "git://github.com/TheThingSystem/irobot.git"
     , "json-stringify-safe"     : "4.0.0"
     , "koubachi"                : "0.0.4"
