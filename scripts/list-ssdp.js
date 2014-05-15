@@ -67,6 +67,8 @@ new SSDP().on('response', function(msg, rinfo) {
   if (!!locations[location]) return;
   locations[location] = true;
 
+  if (info.ST !== 'upnp:rootdevice') return f(location, null, 'not a UPnP root device, skipping...');
+
   options = url.parse(location);
   http.request(options, function(response) {
     var data = '';

@@ -1,6 +1,5 @@
 var dgram  = require('dgram')
   , os     = require('os')
-  , ipaddr = '224.0.9.1'
   , portno = 22601
   ;
 
