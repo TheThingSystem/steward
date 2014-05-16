@@ -176,7 +176,7 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
   if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
   Thermostat.operations[perform](this, params);
-// call self.update here...
+  setTimeout(function() { self.refresh(self); }, 0);
   return steward.performed(taskID);
 };
 

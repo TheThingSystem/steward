@@ -784,12 +784,7 @@ exports.expand = function(line, defentity) {
     for (p = 1; p < parts.length; p++) {
       part = parts[p];
       if (!info) return null;
-      if (utility.toType(info[part]) === 'null') {
-        field = '';
-        logger.warning('info[' + part + '] is null, derived from ' + term);
-        break;
-      }
-      if ((typeof info[part] === 'undefined') || (info[part].length === 0)) {
+      if ((utility.toType(info[part]) === 'null') || (typeof info[part] === 'undefined') || (info[part].length === 0)) {
         field = '';
         break;
       }
