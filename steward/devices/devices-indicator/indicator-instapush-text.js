@@ -66,6 +66,7 @@ var Instapush = exports.Device = function(deviceID, deviceUID, info) {
 
     if ((!!err) || ((!!result) && (!!result.error) && (!!result.msg))) return self.growl(err);
 
+    levels = [];
     for (i = 0; i < result.length; i++) levels.push(result[i].title);
     for (level in winston.config.syslog.levels) {
       if (levels.indexOf(level) !== -1) continue;
