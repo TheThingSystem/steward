@@ -239,7 +239,7 @@ exports.acquire = function(logger, directory, pattern, start, stop, suffix, arg)
 exports.acquire2 = function(pattern, cb) {
   exports.acquiring++;
 
-  glob (pattern, { silent: true }, function(err, files) {
+  glob(pattern, { silent: true }, function(err, files) {
     var file, i;
 
     if (!!err) {
