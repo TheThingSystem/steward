@@ -1,12 +1,13 @@
 var fs          = require('fs')
   , http        = require('http')
   , https       = require('https')
-  , mime        = require('mime')
+//, mime        = require('mime')
   , mqtt        = require('mqtt')
   , net         = require('net')
   , portfinder  = require('portfinder')
   , speakeasy   = require('speakeasy')
 //, ssh_keygen  = require('ssh-keygen')
+  , static      = require('node-static')
 //, tls         = require('tls')
   , url         = require('url')
   , util        = require('util')
@@ -105,6 +106,7 @@ var start = function(port, secureP) {
     var crt     = __dirname + '/../sandbox/server.crt'
       , key     = __dirname + '/../db/server.key'
       , options = { port : portno }
+      , stasis  = new static.Server(__dirname + '/../sandbox')
       ;
 
     if (err) return logger.error('server', { event: 'portfinder.getPort ' + port, diagnostic: err.message });
@@ -163,8 +165,6 @@ var start = function(port, secureP) {
     })._server;
     server.removeAllListeners('request');
     server.on('request', function(request, response) {
-      var ct;
-
       var u = url.parse(request.url);
       var pathname = u.pathname;
       var tag = httpsT + ' ' + request.connection.remoteAddress + ' ' + request.connection.remotePort + ' ' + pathname;
@@ -228,9 +228,23 @@ var start = function(port, secureP) {
         return response.end('404 not found');
       }
 
+      u.pathname = pathname;
+      request.url = url.format(u);
+      stasis.serve(request, response, function(err, result) {
+        if (!!err) {
+          response.writeHead(err.status, err.headers);
+          response.end();
+          return logger.warning(tag, { code: err.status, message: err.message });
+        }
+
+        logger.info(tag,
+                    { code: result.status, type: result.headers['Content-Type'], octets: result.headers['Content-Length'] });
+      });
+
+/*
       pathname = __dirname + '/../sandbox/' + decodeURI(pathname.slice(1));
 
-      ct = mime.lookup(pathname);
+      var ct = mime.lookup(pathname);
 
       fs.readFile(pathname, function(err, data) {
         var code, diagnostic;
@@ -255,6 +269,7 @@ var start = function(port, secureP) {
                                 });
         response.end(request.method === 'GET' ? data : '');
       });
+*/
     });
 
     if (!wssP) wssP = portno;

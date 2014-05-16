@@ -53,6 +53,7 @@
     , "node-pushover"           : "0.2.2"
     , "node-ssdp"               : "git://github.com/TheThingSystem/node-ssdp.git"
     , "node-ssh-fingerprint"    : "git://github.com/TheThingSystem/node-ssh-fingerprint.git"
+    , "node-static"             : "0.7.3"
     , "node-uuid"               : "1.4.0"
     , "node-winkapi"            : "0.1.2"
     , "observer"                : "1.1.0"
