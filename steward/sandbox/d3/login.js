@@ -923,6 +923,20 @@ var clouds = { '':
                    , passphrase   : ''
                    }
                  }
+               , twitter          :
+                 { text           : 'If you make a new developer twitter account, then the steward can post tweets.'
+                 , instructions   : 'Go to http://twitter.com to create an account, then http://dev.twiter.com to create an application.'
+                 , site           : 'http://dev.twitter.com'
+                 , icon           : ''
+                 , name           : 'twitter'
+                 , actor          :'/device/indicator/twitter/text'
+                 , info           :
+                   { consumerKey  : ''
+                   , consumerSecret : ''
+                   , token        : ''
+                   , tokenSecret  : ''
+                   }
+                 }
                , wink             :
                  { text           : 'If you have one or more Quirky smart devices, the steward can manage them for you.'
                  , instructions   : 'Enter your OAuth info, along with your Wink email and password. To get OAuth info, send an email to questions@quirkyinc.com.'

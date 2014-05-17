@@ -72,7 +72,7 @@ var Instapush = exports.Device = function(deviceID, deviceUID, info) {
       if (levels.indexOf(level) !== -1) continue;
 
       self.instapush.addEvent({ title: level, trackers: [ 'message' ], message: "{message}" }, self.growl);
-    }    
+    }
   });
 
   broker.subscribe('beacon-egress', function(category, data) {

@@ -1,4 +1,4 @@
-// 
+// Insteon wired thermostat: http://www.insteon.com/pdf/2441TH.pdf
 
 var util        = require('util')
   , devices     = require('./../../core/device')
