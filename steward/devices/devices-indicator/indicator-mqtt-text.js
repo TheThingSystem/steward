@@ -132,7 +132,7 @@ Mqtt.prototype.login = function(self) {
 };
 
 Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
-  var param, params, updateP;
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -142,14 +142,7 @@ Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
       delete(params.name);
     }
 
-    updateP = false;
-    for (param in params) {
-      if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
-
-      self.info[param] = params[param];
-      updateP = true;
-    }
-    if (!updateP) return true;
+    if (!self.updateInfo(params)) return true;
 
     self.setInfo();
     if (!!self.mqtt) {

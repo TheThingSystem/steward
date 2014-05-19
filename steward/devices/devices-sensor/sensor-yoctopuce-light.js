@@ -82,19 +82,14 @@ Sensor.prototype.scan = function(self) {
 };
 
 Sensor.prototype.update = function(self, params, status) {
-  var param, updateP;
+  var updateP = false;
 
-  updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
-  for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
+  if (self.updateInfo(params)) updateP = true;
 
-    self.info[param] = params[param];
-    updateP = true;
-  }
   if (updateP) {
     self.changed();
     sensor.update(self.deviceID, params);

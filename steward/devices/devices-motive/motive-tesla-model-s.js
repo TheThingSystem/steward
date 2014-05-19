@@ -288,7 +288,7 @@ ModelS.prototype.scan = function(self) {
         self.info.heading = data.heading;
       }
 
-      speed = (!!data.speed) ? data.speed * 0.44704 : 0;    // miles/hour -> meters/second
+      speed = (!!data.speed) ? (data.speed * 0.44704).toFixed(1) : 0;    // miles/hour -> meters/second
       if (self.info.velocity !== speed) {
         didP = true;
         self.info.velocity = speed;
@@ -394,7 +394,7 @@ ModelS.prototype.stream = function(self, fastP) {
       }
 
       if (!self.info.cycleTime) self.info.cycleTime = new Date().getTime();
-      speed = (!!sample.speed) ? sample.speed * 0.44704 : 0;    // miles/hour -> meters/second
+      speed = (!!sample.speed) ? (sample.speed * 0.44704).toFixed(1) : 0;    // miles/hour -> meters/second
       if (self.info.velocity !== speed) {
         didP = true;
 
@@ -404,13 +404,13 @@ ModelS.prototype.stream = function(self, fastP) {
         self.info.velocity = speed;
       }
 
-      odometer = sample.odometer * 1.60934;    // miles -> kilometers
+      odometer = (sample.odometer * 1.60934).toFixed(1);    // miles -> kilometers
       if (self.info.odometer != odometer) {
         didP = true;
         self.info.odometer = odometer;
       }
 
-      range = sample.range * 1.60934;    // miles -> kilometers
+      range = (sample.range * 1.60934).toFixed(2);    // miles -> kilometers
       if (self.info.range != range) {
         didP = true;
         self.info.range = range;

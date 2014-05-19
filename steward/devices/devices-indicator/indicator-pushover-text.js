@@ -100,7 +100,7 @@ util.inherits(Pushover, indicator.Device);
 
 
 Pushover.prototype.perform = function(self, taskID, perform, parameter) {
-  var param, params, updateP;
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -110,14 +110,7 @@ Pushover.prototype.perform = function(self, taskID, perform, parameter) {
       delete(params.name);
     }
 
-    updateP = false;
-    for (param in params) {
-      if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
-
-      self.info[param] = params[param];
-      updateP = true;
-    }
-    if (updateP) self.setInfo();
+    if (self.updateInfo(params)) self.setInfo();
 
     return true;
   }

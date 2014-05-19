@@ -287,6 +287,57 @@ Device.prototype.proplist = function() {
          };
 };
 
+Device.prototype.initInfo = function(params) {
+  var self = this;
+
+  var actors, i, param, path, status;
+
+  status = 'present';
+  if (!!params.status) {
+    status = params.status;
+    delete(params.status);
+  }
+
+  self.info = {};
+
+  path = self.whatami.split('/');
+  actors = steward.actors;
+  for (i = 1; i < path.length; i++) {
+    if (!actors[path[i]]) break;
+    actors = actors[path[i]];
+  }
+  if ((!actors) || (!actors.$info)) {
+    for (param in params) if ((params.hasOwnProperty(param)) && (typeof params[param] !== 'undefined')) {
+      self.info[param] = params[param];
+    }
+    return status;
+  }
+
+  self.$properties = actors.$info.properties;
+  for (param in params) {
+    if ((params.hasOwnProperty(param)) && (!!self.$properties[param])) self.info[param] = params[param];
+  }
+
+  return status;
+};
+
+Device.prototype.updateInfo = function(params) {
+  var self = this;
+
+  var param, updateP;
+
+  updateP = false;
+
+  for (param in params) {
+    if ((!params.hasOwnProperty(param)) || (self.info[param] !== 'undefined') || (self.info[param] === params[param])) continue;
+
+    self.info[param] = params[param];
+    updateP = true;
+  }
+
+  return updateP;
+};
+
 var sensor = null;
 
 Device.prototype.addinfo = function(info, changedP) {

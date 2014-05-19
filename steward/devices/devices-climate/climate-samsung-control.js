@@ -166,7 +166,7 @@ Thermostat.prototype.setup = function () {
 };
 
 Thermostat.prototype.update = function(self, params, status) {
-  var param, updateP;
+  var updateP = false;
 
   if (!!params.power) {
     self.power = params.power;
@@ -174,17 +174,12 @@ Thermostat.prototype.update = function(self, params, status) {
     if (self.power === 'off') params.hvac = 'off';
   }
 
-  updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
-  for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+  if (self.updateInfo(params)) updateP = true;
 
-    self.info[param] = params[param];
-    updateP = true;
-  }
   if (updateP) {
     self.changed();
     sensor.update(self.deviceID, params);

@@ -20,9 +20,10 @@ var client;
 var listening;
 
 var listen = function(addr, portno) {/* jshint multistr: true */
-  var data, filename, ssdp;
+  var data, filename, filepath, ssdp;
 
-  filename = __dirname + '/../sandbox/index.xml';
+  filename = 'index-' + addr + '.xml';
+  filepath = __dirname + '/../sandbox/' + filename;
   data =
 '<?xml version="1.0"?>\
 \
@@ -44,18 +45,18 @@ var listen = function(addr, portno) {/* jshint multistr: true */
     <presentationURL></presentationURL>\
   </device>\
 </root>';
-  fs.unlink(filename, function(err) {/* jshint unused: false */
-    fs.writeFile(filename, data, { encoding: 'utf8', mode: parseInt(0644, 8), flag: 'w' }, function(err) {
-      if (err) {
+  fs.unlink(filepath, function(err) {/* jshint unused: false */
+    fs.writeFile(filepath, data, { encoding: 'utf8', mode: parseInt('0644', 8), flag: 'w' }, function(err) {
+      if (!!err) {
         logger.error('discovery', { event: 'fs.writefile', diagnostic: err.message });
-        fs.unlink(filename);
+        fs.unlink(filepath);
       }
     });
   });
 
   ssdp = new SSDP();
   ssdp.logger = logger;
-  ssdp.description = 'index.xml';
+  ssdp.description = filename;
   ssdp.addUSN('upnp:rootdevice');
   ssdp.addUSN('urn:schemas-upnp-org:device:Basic:1');
 
@@ -68,7 +69,7 @@ var listen = function(addr, portno) {/* jshint multistr: true */
   }
 
   client = ssdp;
-  client.description = 'index.xml';
+  client.description = filename;
   client.on('advertise-alive', function(heads) {
     logger.debug('advertise-alive', { heads: stringify(heads) });
   }).on('advertise-bye', function(heads) {

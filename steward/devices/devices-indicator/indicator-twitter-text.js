@@ -22,6 +22,8 @@ var Twitter = exports.Device = function(deviceID, deviceUID, info) {
 
     if (!!err) {
       if (typeof err === 'string') err = new Error(err);
+// possible when restarting the steward...
+      if (err.message === 'Status is a duplicate.') return;
 
       self.status = 'error';
       self.changed();
@@ -53,6 +55,7 @@ var Twitter = exports.Device = function(deviceID, deviceUID, info) {
                              , access_token        : self.info.token
                              , access_token_secret : self.info.tokenSecret
                              });
+  self.previous = '';
   self.status = 'ready';
   self.elide = [ 'consumerKey', 'consumerSecret', 'token', 'tokenSecret' ];
   self.changed();
@@ -68,7 +71,7 @@ util.inherits(Twitter, indicator.Device);
 
 
 Twitter.prototype.perform = function(self, taskID, perform, parameter) {
-  var param, params, updateP;
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -78,14 +81,7 @@ Twitter.prototype.perform = function(self, taskID, perform, parameter) {
       delete(params.name);
     }
 
-    updateP = false;
-    for (param in params) {
-      if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
-
-      self.info[param] = params[param];
-      updateP = true;
-    }
-    if (updateP) self.setInfo();
+    if (self.updateInfo(params)) self.setInfo();
 
     return true;
   }
@@ -95,7 +91,10 @@ Twitter.prototype.perform = function(self, taskID, perform, parameter) {
   if ((!params.message) || (params.message.length === 0)) return false;
   if (params.message.length > 140) params.message = params.message.substr(0, 137) + '...';
 
-  self.twitter.post('statuses/update', { status: params.message }, self.growl);
+  if (params.message == self.previous) return steward.performed(false);
+  self.previous = params.message;
+
+  self.twitter.post('statuses/update', { status: self.previous }, self.growl);
   return steward.performed(taskID);
 };
 

@@ -12,9 +12,7 @@ var logger = motive.logger;
 
 
 var Lock = exports.Device = function(deviceID, deviceUID, info) {
-  var param, self;
-
-  self = this;
+  var self = this;
 
   self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
@@ -24,16 +22,9 @@ var Lock = exports.Device = function(deviceID, deviceUID, info) {
 
   self.serial = info.device.unit.serial;
 
-  self.info = {};
-  if (!!info.params.status) {
-    self.status = info.params.status;
-    delete(info.params.status);
-  } else self.status = 'present';
-  for (param in info.params) {
-    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
-  }
-
+  self.status = self.initInfo(info.params);
   self.changed();
+
   self.gateway = info.gateway;
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -46,19 +37,14 @@ util.inherits(Lock, motive.Device);
 
 
 Lock.prototype.update = function(self, params, status) {
-  var param, updateP;
+  var updateP = false;
 
-  updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
-  for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+  if (self.updateInfo(params)) updateP = true;
 
-    self.info[param] = params[param];
-    updateP = true;
-  }
   if (updateP) self.changed();
 };
 

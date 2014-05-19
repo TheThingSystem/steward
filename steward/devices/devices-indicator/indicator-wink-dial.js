@@ -56,10 +56,9 @@ util.inherits(Gauge, indicator.Device);
 
 
 Gauge.prototype.update = function(self, params) {
-  var updateP;
+  var updateP = false;
 
   self.params = params;
-  updateP = false;
 
   if (self.params.name !== self.name) {
     self.name = self.params.name;

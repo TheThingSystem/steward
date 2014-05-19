@@ -13,9 +13,7 @@ var util        = require('util')
 
 
 var Sensor = exports.Device = function(deviceID, deviceUID, info) {
-  var param, self;
-
-  self = this;
+  var self = this;
 
   self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
@@ -23,13 +21,8 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.info = {};
-  for (param in info.params) {
-    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
-  }
+  self.status = self.initInfo(info.params);
   sensor.update(self.deviceID, info.params);
-
-  self.status = 'present';
   self.changed();
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
@@ -43,19 +36,14 @@ Sensor.prototype.perform = devices.perform;
 
 
 Sensor.prototype.update = function(self, params, status) {
-  var param, updateP;
+  var updateP = false;
 
-  updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
-  for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+  if (self.updateInfo(params)) updateP = true;
 
-    self.info[param] = params[param];
-    updateP = true;
-  }
   if (updateP) {
     self.changed();
     sensor.update(self.deviceID, params);

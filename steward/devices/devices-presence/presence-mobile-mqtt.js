@@ -14,9 +14,7 @@ var util        = require('util')
 var logger   = presence.logger;
 
 var Mobile = exports.Device = function(deviceID, deviceUID, info) {
-  var param, self;
-
-  self = this;
+  var self = this;
 
   self.whatami = info.deviceType;
   self.deviceID = deviceID.toString();
@@ -24,17 +22,11 @@ var Mobile = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName();
 
-  self.info = {};
-  if (!!info.params.status) {
-    self.status = info.params.status;
-    delete(info.params.status);
-  } else self.status = 'present';
-  for (param in info.params) {
-    if ((info.params.hasOwnProperty(param)) && (!!info.params[param])) self.info[param] = info.params[param];
-  }
+  self.status = self.initInfo(info.params);
   self.info.locations = [];
-  self.timer = null;
   self.update(self, info.params);
+
+  self.timer = null;
 
   db.get('SELECT value FROM deviceProps WHERE deviceID=$deviceID AND key=$key',
                { $deviceID: self.deviceID, $key: 'info' }, function(err, row) {
@@ -64,7 +56,7 @@ util.inherits(Mobile, presence.Device);
 
 
 Mobile.prototype.perform = function(self, taskID, perform, parameter) {
-  var param, params, updateP;
+  var params;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -75,14 +67,7 @@ Mobile.prototype.perform = function(self, taskID, perform, parameter) {
     delete(params.name);
   }
 
-  updateP = false;
-  for (param in params) {
-   if ((!params.hasOwnProperty(param)) || (self.info[param] === params[param])) continue;
-
-    self.info[param] = params[param];
-    updateP = true;
-  }
-  if (updateP) self.setInfo();
+  if (self.updateInfo(params)) self.setInfo();
 
   return steward.performed(taskID);
 };
@@ -103,20 +88,14 @@ var validate_perform = function(perform, parameter) {
 
 
 Mobile.prototype.update = function(self, params, status) {
-  var param, updateP;
+  var updateP = false;
 
-  updateP = false;
   if ((!!status) && (status !== self.status)) {
     self.status = status;
     updateP = true;
   }
-  for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (!params[param]) || (self.info[param] === params[param])) continue;
+  if (self.updateInfo(params)) updateP = true;
 
-    self.info[param] = params[param];
-    if (param === 'location') self.addlocation(self);
-    updateP = true;
-  }
   if (updateP) self.changed();
 };
 
