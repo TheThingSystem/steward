@@ -1,5 +1,7 @@
 index.xml
 Index.xml
+index-*.xml
+Index-*.xml
 *.crt
 *.sha1
 *.pub
