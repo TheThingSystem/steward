@@ -1,6 +1,6 @@
 // instapush - Push Notifications: http://instapush.im
 
-var instapush   = require('instapush')
+var instapush   = require('Instapush')
   , util        = require('util')
   , winston     = require('winston')
   , serialize   = require('winston/lib/winston/common').serialize
