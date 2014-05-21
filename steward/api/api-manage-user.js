@@ -62,7 +62,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
                                                                          (!!users[uuid].userID) ? 'user/' + users[uuid].userID
                                                                                                 : null);
     if (!!name2user(name))                                  return error(false, 'duplicate name');
-    users[uuid] = {};
+    users[uuid] = {};    // this is why we check for count() <= 1
   } else {
     pair = uuid.split('/');
     if (pair.length !== 2)                                  return error(true,  'invalid uuid');
@@ -87,7 +87,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
   client = id2user(ws.clientInfo.userID);
   createP = ws.clientInfo.loopback
            || ((!!client) && (client.userRole === 'master'))
-           || ((!!user) ? (user.userID === ws.clientInfo.userID) : (exports.count() === 0))
+           || ((!!user) ? (user.userID === ws.clientInfo.userID) : (exports.count() <= 1))
            || (internalP && ws.clientInfo.local);
 
   if (!createP) {
