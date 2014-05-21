@@ -61,7 +61,7 @@ Spotter.prototype.scan = function(self) {
 };
 
 Spotter.prototype.update = function(self, params) {
-  var d, data, eventID, firstP, observation, now, prop, props, previous, updateP;
+  var d, data, eventID, firstP, observation, now, props, previous, updateP;
 
   firstP = !self.params;
   if (!self.observations) self.observations = {};
@@ -89,12 +89,7 @@ Spotter.prototype.update = function(self, params) {
   if (props.lastSample === 0) return;
   props.lastSample *= 1000;
 
-  for (prop in props) {
-    if ((!props.hasOwnProperty(prop)) || (!props[prop]) || (self.info[prop] === props[prop])) continue;
-
-    self.info[prop] = props[prop];
-    updateP = true;
-  }
+  if (self.updateInfo(props)) updateP = true;
 
   if (updateP) {
     self.info = props;

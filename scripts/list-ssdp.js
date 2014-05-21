@@ -64,8 +64,8 @@ new SSDP().on('response', function(msg, rinfo) {
   };
 
   location = info.LOCATION || info.Location;
-  if (!!locations[location]) return;
-  locations[location] = true;
+  if (!!locations[location + info.ST]) return;
+  locations[location + info.ST] = true;
 
   if (info.ST !== 'upnp:rootdevice') return f(location, null, 'not a UPnP root device, skipping...');
 

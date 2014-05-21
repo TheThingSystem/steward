@@ -369,6 +369,31 @@ var validate_perform = function(perform, parameter) {
 };
 
 
+var UPnP_Ignore = function(deviceID, deviceUID, info) {
+  var self;
+
+  self = this;
+
+  self.whatami = '/device/media/upnp/ignore';
+  self.deviceID = deviceID.toString();
+  self.deviceUID = deviceUID;
+  self.name = info.device.name;
+  self.getName ();
+
+  self.info = {};
+  self.status = 'present';
+  self.changed();
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+  });
+};
+util.inherits(UPnP_Ignore, media.Device);
+UPnP_Ignore.prototype.perform = devices.perform;
+
+
 exports.start = function() {
   steward.actors.device.media.upnp = steward.actors.device.media.upnp ||
       { $info     : { type: '/device/media/upnp' } };
@@ -398,4 +423,20 @@ exports.start = function() {
       , $validate : { perform    : validate_perform }
       };
   devices.makers['urn:schemas-upnp-org:device:MediaRenderer:1'] = UPnP_Audio;
+
+  steward.actors.device.media.upnp.ignore =
+      { $info     : { type       : '/device/media/upnp/ignore'
+                    , observe    : [ ]
+                    , perform    : [ 'wake' ]
+                    , properties : { name    : true
+                                   , status  : [ 'present' ]
+                                   }
+                    }
+      , $validate : { perform    : devices.validate_perform }
+      };
+
+  discovery.upnp_register('/device/media/upnp/toshiba', function(upnp) {
+    if (upnp.root.device[0].manufacturer[0] === 'Toshiba') return '/device/media/upnp/ignore';
+  });
+  devices.makers['/device/media/upnp/ignore'] = UPnP_Ignore;
 };
