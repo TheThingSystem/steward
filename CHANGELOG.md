@@ -13,8 +13,12 @@ CHANGELOG
     - automatically logout a thing when it logs in again
 - Discovery
     - allow SSDP hook for discovery
+    - create index.xml for each interface
 - Device Expansion
-    - add *.solar, *.ago expanation
+    - add *.solar, *.ago expansion
+    - remove debug output
+- HTTP server
+    - use node-static for faster serving of static content
 
 ### TAAS (Things as a Service)
 - no changes
@@ -26,16 +30,22 @@ CHANGELOG
 - robustness when geocoding fails
 
 ### Things
+- devices: add common functions to remove duplicate code in many drivers
 - device/climate:
+    - insteon/control: initial check-in, not yet operational
     - netatmo/*: support new API result
     - netatmo/rain: NEW
     - plantlink/soil: use 'waterVolume' (percentage) as an alternative to 'moisture' (millibars)
+    - wink/control: initial check-in, not yet operational
 - device/gateway:
     - defer scanning until all subordinates loaded
     - insteon/*: replace driver with (home-controller)[https://github.com/automategreen/home-controller] package
 - device/indicator:
+    - instapush/text: NEW
     - pushover/text: NEW
+    - twitter/text: NEW
 - device/lighting:
+    - all dimmers: if performing 'on', treat a zero-valued brightness as 100%
 - device/media:
     - upnp/audio: robustness
     - pioneer/receiver: NEW
@@ -43,12 +53,14 @@ CHANGELOG
     - sonos/audio:
         - detect 'zoned' status
         - robustness
+    - ignore: DirecTV and Toshiba renderers
 - device/motive:
     - tesla/model-s: udpated for better energy, security monitoring
        (cf., [tesla.js](https://github.com/TheThingSystem/node-taas-client/blob/master/tesla.js) in node-taas-client)
 - device/presence:
 - device/sensor:
 - device/switch:
+    - all dimmers: if performing 'on', treat a zero-valued level as 100%
 - device/wearable:
 
 ### HTML5/D3 client
