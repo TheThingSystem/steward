@@ -437,6 +437,8 @@ exports.start = function() {
 
   discovery.upnp_register('/device/media/upnp/toshiba', function(upnp) {
     if (upnp.root.device[0].manufacturer[0] === 'Toshiba') return '/device/media/upnp/ignore';
+    if (upnp.root.device[0].manufacturer[0] === 'DIRECTV') return '/device/media/upnp/ignore';
+    if (upnp.root.device[0].serialNumber[0] === 'GEEXBOX-USHARE-01') return '/device/media/upnp/ignore';
   });
   devices.makers['/device/media/upnp/ignore'] = UPnP_Ignore;
 };
