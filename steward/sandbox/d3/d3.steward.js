@@ -520,9 +520,8 @@ d3.timestamp.ago = function(time, agoP) {
     seconds = Math.abs(seconds);
     token = 'from now';
     list_choice = 2;
-  } else if (seconds < 1) {
-    return 'now';
   }
+  if (seconds < 1) return 'now';
 
   var i = 0
     , format;

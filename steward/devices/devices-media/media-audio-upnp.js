@@ -90,7 +90,7 @@ UPnP_Audio.prototype.jumpstart = function(self, path) {
       return;
     }
 
-    if (err) {
+    if (!!err) {
       self.error(self, err, 'subscribe');
       setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
       return;

@@ -269,6 +269,8 @@ WeMo_OnOff.prototype.observe = function(self, results) {
                                   , kwh    = parseInt(status.length > 0 ? status[0] : 'NaN', 10)
                                   ;
 
+                                if (isNaN(kwh)) return;
+                                kwh *= 1000;
                                 if (self.info.dailyUsage !== kwh) {
                                   changedP = true;
                                   self.info.dailyUage = kwh;
