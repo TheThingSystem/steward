@@ -53,36 +53,36 @@ var finishApprentices = function() {
     .attr('class', 'panes-right')
   for (i = 0; i < panesList.length; i++) {
     div = (i % 2 === 0) ? divLeft.append('div') : divRight.append('div');
-		div.attr('class', 'display-pane')
-			.attr('onclick', function() { return 'javascript:goPaneDetail(' + i + ');'; });
-		div.append('div')
-		  .attr('class', 'small-label on-label')
+    div.attr('class', 'display-pane')
+      .attr('onclick', function() { return 'javascript:goPaneDetail(' + i + ');'; });
+    div.append('div')
+      .attr('class', 'small-label on-label')
       .attr('id', function() { return 'paneLabelOn' + i })
       .html('on')
       .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
-		div.append('div')
-		  .attr('class', 'small-label off-label')
+    div.append('div')
+      .attr('class', 'small-label off-label')
       .attr('id', function() { return 'paneLabelOff' + i })
-		  .html('off')
+      .html('off')
       .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
-		div.append("div")
-			 .attr("class", "on-off-slider")
-			 .append("img")
-			 .attr("src", "popovers/assets/slider.on-off.svg")
-			 .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
-		div.append("div")
-			 .attr("class", "on-off-knob")
-			 .attr("id", function() { return 'on-off-knob' + i })
-			 .style("left", function() { return onOffSliderPane.min + "px" })
-			 .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; })
-			 .append("img")
-				 .attr("src", "popovers/assets/knob.small.svg");
-		div.append('span')
-			.attr('class', 'label-disabled')
-			.attr('id', function() { return 'pane' + i });
-		div.append('span')
-			.attr('class', 'state-disabled')
-			.attr('id', function() { return 'state' + i });
+    div.append("div")
+       .attr("class", "on-off-slider")
+       .append("img")
+       .attr("src", "popovers/assets/slider.on-off.svg")
+       .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
+    div.append("div")
+       .attr("class", "on-off-knob")
+       .attr("id", function() { return 'on-off-knob' + i })
+       .style("left", function() { return onOffSliderPane.min + "px" })
+       .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; })
+       .append("img")
+         .attr("src", "popovers/assets/knob.small.svg");
+    div.append('span')
+      .attr('class', 'label-disabled')
+      .attr('id', function() { return 'pane' + i });
+    div.append('span')
+      .attr('class', 'state-disabled')
+      .attr('id', function() { return 'state' + i });
   }
 
   updatePanesList();
@@ -92,83 +92,88 @@ var updatePanesList = function() {
   var i, panesList;
   panesList = livingPanes();
   for (i = 0; i < panesList.length; i++) {
-		d3.select('#pane' + i)
-			.attr('class', 'label')
-			.html(panesList[i].title);
-		d3.select('#state' + i)
-			.attr('class', 'state')
-			.html(panesList[i].status);
-		if (panesList[i].status === "configured") {
-			if (panesList[i].active) {
-				endLeft = onOffSliderPane.max;
-				d3.select('#paneLabelOn' + i)
-					.style('display', 'block');
-				d3.select('#paneLabelOff' + i)
-					.style('display', 'none');
-			} else {
-				endLeft = onOffSliderPane.min;
-				d3.select('#paneLabelOn' + i)
-					.style('display', 'none');
-				d3.select('#paneLabelOff' + i)
-					.style('display', 'block');
-			}
-		  
-			d3.select('#on-off-knob' + i)
-				.transition()
-				.duration(600)
-				.style('left', endLeft + 'px');
-				
-		} else {
-			d3.select('#paneLabelOn' + i)
-				.style('display', 'none');
-			d3.select('#paneLabelOff' + i)
-				.style('display', 'none');
-		}
+    d3.select('#pane' + i)
+      .attr('class', 'label')
+      .html(panesList[i].title);
+    d3.select('#state' + i)
+      .attr('class', 'state')
+      .html(panesList[i].status);
+    if (panesList[i].status === "configured") {
+      if (panesList[i].active) {
+        endLeft = onOffSliderPane.max;
+        d3.select('#paneLabelOn' + i)
+          .style('display', 'block');
+        d3.select('#paneLabelOff' + i)
+          .style('display', 'none');
+      } else {
+        endLeft = onOffSliderPane.min;
+        d3.select('#paneLabelOn' + i)
+          .style('display', 'none');
+        d3.select('#paneLabelOff' + i)
+          .style('display', 'block');
+      }
+      
+      d3.select('#on-off-knob' + i)
+        .transition()
+        .duration(600)
+        .style('left', endLeft + 'px');
+        
+    } else {
+      d3.select('#paneLabelOn' + i)
+        .style('display', 'none');
+      d3.select('#paneLabelOff' + i)
+        .style('display', 'none');
+    }
   }
 }
 
 var togglePaneOnOff = function(i, evt) {
-	var endLeft;
-	var panesList = livingPanes();
-	evt.stopPropagation();
-	if (panesList[i].status !== "configured") return;
-	if (panesList[i].active) {
-		panesList[i].active = false;
-		endLeft = onOffSliderPane.min;
-		d3.select('#paneLabelOn' + i)
-			.style('display', 'none');
-		d3.select('#paneLabelOff' + i)
-			.style('display', 'block');
-	} else {
-		panesList[i].active = true;
-		endLeft = onOffSliderPane.max;
-		d3.select('#paneLabelOn' + i)
-			.style('display', 'block');
-		d3.select('#paneLabelOff' + i)
-			.style('display', 'none');
-	}
-	
-	d3.select('#on-off-knob' + i)
-		.transition().each('end', sendPaneArmed(i, panesList[i].active))
-		.duration(600)
-		.style('left', endLeft + 'px');
+  var endLeft;
+  var panesList = livingPanes();
+  evt.stopPropagation();
+  if (panesList[i].status !== "configured") return;
+  if (panesList[i].active) {
+    panesList[i].active = false;
+    endLeft = onOffSliderPane.min;
+    d3.select('#paneLabelOn' + i)
+      .style('display', 'none');
+    d3.select('#paneLabelOff' + i)
+      .style('display', 'block');
+  } else {
+    panesList[i].active = true;
+    endLeft = onOffSliderPane.max;
+    d3.select('#paneLabelOn' + i)
+      .style('display', 'block');
+    d3.select('#paneLabelOff' + i)
+      .style('display', 'none');
+  }
+  
+  d3.select('#on-off-knob' + i)
+    .transition().each('end', sendPaneArmed(i, panesList[i].active))
+    .duration(600)
+    .style('left', endLeft + 'px');
 }
 
 var sendPaneArmed = function(paneIndex, armed) {
-  var activityID, panesList;
+  var activityIDs, events, i, panesList;
   panesList = livingPanes();
+  activityIDs = [ ];
+  events = panesList[paneIndex].observations.event;
   
-  activityID = apprentices.d.activities[panesList[paneIndex].uuid].id.match(/\/(.+)$/)[1];
+  if (Array.isArray(events)) {
+    for (i = 0; i < events.length; i++) {
+      activityIDs.push(apprentices.d.activities[events[i].uuid.replace(/:event:/, ':')].id.match(/\/(.+)$/)[1]);
+    }
+  } else {
+    activityIDs.push(apprentices.d.activities[panesList[paneIndex].uuid].id.match(/\/(.+)$/)[1]);
+  }
   
-  sendIt(JSON.stringify({ path       : '/api/v1/activity/modify/' + activityID
-                         , requestID : ++reqno
-                         , armed     : armed
-                         }));
-//   wsSend(JSON.stringify({ path       : '/api/v1/activity/modify/' + activityID
-//                          , requestID : "12"
-//                          , armed     : armed
-//                          }));
-
+  for (i = 0; i < activityIDs.length; i++) {
+    sendIt(JSON.stringify({ path       : '/api/v1/activity/modify/' + activityIDs[i]
+                           , requestID : ++reqno
+                           , armed     : armed
+                           }));
+  }
 }
 
 var goPaneDetail = function(n) {
@@ -200,43 +205,43 @@ var goPaneDetail = function(n) {
     for (j = 0; j < events.length; j++) {
       oneEvent = events[j];
       groupNr_event = [(apprentices.d.groups[oneEvent.uuid].id).match(/\/(.+)$/)[1]];
-			div.append('div')
-				.attr('class', 'form-heading')
-				.style('margin-top', '0px')
-				.style('text-transform', 'capitalize')
-				.html(oneEvent.title);
-			div.append('div')
-				.attr('class', 'apprentice-instructions')
-				.html(oneEvent.text);
+      div.append('div')
+        .attr('class', 'form-heading')
+        .style('margin-top', '0px')
+        .style('text-transform', 'capitalize')
+        .html(oneEvent.title);
+      div.append('div')
+        .attr('class', 'apprentice-instructions')
+        .html(oneEvent.text);
 
-			div3 = div.append('div')
-				.attr('class', 'apprentice-actors')
-				.style('left', function() { var eventsCount = (oneEvent.actors.length > maxIcons) ? maxIcons : oneEvent.actors.length;
-						return ((paneWidth / 2) - ((actorWidth * eventsCount) / 2)) + "px";})
-				.style('width', function() { return (oneEvent.actors.length > maxIcons) ?
-						(maxIcons * actorWidth) + "px" : (oneEvent.actors.length * actorWidth) + "px"});
-		
-			div4 = div3.selectAll('div')
-				.data(oneEvent.actors)
-				.enter().append('div')
-					.attr('class', 'apprentice-actor-home')
-					.style('top', function(d, i) { return (actorHeight * (Math.floor(i / maxIcons))) + 'px';})
-					.style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px'})
-					.on('click', function(d, i) { toggleEvent(i, n, j-1, groupNr_event) });
-			div4.append('p')
-				 .attr('class', 'actor-name')
-				 .attr('id', function(d, i) { return 'name_' + actor2ID(oneEvent.actors[i].device); })
-				 .style('color', function(d, i) { return (oneEvent.actors[i].selected) ? '#00ba00' : '#666';})
-				 .html(function(d, i) { return actors[oneEvent.actors[i].device].name });
-			div4.append('img')
-				 .attr('id', function(d, i) { return 'img_' + actor2ID(oneEvent.actors[i].device); })
-				 .attr('src', function(d, i) { var entry = entries[actors[oneEvent.actors[i].device].deviceType] 
-				   || entries.default(actors[oneEvent.actors[i].device].deviceType);
-								return entry.img;})
-				 .style('background-color', function(d, i) { return (oneEvent.actors[i].selected) ? '#00ba00' : '#666';});
-			}
+      div3 = div.append('div')
+        .attr('class', 'apprentice-actors')
+        .style('left', function() { var eventsCount = (oneEvent.actors.length > maxIcons) ? maxIcons : oneEvent.actors.length;
+            return ((paneWidth / 2) - ((actorWidth * eventsCount) / 2)) + "px";})
+        .style('width', function() { return (oneEvent.actors.length > maxIcons) ?
+            (maxIcons * actorWidth) + "px" : (oneEvent.actors.length * actorWidth) + "px"});
+    
+      div4 = div3.selectAll('div')
+        .data(oneEvent.actors)
+        .enter().append('div')
+          .attr('class', 'apprentice-actor-home')
+          .style('top', function(d, i) { return (actorHeight * (Math.floor(i / maxIcons))) + 'px';})
+          .style('left', function(d, i) { return (actorWidth * (i % maxIcons)) + 'px'})
+          .on('click', function(d, i) { toggleEvent(i, n, j-1, groupNr_event) });
+      div4.append('p')
+         .attr('class', 'actor-name')
+         .attr('id', function(d, i) { return 'name_' + actor2ID(oneEvent.actors[i].device); })
+         .style('color', function(d, i) { return (oneEvent.actors[i].selected) ? '#00ba00' : '#666';})
+         .html(function(d, i) { return actors[oneEvent.actors[i].device].name });
+      div4.append('img')
+         .attr('id', function(d, i) { return 'img_' + actor2ID(oneEvent.actors[i].device); })
+         .attr('src', function(d, i) { var entry = entries[actors[oneEvent.actors[i].device].deviceType] 
+           || entries.default(actors[oneEvent.actors[i].device].deviceType);
+                return entry.img;})
+         .style('background-color', function(d, i) { return (oneEvent.actors[i].selected) ? '#00ba00' : '#666';});
+      }
     }
-// TODO: NEEDS FIXING FOR STATUS LIGHTS
+
     if (panes[n].performances.hasOwnProperty('tasks')) {
       tasks = panes[n].performances.tasks;
       hasSubTasks = false;
@@ -253,7 +258,7 @@ var goPaneDetail = function(n) {
       } else {
         subEvents = panes[n].observations.event;
         for (k = 0; k < subEvents.length; k++) {
-          oneUUID = subEvents[k].uuid.replace(/\:event\:/, ':task:')
+          oneUUID = subEvents[k].uuid.replace(/\:event\:/, ':task:');
           groupNr_task.push((apprentices.d.groups[oneUUID].id).match(/\/(.+)$/)[1]);
         }
       }
@@ -284,7 +289,7 @@ var goPaneDetail = function(n) {
           .on('click', function(d, i) { if (isGuardedTask) {
                                           toggleGuardedTask(i, n, j-1, groupNr_task) 
                                         } else if (hasSubTasks) {
-                                          toggleSubTask(i, n, j-1, groupNr)
+                                          toggleMultiTask(i, n, j-1, groupNr_task)
                                         } else { 
                                           toggleTask(i, n, j-1, groupNr_task)
                                         }
@@ -319,7 +324,6 @@ var goPaneDetail = function(n) {
     members = [];
     device = events[eventIndex].actors[i].device;
     events[eventIndex].actors[i].selected = !events[eventIndex].actors[i].selected;
-//    events.actors[i].selected = !events[eventIndex].actors[i].selected;
     uuid = events[eventIndex].uuid + ":" + device.replace(/\//, ":");
 
     if (events[eventIndex].actors[i].selected) {
@@ -391,11 +395,11 @@ var goPaneDetail = function(n) {
   
   function onToggleGuardEvent(i, n, taskIndex, groupNr) {
     sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
-	                         , requestID : add_callback(function(message1) { if (message1.result) {
-	                                          apprentices.d = organize(message1); toggleTask(i, n, taskIndex, groupNr); console.log('onToggleGuardEvent callback');
-	                                          console.log(message1);} })
-	                         , options   : { depth: 'all' }
-	         }));  
+                           , requestID : add_callback(function(message1) { if (message1.result) {
+                                            apprentices.d = organize(message1); toggleTask(i, n, taskIndex, groupNr); console.log('onToggleGuardEvent callback');
+                                            console.log(message1);} })
+                           , options   : { depth: 'all' }
+                           }));  
   };
   
   function toggleGuardedTask(i, n, taskIndex, groupNr) {
@@ -424,12 +428,68 @@ var goPaneDetail = function(n) {
                              , requestID : add_callback(function(message) { if (message.result) {
                                              onToggleGuardEvent(i, n, taskIndex, groupNr);
                                              console.log('toggleGuardedTask/event/delete callback');}
-                            })}));
+                             })}));
     }
   }
   
-  function toggleSubTask(i, n, taskIndex, groupNr) {
-  
+  function toggleMultiTask(i, n, taskIndex, groupNr) {
+    var cb, device, eventIndex, groupNr_task, guardEvent = null, members, newColor, params, perform, rowID, task, uuid;
+    members = [];
+    device = tasks[taskIndex].actors[i].device;
+    tasks[taskIndex].actors[i].selected = !tasks[taskIndex].actors[i].selected;
+    
+    for (eventIndex = 0; eventIndex < subEvents.length; eventIndex++) {
+      uuid = subEvents[eventIndex].uuid.replace(/:event:/, ":task:") + ":" + device.replace(/\//, ":");
+      perform = tasks[taskIndex].tasks[eventIndex].perform;
+      params = tasks[taskIndex].tasks[eventIndex].parameter;
+      groupNr_task = groupNr[eventIndex];
+      cb = (eventIndex === subEvents.length - 1) ? 
+        function(message) { if (message.result) {readActivities(message, 'task', n, taskIndex, groupNr, device, newColor);} } : function(message) { };
+      
+      if (tasks[taskIndex].actors[i].selected) {
+        newColor = '#00ba00';
+        if (!!tasks[taskIndex].guard && apprentices.d.events[uuid]) guardEvent = apprentices.d.events[uuid].id;
+        sendIt(JSON.stringify({ path       : '/api/v1/task/create/' + uuid
+                               , requestID : add_callback(cb)
+                               , name      : tasks[taskIndex].title
+                               , actor     : device
+                               , perform   : perform.match(/\.(.+)$/)[1]
+                               , parameter : parameterize(params)
+                               , guard     : guardEvent
+                               }));
+      } else {
+        newColor = '#666';
+        rowID = apprentices.d.tasks[uuid].id.match(/\/(.+)$/)[1];
+        sendIt(JSON.stringify({ path       : '/api/v1/task/delete/' + rowID
+                               , requestID : add_callback(cb)
+                               }));
+      }
+    }
+    
+    function readActivities(message, type, n, itemIndex, groupNr, device, newColor) {
+      sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
+                             , requestID : add_callback(function(message1) { if (message1.result) {
+                               apprentices.d = organize(message1); onCreateMultiEventOrTask(message1, 'task', n, taskIndex, groupNr, device, newColor); console.log(message1); } })
+                             , options: { depth: 'all' }
+                             })); 
+
+    }
+  }
+}
+
+var checkActivator = function(n) {
+  d3.select('#activator')
+    .style('opacity', function() { return (livingPanes()[n].status === 'configured') ? 1.0 : 0.4; });
+}
+
+var toggleActivate = function(n, evt) {
+  var panesList = livingPanes();
+  if (panesList[n].status === 'configured') {
+    panesList[n].active = (panesList[n].active === true) ? false : true;
+    d3.select('#activator')
+      .attr('src', function() { return (panesList[n].active) ? 'popovers/assets/deactivate.svg' : 'popovers/assets/activate.svg'; });
+    sendPaneArmed(n, panesList[n].active);
+    updatePanesList();
   }
 }
 
@@ -442,11 +502,21 @@ var livingPanes = function() {
   return panes;
 }
 
-var updateGroupMembers = function(groupNr, members) {
-  sendIt(JSON.stringify({ path      : '/api/v1/group/modify/' + groupNr
-                        , requestID : add_callback(function(message) { refreshApprenticeActors(message); })
-                        , members   : members
-                        }));
+var updateGroupMembers = function(groupMembers) {
+  var cb, groupNr, i, max;
+  
+  max = 1;
+  i = 1;
+  if (livingPanes()[apprentices.currPaneIndex].observations.event)
+    max = livingPanes()[apprentices.currPaneIndex].observations.event.length;
+  for (groupID in groupMembers) {
+    groupNr = groupID.match(/\/(.+)$/)[1];
+    cb = (i++ < max) ? function(message) { } : function(message) { refreshApprenticeActors(message); };
+    sendIt(JSON.stringify({ path      : '/api/v1/group/modify/' + groupNr
+                          , requestID : add_callback(cb)
+                          , members   : groupMembers[groupID].members
+                          }));
+  }
 }
 
 // Callback functions
@@ -462,68 +532,87 @@ var refreshActivities = function(message) {
   var apprenticeActors;
   if (!message.result) return;
   apprenticeActors = message;
-	
-	sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
-	                       , requestID : add_callback(function(message1) { if (message1.result) {
-	                       apprentices.d = organize(message1); console.log(message1); } })
-	                       , options: { depth: 'all' }
-	                       })); 
+
+  sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
+                         , requestID : add_callback(function(message1) { if (message1.result) {
+                         apprentices.d = organize(message1); console.log(message1); } })
+                         , options: { depth: 'all' }
+                         })); 
 
 }
 
 var onCreateEventOrTask = function(message, type, itemIndex, groupNr) {
-  var dKey, items, j, members, pane, recentItem, uuid;
-  if (!!message.result) recentItem = message.result;
+  var dKey, groupID, groupMembers, items, j, members, pane, recentItem, uuid;
+  if (!!message.result) recentItem = message.result;   // 'task/N'
   if (recentItem === undefined) return;
+  groupMembers = { };
+  groupID = 'group/' + groupNr; // 'group/N'
+  groupMembers[groupID] = {members: [ ]};
   
   // Assemble members
   dKey = type + 's';
   pane = livingPanes()[apprentices.currPaneIndex];
   items = (type === "event") ? pane.observations.events[itemIndex] : pane.performances.tasks[itemIndex];
   members = [];
-
+  
 	for (j = 0; j < items.actors.length; j++) {
 		if (items.actors[j].selected) {
 			uuid = items.uuid + ":" + items.actors[j].device.replace(/\//, ":");
 			if (apprentices.d[dKey].hasOwnProperty(uuid)) {
-			  members.push(apprentices.d[dKey][uuid].id);
+			  groupMembers[groupID].members.push(apprentices.d[dKey][uuid].id);
 			} else {
-			  members.push(type + '/' + recentItem[type]);
+			  groupMembers[groupID].members.push(type + '/' + recentItem[type]);
 			}
     }
 	}
-	updateGroupMembers(groupNr[0], members);
+
+  console.log(groupMembers);
+  updateGroupMembers(groupMembers);
 }
 
-// var prepareDB = function(message, type, apprenticeActors, rowID) {
-//   var dKey, groupID, items, j, members, n, panesList, uuid;
-//   members = [];
-//   n = apprentices.currPaneIndex;
-//   dKey = type + 's';
-//   panesList = livingPanes();
-//   
-// //  prepare(apprentices.home, apprenticeActors, message);
-//   
-//   items = (type === "event") ? panesList[n].observations.events[0] : (panesList[n].performances.hasOwnProperty('tasks')) ? panesList[n].performances.tasks[0] : 
-//     (panesList[n].performances.hasOwnProperty('task')) ? panesList[n].performances.task[0] : [];
-//   groupID = (apprentices.d.groups[items.uuid].id).match(/\/(.+)$/)[1];
-// 	for (j = 0; j < items.actors.length; j++) {
-// 		if (items.actors[j].selected) {
-// 			uuid = items.uuid + ":" + items.actors[j].device.replace(/\//, ":");
-// 			if (apprentices.d[dKey].hasOwnProperty(uuid)) {
-// 			  members.push(apprentices.d[dKey][uuid].id);
-// 			} else {
-// 			  members.push(type + '/' + rowID[type]);
-// 			}
-// //			members.push( (apprentices.d.items[uuid]) ? apprentices.d.items[uuid].id : (type + '/' + rowID[type]));
-// //      members.push(type + '/' + rowID[type]);
-// 		}
-// 	}
-// 	updateGroupMembers(groupID, members);
-// //	setTimeout(function() {updateGroupMembers(groupID, members)}, 50);
-//   prepare(apprentices.home, apprenticeActors, message);
-// 
-//}
+var onCreateMultiEventOrTask = function(message, type, n, itemIndex, groupNr, displayedDevice, newColor) {
+  var device, dKey, eventIndex, groupID, groupMembers, groupUUID, items, j, members, pane, subEvents, taskUUID, uuid;
+  groupMembers = { };
+  
+  // Assemble members
+  dKey = type + 's';
+  pane = livingPanes()[apprentices.currPaneIndex];
+  subEvents = pane.observations.event;
+  items = pane.performances.task[itemIndex];
+  members = [];
+  list_activity(ws2, '',  { depth: 'all' }, function(message) {apprentices.d = organize(message); gatherMembers(); console.log(message);});
+  
+  function gatherMembers() {
+    for (eventIndex = 0; eventIndex < subEvents.length; eventIndex++) {
+      groupUUID = subEvents[eventIndex].uuid.replace(/\:event\:/, ':task:');
+      groupID = apprentices.d.groups[groupUUID].id;    // 'group/N'
+      if (!groupMembers.hasOwnProperty(groupID)) groupMembers[groupID] = {members: [ ]};
+    }
+    
+    for (j = 0; j < items.actors.length; j++) {
+      if (items.actors[j].selected) {
+        device = items.actors[j].device;  // 'device/N'
+        for (eventIndex = 0; eventIndex < subEvents.length; eventIndex++) {
+          groupUUID = subEvents[eventIndex].uuid.replace(/\:event\:/, ':task:');
+          taskUUID = groupUUID + ":" + items.actors[j].device.replace(/\//, ":");  // '...:device:N'
+          groupID = apprentices.d.groups[groupUUID].id;    // 'group/N'
+          groupMembers[groupID].members.push(apprentices.d.tasks[taskUUID].id);  // 'task/N'
+        }
+      }
+    }
+    console.log(groupMembers); 
+    updateGroupMembers(groupMembers);
+  
+  	d3.select('#name_' + actor2ID(displayedDevice))
+  		.style('color', newColor);
+  	d3.select('#img_' + actor2ID(displayedDevice))
+		  .style('background-color', newColor);
+	  checkPane(livingPanes()[n]);
+	  updatePanesList();
+	  checkActivator(n);
+  }
+}
+
 
 var apprentices =
 { home                          :
@@ -750,7 +839,7 @@ var apprentices =
 
 
 var prepare = function(apprentice, actors, activities) {
-  var again, d, event, group, i, j, k, l, m, n, pane, suffixes, task, uuid;
+  var again, d, event, eventIndex, group, hasSubTasks, i, j, k, l, m, n, pane, subEvents, suffixes, task, uuid;
   
   again = false;
 
@@ -759,8 +848,15 @@ var prepare = function(apprentice, actors, activities) {
 
   for (i = apprentice.panes.length - 1; i !== -1; i--) {
     pane = apprentice.panes[i];
-	  pane.active = !!d.activities[pane.uuid] && d.activities[pane.uuid].armed;
-
+    hasSubTasks = pane.performances.hasOwnProperty('task');
+    if (hasSubTasks) {
+      subEvents = pane.observations.event;
+      uuid = subEvents[0].uuid.replace(/\:event\:/, ':');
+        pane.active = !!d.activities[uuid] && d.activities[uuid].armed;
+    } else {
+      pane.active = !!d.activities[pane.uuid] && d.activities[pane.uuid].armed;
+    }
+    
     if (!!pane.observations.events) for (j = pane.observations.events.length -1; j !== -1; j--) {
       event = pane.observations.events[j];
       event.actors = findActors(actors.result, new RegExp(event.deviceType.split('/').join('\\/')), event.mustHave);
@@ -777,7 +873,7 @@ var prepare = function(apprentice, actors, activities) {
       event = pane.observations.event[j];
       k = event.uuid.indexOf(':event:');
       if (k === -1) continue;
-      suffixes.push(event.uuid.substr(k + 6));
+      suffixes.push(event.uuid.substr(k + 7));
     }
 
     if (!!pane.performances.tasks) for (j = pane.performances.tasks.length -1; j !== -1; j--) {
@@ -788,20 +884,15 @@ var prepare = function(apprentice, actors, activities) {
         for (k = 0; k < task.actors.length; k++) task.actors[k].selected = group.devices.indexOf(task.actors[k].device) !== -1;
       }
       if (suffixes.length === 0) continue;
-
-      for (l = 0; l < suffixes.length; l++) {
-        uuid = task.uuid + suffixes[l];
-        group = d.tasks[uuid] && d.tasks[uuid].actor && find(d.groups, d.tasks[uuid].actor);
-        if (!group) continue;
-        for (k = 0; k < task.actors.length; k++) {
-          if (group.devices.indexOf(task.actors[k].device) !== -1) task.actors[k].selected = true;
-        }
-      }
     }
     
     if (!!pane.performances.task && pane.performances.task.length === 1) {
       task = pane.performances.task[0];
       task.actors = findActors(actors.result, new RegExp(task.deviceType.split('/').join('\\/')), task.mustHave);
+      if (d.groups[task.uuid + suffixes[0]]) {
+        group = d.groups[task.uuid + suffixes[0]];
+        for (k = 0; k < task.actors.length; k++) task.actors[k].selected = group.devices.indexOf(task.actors[k].device) !== -1;
+      }
     }
 
     checkPane(pane);
@@ -816,67 +907,68 @@ var prepare = function(apprentice, actors, activities) {
 };
 
 var checkPane = function(pane) {
-	var event, events, i, j, task, tasks;
-	var result = "incomplete";
-	
-	if (!!pane.observations.events) for (i = 0; i < pane.observations.events.length; i++) {
-		event = pane.observations.events[i]; 
-		if (!!event.actors && Array.isArray(event.actors)) {
-			if (event.actors.length === 0) {
-				result = "ignore";
-			} else if (!hasHowMany(event.actors.length, event.howMany)) {
-				result = "ignore";
-			} else {
-				events = 0;
-				for (j = 0; j < event.actors.length; j++) {
-					if (event.actors[j].hasOwnProperty("selected") && event.actors[j].selected) events++;
-				}
-			}
-		}
-	}
-	
-	if (result !== "ignore") {
-		if (!!pane.performances.tasks) for (i = 0; i < pane.performances.tasks.length; i++) {
-			task = pane.performances.tasks[i]; 
-			if (!!task.actors && Array.isArray(task.actors)) {
-				if (task.actors.length === 0) {
-					result = "ignore";
-				} else if (!hasHowMany(task.actors.length, task.howMany)) {
-					result = "ignore";
-				} else {
-					tasks = 0;
-					for (j = 0; j < task.actors.length; j++) {
-						if (task.actors[j].hasOwnProperty("selected") && task.actors[j].selected) tasks++;
-					}
-				}
-			}
-		}
-	}
-	
-	if (event && task) {
-	  if ((hasHowMany(events, event.howMany)) && (hasHowMany(tasks, task.howMany))) {
-	    result = "configured";
-	  }
-	} else if ((event && hasHowMany(events, event.howMany)) || (task && hasHowMany(tasks, task.howMany))) result = "configured";
+  var event, events, i, j, task, taskArray, tasks;
+  var result = "incomplete";
+  
+  if (!!pane.observations.events) for (i = 0; i < pane.observations.events.length; i++) {
+    event = pane.observations.events[i]; 
+    if (!!event.actors && Array.isArray(event.actors)) {
+      if (event.actors.length === 0) {
+        result = "ignore";
+      } else if (!hasHowMany(event.actors.length, event.howMany)) {
+        result = "ignore";
+      } else {
+        events = 0;
+        for (j = 0; j < event.actors.length; j++) {
+          if (event.actors[j].hasOwnProperty("selected") && event.actors[j].selected) events++;
+        }
+      }
+    }
+  }
+  
+  if (result !== "ignore") {
+    taskArray = (!!pane.performances.tasks) ? pane.performances.tasks : (!!pane.performances.task) ? pane.performances.task : [ ];
+    for (i = 0; i < taskArray.length; i++) {
+      task = taskArray[i]; 
+      if (!!task.actors && Array.isArray(task.actors)) {
+        if (task.actors.length === 0) {
+          result = "ignore";
+        } else if (!hasHowMany(task.actors.length, task.howMany)) {
+          result = "ignore";
+        } else {
+          tasks = 0;
+          for (j = 0; j < task.actors.length; j++) {
+            if (task.actors[j].hasOwnProperty("selected") && task.actors[j].selected) tasks++;
+          }
+        }
+      }
+    }
+  }
+  
+  if (event && task) {
+    if ((hasHowMany(events, event.howMany)) && (hasHowMany(tasks, task.howMany))) {
+      result = "configured";
+    }
+  } else if ((event && hasHowMany(events, event.howMany)) || (task && hasHowMany(tasks, task.howMany))) result = "configured";
 
-	pane.status = result;
+  pane.status = result;
 
-	function hasHowMany(val, howMany) {
-		var int, operand;
-		int = parseInt(howMany, 10);
-		operand = howMany.charAt(howMany.length - 1);
-		switch (operand) {
-			case "+":
-				return val >= int;
-				break;
-			case "-":
-				return val <= int;
-				break;
-			default:
-				return val === int;
-				break;
-		}
-	}
+  function hasHowMany(val, howMany) {
+    var int, operand;
+    int = parseInt(howMany, 10);
+    operand = howMany.charAt(howMany.length - 1);
+    switch (operand) {
+      case "+":
+        return val >= int;
+        break;
+      case "-":
+        return val <= int;
+        break;
+      default:
+        return val === int;
+        break;
+    }
+  }
 }
 
 var findActors = function(actors, pattern, mustHave) {
@@ -970,7 +1062,6 @@ var setup = function(pane, d) {
 
   if ((!event) || (!task)) return true;
 
-//console.log('[setup] create activity ' + pane.uuid + ' event=' + event + ' task=' + task);
   wsSend(JSON.stringify({ path      : '/api/v1/activity/create/' + pane.uuid
                         , requestID : ++reqno
                         , name      : pane.title
@@ -995,7 +1086,6 @@ var setup_observations = function(observations, d) {
         continue;
       }
 
-//console.log('[setup_observations] create group ' + event.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + event.uuid
                             , requestID : ++reqno
                             , name      : event.title
@@ -1005,7 +1095,6 @@ var setup_observations = function(observations, d) {
                             }));
     }
     if (members.length === observations.events.length) {
-//console.log('[setup_observations] create group ' + observations.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + observations.uuid
                             , requestID : ++reqno
                             , name      : observations.title
@@ -1025,7 +1114,6 @@ var setup_observations = function(observations, d) {
       event = observations.event[i];
       if (!!d.events[event.uuid]) continue;
 
-//console.log('[setup_observations] create event ' + event.uuid);
        wsSend(JSON.stringify({ path      : '/api/v1/event/create/' + event.uuid
                              , requestID : ++reqno
                              , name      : event.title
@@ -1041,7 +1129,6 @@ var setup_observations = function(observations, d) {
   event = observations.event;
   if (!!d.events[event.uuid]) return d.events[event.uuid].id;
 
-//console.log('[setup_observations] create event ' + event.uuid);
   wsSend(JSON.stringify({ path      : '/api/v1/event/create/' + event.uuid
                         , requestID : ++reqno
                         , name      : event.title
@@ -1066,7 +1153,6 @@ var setup_performances = function(pane, observations, performances, d) {
         continue;
       }
 
-//console.log('[setup_performances] create group ' + task.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + task.uuid
                             , requestID : ++reqno
                             , name      : task.title
@@ -1076,7 +1162,6 @@ var setup_performances = function(pane, observations, performances, d) {
                             }));
     }
     if (members.length === performances.tasks.length) {
-//console.log('[setup_performances] create group ' + performances.uuid);
       wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + performances.uuid
                             , requestID : ++reqno
                             , name      : performances.title
@@ -1108,7 +1193,6 @@ var setup_performances = function(pane, observations, performances, d) {
         uuid2 = pane.uuid + suffix;
         if (!!d.activities[uuid2]) continue;
 
-//console.log('[setup_performances] create activity ' + uuid2 + ' event=' + d.events[event.uuid].id + ' task=' + d.groups[uuid1].id);
         wsSend(JSON.stringify({ path      : '/api/v1/activity/create/' + uuid2
                               , requestID : ++reqno
                               , name      : event.title
@@ -1118,7 +1202,6 @@ var setup_performances = function(pane, observations, performances, d) {
         continue;
       }
 
-//console.log('[setup_performances] create group ' + uuid1);
        wsSend(JSON.stringify({ path      : '/api/v1/group/create/' + uuid1
                              , requestID : ++reqno
                              , name      : event.title
@@ -1134,7 +1217,6 @@ var setup_performances = function(pane, observations, performances, d) {
   task = performances.task;
   if (!!d.tasks[task.uuid]) return d.tasks[task.uuid].id;
 
-//console.log('[setup_performances] create task ' + task.uuid);
   wsSend(JSON.stringify({ path      : '/api/v1/task/create/' + task.uuid
                         , requestID : ++reqno
                         , name      : task.title
@@ -1147,22 +1229,6 @@ var setup_performances = function(pane, observations, performances, d) {
 var parameterize = function(s) { return ((typeof s !== 'string') ? JSON.stringify(s) : s); };
 
 if (!Array.isArray) Array.isArray = function(a) { return Object.prototype.toString.call(a) === '[object Array]'; };
-
-var checkActivator = function(n) {
-  d3.select('#activator')
-    .style('opacity', function() { return (livingPanes()[n].status === 'configured') ? 1.0 : 0.4; });
-}
-
-var toggleActivate = function(n, evt) {
-  var panesList = livingPanes();
-  if (panesList[n].status === 'configured') {
-    panesList[n].active = (panesList[n].active === true) ? false : true;
-    d3.select('#activator')
-      .attr('src', function() { return (panesList[n].active) ? 'popovers/assets/deactivate.svg' : 'popovers/assets/activate.svg'; });
-    sendPaneArmed(n, panesList[n].active);
-    updatePanesList();
-  }
-}
 
 var sendIt = function(data) {
   console.log("Sending: " + data);
