@@ -614,7 +614,23 @@ var onactors = function(message) {
               break;
 
             case 'waterLevel':
+            case 'rainTotal':
               if (!isNaN(v)) v = v.toFixed(2) + 'mm';
+              break;
+
+            case 'rainRate':
+              if (!isNaN(v)) v = v.toFixed(2) + 'mm';
+              break;
+
+            case 'windAverage':
+            case 'windGust':
+              if (!isNaN(v)) v = v.toFixed(2) + 'm/s';
+              break;
+
+	    // FIXME: should be available in both cardinal directions and in azimuth degrees???
+	    // http://en.wikipedia.org/wiki/Wind_direction
+            case 'windDirection':
+              if (!isNaN(v)) v = v.toFixed(1) + '&deg;';
               break;
 
             case 'battery':

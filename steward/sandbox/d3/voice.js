@@ -207,13 +207,15 @@ All recognized commands without filter\n\
                                                      perform(entry.entry, entry.phrases['off'].text, 'off');                      };
 
       return { climate_control : function(entry) { if (entry.phrases['report'].selected) 
-                                                     report(entry.entry,  [ 'temperature', 'humidity'                 ], entry.phrases['report'].text);              }
+                                                     report(entry.entry,  [ 'temperature', 'humidity'                                ], entry.phrases['report'].text);              }
              , climate_plant   : function(entry) { if (entry.phrases['report'].selected) 
-                                                     report(entry.entry,  [ 'status', 'needsWater', 'needsMist', 'needsFertilizer' ], entry.phrases['report'].text); }
+                                                     report(entry.entry,  [ 'status', 'needsWater', 'needsMist', 'needsFertilizer'   ], entry.phrases['report'].text);              }
              , climate_soil    : function(entry) { if (entry.phrases['report'].selected) 
                                                      report(entry.entry,  [ 'temperature', 'moisture', 'waterVolume', 'light'        ], entry.phrases['report'].text);              }
              , climate_meteo   : function(entry) { if (entry.phrases['report'].selected) 
-                                                     report(entry.entry,  [ 'temperature', 'humidity', 'noise', 'co2' ], entry.phrases['report'].text);              }
+                                                     report(entry.entry,  [ 'temperature', 'humidity', 'noise', 'co2' , 'rainRate', 'rainTotal', 
+						                            'windAverage', 'windGust','windDirection'                ], entry.phrases['report'].text);              }
+
              , lighting_bulb       : lighting
              , lighting_downlight  : lighting
              , lighting_lightstrip : lighting

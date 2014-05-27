@@ -1018,6 +1018,10 @@ var single_climate_instructions = function(device) {
 };
 
 
+var azimuth2cardinal = function(deg) {
+  var _directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  return _directions[Math.floor((deg % 360) / 22.5)];
+};
 
 var climate_device_arcs = function(device) {
   var arcs, i, metric, now, prop, props, v;
@@ -1034,7 +1038,9 @@ var climate_device_arcs = function(device) {
                                                       'needsMist',       'rssi'
                                  , 'hvac',            'noise',           'co',       'concentration', 'nextSample',
                                                       'needsFertilizer', 'battery',  'batteryLevel',  'location'
-                                 , 'away',             'pressure',       'no2'
+                                 , 'away',            'pressure',        'no2'
+				 , 'rainRate',        'rainTotal'
+				 , 'windAverage',     'windGust',        'windDirection'
                                  ]);
 
   for (i = 0; i < props.length; i++) {
@@ -1086,6 +1092,27 @@ var climate_device_arcs = function(device) {
                           , index  : 0.60
                           });
         break;
+
+      case 'rainRate':
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'RAIN RATE'
+                          , cooked : v.toFixed(2) + 'mm/h'
+                          , value  : clip2bars(v, 0, 200)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'windAverage':
+        arcs.splice(1, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'WIND AVERAGE'
+                          , cooked : v.toFixed(2) + 'm/s'
+                          , value  : clip2bars(v, 0, 50)
+                          , index  : 0.50
+                          });
+        break;
+
 
 
 // 2nd ring
@@ -1156,6 +1183,25 @@ var climate_device_arcs = function(device) {
                           , label  : 'CONDITIONS'
                           , cooked : v
                           , value  : clip2bars(v.length ? 100 : 0, 0, 100)
+                          , index  : 0.50
+                          });
+        break;
+      case 'rainTotal':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'RAIN TOTAL'
+                          , cooked : v.toFixed(2) + 'mm'
+                          , value  : clip2bars(v, 0, 1000)
+                          , index  : 0.50
+                          });
+        break;
+
+      case 'windGust':
+        arcs.splice(2, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'WIND GUST'
+                          , cooked : v.toFixed(2) + 'm/s'
+                          , value  : clip2bars(v, 0, 50)
                           , index  : 0.50
                           });
         break;
@@ -1233,6 +1279,15 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'windDirection':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'WIND DIRECTION'
+                          , cooked : azimuth2cardinal(v) + ' (' + v.toFixed(0) + '&deg;)'
+                          , value  : clip2bars(v, 0, 360)
+                          , index  : 0.40
+                          });
+        break;
 
 // 4th ring
       case 'hvac':
