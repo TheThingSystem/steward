@@ -103,7 +103,7 @@ Gateway.prototype.setup = function(self) {
 
   self.stream.removeAllListeners();
   self.stream.on('data', function(data) {
-    self.buffer = !!self.buffer ? Buffer.concat([ self.buffer, data ]) : data;
+    self.buffer = (!!self.buffer) ? Buffer.concat([ self.buffer, data ]) : data;
     self.process(self);
   }).on('error', function(error) {
     logger.warning('device/' + self.deviceID, { event: 'error', error: error });
@@ -915,7 +915,7 @@ var pair = function(socket, ipaddr, portno, macaddr, tag) {
   socket.on('data', function(data) {
     var address, deviceType, firmware, i, id, info, manufacturer, modelName, modelNo, message, productCode, x;
 
-    buffer = !!buffer ? Buffer.concat([ buffer, data ]) : data;
+    buffer = (!!buffer) ? Buffer.concat([ buffer, data ]) : data;
 
     for (i = 0; i < buffer.length; i++) if (buffer[i] == 0x02) break;
     if (i !== 0) buffer = ((i + 1) < buffer.length) ? buffer.slice(i + 1) : null;
@@ -1067,7 +1067,7 @@ var scan1 = function(driver) {
   }).on('data', function(data) {
     var address, deviceType, firmware, i, id, info, manufacturer, modelName, modelNo, message, productCode, x;
 
-    buffer = !!buffer ? Buffer.concat([ buffer, data ]) : data;
+    buffer = (!!buffer) ? Buffer.concat([ buffer, data ]) : data;
 
     for (i = 0; i < buffer.length; i++) if (buffer[i] == 0x02) break;
     if (i !== 0) buffer = ((i + 1) < buffer.length) ? buffer.slice(i + 1) : null;

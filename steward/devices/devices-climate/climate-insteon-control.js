@@ -1,9 +1,20 @@
 // Insteon wired thermostat: http://www.insteon.com/pdf/2441TH.pdf
 
+var pair
+  , utility     = require('./../../core/utility')
+  ;
+
+try {
+  pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
+} catch(ex) {
+  exports.start = function() {};
+
+  return utility.logger('devices').info('failing insteon-control climate (continuing)', { diagnostic: ex.message });
+}
+
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , climate     = require('./../device-climate')
   , sensor      = require('./../device-sensor')
   ;
@@ -202,8 +213,6 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var pair;
-
   steward.actors.device.climate.insteon = steward.actors.device.climate.insteon ||
       { $info     : { type: '/device/climate/insteon' } };
 
@@ -227,12 +236,8 @@ exports.start = function() {
 
 // do not enable yet!
 return;
-  try {
-    pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
-
-    pair ({ '/device/switch/insteon/onoff' : { maker   :   Thermostat
-                                             , entries : [ '0508', '050b', '090d'  ]
-                                             }
-          });
-  } catch(ex) { }
+  pair ({ '/device/switch/insteon/onoff' : { maker   :   Thermostat
+                                           , entries : [ '0508', '050b', '090d'  ]
+                                           }
+        });
 };

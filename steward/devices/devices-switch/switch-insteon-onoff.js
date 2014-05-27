@@ -1,9 +1,20 @@
 // Insteon ApplianceLinc: http://www.insteon.com/2456s3-appliancelinc.html
 
+var pair
+  , utility     = require('./../../core/utility')
+  ;
+
+try {
+  pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
+} catch(ex) {
+  exports.start = function() {};
+
+  return utility.logger('devices').info('failing insteon-onoff switch (continuing)', { diagnostic: ex.message });
+}
+
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , plug        = require('./../device-switch')
   ;
 
@@ -142,8 +153,6 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var pair;
-
   steward.actors.device['switch'].insteon = steward.actors.device['switch'].insteon ||
       { $info     : { type: '/device/switch/insteon' } };
 
@@ -164,12 +173,8 @@ exports.start = function() {
   devices.makers['Insteon.0235'] = Insteon_OnOff;
   devices.makers['Insteon.0236'] = Insteon_OnOff;
 
-  try {
-    pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
-
-    pair ({ '/device/switch/insteon/onoff' : { maker   :   Insteon_OnOff
-                                             , entries : [ '0209', '022d', '0230', '0235', '0236'  ]
-                                             }
-          });
-  } catch(ex) { }
+  pair ({ '/device/switch/insteon/onoff' : { maker   :   Insteon_OnOff
+                                           , entries : [ '0209', '022d', '0230', '0235', '0236'  ]
+                                           }
+        });
 };

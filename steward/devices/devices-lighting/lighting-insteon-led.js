@@ -1,9 +1,20 @@
 // Insteon LED bulb: http://www.insteon.com/bulb.html
 
+var pair
+  , utility     = require('./../../core/utility')
+  ;
+
+try {
+  pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
+} catch(ex) {
+  exports.start = function() {};
+
+  return utility.logger('devices').info('failing insteon-led lighting (continuing)', { diagnostic: ex.message });
+}
+
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , lighting    = require('./../device-lighting')
   ;
 
@@ -174,8 +185,6 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var pair;
-
   steward.actors.device.lighting.insteon = steward.actors.device.lighting.insteon ||
       { $info     : { type: '/device/lighting/insteon' } };
 
@@ -207,15 +216,11 @@ exports.start = function() {
   devices.makers['Insteon.014f'] = Insteon_LED;
 
 
-  try {
-    pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
-
-    pair ({ '/device/lighting/insteon/bulb'      : { maker   : Insteon_LED
-                                                   , entries : [ '013a', '013b', '013c', '014c', '014d', '0151'  ]
-                                                   }
-          , '/device/lighting/insteon/downlight' : { maker   : Insteon_LED
-                                                   , entries : [ '0149', '014a', '014b', '014e', '014f'          ]
-                                                   }
-          });
-  } catch(ex) { }
+  pair ({ '/device/lighting/insteon/bulb'      : { maker   : Insteon_LED
+                                                 , entries : [ '013a', '013b', '013c', '014c', '014d', '0151'  ]
+                                                 }
+        , '/device/lighting/insteon/downlight' : { maker   : Insteon_LED
+                                                 , entries : [ '0149', '014a', '014b', '014e', '014f'          ]
+                                                 }
+        });
 };

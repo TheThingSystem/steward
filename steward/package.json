@@ -79,7 +79,7 @@
     , "suncalc"                 : "1.2.1"
     , "telldus-live"            : "0.2.0"
     , "teslams"                 : "0.8.6"
-    , "twit"                    : "1.1.15"
+    , "twit"                    : "git://github.com/TheThingSystem/twit.git"
     , "underscore"              : "1.5.1"
     , "unofficial-nest-api"     : "git://github.com/TheThingSystem/unofficial_nodejs_nest.git"
     , "validator"               : "1.1.3"

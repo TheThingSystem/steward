@@ -1,9 +1,20 @@
 // Insteon LampLinc: http://www.insteon.com/2457D2-lamplinc-dual-band.html
 
+var pair
+  , utility     = require('./../../core/utility')
+  ;
+
+try {
+  pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
+} catch(ex) {
+  exports.start = function() {};
+
+  return utility.logger('devices').info('failing insteon-dimmer switch (continuing)', { diagnostic: ex.message });
+}
+
 var util        = require('util')
   , devices     = require('./../../core/device')
   , steward     = require('./../../core/steward')
-  , utility     = require('./../../core/utility')
   , plug        = require('./../device-switch')
   ;
 
@@ -171,8 +182,6 @@ var validate_perform = function(perform, parameter) {
 
 
 exports.start = function() {
-  var pair;
-
   steward.actors.device['switch'].insteon = steward.actors.device['switch'].insteon ||
       { $info     : { type: '/device/switch/insteon' } };
 
@@ -196,12 +205,8 @@ exports.start = function() {
   devices.makers['Insteon.01ef'] = Insteon_Dimmer;
   devices.makers['Insteon.0120'] = Insteon_Dimmer;
 
-  try {
-    pair = require('./../devices-gateway/gateway-insteon-automategreen').pair;
-
-    pair ({ '/device/switch/insteon/dimmer'      : { maker   : Insteon_Dimmer
-                                                   , entries : [ '0100', '010e', '010f', '0111', '0112', '01ef', '0120'  ]
-                                                   }
-          });
-  } catch(ex) { }
+  pair ({ '/device/switch/insteon/dimmer'      : { maker   : Insteon_Dimmer
+                                                 , entries : [ '0100', '010e', '010f', '0111', '0112', '01ef', '0120'  ]
+                                                 }
+        });
 };

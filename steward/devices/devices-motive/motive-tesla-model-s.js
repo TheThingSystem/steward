@@ -116,7 +116,7 @@ ModelS.prototype.refresh = function(self) {
   tesla.wake_up(self.vehicle.id, function(data, body) {
     if (utility.toType(data) === 'error') {
       if ((data.message.indexOf('503:') !== 0) && (data.message.indexOf('408:') !== 0)) {
-        logger.error('device/' + self.deviceID, { event: 'wake_up', diagnostic: data.message , body: body});
+        logger.error('device/' + self.deviceID, { event: 'wake_up', diagnostic: data.message , body: body });
       }
       return self.scan(self);
     }
@@ -162,7 +162,7 @@ ModelS.prototype.scan = function(self) {
         self.timer = setTimeout(function() { self.refresh(self); }, 600 * 1000);
       }
       if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-      return logger.error('device/' + self.deviceID, { event: 'mobile_enabled', diagnostic: data.message , body: body});
+      return logger.error('device/' + self.deviceID, { event: 'mobile_enabled', diagnostic: data.message , body: body });
     }
 
     self.newstate(self, data.result);
@@ -175,7 +175,7 @@ ModelS.prototype.scan = function(self) {
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_vehicle_state', diagnostic: data.message , body: body});
+        return logger.error('device/' + self.deviceID, { event: 'get_vehicle_state', diagnostic: data.message , body: body });
       }
 
       didP = false;
@@ -215,7 +215,7 @@ ModelS.prototype.scan = function(self) {
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_climate_state', diagnostic: data.message , body: body});
+        return logger.error('device/' + self.deviceID, { event: 'get_climate_state', diagnostic: data.message , body: body });
       }
 
       didP = false;
@@ -251,7 +251,7 @@ ModelS.prototype.scan = function(self) {
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_drive_state', diagnostic: data.message , body: body});
+        return logger.error('device/' + self.deviceID, { event: 'get_drive_state', diagnostic: data.message , body: body });
       }
 
       didP = false;
@@ -311,7 +311,7 @@ ModelS.prototype.scan = function(self) {
 
       if (utility.toType(data) === 'error') {
         if ((data.message.indexOf('503:') === 0) || (data.message.indexOf('408:') === 0)) return;
-        return logger.error('device/' + self.deviceID, { event: 'get_charge_state', diagnostic: data.message , body: body});
+        return logger.error('device/' + self.deviceID, { event: 'get_charge_state', diagnostic: data.message , body: body });
       }
       if ((!self.vehicle_speed) && (typeof data.charging_state === 'undefined')) {
         return logger.error('device/' + self.deviceID, { event: 'get_charge_state', data: data });
@@ -410,7 +410,7 @@ ModelS.prototype.stream = function(self, fastP) {
         self.info.odometer = odometer;
       }
 
-      range = (sample.range * 1.60934).toFixed(2);    // miles -> kilometers
+      range = (sample.est_range * 1.60934).toFixed(2);    // miles -> kilometers
       if (self.info.range != range) {
         didP = true;
         self.info.range = range;
@@ -492,7 +492,7 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   cb = function(data, body) {
     if (utility.toType(data) === 'error') {
       logger.error('device/' + self.deviceID,
-                   { event: 'perform', perform: perform, parameter: parameter, diagnostic: data.message , body: body});
+                   { event: 'perform', perform: perform, parameter: parameter, diagnostic: data.message , body: body });
     } else if (!data.result) {
       logger.error('device/' + self.deviceID,
                    { event: 'perform', perform: perform, parameter: parameter, diagnostic: 'failed' });

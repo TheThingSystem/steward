@@ -371,6 +371,7 @@ var modify = function(logger, ws, api, message, tag) {
       }
 
       activities[activity.activityUID] = activity2;
+      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
     });
   }
 

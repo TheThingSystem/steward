@@ -108,7 +108,7 @@ Thermostat.operations =
          devices.attempt_perform('hvac', params, function(value) {
            var mode = { off: 'off', auto_eco: 'auto_eco', cool: 'cool_only', fan: 'fan_only' }[value];
 
-           if (!mode) return;        
+           if (!mode) return;
 
 // ...set mode to mode
          });
