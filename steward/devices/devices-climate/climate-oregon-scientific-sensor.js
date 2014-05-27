@@ -58,13 +58,18 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/oregon-scientific/meteo'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name         : true
-                                   , status       : [ 'present' ]
-                                   , lastSample   : 'timestamp'
-                                   , temperature  : 'celsius'
-                                   , humidity     : 'percentage'
-                                   , batteryLevel : 'percentage'
-                                   , rssi         : 's8'
+                    , properties : { name          : true
+                                   , status        : [ 'present' ]
+                                   , lastSample    : 'timestamp'
+                                   , temperature   : 'celsius'
+                                   , humidity      : 'percentage'
+                                   , batteryLevel  : 'percentage'
+                                   , rssi          : 's8'
+                                   , rainRate      : 'mm/h'
+                                   , rainTotal     : 'mm'
+                                   , windAverage   : 'm/s'
+                                   , windGust      : 'm/s'
+                                   , windDirection : 'degrees'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform
