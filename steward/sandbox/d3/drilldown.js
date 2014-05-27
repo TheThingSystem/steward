@@ -1114,7 +1114,6 @@ var climate_device_arcs = function(device) {
         break;
 
 
-
 // 2nd ring
       case 'goalTemperature':
         arcs.splice(2, 0, { name   : prop
@@ -1186,6 +1185,7 @@ var climate_device_arcs = function(device) {
                           , index  : 0.50
                           });
         break;
+
       case 'rainTotal':
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
