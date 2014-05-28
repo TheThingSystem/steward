@@ -111,7 +111,7 @@ console.log('>>> dimmer perform command ' + JSON.stringify({ perform: perform, l
     if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'dimDevice', diagnostic: err.message });
 
-    self.params.status = level > 0 ? 'on' : 'off';
+    self.params.status = level > 0 ? 'dim' : 'off';
     if (perform === 'on') self.params.statevalue = level;
 console.log('>>> telldus current  setting ' + JSON.stringify({ status: self.params.status, level: self.params.statevalue }));
     self.update(self, self.params);
