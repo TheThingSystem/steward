@@ -172,9 +172,11 @@ exports.start = function() {
   devices.makers['Insteon.0230'] = Insteon_OnOff;
   devices.makers['Insteon.0235'] = Insteon_OnOff;
   devices.makers['Insteon.0236'] = Insteon_OnOff;
+  devices.makers['Insteon.0237'] = Insteon_OnOff;
+  devices.makers['Insteon.0238'] = Insteon_OnOff;
 
   pair ({ '/device/switch/insteon/onoff' : { maker   :   Insteon_OnOff
-                                           , entries : [ '0209', '022d', '0230', '0235', '0236'  ]
+                                           , entries : [ '0209', '022d', '0230', '0235', '0236', '0237', '0238' ]
                                            }
         });
 };

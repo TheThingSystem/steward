@@ -121,7 +121,8 @@ Gateway.prototype.announce = function(self, data) {
   }
   productCode = (new Buffer([data.deviceCategory.id, data.deviceSubcategory.id])).toString('hex');
   if (!deviceTypes[productCode]) {
-    return logger.warning('device/' + self.deviceID, { event: 'unable to determine product category', data: data });
+    return logger.warning('device/' + self.deviceID,
+                          { event: 'unable to determine product category for ' + productCode, data: data });
   }
   address = sixtoid(data.id);
 
