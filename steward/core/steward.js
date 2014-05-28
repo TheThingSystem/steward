@@ -136,7 +136,7 @@ var check = function(event, now) {
   try { params = JSON.parse(event.parameter); } catch(ex) { params = null; }
   previous = event.observeP;
   event.observeP = (!!params) && evaluate(params, entity, info);
-  if (event.observeP !== previous) event.lastTime = now;
+  if ((event.observeP) && (!previous)) event.lastTime = now;
 };
 
 var evaluate = function(params, entity, info) {
@@ -267,7 +267,7 @@ var observedT = function(whoami) {
 
     case 'group':
       group = groups.id2group(parts[1]);
-      if ((!group) || (group.members.length < 1)) return false;
+      if ((!group) || (group.members.length < 1)) return 0;
 
       lastTime = observedT(group.members[0].actor);
       for (i = 1; i < group.members.length; i++) {
