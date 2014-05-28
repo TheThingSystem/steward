@@ -8,9 +8,11 @@ CHANGELOG
 - condition evaluation robustness
 - APIs:
     - duplicate UUID robustness on .../create
+    - activity modify send success indication
     - task creation robustness for guard
     - thing perform and update robustness
     - automatically logout a thing when it logs in again
+    - fix intermitant bug preventing steward bootstrap user creation
 - Discovery
     - allow SSDP hook for discovery
     - create index.xml for each interface
@@ -30,16 +32,21 @@ CHANGELOG
 - robustness when geocoding fails
 
 ### Things
-- devices: add common functions to remove duplicate code in many drivers
+- devices:
+    - add common functions to remove duplicate code in many drivers
+    - all insteon devices are robust when no gateway module present
 - device/climate:
     - insteon/control: initial check-in, not yet operational
     - netatmo/*: support new API result
     - netatmo/rain: NEW
+    - oregon-scientific/meteo: report rain/wind information, if available
     - plantlink/soil: use 'waterVolume' (percentage) as an alternative to 'moisture' (millibars)
+    - telldus/meteo: NEW
     - wink/control: initial check-in, not yet operational
 - device/gateway:
     - defer scanning until all subordinates loaded
     - insteon/*: replace driver with (home-controller)[https://github.com/automategreen/home-controller] package
+    - telldus-live/cloud: NEW
 - device/indicator:
     - instapush/text: NEW
     - pushover/text: NEW
@@ -61,6 +68,9 @@ CHANGELOG
 - device/sensor:
 - device/switch:
     - all dimmers: if performing 'on', treat a zero-valued level as 100%
+    - telldus/dimmer: NEW
+    - telldus/onoff: NEW
+    - wemo/onoff: report watt-hours correctly
 - device/wearable:
 
 ### HTML5/D3 client
@@ -68,6 +78,8 @@ CHANGELOG
 - dimmer setting robustness
 - display units now properly set on startup
 - robustness when setting values for place/1
+- fix bug in reporting "now"
+- report rain/wind information for meteo sensors, if available
 
 ### User policy client
 - no changes
