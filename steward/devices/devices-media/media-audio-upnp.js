@@ -92,13 +92,13 @@ UPnP_Audio.prototype.jumpstart = function(self, path) {
 
     if (!!err) {
       self.error(self, err, 'subscribe');
-      setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
+      setTimeout(function() { self.jumpstart(self, path); }, 30 * 1000);
       return;
     }
 
     if ((response.statusCode !== 200) || (!response.headers.sid)) {
       self.sid = null;
-      setTimeout(function() { self.jumpstart(self, path); }, secs * 30 * 1000);
+      setTimeout(function() { self.jumpstart(self, path); }, 30 * 1000);
       return;
     }
 
