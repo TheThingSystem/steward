@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-## Release 1.8 "Barbecue Ribs" - May 28, 2014
-## Commit - TBD
+## Release 1.8 "Barbecue Ribs" - May 30, 2014
+## Commit - 1e53cd4ef8745192043bcaa2cb0a3e5c13b06abd
 
 ### Steward
 - condition evaluation robustness
