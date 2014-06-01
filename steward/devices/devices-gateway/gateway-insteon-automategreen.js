@@ -90,6 +90,8 @@ Gateway.prototype.scan = function(self) {
 
       if (!!err) return logger.error('device/' + self.deviceID, { event: 'links', diagnostic: err.message });
 
+      if (typeof links === 'undefined') return;
+
       var f = function(id) {
         return function(err, info) {
           if (!!err) return logger.error('device/' + self.deviceID, { event: 'info', id: id, diagnostic: err.message });
