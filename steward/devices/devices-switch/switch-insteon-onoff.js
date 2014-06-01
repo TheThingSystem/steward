@@ -37,7 +37,7 @@ var Insteon_OnOff = exports.Device = function(deviceID, deviceUID, info) {
   self.insteonID = info.device.unit.serial;
   self.info = {};
 
-  if (!self.gateway.roundtrip) self.light = self.gateway.insteon.light(self.insteonID);
+  self.light = self.gateway.insteon.light(self.insteonID);
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -53,8 +53,6 @@ util.inherits(Insteon_OnOff, plug.Device);
 
 
 Insteon_OnOff.prototype.refresh = function(self) {
-  if (!self.light) return self.gateway.roundtrip(self.gateway, '0262' + self.insteonID + '001900');
-
   self.light.level(function(err, brightness) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'light.level', diagnostic: err.message });
 
@@ -119,16 +117,12 @@ Insteon_OnOff.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-  if (!self.light) {
-    self.gateway.roundtrip(self.gateway, '0262' + self.insteonID + '00' + (state.on ? '12FF' : '1400'));
-  } else {
-    event = state.on ? 'turnOnFast' : 'turnOffFast';
-    self.light[event](function(err, results) {/* jshint unused: false */
-      if (!!err) return logger.info('device/' + self.deviceID, { event: event, diagnostic: err.message });
+  event = state.on ? 'turnOnFast' : 'turnOffFast';
+  self.light[event](function(err, results) {/* jshint unused: false */
+    if (!!err) return logger.info('device/' + self.deviceID, { event: event, diagnostic: err.message });
 
-      self.onoff(self, state.on);
-    });
-  }
+    self.onoff(self, state.on);
+  });
   return steward.performed(taskID);
 };
 

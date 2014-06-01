@@ -37,7 +37,7 @@ var Insteon_Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   self.insteonID = info.device.unit.serial;
   self.info = {};
 
-  if (!self.gateway.roundtrip) self.light = self.gateway.insteon.light(self.insteonID);
+  self.light = self.gateway.insteon.light(self.insteonID);
 
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
@@ -53,8 +53,6 @@ util.inherits(Insteon_Dimmer, plug.Device);
 
 
 Insteon_Dimmer.prototype.refresh = function(self) {
-  if (!self.light) return self.gateway.roundtrip(self.gateway, '0262' + self.insteonID + '001900');
-
   self.light.level(function(err, level) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'light.level', diagnostic: err.message });
 
@@ -138,9 +136,7 @@ Insteon_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
   logger.info('device/' + self.deviceID, { perform: state });
 
-  if (!self.light) {
-    self.gateway.roundtrip(self.gateway, '0262' + self.insteonID + '00' + (state.on ? ('11' + state.level) : '1300'));
-  } else if (state.on) {
+  if (state.on) {
     self.light.turnOn(params.level, function(err, results) {/* jshint unused: false */
       if (!!err) return logger.info('device/' + self.deviceID, { event: 'turnOn', diagnostic: err.message });
 

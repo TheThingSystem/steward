@@ -1,0 +1,39 @@
+{ "logconfigs"  :
+  { "climate"   : { "console"           : { "level": "info"  } }
+  , "media"     : { "console"           : { "level": "info"  } }
+  , "motive"    : { "console"           : { "level": "info"  } }
+  , "wearable"  : { "console"           : { "level": "info"  } }
+  }
+
+, "deviceTypes" :
+  { "include"   : {
+                  }
+  , "exclude"   : { "gateway"           : [ "example-cloud"
+                                          ]
+                  }
+  }
+
+, "serialPorts" :
+  { "insteon-automategreen"
+                : { "/dev/ttyUSB0"       : { "vendor"       : "INSTEON"
+                                           , "modelName"    : "PowerLinc #2413U"
+                                           , "description"  : "Insteon PowerLinc USB (Dual-Band) #2413U"
+                                           , "manufacturer" : "FTDI"
+                                           }
+                  }
+  , "openzwave-usb"
+                : { "/dev/ttyUSB1"      : { "vendor"       : "AEOTEC"
+                                          , "modelName"    : "Z-Stick S2"
+                                          , "description"  : "Aeon Labs Z-Wave Z-Stick Series 2 USB Dongle"
+                                          , "manufacturer" : "Silicon Labs"
+                                          }
+                  }
+  , "zigbee-xstick"
+                : { "/dev/ttyUSB2"      : { "vendor"       : "Sparkfun"
+                                          , "modelName"    : "XBee Explorer USB"
+                                          , "description"  : "USB to XBee wireless adapter ZB (ZigBee mesh)"
+                                          , "manufacturer" : "FTDI"
+                                          }
+                  }
+  }
+}

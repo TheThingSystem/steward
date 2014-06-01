@@ -44,10 +44,10 @@ var beacon_ingress = function(category, level, message, meta) {
 };
 
 
-var configuration = {};
+exports.configuration = {};
 
 exports.start = function() {
-  var category, setting, settings;
+  var category, configuration, setting, settings;
 
 // used to delay the server starting...
   exports.acquiring = 1;
@@ -60,22 +60,23 @@ exports.start = function() {
   broker.create('readings');
 
   try {
-    configuration = JSON.parse(fs.readFileSync(__dirname + '/../db/configuration.json', { encoding: 'utf8' }));
+    exports.configuration = JSON.parse(fs.readFileSync(__dirname + '/../db/configuration.json', { encoding: 'utf8' }));
   } catch(ex) {
     if (ex.code !== 'ENOENT') exports.logger('steward').error('utility', { diagnostic: ex.message });
   }
 
-  if (!configuration.logconfigs) return;
+  configuration = exports.configuration.logconfigs;
+  if (!configuration) return;
 
-  for (category in configuration.logconfigs) {
-    if (!configuration.logconfigs.hasOwnProperty(category)) continue;
+  for (category in configuration) {
+    if (!configuration.hasOwnProperty(category)) continue;
 
     if (!logconfigs[category]) {
-      logconfigs[category] = configuration.logconfigs[category];
+      logconfigs[category] = configuration[category];
       continue;
     }
 
-     settings = configuration.logconfigs[category];
+     settings = configuration[category];
      for (setting in settings) if (settings.hasOwnProperty(setting)) logconfigs[category][setting] = settings[setting];
   }
 };
@@ -183,19 +184,20 @@ exports.acquiring = 0;
 var acquired = {};
 
 exports.acquire = function(logger, directory, pattern, start, stop, suffix, arg) {
-  var category, exclude, include, tail;
+  var category, configuration, exclude, include, tail;
 
   exports.acquiring++;
 
-  if (!!configuration.deviceTypes) {
+  configuration = exports.configuration.deviceTypes;
+  if (!!configuration) {
     tail = directory.split('/');
     if ((tail.length > 0) && (tail[tail.length - 1].indexOf('devices-') === 0)) {
       category = tail[tail.length - 1].substring(8);
-      if ((!!configuration.deviceTypes.include) && (util.isArray(configuration.deviceTypes.include[category]))) {
-        include = configuration.deviceTypes.include[category];
+      if ((!!configuration.include) && (util.isArray(configuration.include[category]))) {
+        include = configuration.include[category];
       }
-      if ((!!configuration.deviceTypes.exclude) && (util.isArray(configuration.deviceTypes.exclude[category]))) {
-        exclude = configuration.deviceTypes.exclude[category];
+      if ((!!configuration.exclude) && (util.isArray(configuration.exclude[category]))) {
+        exclude = configuration.exclude[category];
       }
     }
   }

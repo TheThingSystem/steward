@@ -66,53 +66,31 @@ var manufacturers = {};
 var pairings      = {};
 var scanning      = {};
 
-
-var fingerprints  =
-  [
-    { vendor         : 'AEOTEC'
-    , modelName      : 'Z-Stick S2'
-    , description    : 'Aeon Labs Z-Wave Z-Stick Series 2 USB Dongle'
-    , manufacturer   : 'Silicon Labs'
-    , vendorId       : 0x10c4
-    , productId      : 0xea60
-    , pnpId          : 'usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_'
-    , products       :
-      [ { mID        : '0086'
-        , pID        : '0001'
-        , modelName  : 'Z-Stick S2'
-        , deviceType : '/device/gateway/aeotec/zstick-s2'
-        }
-      , { mID        : '0086'
-        , pID        : '0025'
-        , modelName  : 'Range Extender'
-        , deviceType : '/device/gateway/aeotec/repeater'
-        }
-      ]
-    }
-  ];
-
 var scan = function() {
   serialport.list(function(err, info) {
-    var i, j;
+    var configuration, fingerprint, i, j;
 
     if (!!err) return logger2.error('openzwave-usb', { diagnostic: err.message });
 
+    configuration = utility.configuration.serialPorts && utility.configuration.serialPorts['openzwave-usb'];
+    if (!configuration) return;
+    
     for (i = 0; i < info.length; i++) {
-      for (j = fingerprints.length - 1; j !== -1; j--) {
-        if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
-              || ((     fingerprints[j].manufacturer === info[i].manufacturer)
-                    && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
-                    && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
-          info[i].vendor = fingerprints[j].vendor;
-          info[i].modelName = fingerprints[j].modelName;
-          info[i].description = fingerprints[j].description;
-          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
-          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
-          if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
-          if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
-          scan1(info[i]);
-        }
+      fingerprint = configuration[info[i].comName];
+      if (!fingerprint) continue;
+
+      info[i].vendor = fingerprint.vendor;
+      info[i].modelName = fingerprint.modelName;
+      info[i].description = fingerprint.description;
+      if (!info[i].vendorId)     info[i].vendorId     = fingerprint.vendorId;
+      if (!info[i].productId)    info[i].productId    = fingerprint.productId;
+      if (!info[i].manufacturer) info[i].manufacturer = fingerprint.manufacturer;
+      if (!info[i].serialNumber) info[i].serialNumber = fingerprint.serialNumber;
+      if (!info[i].serialNumber) {
+        j = info[i].comName.lastIndexOf('-');
+        if (j !== -1) info[i].serialNumber = info[i].comName.substr(j + 1);
       }
+      scan1(info[i]);
     }
   });
 
@@ -316,41 +294,22 @@ exports.pair = function(commandClass, deviceType) {
   pairings[commandClass] = deviceType;
 };
 
-/* DEPRECATED
-exports.register = function(maker, deviceType, entries) {
-  var manufacturer, manufacturerID, parts, prefix, product, productID, suffix, whom;
 
-  parts = deviceType.split('/');
-  prefix = parts[2];
-  suffix = parts[4];
-
-  for (manufacturerID in entries) {
-    if (!entries.hasOwnProperty(manufacturerID)) continue;
-    manufacturer = entries[manufacturerID];
-
-    if (!manufacturers[manufacturerID]) manufacturers[manufacturerID] = {};
-
-    for (productID in manufacturer) {
-      if (!manufacturer.hasOwnProperty(productID)) continue;
-      product = manufacturer[productID];
-
-      manufacturers[manufacturerID][productID] = product;
-
-      whom = product.deviceType.split('/')[3];
-      if (!steward.actors.device[prefix][whom]) {
-        steward.actors.device[prefix][whom] = { $info : { type: '/device/' + prefix + '/' + whom } };
-      }
-
-      steward.actors.device[prefix][whom][suffix] = utility.clone(steward.actors.device[prefix].zwave[suffix]);
-      steward.actors.device[prefix][whom][suffix].$info.type = product.deviceType;
-      devices.makers[product.deviceType] = maker;
+var fingerprints  =
+  [ { mID        : '0086'
+    , pID        : '0001'
+    , modelName  : 'Z-Stick S2'
+    , deviceType : '/device/gateway/aeotec/zstick-s2'
     }
-  }
-};
- */
+  , { mID        : '0086'
+    , pID        : '0025'
+    , modelName  : 'Range Extender'
+    , deviceType : '/device/gateway/aeotec/repeater'
+    }
+  ];
 
 exports.start = function() {
-  var fingerprint, i, j, parts, prefix, product, suffix;
+  var i, parts, prefix, product, suffix;
 
   steward.actors.device.gateway.openzwave = steward.actors.device.gateway.openzwave ||
       { $info     : { type: '/device/gateway/openzwave' } };
@@ -370,27 +329,23 @@ exports.start = function() {
   devices.makers['/device/gateway/openzwave/usb'] = Gateway;
 
   for (i = 0; i < fingerprints.length; i++) {
-    fingerprint = fingerprints[i];
+    product = fingerprints[i];
 
-    for (j = 0; j < fingerprint.products.length; j++) {
-      product = fingerprint.products[j];
+    parts = product.deviceType.split('/');
+    prefix = parts[3];
+    suffix = parts[4];
 
-      parts = product.deviceType.split('/');
-      prefix = parts[3];
-      suffix = parts[4];
+    steward.actors.device.gateway[prefix] =
+      steward.actors.device.gateway[prefix] || utility.clone(steward.actors.device.gateway.openzwave);
+    delete(steward.actors.device.gateway[prefix].usb);
+    steward.actors.device.gateway[prefix].$info.type = parts.slice(0, -1).join('/');
 
-      steward.actors.device.gateway[prefix] =
-        steward.actors.device.gateway[prefix] || utility.clone(steward.actors.device.gateway.openzwave);
-      delete(steward.actors.device.gateway[prefix].usb);
-      steward.actors.device.gateway[prefix].$info.type = parts.slice(0, -1).join('/');
+    steward.actors.device.gateway[prefix][suffix] = utility.clone(steward.actors.device.gateway.openzwave.usb);
+    steward.actors.device.gateway[prefix][suffix].$info.type = product.deviceType;
+    devices.makers[product.deviceType] = Gateway;
 
-      steward.actors.device.gateway[prefix][suffix] = utility.clone(steward.actors.device.gateway.openzwave.usb);
-      steward.actors.device.gateway[prefix][suffix].$info.type = product.deviceType;
-      devices.makers[product.deviceType] = Gateway;
-
-      if (!manufacturers[product.mID]) manufacturers[product.mID] = {};
-      manufacturers[product.mID][product.pID] = { name: product.modelName, deviceType: product.deviceType };
-    }
+    if (!manufacturers[product.mID]) manufacturers[product.mID] = {};
+    manufacturers[product.mID][product.pID] = { name: product.modelName, deviceType: product.deviceType };
   }
 
   process.on('exit', function() {

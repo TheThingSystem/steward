@@ -129,13 +129,6 @@ var validate_perform = function(perform, parameter) {
 };
 
 
-/* DEPRECATED
-var manufacturers =
-{ '0063' : { '3130' : { name: 'Outdoor Module',                      deviceType: '/device/switch/ge/onoff'      } }
-, '0086' : { '0006' : { name: 'Smart Energy Switch',                 deviceType: '/device/switch/aeotec/onoff'  } }
-};
- */
-
 exports.start = function() {
   steward.actors.device['switch'].zwave = steward.actors.device['switch'].zwave ||
       { $info     : { type: '/device/switch/zwave' } };
@@ -153,8 +146,4 @@ exports.start = function() {
       };
   devices.makers['/device/switch/zwave/onoff'] = ZWave_OnOff;
   registrar.pair(0x25, '/device/switch/zwave/onoff');  // COMMAND_CLASS_SWITCH_BINARY
-
-/* DEPRECATED
-  registrar.register(ZWave_OnOff, '/device/switch/zwave/onoff', manufacturers);
- */
 };

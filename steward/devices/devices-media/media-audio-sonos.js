@@ -440,6 +440,31 @@ util.inherits(Sonos_Bridge, media.Device);
 Sonos_Bridge.prototype.perform = devices.perform;
 
 
+var Sonos_Dock = function(deviceID, deviceUID, info) {
+  var self;
+
+  self = this;
+
+  self.whatami = '/device/media/upnp/ignore';
+  self.deviceID = deviceID.toString();
+  self.deviceUID = deviceUID;
+  self.name = info.device.name;
+  self.getName ();
+
+  self.info = {};
+  self.status = 'present';
+  self.changed();
+
+  utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (actor !== ('device/' + self.deviceID)) return;
+
+    if (request === 'perform') return devices.perform(self, taskID, perform, parameter);
+  });
+};
+util.inherits(Sonos_Dock, media.Device);
+Sonos_Dock.prototype.perform = devices.perform;
+
+
 exports.start = function() {
   steward.actors.device.media.sonos = steward.actors.device.media.sonos ||
       { $info     : { type: '/device/media/sonos' } };
@@ -488,4 +513,12 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform }
       };
   devices.makers['Sonos ZoneBridge ZB100'] = Sonos_Bridge;
+
+  steward.actors.device.media.sonos.dock = utility.clone(steward.actors.device.gateway.sonos.bridge);
+  steward.actors.device.media.sonos.dock.$info.type = '/device/media/sonos/dock';
+
+  discovery.upnp_register('/device/media/sonos/dock', function(upnp) {
+    if (upnp.root.device[0].nodelName[0].indexOf('Sonos DOCK') === 0) return '/device/media/sonos/dock';
+  });
+  devices.makers['/device/media/sonos/dock'] = Sonos_Dock;
 };

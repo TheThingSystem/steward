@@ -888,37 +888,52 @@ var scanning = {};
 
 exports.scan_usb = function(logger2, tag, fingerprints, callback) {
   serialport.list(function(err, info) {
-    var i, j, k;
+    var configuration, fingerprint, i, j;
 
     var f = function(comName) {
       return function(err) { if (!!err) delete(scanning[comName]); };
     };
 
+    var g = function(entry, fingerprint, serialNumber) {
+      var k;
+
+      entry.vendor = fingerprint.vendor;
+      entry.modelName = fingerprint.modelName;
+      entry.description = fingerprint.description;
+      entry.deviceType = fingerprint.deviceType;
+      if (!entry.vendorId)     entry.vendorId     = fingerprint.vendorId;
+      if (!entry.productId)    entry.productId    = fingerprint.productId;
+      if (!entry.manufacturer) entry.manufacturer = fingerprint.manufacturer;
+      if (!entry.serialNumber) entry.serialNumber = serialNumber;
+      if (!entry.serialNumber) {
+        k = entry.comName.lastIndexOf('-');
+        if (k !== -1) entry.serialNumber = entry.comName.substr(k + 1);
+      }
+
+      if (!!scanning[entry.comName]) return;
+      scanning[entry.comName] = true;
+
+      callback(entry, f(entry.comName));
+    };
+
     if (!!err) return logger2.error(tag, { diagnostic: err.message });
 
+    configuration = utility.configuration.serialPorts && utility.configuration.serialPorts[tag];
+    if (!configuration) configuration = {};
     for (i = 0; i < info.length; i++) {
+      fingerprint = configuration[info[i].comName];
+      if (!!fingerprint) {
+        g(info[i], fingerprint, fingerprint.serialNumber);
+        continue;
+      }
+
       for (j = fingerprints.length - 1; j !== -1; j--) {
         if ((info[i].pnpId.indexOf(fingerprints[j].pnpId) === 0)
               || ((     fingerprints[j].manufacturer === info[i].manufacturer)
                     && (fingerprints[j].vendorId     === parseInt(info[i].vendorId, 16))
                     && (fingerprints[j].productId    === parseInt(info[i].productId, 16)))) {
-          info[i].vendor = fingerprints[j].vendor;
-          info[i].modelName = fingerprints[j].modelName;
-          info[i].description = fingerprints[j].description;
-          info[i].deviceType = fingerprints[j].deviceType;
-          if (!info[i].vendorId)     info[i].vendorId     = fingerprints[j].vendorId;
-          if (!info[i].productId)    info[i].productId    = fingerprints[j].productId;
-          if (!info[i].manufacturer) info[i].manufacturer = fingerprints[j].manufacturer;
-          if (!info[i].serialNumber) info[i].serialNumber = info[i].pnpId.substr(fingerprints[j].pnpId.length).split('-')[0];
-          if (!info[i].serialNumber) {
-            k = info[i].comName.lastIndexOf('-');
-            if (k !== -1) info[i].serialNumber = info[i].comName.substr(k + 1);
-          }
-
-          if (!!scanning[info[i].comName]) continue;
-          scanning[info[i].comName] = true;
-
-          callback(info[i], f(info[i].comName));
+          fingerprint = fingerprints[j];
+          g(info[i], fingerprint, info[i].pnpId.substr(fingerprint.pnpId.length).split('-')[0]);
         }
       }
     }
