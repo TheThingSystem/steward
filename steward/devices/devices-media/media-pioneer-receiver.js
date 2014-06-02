@@ -215,4 +215,5 @@ exports.start = function() {
 
     return '/device/media/pioneer/receiver';
   });
+  devices.makers['/device/media/pioneer/receiver'] = Pioneer_AVR;
 };

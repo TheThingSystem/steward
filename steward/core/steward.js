@@ -269,6 +269,11 @@ var observedT = function(whoami) {
       group = groups.id2group(parts[1]);
       if ((!group) || (group.members.length < 1)) return 0;
 
+      if (!!group.modifiedP) {
+        delete(group.modifiedP);
+        return new Date();
+      }
+
       lastTime = observedT(group.members[0].actor);
       for (i = 1; i < group.members.length; i++) {
         result = observedT(group.members[i].actor);

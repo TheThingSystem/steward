@@ -399,6 +399,7 @@ var modify = function(logger, ws, api, message, tag) {
       if (memberlist.indexOf(group.members[i].actor) < 0) members2.push(group.members[i]);
     }
   }
+
   var fixmembers = function() {
     var cnt, j;
 
@@ -446,6 +447,8 @@ var modify = function(logger, ws, api, message, tag) {
       db.run('DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID',
              { $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }, delmember);
     }
+
+    group.modifiedP = true;
   };
 
   results.result = { group: group.groupID };
