@@ -400,6 +400,11 @@ var modify = function(logger, ws, api, message, tag) {
     }
   }
 
+  var done = function() {
+    group.modifiedP = true;
+    try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+  };
+
   var fixmembers = function() {
     var cnt, j;
 
@@ -408,7 +413,7 @@ var modify = function(logger, ws, api, message, tag) {
         logger.error(tag, { event: 'INSERT members.groupID for ' + group.groupID, diagnostic: err.message });
         results.error = { permanent: false, diagnostic: 'internal error' };
       }
-      if (--cnt <= 0) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+      if (--cnt <= 0) done();
     };
 
     var delmember = function(err) {
@@ -416,17 +421,14 @@ var modify = function(logger, ws, api, message, tag) {
         logger.error(tag, { event: 'DELETE members.groupID for ' + group.groupID, diagnostic: err.message });
         results.error = { permanent: false, diagnostic: 'internal error' };
       }
-      if (--cnt <= 0) try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
+      if (--cnt <= 0) done();
     };
 
     cnt = (!!members) ? (members.length + members2.length) : 0;
 
     groups[group.groupUID] = group2;
 
-    if (cnt === 0) {
-      try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
-      return;
-    }
+    if (cnt === 0) return done();
 
     for (i = 0; i < members.length; i++) {
       member = members[i];
@@ -447,8 +449,6 @@ var modify = function(logger, ws, api, message, tag) {
       db.run('DELETE FROM members WHERE groupID=$groupID AND actorType=$actorType AND actorID=$actorID',
              { $groupID: groupID, $actorType: triple.actorType, $actorID: triple.actorID }, delmember);
     }
-
-    group.modifiedP = true;
   };
 
   results.result = { group: group.groupID };
@@ -463,11 +463,10 @@ var modify = function(logger, ws, api, message, tag) {
     s3.$groupID = group.groupID;
 
     db.run(s1 + ' WHERE groupID=$groupID', s3, function(err) {
-      if (err) {
+      if (!!err) {
         logger.error(tag, { event: 'MODIFY groups.groupID for ' + group.groupID, diagnostic: err.message });
         results.error = { permanent: false, diagnostic: 'internal error' };
-        try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
-        return;
+        return done();
       }
 
       fixmembers();

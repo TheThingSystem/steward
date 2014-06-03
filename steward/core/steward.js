@@ -74,9 +74,8 @@ var scan = function() {
 
     activity = activities.activities[uuid];
     if (!activity.armed) continue;
-    if (activity.lastTime === null) activity.lastTime = 0;
 
-    if ((observedP(activity.event)) && (observedT(activity.event) > activity.lastTime)) {
+    if ((observedP(activity.event)) && ((activity.lastTime === null) || (observedT(activity.event) > activity.lastTime))) {
       activity.lastTime = now;
       prepare(activity.task);
     }
@@ -256,6 +255,8 @@ var observedP = function(whoami) {
   }
 };
 
+var zero = new Date(0);
+
 var observedT = function(whoami) {
   var event, group, i, lastTime, parts, result;
 
@@ -263,11 +264,11 @@ var observedT = function(whoami) {
   switch (parts[0]) {
     case 'event':
       event = events.id2event(parts[1]);
-      return ((event && event.lastTime) || 0);
+      return ((event && event.lastTime) || zero);
 
     case 'group':
       group = groups.id2group(parts[1]);
-      if ((!group) || (group.members.length < 1)) return 0;
+      if ((!group) || (group.members.length < 1)) return zero;
 
       if (!!group.modifiedP) {
         delete(group.modifiedP);
@@ -282,7 +283,7 @@ var observedT = function(whoami) {
       return lastTime;
 
     default:
-      return 0;
+      return zero;
   }
 };
 
