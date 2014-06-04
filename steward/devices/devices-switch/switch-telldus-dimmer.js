@@ -50,7 +50,7 @@ Dimmer.prototype.update = function(self, params) {
   status = self.params.online === '0' ? 'absent' : self.params.status;
 
   if (status === 'dim') {
-    level = Math.round((1 - (255 - self.params.statevalue) / 255) * 100);
+    level = devices.percentageValue(self.params.statevalue, 255);
     status = level > 0 ? 'on' : 'off';
     if (level !== self.info.level) {
       self.info.level = level;
