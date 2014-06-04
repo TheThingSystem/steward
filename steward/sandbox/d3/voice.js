@@ -213,8 +213,11 @@ All recognized commands without filter\n\
              , climate_soil    : function(entry) { if (entry.phrases['report'].selected) 
                                                      report(entry.entry,  [ 'temperature', 'moisture', 'waterVolume', 'light'        ], entry.phrases['report'].text);              }
              , climate_meteo   : function(entry) { if (entry.phrases['report'].selected) 
-                                                     report(entry.entry,  [ 'temperature', 'humidity', 'noise', 'co2' , 'rainRate', 'rainTotal', 
-						                            'windAverage', 'windGust','windDirection'                ], entry.phrases['report'].text);              }
+                                                     report(entry.entry,  [ 'temperature', 'humidity', 'noise', 'co2'                ], entry.phrases['report'].text);              }
+             , climate_rain   : function(entry) { if (entry.phrases['report'].selected) 
+                                                     report(entry.entry,  [ 'rainRate', 'rainTotal'                                  ], entry.phrases['report'].text);              }
+             , climate_wind   : function(entry) { if (entry.phrases['report'].selected) 
+                                                     report(entry.entry,  [ 'windAverage', 'windGust','windDirection'                ], entry.phrases['report'].text);              }
 
              , lighting_bulb       : lighting
              , lighting_downlight  : lighting
@@ -452,7 +455,7 @@ var voiceUtils = {
                  , {name: 'climate'
                    , img: 'popovers/assets/actors/sensor-climate.svg'
                    , active: false
-                   , q: ['climate_control', 'climate_plant', 'climate_soil', 'climate_meteo']
+                   , q: ['climate_control', 'climate_plant', 'climate_soil', 'climate_meteo', 'climate_rain', 'climate_wind']
                    , top: 0
                    , left: 0}
                  , {name: 'lighting'
@@ -501,6 +504,8 @@ var voiceUtils = {
              , climate_plant    : 'climate'
              , climate_soil     : 'climate'
              , climate_meteo    : 'climate'
+             , climate_rain     : 'climate'
+             , climate_wind     : 'climate'
              , lighting_bulb       : 'lighting'
              , lighting_downlight  : 'lighting'
              , lighting_lightstrip : 'lighting'
@@ -526,6 +531,8 @@ var voiceUtils = {
              , climate_plant   : { report: { text: 'tell me about ' + entry.name, selected: true } } 
              , climate_soil    : { report: { text: 'tell me about ' + entry.name, selected: true } } 
              , climate_meteo   : { report: { text: 'tell me about ' + entry.name, selected: true } }
+             , climate_rain   : { report: { text: 'tell me about ' + entry.name, selected: true } }
+             , climate_wind   : { report: { text: 'tell me about ' + entry.name, selected: true } }
              , lighting_bulb       : lighting
              , lighting_downlight  : lighting
              , lighting_lightstrip : lighting
