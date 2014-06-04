@@ -172,11 +172,11 @@ Cloud.prototype.getSensor = function(self, offset) {
 
     props =  { temp     : [ 'temperature',   'celcius',    'meteo' ]
              , humidity : [ 'humidity',      'percentage', 'meteo' ]
-	     , rrate    : [ 'rainRate',      'mm/h',       'meteo' ]
-	     , rtot     : [ 'rainTotal',     'mm',         'meteo' ]
-	     , wavg     : [ 'windAverage',   'm/s',        'meteo' ]
-	     , wgust    : [ 'windGust',      'm/s',        'meteo' ]
-	     , wdir     : [ 'windDirection', 'degrees',    'meteo' ]
+	     , rrate    : [ 'rainRate',      'mm/h',       'rain' ]
+	     , rtot     : [ 'rainTotal',     'mm',         'rain' ]
+	     , wavg     : [ 'windAverage',   'm/s',        'wind' ]
+	     , wgust    : [ 'windGust',      'm/s',        'wind' ]
+	     , wdir     : [ 'windDirection', 'degrees',    'wind' ]
              };
 
     data = { lastSample: params.lastUpdated * 1000 };
