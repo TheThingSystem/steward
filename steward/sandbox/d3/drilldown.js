@@ -102,7 +102,14 @@ var home = function(state) {
   img.setAttribute('onclick', 'javascript:showVoiceSettings()');
   chart.appendChild(img);
   
-  chart = document.getElementById('chart');
+if (false) {
+  img = document.createElement('img');
+  img.setAttribute('id', 'to-automation');
+  img.setAttribute('src', 'popovers/assets/apprentice.svg');
+  img.setAttribute('title', 'To automation settings...');
+  img.setAttribute('onclick', 'javascript:goApprentices()');
+  chart.appendChild(img);
+}
 
   div = document.createElement('div');
   div.setAttribute('id', 'logo');
@@ -211,28 +218,6 @@ var home = function(state) {
     div.appendChild(span);
     if (++a >= 12) break;
   }
-if (false) {
-  div = document.createElement('div');
-  div.setAttribute('class', 'apprentices');
-  chart.appendChild(div);
-  
-  tag = document.createElement('span');
-  tag.setAttribute('class', 'tag');
-  tag.setAttribute('style', 'background-color: #000; color: #00ba00;');
-  tag.innerHTML = 'apprentices';
-  div.appendChild(tag);
-  span = document.createElement('span');
-  span.innerHTML = ' ';
-  div.appendChild(span);
-  tag = document.createElement('span');
-  tag.setAttribute('class', 'tag');
-  tag.setAttribute('onclick', 'javascript:goApprentices()');
-  tag.innerHTML = 'home&nbsp;autonomy';
-  div.appendChild(tag);
-  span = document.createElement('span');
-  span.innerHTML = ' ';
-  div.appendChild(span);
-}
   div = document.createElement('div');
   div.setAttribute('class', 'wrapper');
   chart.appendChild(div);
@@ -1039,8 +1024,8 @@ var climate_device_arcs = function(device) {
                                  , 'hvac',            'noise',           'co',       'concentration', 'nextSample',
                                                       'needsFertilizer', 'battery',  'batteryLevel',  'location'
                                  , 'away',            'pressure',        'no2'
-				 , 'rainRate',        'rainTotal'
-				 , 'windAverage',     'windGust',        'windDirection'
+                                 , 'rainRate',        'rainTotal'
+                                 , 'windAverage',     'windGust',        'windDirection'
                                  ]);
 
   for (i = 0; i < props.length; i++) {

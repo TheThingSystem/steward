@@ -1,19 +1,62 @@
 var onOffSliderPane = { "min": 7, "max": 38 };
 
 var goApprentices = function(local) {
-  var backdrop;
+  var backdrop, div, panesDiv, panesList, predisplay = false;
   apprentices.currPaneIndex = null;
 
   if (document.getElementById("sub-pane-one")) d3.select('#sub-pane-one').remove();
   if (!document.getElementById('apprentice-backdrop')) {
+    predisplay = true;
+    panesList = apprentices.home.panes;
+    
     backdrop = d3.select('body')
       .append('div')
       .attr('id', 'apprentice-backdrop');
-    backdrop.append('img')
-      .attr('src', 'images/thing.sys.logo.black.svg')
-      .style('margin-top', '8px')
+    backdrop.append('div')
+      .attr('style', 'position: absolute; top: 20px; left: 20px; margin-bottom: 8px; width: 44px; height: 44px; background-color: #fff;')
+      .append('img')
+      .attr('src', 'actors/home.svg')
       .style('cursor', 'pointer')
+      .style('float', 'left')
       .on('click', function() {exitApprentices()});
+    div = backdrop.append('div')
+      .attr('id', 'pre-settings');
+    div.append('div')
+      .attr('class', 'form-heading')
+      .style('margin-top', '0px')
+      .style('text-transform', 'capitalize')
+      .html(apprentices.home.title);
+    div.append('div')
+      .attr('class', 'apprentice-instructions')
+      .html(apprentices.home.text);
+    panesDiv = div.append('div')
+      .attr('class', 'panes')
+      .attr('id', 'panes');
+    divLeft = panesDiv.append('div')
+      .attr('class', 'panes-left')
+    divRight = panesDiv.append('div')
+      .attr('class', 'panes-right')
+    for (i = 0; i < panesList.length; i++) {
+      div = (i % 2 === 0) ? divLeft.append('div') : divRight.append('div');
+      div.attr('class', 'display-pane')
+        .attr('onclick', function() { return 'javascript:goPaneDetail(' + i + ');'; });
+      div.append("div")
+        .attr("class", "on-off-slider")
+        .append("img")
+        .attr("src", "popovers/assets/slider.on-off.svg")
+        .attr("onclick", function() { return 'javascript:togglePaneOnOff(' + i + ', event);'; });
+      div.append('span')
+        .attr('class', 'label')
+        .attr('id', function() { return 'pane' + i })
+        .style('opacity', 0.5)
+        .html(panesList[i].title);
+      div.append('span')
+        .attr('class', 'state')
+        .attr('id', function() { return 'state' + i })
+        .style('opacity', 0.5)
+        .html('syncing&hellip;');
+    }
+
   } else {
     backdrop = d3.select('#apprentice-backdrop');
     updatePanesList();
@@ -23,12 +66,21 @@ var goApprentices = function(local) {
     d3.select('#apprentice-backdrop').remove();
   }
 
-  if (!local) {refreshActors(10); } else { finishApprentices(); }
+  if (!local) {
+    if (predisplay) {
+      setTimeout(refreshActors, 0, 10); 
+    } else refreshActors(10); 
+  } else { 
+    if (predisplay) {
+      setTimeout(finishApprentices, 0); 
+    } else finishApprentices();
+  }
 }
 
 var finishApprentices = function() {
-  var backdrop, div, div2, i, panesDiv, panesList;
+  var backdrop, div, div2, divLeft, divRight, i, panesDiv, panesList;
   backdrop = d3.select('#apprentice-backdrop');
+  if (document.getElementById("pre-settings")) d3.select('#pre-settings').remove();
 
   div = backdrop.append('div')
     .attr('id', 'settings');
@@ -43,7 +95,6 @@ var finishApprentices = function() {
   
   panesList = livingPanes();
   
-  var divLeft, divRight;
   panesDiv = div.append('div')
     .attr('class', 'panes')
     .attr('id', 'panes');
@@ -193,7 +244,7 @@ var goPaneDetail = function(n) {
   div2 = div.append('div')
     .attr('class', 'form-heading')
     .style('margin-top', '0px')
-    .style('top', '-100px')
+    .style('top', '-150px')
     .style('text-transform', 'capitalize')
     .html(panes[n].title);
   div2.append('div')
@@ -263,7 +314,8 @@ var goPaneDetail = function(n) {
         }
       }
       div2 = div.append('div')
-        .attr('id', 'sub-pane-two');
+        .attr('id', 'sub-pane-two')
+        .style('top', function() { return (panes[n].observations.hasOwnProperty('events')) ? '170px' : '0px' });
       div2.append('div')
         .attr('class', 'form-heading')
         .style('margin-top', '0px')

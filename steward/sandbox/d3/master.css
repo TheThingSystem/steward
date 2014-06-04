@@ -216,7 +216,7 @@ img.actor-big { width: 160px; height: 160px; margin-bottom: 8px; background-colo
         margin: 0px auto;
 }
  
-#chart div.tags { position: absolute; top: 545px; left: 180px; width: 500px; height: 50px; text-align: center; }
+#chart div.tags { position: absolute; top: 545px; left: 60px; width: 720px; height: 50px; text-align: center; }
 #chart span.tag { text-align: center; position: relative; padding: 3px 8px; margin: 12px 2px; background-color: #333;
 	line-height: 28px; font-size: 14px; white-space: nowrap;
 	cursor: pointer;
@@ -495,6 +495,28 @@ input.formtext { width: 100%; background-color: #333; border: 2px #666 solid; pa
 }
 
 /* apprentices panels */
+
+#to-automation {
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    top: 57px;
+    padding: 2px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#pre-settings {
+        position: absolute;
+        top: 120px;
+        left: 0px;
+        width: 780px;
+        height: 700px;
+        background-color: #000;
+        text-align: left;
+        font-family: "Monsterrat Regular";
+        font-size: 20pt;
+}
 
 #apprentice-backdrop {
   position: absolute;
