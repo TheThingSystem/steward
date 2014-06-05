@@ -65,8 +65,32 @@ exports.start = function() {
                                    , humidity      : 'percentage'
                                    , batteryLevel  : 'percentage'
                                    , rssi          : 's8'
+                                   }
+                    }
+      , $validate : { perform    : devices.validate_perform
+                    }
+      };
+  steward.actors.device.climate['oregon-scientific'].rain =
+      { $info     : { type       : '/device/climate/oregon-scientific/rain'
+                    , observe    : [ ]
+                    , perform    : [ ]
+                    , properties : { name          : true
+                                   , status        : [ 'present' ]
+                                   , lastSample    : 'timestamp'
                                    , rainRate      : 'mm/h'
                                    , rainTotal     : 'mm'
+                                   }
+                    }
+      , $validate : { perform    : devices.validate_perform
+                    }
+      };
+  steward.actors.device.climate['oregon-scientific'].wind =
+      { $info     : { type       : '/device/climate/oregon-scientific/wind'
+                    , observe    : [ ]
+                    , perform    : [ ]
+                    , properties : { name          : true
+                                   , status        : [ 'present' ]
+                                   , lastSample    : 'timestamp'
                                    , windAverage   : 'm/s'
                                    , windGust      : 'm/s'
                                    , windDirection : 'degrees'
@@ -76,4 +100,6 @@ exports.start = function() {
                     }
       };
   devices.makers['/device/climate/oregon-scientific/meteo'] = Sensor;
+  devices.makers['/device/climate/oregon-scientific/rain'] = Sensor;
+  devices.makers['/device/climate/oregon-scientific/wind'] = Sensor;
 };
