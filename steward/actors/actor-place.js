@@ -699,10 +699,10 @@ var cardinal = [ [ 'N',   'north'            ]
                ];
 
 exports.customary = function(property, value, abbrevP) {
-  var azimuth = { heading        : cardinal[Math.floor((value % 360) / 22.5)][abbrevP ? 0 : 1]
-                , windDirection  : cardinal[Math.floor((value % 360) / 22.5)][abbrevP ? 0 : 1]
+  var azimuth = { heading        : cardinal[Math.floor((value % 360) / 22.5)]
+                , windDirection  : cardinal[Math.floor((value % 360) / 22.5)]
                 }[property];
-  if (!!azimuth) return azimuth;
+  if (!!azimuth) return azimuth[abbrevP ? 0 : 1];
 
   if (place1.info.displayUnits !== 'customary') return value;
 

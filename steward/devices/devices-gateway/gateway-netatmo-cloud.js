@@ -118,15 +118,11 @@ Cloud.prototype.scan = function(self) {
         coordinates = [ place.location[1], place.location[0] ];
         if (!!place.altitude) coordinates.push(place.altitude);
       } else coordinates = null;
-      self.addstation(self, station, station.station_name,
-                      util.isArray(station.last_data_store) ? station.last_data_store[station._id] : station.last_data_store,
-                      coordinates);
+      self.addstation(self, station, station.station_name, station.dashboard_data, coordinates);
       for (j = 0; j < station.modules.length; j++) {
         id = station.modules[j];
         if (!!modules[id]) {
-          self.addstation(self, modules[id], station.station_name,
-                          util.isArray(station.last_data_store) ? station.last_data_store[id]
-                                                                : modules[id].last_data_store, coordinates);
+          self.addstation(self, modules[id], station.station_name, station.dashboard_data, coordinates);
         }
       }
     }
@@ -149,13 +145,13 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
   };
 
   params = { location     : coordinates
-           , lastSample   : (!isNaN(data.K)) ? (data.K * 1000) : null
-           , temperature  : (!isNaN(data.a)) ? data.a          : null
-           , humidity     : (!isNaN(data.b)) ? data.b          : null
-           , co2          : (!isNaN(data.h)) ? data.h          : null
-           , noise        : (!isNaN(data.S)) ? data.S          : null
-           , pressure     : (!isNaN(data.e)) ? data.e          : null
-           , rainTotal    : (!isNaN(data.f)) ? data.f          : null
+           , lastSample   : (!isNaN(data.time_utc))    ? (data.time_utc * 1000) : null
+           , temperature  : (!isNaN(data.Temperature)) ? data.Temperature       : null
+           , humidity     : (!isNaN(data.Humidity))    ? data.Humidity          : null
+           , co2          : (!isNaN(data.CO2))         ? data.CO2               : null
+           , noise        : (!isNaN(data.Noise))       ? data.Noise             : null
+           , pressure     : (!isNaN(data.Pressure))    ? data.Pressure          : null
+           , rainTotal    : (!isNaN(data.Rain))        ? data.Rain              : null
            , batteryLevel : batteryLevel()
            , rssi         : station.rf_status
            };
