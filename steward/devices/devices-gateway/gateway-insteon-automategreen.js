@@ -101,7 +101,7 @@ Gateway.prototype.scan = function(self) {
       };
 
       for (i = 0; i < links.length; i++) {
-        if (typeof links[i] === 'undefined') continue;
+        if (typeof links[i] === 'undefined' || typeof links[i] === null) continue;
         id = links[i].id;
 
         if (!!self.seen[id]) continue;
