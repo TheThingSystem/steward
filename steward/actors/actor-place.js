@@ -680,7 +680,30 @@ exports.name2place = function(name) {
   return null;
 };
 
-exports.customary = function(property, value) {
+var cardinal = [ [ 'N',   'north'            ]
+               , [ 'NNE', 'north north-east' ]
+               , [ 'NE',  'north-east'       ]
+               , [ 'ENE', 'east north-east'  ]
+               , [ 'E',   'east'             ]
+               , [ 'ESE', 'east south-east'  ]
+               , [ 'SE',  'south-east'       ]
+               , [ 'SSE', 'south south-east' ]
+               , [ 'S',   'south'            ]
+               , [ 'SSW', 'south south-west' ]
+               , [ 'SW',  'south-west'       ]
+               , [ 'WSW', 'west south-west'  ]
+               , [ 'W',   'west'             ]
+               , [ 'WNW', 'west north-west'  ]
+               , [ 'NW',  'north-west'       ]
+               , [ 'NNW', 'north north-west' ]
+               ];
+
+exports.customary = function(property, value, abbrevP) {
+  var azimuth = { heading        : cardinal[Math.floor((value % 360) / 22.5)][abbrevP ? 0 : 1]
+                , windDirection  : cardinal[Math.floor((value % 360) / 22.5)][abbrevP ? 0 : 1]
+                }[property];
+  if (!!azimuth) return azimuth;
+
   if (place1.info.displayUnits !== 'customary') return value;
 
   return {
@@ -690,6 +713,11 @@ exports.customary = function(property, value) {
          , intTemperature  : Math.round(((value * 9) / 5) + 32)
          , temperature     : Math.round(((value * 9) / 5) + 32)
          , windchill       : Math.round(((value * 9) / 5) + 32)
+
+// millimeters      -> inches
+// millimeters/hour -> inches/hour
+         , rainRate        : Math.round(value * 0.0393701)
+         , rainTotal       : Math.round(value * 0.0393701)
 
 // meters -> feet
          , accuracy        : Math.round(value * 3.28084)
@@ -702,6 +730,8 @@ exports.customary = function(property, value) {
 
 // meters/second -> miles/hour
          , velocity        : Math.round(value * 2.23694)
+         , windAverage     : Math.round(value * 2.23694)
+         , windGust        : Math.round(value * 2.23694)
          }[property] || value;
 };
 

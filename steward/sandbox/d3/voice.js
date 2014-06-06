@@ -217,7 +217,7 @@ All recognized commands without filter\n\
              , climate_rain   : function(entry) { if (entry.phrases['report'].selected) 
                                                      report(entry.entry,  [ 'rainRate', 'rainTotal'                                  ], entry.phrases['report'].text);              }
              , climate_wind   : function(entry) { if (entry.phrases['report'].selected) 
-                                                     report(entry.entry,  [ 'windAverage', 'windGust','windDirection'                ], entry.phrases['report'].text);              }
+                                                     report(entry.entry,  [ 'windAverage', 'windGust', 'windDirection'               ], entry.phrases['report'].text);              }
 
              , lighting_bulb       : lighting
              , lighting_downlight  : lighting

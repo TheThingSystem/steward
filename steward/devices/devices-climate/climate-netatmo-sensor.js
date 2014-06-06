@@ -83,7 +83,7 @@ exports.start = function() {
                                    , placement   : true
                                    , location    : 'coordinates'
                                    , lastSample  : 'timestamp'
-                                   , waterLevel  : 'millimeters'
+                                   , rainTotal   : 'millimeters'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

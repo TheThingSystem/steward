@@ -213,11 +213,11 @@ var report = function(query, proplist) {
     }
 // TBD: this is really a UI thing, but it is rather convenient to place here...
     metricP = places.place1.info.displayUnits === 'metric';
-    v = places.customary(prop, v);
+    v = places.customary(prop, v, false);
     data += v;
     if (!isNaN(v)) {
-      data += { batteryLevel    : ' percent'
-              , accuracy        : metricP ? ' meters' : ' feet'
+      data += { accuracy        : metricP ? ' meters' : ' feet'
+              , batteryLevel    : ' percent'
               , co              : ' parts per million'
               , co2             : ' parts per million'
               , distance        : metricP ? ' kilometers' : ' miles'
@@ -233,12 +233,17 @@ var report = function(query, proplist) {
               , noise           : ' decibels'
               , odometer        : metricP ? ' kilometers' : ' miles'
               , pressure        : ' milli bars'
+              , rainRate        : metricP ? ' millimeters per hour' : ' inches per hour'
+              , rainTotal       : metricP ? ' millimeters' : ' inches'
               , range           : metricP ? ' kilometers' : ' miles'
               , temperature     : ' degrees'
               , velocity        : metricP ? ' meters per second' : ' miles per hour'
               , visibility      : metricP ? ' kilometers' : ' miles'
               , voc             : ' parts per million'
+              , waterVolume     : ' percent'
+              , windAverage     : metricP ? ' meters per second' : ' miles per hour'
               , windchill       : ' degrees'
+              , windGust        : metricP ? ' meters per second' : ' miles per hour'
               }[prop] || '';
     }
   }

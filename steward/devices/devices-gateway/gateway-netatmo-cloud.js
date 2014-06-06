@@ -155,7 +155,7 @@ Cloud.prototype.addstation = function(self, station, name, data, coordinates) {
            , co2          : (!isNaN(data.h)) ? data.h          : null
            , noise        : (!isNaN(data.S)) ? data.S          : null
            , pressure     : (!isNaN(data.e)) ? data.e          : null
-           , waterLevel   : (!isNaN(data.f)) ? data.f          : null
+           , rainTotal    : (!isNaN(data.f)) ? data.f          : null
            , batteryLevel : batteryLevel()
            , rssi         : station.rf_status
            };

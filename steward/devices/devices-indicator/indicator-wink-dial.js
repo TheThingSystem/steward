@@ -82,34 +82,39 @@ Gauge.prototype.egress = function(self) {
 
     parts = self.info.property.split('.');
     property = parts[parts.length - 1];
-    if (places.place1.info.displayUnits === 'customary') value = places.customary(property, value);
+    if (places.place1.info.displayUnits === 'customary') value = places.customary(property, value, true);
 
     if (!isNaN(value)) {
       metricP = places.place1.info.displayUnits === 'metric';
 
-      value += { batteryLevel    : '%'
-               , accuracy        : metricP ? 'M'   : 'FT'
+      value += { accuracy        : metricP ? 'M'    : 'FT'
+               , batteryLevel    : '%'
                , co              : 'PPM'
                , co2             : 'PPM'
-               , distance        : metricP ? 'KM'  : 'MI'
-               , extTemperature  : metricP ? 'C'   : 'F'
-               , goalTemperature : metricP ? 'C'   : 'F'
-               , heading         : metricP ? 'C'   : 'F'
+               , distance        : metricP ? 'KM'   : 'MI'
+               , extTemperature  : metricP ? 'C'    : 'F'
+               , goalTemperature : metricP ? 'C'    : 'F'
+               , heading         : metricP ? 'C'    : 'F'
                , humidity        : '%'
-               , intTemperature  : metricP ? 'C'   : 'F'
+               , intTemperature  : metricP ? 'C'    : 'F'
                , light           : 'LM'
                , moisture        : 'MB'
                , no              : 'PPM'
                , no2             : 'PPM'
                , noise           : 'DB'
-               , odometer        : metricP ? 'KM'  : 'MI'
+               , odometer        : metricP ? 'KM'   : 'MI'
                , pressure        : 'MB'
-               , range           : metricP ? 'KM'  : ' MI'
-               , temperature     : metricP ? 'C'   : 'F'
-               , velocity        : metricP ? 'MPS' : 'MPH'
-               , visibility      : metricP ? 'KM'  : ' MI'
+               , rainRate        : metricP ? 'MM/H' : 'IN/H'
+               , rainTotal       : metricP ? 'MM'   : 'IN'
+               , range           : metricP ? 'KM'   : 'MI'
+               , temperature     : metricP ? 'C'    : 'F'
+               , velocity        : metricP ? 'MPS'  : 'MPH'
+               , visibility      : metricP ? 'KM'   : ' MI'
                , voc             : 'PPM'
-               , windchill       : metricP ? 'C'   : 'F'
+               , waterVolume     : '%'
+               , windAverage     : metricP ? 'MPS'  : 'MPH'
+               , windchill       : metricP ? 'C'    : 'F'
+               , windGust        : metricP ? 'MPS'  : 'MPH'
               }[property] || '';
     }
   }
