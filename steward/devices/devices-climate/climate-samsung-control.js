@@ -269,7 +269,6 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
   if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
   Thermostat.operations[perform](this, params);
-  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
   return steward.performed(taskID);
 };
 
