@@ -284,6 +284,7 @@ var modify = function(logger, ws, api, message, tag) {
   activity = id2activity(activityID);
   if (!activity)                                            return error(false, 'unknown activity ' + activityID);
   activity2 = utility.clone(activity);
+  activity2.lastTime = null;
 
   columns = [];
 
