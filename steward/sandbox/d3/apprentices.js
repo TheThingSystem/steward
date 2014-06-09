@@ -448,8 +448,7 @@ var goPaneDetail = function(n) {
   function onToggleGuardEvent(i, n, taskIndex, groupNr) {
     sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
                            , requestID : add_callback(function(message1) { if (message1.result) {
-                                            apprentices.d = organize(message1); toggleTask(i, n, taskIndex, groupNr); console.log('onToggleGuardEvent callback');
-                                            console.log(message1);} })
+                                            apprentices.d = organize(message1); toggleTask(i, n, taskIndex, groupNr);} })
                            , options   : { depth: 'all' }
                            }));  
   };
@@ -460,12 +459,9 @@ var goPaneDetail = function(n) {
     uuid = tasks[taskIndex].uuid + ":" + device.replace(/\//, ":");
   
     if (!tasks[taskIndex].actors[i].selected) {
-      console.log('create guard event');
       sendIt(JSON.stringify({ path       : '/api/v1/event/create/' + uuid
                              , requestID : add_callback(function(message) { if (message.result) {
-                                             onToggleGuardEvent(i, n, taskIndex, groupNr);
-                                             console.log('toggleGuardedTask/event/create callback');
-                                             console.log(message);}
+                                             onToggleGuardEvent(i, n, taskIndex, groupNr);}
                              })
                              , name      : tasks[taskIndex].title
                              , actor     : device
@@ -474,12 +470,10 @@ var goPaneDetail = function(n) {
                              }));
 
     } else {
-      console.log('delete guard event');
       rowID = apprentices.d.events[uuid].id.match(/\/(.+)$/)[1];
       sendIt(JSON.stringify({ path       : '/api/v1/event/delete/' + rowID
                              , requestID : add_callback(function(message) { if (message.result) {
-                                             onToggleGuardEvent(i, n, taskIndex, groupNr);
-                                             console.log('toggleGuardedTask/event/delete callback');}
+                                             onToggleGuardEvent(i, n, taskIndex, groupNr);}
                              })}));
     }
   }
@@ -521,7 +515,7 @@ var goPaneDetail = function(n) {
     function readActivities(message, type, n, itemIndex, groupNr, device, newColor) {
       sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
                              , requestID : add_callback(function(message1) { if (message1.result) {
-                               apprentices.d = organize(message1); onCreateMultiEventOrTask(message1, 'task', n, taskIndex, groupNr, device, newColor); console.log(message1); } })
+                               apprentices.d = organize(message1); onCreateMultiEventOrTask(message1, 'task', n, taskIndex, groupNr, device, newColor); } })
                              , options: { depth: 'all' }
                              })); 
 
@@ -587,7 +581,7 @@ var refreshActivities = function(message) {
 
   sendIt(JSON.stringify({ path       : '/api/v1/activity/list/'
                          , requestID : add_callback(function(message1) { if (message1.result) {
-                         apprentices.d = organize(message1); console.log(message1); } })
+                         apprentices.d = organize(message1); } })
                          , options: { depth: 'all' }
                          })); 
 
@@ -618,7 +612,6 @@ var onCreateEventOrTask = function(message, type, itemIndex, groupNr) {
     }
 	}
 
-  console.log(groupMembers);
   updateGroupMembers(groupMembers);
 }
 
@@ -632,7 +625,7 @@ var onCreateMultiEventOrTask = function(message, type, n, itemIndex, groupNr, di
   subEvents = pane.observations.event;
   items = pane.performances.task[itemIndex];
   members = [];
-  list_activity(ws2, '',  { depth: 'all' }, function(message) {apprentices.d = organize(message); gatherMembers(); console.log(message);});
+  list_activity(ws2, '',  { depth: 'all' }, function(message) {apprentices.d = organize(message); gatherMembers(); });
   
   function gatherMembers() {
     for (eventIndex = 0; eventIndex < subEvents.length; eventIndex++) {
@@ -652,7 +645,6 @@ var onCreateMultiEventOrTask = function(message, type, n, itemIndex, groupNr, di
         }
       }
     }
-    console.log(groupMembers); 
     updateGroupMembers(groupMembers);
   
   	d3.select('#name_' + actor2ID(displayedDevice))
@@ -1283,6 +1275,5 @@ var parameterize = function(s) { return ((typeof s !== 'string') ? JSON.stringif
 if (!Array.isArray) Array.isArray = function(a) { return Object.prototype.toString.call(a) === '[object Array]'; };
 
 var sendIt = function(data) {
-  console.log("Sending: " + data);
   wsSend(data);
 }

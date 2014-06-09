@@ -102,14 +102,12 @@ var home = function(state) {
   img.setAttribute('onclick', 'javascript:showVoiceSettings()');
   chart.appendChild(img);
   
-if (false) {
   img = document.createElement('img');
   img.setAttribute('id', 'to-automation');
   img.setAttribute('src', 'popovers/assets/apprentice.svg');
   img.setAttribute('title', 'To automation settings...');
   img.setAttribute('onclick', 'javascript:goApprentices()');
   chart.appendChild(img);
-}
 
   div = document.createElement('div');
   div.setAttribute('id', 'logo');
