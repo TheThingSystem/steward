@@ -122,6 +122,15 @@ Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
     self.update(self, self.params);
   });
 
+  // Really turn it off. Otherwise it is still considered to be on but with level=0
+  if (perform === 'off') {
+    self.gateway.telldus.onOffDevice(self.params, false, function(err, results) {
+      if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'onOffDevice', diagnostic: err.message });
+    });
+  }
+
+
   return steward.performed(taskID);
 };
 
