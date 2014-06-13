@@ -20,7 +20,9 @@ var Dimmer = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.info = { level: '0' };
+  self.info = { level: 0
+              , lastlevel: 0 // last used level when it was turned on - should be persistent
+	      };
   self.gateway = info.gateway;
   self.status = 'off';
   self.update(self, info.params);
@@ -56,7 +58,12 @@ Dimmer.prototype.update = function(self, params) {
       self.info.level = level;
       updateP = true;
     }
+  } else if (status === 'off') {
+    self.info.level = 0;
+    updateP = true;
   }
+
+  if (status === 'on') self.info.lastlevel = level;
 
   if (status !== self.status) {
     self.status = status;
@@ -93,30 +100,36 @@ Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!self.gateway.telldus) return false;
 
-  if ((perform !== 'on' && perform !== 'off') || perform === self.status) return false;
+  if ((perform !== 'on' && perform !== 'off') || (perform === self.status && params.level === self.info.level)) return false;
 
-console.log('>>> telldus previous setting ' + JSON.stringify({ status: self.params.status, level: self.params.statevalue }));
-console.log('>>> dimmer  previous setting ' + JSON.stringify({ status: self.status, level: self.info.level }));
   if (perform === 'off') params.level = 0;
   else if (perform === 'on') {
     if (!params.level) params.level = self.info.level;
+    if (self.info.level === 0) params.level = self.info.lastlevel;
     if ((!plug.validLevel(params.level)) || (params.level === 0)) params.level = 100;
   }
   level = devices.scaledPercentage(params.level, 0, 255);
 
   logger.info('device/' + self.deviceID, { perform: { level: params.level } });
 
-console.log('>>> dimmer perform command ' + JSON.stringify({ perform: perform, level: level }));
   self.gateway.telldus.dimDevice(self.params, level, function(err, results) {
     if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'dimDevice', diagnostic: err.message });
 
     self.params.status = level > 0 ? 'dim' : 'off';
     if (perform === 'on') self.params.statevalue = level;
-console.log('>>> telldus current  setting ' + JSON.stringify({ status: self.params.status, level: self.params.statevalue }));
+
     self.update(self, self.params);
-console.log('>>> dimmer  current  setting ' + JSON.stringify({ status: self.status, level: self.info.level }));
   });
+
+  // Really turn it off. Otherwise it is still considered to be on but with level=0
+  if (perform === 'off') {
+    self.gateway.telldus.onOffDevice(self.params, false, function(err, results) {
+      if ((!err) && (!!results) && (!!results.error)) err = new Error(results.error);
+      if (!!err) return logger.error('device/' + self.deviceID, { event: 'onOffDevice', diagnostic: err.message });
+    });
+  }
+
 
   return steward.performed(taskID);
 };
