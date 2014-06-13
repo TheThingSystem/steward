@@ -1080,7 +1080,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'RAIN RATE'
-                          , cooked : (metric) ? v.toFixed(2) + 'mm' : (v * 0.0393701).toFixed(2) + 'in'
+                          , cooked : (metric) ? v.toFixed(1) + 'mm' : (v * 0.0393701).toFixed(1) + 'in'
                           , value  : clip2bars(v, 0, metric ? 254 : 10)
                           , index  : 0.60
                           });
@@ -1090,7 +1090,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(1, 0, { name   : prop
                           , raw    : v
                           , label  : 'WIND AVERAGE'
-                          , cooked : v.toFixed(2) + 'm/s'
+                          , cooked : v.toFixed(1) + 'm/s'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.60
                           });
@@ -1143,7 +1143,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'PRECIPITATION'
-                          , cooked : (metric) ? v.toFixed(2) + 'mm' : (v * 0.0393701).toFixed(2) + 'in'
+                          , cooked : (metric) ? v.toFixed(1) + 'mm' : (v * 0.0393701).toFixed(1) + 'in'
                           , value  : clip2bars(v, 0, metric ? 254 : 10)
                           , index  : 0.50
                           });
@@ -1173,7 +1173,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(2, 0, { name   : prop
                           , raw    : v
                           , label  : 'WIND GUST'
-                          , cooked : v.toFixed(2) + 'm/s'
+                          , cooked : v.toFixed(1) + 'm/s'
                           , value  : clip2bars(v, 0, 50)
                           , index  : 0.50
                           });
