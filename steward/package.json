@@ -22,7 +22,7 @@
     , "cron-parser"             : "git://github.com/TheThingSystem/node-cron-parser.git"
     , "cycle"                   : "1.0.2"
     , "eureka-dongle"           : "0.1.0"
-    , "flower-power-cloud"      : "0.2.0"
+    , "flower-power-cloud"      : "0.2.1"
     , "geocoder"                : "0.1.0"
     , "glob"                    : "3.2.9"
     , "greenwave-gop"           : "0.0.2"
