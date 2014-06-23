@@ -412,7 +412,7 @@ CloudAPI.prototype.getGarden = function(callback) {
     var k, link, plant, station;
 
     if (!!err) {
-      if (count === 0) return self.logger.error(event, { exception: err });
+      if (count === 0) return self.logger.error('getGarden', { event: event, diagnostic: err.message });
 
       count = 0;
       return callback(err);

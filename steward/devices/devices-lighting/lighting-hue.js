@@ -1,6 +1,7 @@
 // Philips Hue: http://meethue.com
 
 var http        = require('http')
+  , https       = require('https')
   , md5         = require('MD5')
   , stringify   = require('json-stringify-safe')
   , url         = require('url')
@@ -654,21 +655,20 @@ var scan = function() {
 
   logger2 = utility.logger('discovery');
 
-  options = url.parse('http://www.meethue.com/api/nupnp');
+  options = url.parse('https://www.meethue.com/api/nupnp');
   options.agent = false;
 
-  http.request(options, function(response) {
+  https.request(options, function(response) {
     var content = '';
 
-    response.setEncoding('utf8');
-    response.on('data', function(chunk) {
-      content += chunk.toString();
-    }).on('end', function() {
-//    [{"id":"001788fffe092100","internalipaddress":"192.168.1.64","macaddress":"00:17:88:09:21:00"}]
+    var done = function() {
+//    [{"id":"001788fffe092100","internalipaddress":"192.168.1.xx","macaddress":"01:23:45:67:89:ab"}]
 
       var i, info, results, serialNo;
 
-      if (response.statusCode !== 200) {
+      if (response.statusCode === 302) {
+        logger2.warning('nUPnP', { event: 'http', options: options, code: response.statusCode, headers: response.headers });
+      } else if (response.statusCode !== 200) {
         logger2.warning('nUPnP', { event: 'http', options: options, code: response.statusCode, content: content });
       }
 
@@ -710,8 +710,14 @@ var scan = function() {
         logger2.debug('nUPnP ' + info.device.name, { url: info.url });
         devices.discover(info);
       }
-    }).on('close', function() {
-      logger2.warning('nUPnP', { event: 'http', diagnostic: 'premature eof' });
+    };
+
+    response.setEncoding('utf8');
+    response.on('data', function(chunk) {
+      content += chunk.toString();
+    }).on('end', done).on('close', function() {
+      if (content.length === 0) return logger2.warning('nUPnP', { event: 'http', diagnostic: 'premature eof' });
+      done();
     });
   }).on('error', function(err) {
     logger2.error('nUPnP', { event: 'http', options: options, diagnostic: err.message });
