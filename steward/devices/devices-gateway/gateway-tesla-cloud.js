@@ -1,8 +1,7 @@
 // Tesla Motors, Inc. - Zero emissions. Zero compromises.
 
-var https       = require('https')
+var http        = require('http')
   , tesla       = require('teslams')
-  , underscore  = require('underscore')
   , url         = require('url')
   , util        = require('util')
   , validator   = require('validator')
@@ -198,52 +197,38 @@ var chargers = {};
 var getChargers = function() {
   var options;
 
-  options = url.parse('https://raw.githubusercontent.com/kdwink/tesla_supercharger_map/master/webcontent/scripts/siteload/superchargers.txt');
+  options = url.parse('http://supercharge.info/service/supercharge/allSites');
   options.agent = false;
 
-  https.request(options, function(response) {
+  http.request(options, function(response) {
     var body = '';
 
     response.setEncoding('utf8');
     response.on('data', function(data) {
       body += data.toString();
     }).on('end', function() {
-      var record = null;
-
-      var ready = function(site) {
-        if ((!site) || (site.count === true) || ((!!site.status) && (site.status !== 'OPEN'))) return false;
-
-        site.location = underscore.map(site.gps.split(','), function(part) { return part.trim(); });
-        site.location.push(site.elevation);
-        site.physical = site.street + ', ' + site.city + ', ';
-        if (site.state !== '') site.physical += site.state + ' ';
-        if (site.zip !== '?') site.physical += site.zip + ', ';
-        site.physical += site.country;
-        return true;
-      };
+      var i, records, site;
 
       if (response.statusCode !== 200) {
         return logger.error('tesla-cloud', { event: 'http', code: response.statusCode, body: body });
       }
 
-      underscore.each(body.toString().split('\n'), function(line) {
-        var k, v, x;
+      try { records = JSON.parse(body); } catch(ex) {
+        return logger.error('tesla-cloud', { event: 'http', diagnostic: ex.message });
+      }
 
-        line = line.trim();
-        if ((line.length === 0) || (line.charAt(0) === '#')) return;
+      for (i = 0; i < records.length; i++) {
+        site = records[i];
+        if ((!site.name) || (site.stallCount === 0) || (site.status !== 'OPEN')) continue;
 
-        x = line.indexOf(':');
-        if (x.length <= 2) return logger.error('tesla-cloud', { event: 'parse', diagnostic: 'invalid key in line: ' + line });
+        site.location = [ site.gps.latitude, site.gps.longitude, site.elevationMeters ];
+        site.physical = site.address.street + ', ' + site.address.city + ', ';
+        if (site.address.state !== '') site.physical += site.address.state + ' ';
+        if (site.address.zip !== '?') site.physical += site.address.zip + ', ';
+        site.physical += site.address.country;
 
-        k = line.substr(0, x).trim();
-        v = line.substr(x + 1).trim();
-        if (k === 'name') {
-          if (ready(record)) chargers[record.name] = record;
-          record = {};
-        }
-        record[k] = v;
-      });
-      if (ready(record)) chargers[record.name] = record;
+        chargers[site.name] = site;
+      }
     }).on('close', function() {
       logger.warning('tesla-cloud', { event:'http', diagnostic: 'premature eof' });
     });
