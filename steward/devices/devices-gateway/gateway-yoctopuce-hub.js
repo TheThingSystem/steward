@@ -20,7 +20,7 @@ var products = {};
 
 
 var Hub = exports.Device = function(deviceID, deviceUID, info) {
-  var result;
+  var diagnostic, result;
 
   var self = this;
 
@@ -47,12 +47,29 @@ var Hub = exports.Device = function(deviceID, deviceUID, info) {
   result = yapi.yRegisterHub(self.url);
   if (result != yapi.YAPI_SUCCESS) return logger.error('device/' + self.deviceID, { event: 'yRegisterHub', result: result });
 
+/*
   yapi.yUpdateDeviceList();
   setTimeout(function() {
     var module;
 
     for (module = yapi.yFirstModule(); !!module; module = module.nextModule()) self.addstation(module);
   }, 0);
+ */
+  diagnostic = null;
+  result = yapi.yPreregisterHub(self.url, diagnostic, diagnostic, false);
+  if (result != yapi.YAPI_SUCCESS) {
+    return logger.error('device/' + self.deviceID, { event: 'yPreregisterHub', result: result, diagnostic: diagnostic });
+  }
+
+  yapi.yUpdateDeviceList_async(function (context, result, diagnostic) {
+    var module;
+
+    if (result != yapi.YAPI_SUCCESS) {
+      return logger.error('device/' + self.deviceID,
+                          { event: 'yUpdateDeviceList_async', result: result, diagnostic: diagnostic });
+    }
+    for (module = yapi.yFirstModule(); !!module; module = module.nextModule()) self.addstation(module);
+  }, null);
 };
 util.inherits(Hub, require('./../device-gateway').Device);
 Hub.prototype.perform = devices.perform;

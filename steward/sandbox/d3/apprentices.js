@@ -678,7 +678,7 @@ var apprentices =
           [ { title             : 'Air Sensors'
             , uuid              : '749070ee-08a9-430d-8e5a-812e40a297f1:event:air-sensors'
             , text              : 'Please chooose one or more things to monitor for CO<sub>2</sub>.'
-            , deviceType        : '^/device/climate/[^/]+/meteo$'
+            , deviceType        : '^/device/.*'
             , mustHave          : [ 'co2' ]
             , operator          : 'or'
             , '.condition'      : { operator: 'greater-than', operand1: '.[.co2].', operand2: 2499 }
@@ -708,7 +708,7 @@ var apprentices =
         }
       }
 
-    , { title                   : 'Status lights'
+    , { title                   : 'Manage Status lights'
       , uuid                    : '40e40662-3bed-4a5a-968d-99e8c7d1917b:'
       , text                    : 'Select lights to report change of conditions.'
       , status                  : 'incomplete'

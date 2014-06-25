@@ -8,11 +8,76 @@
 var actors;
 
 var testing = function(steward, ws) {
+  return traverse(steward, ws);
+
   list_actors(ws, '', { depth : 'all' }, function(message) {
     if ((!message.result) && (!message.error)) return false;
     if ((!message.result) || (!message.result.actors)) throw new Error('actor listing failed');
 
     actors = message.result;
+  });
+}
+
+var traverse = function(steward, ws) {
+  list_activity(ws, '', { depth : 'all' }, function(message) {
+    var activityID, activity, activities,
+        deviceID,   device,   devices,
+        eventID,    event,    events,
+        groupID,    group,    groups,
+        taskID,     task,     tasks,
+        i;
+
+    if ((!message.result) && (!message.error)) return false;
+
+    var children = {};
+
+    var process = function(parent, entity, name) {
+      var x = entity.split('/'), y = x[0], z = x[1];
+
+      if (!children[y]) children[y] = {};
+      if (!children[y][z]) children[y][z] = { name: '', parents: [] };
+      if (!!parent) children[y][z].parents.push(parent); else children[y][z].name = name;
+    };
+    
+   activities = message.result.activities;
+    for (activityID in activities) if (activities.hasOwnProperty(activityID)) {
+      activity = activities[activityID];
+      process(activityID, activity.event);
+      process(activityID, activity.task);
+    }
+
+    groups = message.result.groups;
+    for (groupID in groups) if (groups.hasOwnProperty(groupID)) {
+      group = groups[groupID];
+      process(null, groupID, group.name);
+      for (i = 0; i < group.members.length; i++)process(groupID, group.members[i]);
+    }
+
+    events = message.result.events;
+    for (eventID in events) if (events.hasOwnProperty(eventID)) {
+      event = events[eventID];
+
+      process(null, eventID, event.name);
+      process(eventID, event.actor);
+    }
+
+    tasks = message.result.tasks;
+    for (taskID in tasks) if (tasks.hasOwnProperty(taskID)) {
+      task = tasks[taskID];
+
+      process(null, taskID, task.name);
+      process(taskID,   task.actor);
+      if (!!task.guard) process(taskID, task.guard);
+    }
+
+    devices = message.result.devices;
+    for (deviceID in devices) if (devices.hasOwnProperty(deviceID)) {
+      device = devices[deviceID];
+
+      process(null, deviceID, device.name);
+    }
+
+    document.getElementById('status').innerHTML += '<pre>' + js_beautify(JSON.stringify(children)) + '</pre><br/><br/>';
   });
 };
 
