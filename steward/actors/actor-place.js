@@ -240,6 +240,7 @@ Place.prototype.observe = function(self, eventID, observe, parameter) {
       parser.parseExpression(parameter, options, function(err, interval) {
         if (!!err) return steward.report(eventID, { event: 'parser.parserExpression', diagnostic: err.message });
 
+        if (interval._fields.dayOfWeek.length === 0) interval._fields.dayOfWeek = [ 0, 1, 2, 3, 4, 5, 6];
         try { next = interval.next().getTime(); } catch(ex) {
           return steward.report(eventID, { event: 'interval.next().getTime', diagnostic: ex.message });
         }
