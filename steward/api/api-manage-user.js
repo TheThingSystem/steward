@@ -186,7 +186,7 @@ var create2 = function(logger, ws, user, results, tag, uuid, clientName, clientC
     x = data.google_auth_qr.indexOf('otpauth://totp/');
     if (x > 0) {
       data.google_auth_qr = data.google_auth_qr.slice(0, x) + 'otpauth://totp/' + encodeURIComponent(data.params.name)
-                            + '%3Fsecret=' + encodeURIComponent(data.base32);
+                            + '%3Fsecret=' + encodeURIComponent(data.base32) + server.suffix;
     }
     exports.db.run('UPDATE clients SET clientAuthParams=$clientAuthParams WHERE clientID=$clientID',
                    { $clientID: clientID, $clientAuthParams: JSON.stringify(data.params) }, function(err) {
@@ -261,8 +261,9 @@ var list = function(logger, ws, api, message, tag) {/* jshint unused: false */
                      + '&digits=' + encodeURIComponent(client.clientAuthParams.length);
         results.result.clients[who].authenticatorURL =
                        'https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=' + client.clientAuthAlg
-                      + '/' + encodeURIComponent(client.clientAuthParams.name)
-                      + '%3Fsecret=' + encodeURIComponent(client.clientAuthKey);
+                      + '/' + encodeURIComponent(client.clientAuthParams.issuer + ':' + client.clientAuthParams.name)
+                      + '%3Fsecret=' + encodeURIComponent(client.clientAuthKey)
+                      + server.suffix;
       }
     }
   }

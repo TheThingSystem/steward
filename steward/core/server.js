@@ -4,6 +4,7 @@ var fs          = require('fs')
 //, mime        = require('mime')
   , mqtt        = require('mqtt')
   , net         = require('net')
+  , os          = require('os')
   , portfinder  = require('portfinder')
   , speakeasy   = require('speakeasy')
 //, ssh_keygen  = require('ssh-keygen')
@@ -362,12 +363,28 @@ var advertise = exports.advertise = function() {
 
 
 exports.vous = null;
+exports.suffix = null;
 
 var keycheck = function (params) {
+  var addresses, i, ifaddr, ifaddrs, ifname;
+
   var crt  = __dirname + '/../sandbox/server2.crt'
     , key  = __dirname + '/../db/server2.key'
     , sha1 = __dirname + '/../sandbox/server2.sha1'
     ;
+
+  addresses = [];
+  for (ifname in steward.ifaces) if (steward.ifaces.hasOwnProperty(ifname)) {
+    ifaddrs = steward.ifaces[ifname].addresses;
+    for (i = 0; i < ifaddrs.length; i++) {
+      ifaddr = ifaddrs[i];
+      if ((!ifaddr.internal) && (ifaddr.family === 'IPv4')) addresses.push(ifaddr.address);
+    }
+  }
+  exports.suffix = '%26hostName=' + encodeURIComponent(os.hostname())
+                        + '%26name=' + encodeURIComponent('steward')
+                        + '%26ipAddresses=' + encodeURIComponent(addresses)
+                        + '%26port=' + encodeURIComponent(wssP);
 
   if (!exports.vous) exports.vous = params.name;
   if (!!exports.vous) advertise();
@@ -379,7 +396,7 @@ var keycheck = function (params) {
 
     alternates = [ 'DNS:' + params.name
                  , 'DNS:steward.local'
-                 , 'DNS:' + require('os').hostname()
+                 , 'DNS:' + os.hostname()
                  , 'IP:'  + params.server.hostname
                  ];
     steward.forEachAddress(function(address) { alternates.push('IP:' + address); });
