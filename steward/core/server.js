@@ -373,21 +373,24 @@ var keycheck = function (params) {
     , sha1 = __dirname + '/../sandbox/server2.sha1'
     ;
 
-  addresses = [];
-  for (ifname in steward.ifaces) if (steward.ifaces.hasOwnProperty(ifname)) {
-    ifaddrs = steward.ifaces[ifname].addresses;
-    for (i = 0; i < ifaddrs.length; i++) {
-      ifaddr = ifaddrs[i];
-      if ((!ifaddr.internal) && (ifaddr.family === 'IPv4')) addresses.push(ifaddr.address);
-    }
-  }
-  exports.suffix = '%26hostName=' + encodeURIComponent(os.hostname())
-                        + '%26name=' + encodeURIComponent('steward')
-                        + '%26ipAddresses=' + encodeURIComponent(addresses)
-                        + '%26port=' + encodeURIComponent(wssP);
-
   if (!exports.vous) exports.vous = params.name;
-  if (!!exports.vous) advertise();
+  if (!!exports.vous) {
+    advertise();
+
+    addresses = [];
+    for (ifname in steward.ifaces) if (steward.ifaces.hasOwnProperty(ifname)) {
+      ifaddrs = steward.ifaces[ifname].addresses;
+      for (i = 0; i < ifaddrs.length; i++) {
+        ifaddr = ifaddrs[i];
+        if ((!ifaddr.internal) && (ifaddr.family === 'IPv4')) addresses.push(ifaddr.address);
+      }
+    }
+    exports.suffix = '%26hostName='           + encodeURIComponent(os.hostname())
+                          + '%26name='        + encodeURIComponent('steward')
+                          + '%26ipAddresses=' + encodeURIComponent(addresses)
+                          + '%26port='        + encodeURIComponent(wssP)
+                          + '%26issuer='      + encodeURIComponent(params.name);
+  }
 
   fs.exists(key, function(existsP) {
     var alternates, i, label, x;
