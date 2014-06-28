@@ -328,9 +328,9 @@ var advertise = exports.advertise = function() {
 
   if (!places) places = require('./../actors/actor-place');
   if (!!places.place1) name = places.place1.name;
+  if (!!exports.vous) name = exports.vous;
 
   txt = { uuid: steward.uuid };
-  if (!!exports.vous) name = exports.vous;
   if (!!name) txt.name = name;
 
   if (!!mdns) {
