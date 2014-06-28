@@ -105,7 +105,7 @@ var create = exports.create = function(logger, ws, api, message, tag, internalP)
   results = { requestID: message.requestID };
   try { ws.send(JSON.stringify(results)); } catch(ex) { console.log(ex); }
 
-  issuer = (!!server.vous) ? server.vous.split('.')[0] : 'steward';
+  issuer = server.vous || 'steward';
   options = { length         : 40
             , random_bytes   : false
             , symbols        : false
