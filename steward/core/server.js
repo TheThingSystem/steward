@@ -330,6 +330,7 @@ var advertise = exports.advertise = function() {
   if (!!places.place1) name = places.place1.name;
 
   txt = { uuid: steward.uuid };
+  if (!!exports.vous) name = exports.vous;
   if (!!name) txt.name = name;
 
   if (!!mdns) {
@@ -369,6 +370,7 @@ var keycheck = function (params) {
     ;
 
   if (!exports.vous) exports.vous = params.name;
+  if (!!exports.vous) advertise();
 
   fs.exists(key, function(existsP) {
     var alternates, i, label, x;
