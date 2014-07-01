@@ -388,8 +388,7 @@ var keycheck = function (params) {
     exports.suffix = '%26hostName='           + encodeURIComponent(os.hostname())
                           + '%26name='        + encodeURIComponent('steward')
                           + '%26ipAddresses=' + encodeURIComponent(addresses)
-                          + '%26port='        + encodeURIComponent(wssP)
-                          + '%26issuer='      + encodeURIComponent(params.name);
+                          + '%26port='        + encodeURIComponent(wssP);
   }
 
   fs.exists(key, function(existsP) {

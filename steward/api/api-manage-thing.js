@@ -586,7 +586,7 @@ Thing.prototype.observe = function(self, eventID, observe, parameter) {
 
   requestID++;
   message = { path: '/api/v1/thing/observe', requestID: requestID.toString(), events: {} };
-  message.events[id] = { thingID   : thingUDNs[self.id]
+  message.events[id] = { thingID   : thingUDNs[self.thingID]
                        , observe   : observe
                        , parameter : typeof parameter !== 'string' ? stringify(parameter) : parameter
                        , testOnly  : false };
@@ -607,7 +607,7 @@ Thing.prototype.perform = function(self, taskID, perform, parameter) {
 
   requestID++;
   message = { path: '/api/v1/thing/perform', requestID: requestID.toString(), tasks: {} };
-  message.tasks[id] = { thingID   : thingUDNs[self.id]
+  message.tasks[id] = { thingID   : thingUDNs[self.thingID]
                       , perform   : perform
                       , parameter : typeof parameter !== 'string' ? stringify(parameter) : parameter
                       , testOnly  : false };

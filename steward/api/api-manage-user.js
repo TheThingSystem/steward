@@ -308,6 +308,7 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
            , encoding : 'base32'
            , step     : client.clientAuthParams.step
            };
+
   for (i = 0; i < now.length; i++) {
     params.time = now[i];
     if (speakeasy.totp(params) === message.response.toString()) break;
