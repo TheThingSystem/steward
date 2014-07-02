@@ -1397,7 +1397,7 @@ var climate_device_arcs = function(device) {
         arcs.splice(5, 0, { name   : prop
                           , raw    : v
                           , label  : 'PRESSURE'
-                          , cooked : v.toFixed(3) + ' mbars'
+                          , cooked : v.toFixed(0) + ' mbars'
                           , value  : clip2bars(v, 980, 1060)
                           , index  : 0.20
                           });
@@ -2073,7 +2073,7 @@ var weather_arcs = function(device) {
         arcs.splice(3, 0, { name   : prop
                           , raw    : v
                           , label  : 'PRESSURE'
-                          , cooked : v.toFixed(3) + ' mbars'
+                          , cooked : v.toFixed(0) + ' mbars'
                           , value  : clip2bars(v, 980, 1060)
                           , index  : 0.40
                           });

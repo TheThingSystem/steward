@@ -21,11 +21,10 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.info = {};
+  self.status = self.initInfo({});
+
   self.gateway = info.gateway;
   self.update(self, info.params);
-
-  self.status = 'quiet';
   self.changed();
 
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
@@ -63,7 +62,7 @@ Thermostat.prototype.update = function(self, params) {
   data = self.params.props.last_reading;
   props = { lastSample      : 0
           , temperature     : (typeof data.temperature   === 'number') ? data.temperature           : undefined
-          , away            : (data.mode === 'auto_eco')               ? 'true'                     : false
+          , away            : (data.mode === 'auto_eco')               ? 'on'                       : 'off'
           , hvac            : { cool_only: 'cool', fan_only: 'fan' }[data.mode] || 'off'
           , fan             : (typeof data.fan_speed     === 'number')
                                                                        ? (  (data.fan_speed === 0.00) ? 'off'
@@ -72,9 +71,12 @@ Thermostat.prototype.update = function(self, params) {
                                                                           : (data.fan_speed === 1.00) ? 'high'
                                                                           : Math.round(data.fan_speed * 100))
                                                                                                     : undefined
-          , goalTemperature : (typeof data.max_set_point === 'number') ? data.data.max_set_point    : undefined
+          , goalTemperature : (typeof data.max_set_point === 'number') ? data.max_set_point         : undefined
           };
-  if ((props.away === 'true') && (data.powered)) props.hvac = data.powered;
+  if (!data.powered) {
+    props.hvac = 'off';
+    props.fan = 'off';
+  }
 
   if (self.params.name !== self.name) {
     self.name = self.params.name;
@@ -172,7 +174,7 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/wink/control'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name         : true
+                    , properties : { name            : true
                                    , status          : [ 'present', 'absent' ]
                                    , lastSample      : 'timestamp'
                                    , temperature     : 'celsius'

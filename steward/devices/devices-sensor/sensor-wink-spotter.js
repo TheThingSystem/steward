@@ -20,7 +20,7 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.info = {};
+  self.initInfo({});
   self.gateway = info.gateway;
   self.update(self, info.params);
 

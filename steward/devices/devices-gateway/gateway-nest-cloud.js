@@ -174,7 +174,7 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
   } else {
     deviceType = '/device/sensor/nest/smoke';
     params = { smoke           : data.smoke_status ? 'detected' : 'absent'
-             , co              : data.co_status    ? 'detected' : 'absent'
+             , coStatus        : data.co_status    ? 'detected' : 'absent'
 //           , batteryLevel    : data.battery_level
              , lastSample      : timestamp
              };

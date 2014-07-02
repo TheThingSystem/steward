@@ -90,10 +90,10 @@ Cloud.prototype.scan = function(self) {
 
       params = { placement       : plant.environment === 'Inside' ? 'indoors' : 'outdoors'
                , lastSample      : plant.last_measurements[0].updated * 1000
+               , needsWater      : (!!plant.last_measurements[0].moisture)
+                                           && (plant.lower_moisture_threshold > plant.last_measurements[0].moisture)
+                                       ? 'true' : 'false'
                };
-      if (!!plant.last_measurements[0].moisture) {
-        params.needsWater = plant.lower_moisture_threshold > plant.last_measurements[0].moisture ? 'true' : 'false';
-      }
 
       udn = 'plantlink:plant:' + k;
       if (!!devices.devices[udn]) {
@@ -284,7 +284,7 @@ var Station = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
   self.getName ();
 
-  self.info = {};
+  self.info = { lastSample: null };
   if (!!info.params.status) {
     self.status = info.params.status;
     delete(info.params.status);
@@ -337,8 +337,9 @@ exports.start = function() {
       { $info     : { type       : '/device/gateway/plantlink/station'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
-                    , properties : { name    : true
-                                   , status  : [ 'present' ]
+                    , properties : { name       : true
+                                   , status     : [ 'present' ]
+                                   , lastSample : 'timestamp'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

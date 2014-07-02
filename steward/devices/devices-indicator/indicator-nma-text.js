@@ -97,7 +97,6 @@ NMA.prototype.perform = function(self, taskID, perform, parameter) {
       self.setName(params.name);
       delete(params.name);
     }
-
     if (self.updateInfo(params)) self.setInfo();
 
     return true;

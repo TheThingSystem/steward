@@ -58,16 +58,18 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/netatmo/meteo'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name        : true
-                                   , status      : [ 'present' ]
-                                   , placement   : true
-                                   , location    : 'coordinates'
-                                   , lastSample  : 'timestamp'
-                                   , temperature : 'celsius'
-                                   , humidity    : 'percentage'
-                                   , co2         : 'ppm'
-                                   , noise       : 'decibels'
-                                   , pressure    : 'millibars'
+                    , properties : { name         : true
+                                   , status       : [ 'present' ]
+                                   , placement    : true
+                                   , location     : 'coordinates'
+                                   , lastSample   : 'timestamp'
+                                   , temperature  : 'celsius'
+                                   , humidity     : 'percentage'
+                                   , co2          : 'ppm'
+                                   , noise        : 'decibels'
+                                   , pressure     : 'millibars'
+                                   , batteryLevel : 'percentage'
+                                   , rssi         : 's8'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }
@@ -78,12 +80,14 @@ exports.start = function() {
       { $info     : { type       : '/device/climate/netatmo/rain'
                     , observe    : [ ]
                     , perform    : [ ]
-                    , properties : { name        : true
-                                   , status      : [ 'present' ]
-                                   , placement   : true
-                                   , location    : 'coordinates'
-                                   , lastSample  : 'timestamp'
-                                   , rainTotal   : 'millimeters'
+                    , properties : { name         : true
+                                   , status       : [ 'present' ]
+                                   , placement    : true
+                                   , location     : 'coordinates'
+                                   , lastSample   : 'timestamp'
+                                   , rainTotal    : 'millimeters'
+                                   , batteryLevel : 'percentage'
+                                   , rssi         : 's8'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform }

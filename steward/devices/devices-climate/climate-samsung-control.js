@@ -23,7 +23,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.getName();
 
   self.hvac = info.hvac;
-  self.info = {};
+  self.status = self.initInfo({});
 
   self.hvac.on('stateChange', function(state) {
 // { AC_FUN_ENABLE: 'Enable',

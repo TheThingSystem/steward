@@ -318,6 +318,13 @@ Device.prototype.initInfo = function(params) {
     if ((params.hasOwnProperty(param)) && (!!self.$properties[param])) self.info[param] = params[param];
   }
 
+  for (param in self.$properties) {
+    if ((self.$properties.hasOwnProperty(param))
+            && (param !== 'name')
+            && (param !== 'status')
+            && (typeof params[param] === 'undefined')) self.info[param] = null;
+  }
+
   return status;
 };
 
@@ -329,7 +336,9 @@ Device.prototype.updateInfo = function(params) {
   updateP = false;
 
   for (param in params) {
-    if ((!params.hasOwnProperty(param)) || (self.info[param] !== 'undefined') || (self.info[param] === params[param])) continue;
+    if ((!params.hasOwnProperty(param))
+            || (typeof self.info[param] === 'undefined')
+            || (self.info[param] === params[param])) continue;
 
     self.info[param] = params[param];
     updateP = true;

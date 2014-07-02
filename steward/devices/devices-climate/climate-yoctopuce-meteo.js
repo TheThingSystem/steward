@@ -25,6 +25,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.name = info.device.name;
 
   self.info = {};
+  self.info = { humidity: null, pressure: null, temperature: null, lastSample: new Date().getTime() };
   for (param in info.params) if (info.params.hasOwnProperty(param)) self.info[param] = info.params[param];
   sensor.update(self.deviceID, info.params);
 
