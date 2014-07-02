@@ -63,20 +63,17 @@ Thermostat.prototype.update = function(self, params) {
   props = { lastSample      : 0
           , temperature     : (typeof data.temperature   === 'number') ? data.temperature           : undefined
           , away            : (data.mode === 'auto_eco')               ? 'on'                       : 'off'
-          , hvac            : { cool_only: 'cool', fan_only: 'fan' }[data.mode] || 'off'
+          , hvac            : { cool_only: 'cool', auto_eco: 'cool', fan_only: 'fan' }[data.mode] || 'off'
           , fan             : (typeof data.fan_speed     === 'number')
                                                                        ? (  (data.fan_speed === 0.00) ? 'off'
                                                                           : (data.fan_speed === 0.33) ? 'low'
-                                                                          : (data.fan_speed === 0.67) ? 'mid'
+                                                                          : (data.fan_speed === 0.66) ? 'mid'
                                                                           : (data.fan_speed === 1.00) ? 'high'
                                                                           : Math.round(data.fan_speed * 100))
                                                                                                     : undefined
           , goalTemperature : (typeof data.max_set_point === 'number') ? data.max_set_point         : undefined
           };
-  if (!data.powered) {
-    props.hvac = 'off';
-    props.fan = 'off';
-  }
+  if (!data.powered) props.hvac = 'off';
 
   if (self.params.name !== self.name) {
     self.name = self.params.name;
@@ -100,6 +97,7 @@ Thermostat.prototype.update = function(self, params) {
 
 Thermostat.operations =
 { set: function(self, params) {
+         var state = {};
 
          devices.attempt_perform('name', params, function(value) {
            self.setName(value);
@@ -107,28 +105,33 @@ Thermostat.operations =
 
          if (!!params.away) params.hvac = { true: 'auto_eco', false: 'cool' }[params.away] || params.hvac;
 
-         devices.attempt_perform('hvac', params, function(value) {
-           var mode = { off: 'off', auto_eco: 'auto_eco', cool: 'cool_only', fan: 'fan_only' }[value];
+         if (!!params.hvac) {
+           var mode = { off: 'off', auto_eco: 'auto_eco', cool: 'cool_only', fan: 'fan_only' }[params.hvac];
 
-           if (!mode) return;
+           if (mode === 'off') state.powered = false;
+           else if (!!mode) {
+               state.mode = mode;
+               state.powered = true;
+           }
+         }
 
-// ...set mode to mode
-         });
+         if (!!params.fan) {
+             state.fanSpeed = { off: 0, low: 33, mid: 66, high: 100 }[params.fan] || parseInt(params.fan, 10);
+             if (!isNaN(state.fanSpeed)) delete(state.fanSpeed);
+             else if ((state.fanSpeed < 0) || (state.fanSpeed > 100)) state.fanSpeed = 1.0;
+             else state.fanSpeed = (state.fanSpeed / 100.0).toFixed(2);
+         }
 
-         devices.attempt_perform('fan', params, function(value) {
-           var fanSpeed = { off: 0.00, low: 0.33, mid: 0.67, high: 1.00 }[value] || parseInt(value, 10);
+         if (!!params.goalTemperature) {
+           state.goalTemperature = parseInt(params.goalTemperature, 10);
+           if (isNaN(state.goalTemperature)) delete(state.goalTemperature);
+           else state.goalTemperature = state.goalTemperature.toFixed(1);
+         }
 
-           if (isNaN(fanSpeed)) return;
-           if ((fanSpeed < 0) || (fanSpeed > 100)) fanSpeed = 100;
+         self.gateway.wink.setDevice(self.params, { desired_state: state }, function(err, params) {
+           if (!!err) return logger.error('device/' + self.deviceID, { event: 'setDevice', diagnostic: err.message });
 
-// ...set fan_speed to fanSpeed
-         });
-
-         devices.attempt_perform('goalTemperature', params, function(value) {
-           var goalTemperature;
-
-           goalTemperature = parseInt(value, 10);
-// ...set max_set_point to goalTemperature
+           if (!!params) self.update(self, params);
          });
        }
 };
@@ -141,7 +144,7 @@ Thermostat.prototype.perform = function(self, taskID, perform, parameter) {
   if (!Thermostat.operations[perform]) return devices.perform(self, taskID, perform, parameter);
 
   Thermostat.operations[perform](this, params);
-  setTimeout(function () { self.gateway.scan(self); }, 1 * 1000);
+  setTimeout(function () { self.gateway.scan(self); }, 5 * 1000);
   return steward.performed(taskID);
 };
 
@@ -180,7 +183,7 @@ exports.start = function() {
                                    , temperature     : 'celsius'
                                    , away            : [ 'on', 'off' ]
                                    , hvac            : [ 'cool', 'fan', 'off' ]
-                                   , fan             : [ 'high', 'mid', 'low', 'off' ]
+                                   , fan             : [ 'high', 'mid', 'low', 'percentage' ]
                                    , goalTemperature : 'celsius'
                                    }
                     }
