@@ -1,6 +1,81 @@
 CHANGELOG
 =========
 
+## Release 1.9 "Peppermint Candy" - July 4, 2014
+## Commit -
+
+### Steward
+- APIs:
+    - reset activity firing timestamp when underlying event group changes
+    - update QRcode parameters for TAAS-client demo
+    - things event/perform generator wasn't sending thingIDs
+- Discovery:
+    - advertise TAAS cloud FQDN in TXT RR
+- HTTP server:
+- logging: fail clearly if parameters invalid, thanks @CloCkWeRX
+
+### TAAS (Things as a Service)
+- no changes
+
+### TSRP (Thing Simple Reporting Protocol)
+- no changes
+
+### Places
+- add missing values for customary units conversion
+- if cron parser didn't set day-of-the-week
+
+### Things
+- devices:
+    - remove hooks to previous insteon gateway from devices
+- device/climate:
+    - oregon-scientific/rain: NEW, thanks @torkelsson
+    - oregon-scientific/wind: NEW, thanks @torkelsson
+    - telldus/rain: NEW, thanks @torkelsson
+    - telldus/wind: NEW, thanks @torkelsson
+    - wink/control: Quirky Aros air conditioner, NEW
+- device/gateway:
+    - flower-power/cloud: update to latest package
+    - insteon/*:
+        - better range checking on scan, thanks @siburny
+        - use configuration.json file to bind USB ports to devices
+    - netatmo/cloud: update to latest API
+    - openzwave/usb: use configuration.json file to bind USB ports to devices
+    - plantlink/cloud: better error diagnostics
+    - tesla/cloud: update algorithm for SuperCharger database
+    - yoctopuce/hub: use non-blocking calls to interrogate hub
+- device/indicator:
+- device/lighting:
+    - hue/*: change NUPnP to use https:
+- device/media:
+    - ignore sonos/dock (looks like UPnP, but doesn't behave like it)
+    - pioneer/receiver: fix bug in initialization code
+    - roku/video: fix bug in initialization code
+- device/motive:
+- device/presence:
+- device/sensor:
+- device/switch:
+    - telldus/dimmer:
+        - fix "off" command
+        - fix dimmer value calculation
+- device/wearable:
+
+### HTML5/D3 client
+- major update: apprentices -- click on "the little robot"
+- report rain/wind information in toFixed(1)
+
+### User policy client
+- no changes
+
+### Developer console
+- report rain/wind information in toFixed(1)
+
+### Developer Libraries
+- iOS:
+    - major update: TAAS app for transparent proxy to steward
+
+### Utilities
+- no changes
+
 ## Release 1.8 "Barbecue Ribs" - May 30, 2014
 ## Commit - 1e53cd4ef8745192043bcaa2cb0a3e5c13b06abd
 
