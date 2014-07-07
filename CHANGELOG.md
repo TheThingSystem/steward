@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-## Release 1.9 "Peppermint Candy" - July 4, 2014
-## Commit -
+## Release 1.9 "Peppermint Candy" - July 7, 2014
+## Commit - 062cd7a2612dc9bc66b40e896c623b9bceb9a887
 
 ### Steward
 - APIs:
