@@ -64,12 +64,7 @@ Thermostat.prototype.update = function(self, params) {
           , temperature     : (typeof data.temperature   === 'number') ? data.temperature           : undefined
           , away            : (data.mode === 'auto_eco')               ? 'on'                       : 'off'
           , hvac            : { cool_only: 'cool', auto_eco: 'cool', fan_only: 'fan' }[data.mode] || 'off'
-          , fan             : (typeof data.fan_speed     === 'number')
-                                                                       ? (  (data.fan_speed === 0.00) ? 'off'
-                                                                          : (data.fan_speed === 0.33) ? 'low'
-                                                                          : (data.fan_speed === 0.66) ? 'mid'
-                                                                          : (data.fan_speed === 1.00) ? 'high'
-                                                                          : Math.round(data.fan_speed * 100))
+          , fanSpeed        : (typeof data.fan_speed     === 'number') ? Math.round(data.fan_speed * 100)
                                                                                                     : undefined
           , goalTemperature : (typeof data.max_set_point === 'number') ? data.max_set_point         : undefined
           };
@@ -115,8 +110,8 @@ Thermostat.operations =
            }
          }
 
-         if (!!params.fan) {
-             state.fanSpeed = { off: 0, low: 33, mid: 66, high: 100 }[params.fan] || parseInt(params.fan, 10);
+         if (!!params.fanSpeed) {
+             state.fanSpeed = parseInt(params.fanSpeed, 10);
              if (!isNaN(state.fanSpeed)) delete(state.fanSpeed);
              else if ((state.fanSpeed < 0) || (state.fanSpeed > 100)) state.fanSpeed = 1.0;
              else state.fanSpeed = (state.fanSpeed / 100.0).toFixed(2);
@@ -162,7 +157,7 @@ var validate_perform = function(perform, parameter) {
   devices.validate_param('name',            params, result, false, {                                  });
   devices.validate_param('away',            params, result, false, { off:  1, on:  1                  });
   devices.validate_param('hvac',            params, result, false, { off:  1, fan: 1,         cool: 1 });
-  devices.validate_param('fan',             params, result, true,  { off:  1, low: 1, mid: 1, high: 1 });
+  devices.validate_param('fanSpeed',        params, result, true,  {                                  });
   devices.validate_param('goalTemperature', params, result, true,  {                                  });
 
   return result;
@@ -183,7 +178,7 @@ exports.start = function() {
                                    , temperature     : 'celsius'
                                    , away            : [ 'on', 'off' ]
                                    , hvac            : [ 'cool', 'fan', 'off' ]
-                                   , fan             : [ 'high', 'mid', 'low', 'percentage' ]
+                                   , fanSpeed        : 'percentage'
                                    , goalTemperature : 'celsius'
                                    }
                     }

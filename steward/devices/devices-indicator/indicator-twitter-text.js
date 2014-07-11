@@ -63,7 +63,6 @@ var Twitter = exports.Device = function(deviceID, deviceUID, info) {
   self.elide = [ 'consumerKey', 'consumerSecret', 'token', 'tokenSecret' ];
   self.changed();
 
-
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 

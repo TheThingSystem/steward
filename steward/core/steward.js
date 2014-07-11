@@ -347,7 +347,7 @@ var report = function(module, entry, now) {
 
   if (!!entry.busyP) return;
   last = entry.last || 0;
-  if (last >= require('./device').lastupdated) return;
+  if (last >= devices.lastupdated) return;
 
   entry.busyP = true;
   entry.reporter(logger, { send: function(data) {/* jshint unused: false */

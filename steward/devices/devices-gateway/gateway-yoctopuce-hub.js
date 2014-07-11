@@ -25,7 +25,7 @@ var Hub = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
   self.whatami = { 'VirtualHub'        : '/device/gateway/yoctopuce/virtual'
-                 , 'YoctoHub-Ethernet' : '/device/gateway/yoctopuce/ethernet'
+                 , 'YoctoHub-Ethernet' : '/device/gateway/yoctopuce/wired'
                  , 'YoctoHub-Wireless' : '/device/gateway/yoctopuce/wireless'
                  }[info.deviceType] || info.deviceType;
   self.deviceID = deviceID.toString();
@@ -218,8 +218,8 @@ exports.start = function() {
   steward.actors.device.gateway.yoctopuce = steward.actors.device.gateway.yoctopuce ||
       { $info     : { type: '/device/gateway/yoctopuce' } };
 
-  steward.actors.device.gateway.yoctopuce.ethernet =
-      { $info     : { type       : '/device/gateway/yoctopuce/ethernet'
+  steward.actors.device.gateway.yoctopuce.wired =
+      { $info     : { type       : '/device/gateway/yoctopuce/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name   : true
@@ -231,11 +231,11 @@ exports.start = function() {
       };
   devices.makers['YoctoHub-Ethernet'] = Hub;
 
-  steward.actors.device.gateway.yoctopuce.wireless = utility.clone(steward.actors.device.gateway.yoctopuce.ethernet);
+  steward.actors.device.gateway.yoctopuce.wireless = utility.clone(steward.actors.device.gateway.yoctopuce.wired);
   steward.actors.device.gateway.yoctopuce.wireless.$info.type = '/device/gateway/yoctopuce/wireless';
   devices.makers['YoctoHub-Wireless'] = Hub;
 
-  steward.actors.device.gateway.yoctopuce.virtual = utility.clone(steward.actors.device.gateway.yoctopuce.ethernet);
+  steward.actors.device.gateway.yoctopuce.virtual = utility.clone(steward.actors.device.gateway.yoctopuce.wired);
   steward.actors.device.gateway.yoctopuce.virtual.$info.type = '/device/gateway/yoctopuce/virtual';
   devices.makers.VirtualHub = Hub;
 

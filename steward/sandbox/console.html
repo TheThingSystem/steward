@@ -603,6 +603,7 @@ var onactors = function(message) {
             case 'intTemperature':
             case 'extTemperature':
             case 'goalTemperature':
+            case 'windchill':
               if (!isNaN(v)) v = v.toFixed(1) + '&deg;C' + ' / ' + ((v * 1.8) + 32).toFixed(1) + '&deg;F';
               break;
 
@@ -610,6 +611,7 @@ var onactors = function(message) {
             case 'waterVolume':
             case 'level':
             case 'batteryLevel':
+            case 'fanSpeed':
               if (!isNaN(v)) v = v.toFixed(2) + '%';
               break;
 
@@ -656,17 +658,16 @@ var onactors = function(message) {
               v += ' dB';
               break;
 
-            case 'co2':
             case 'voc':
               v += ' ppm';
               break;
 
             case 'airQuality':
             case 'co':
+            case 'co2':
             case 'flow':
             case 'hcho':
             case 'no2':
-            case 'smoke':
               if (!isNaN(v)) v += (typeof v === 'string') ? '&sigma;' : 'ppm';
               break;
 
@@ -782,7 +783,7 @@ var decimal2sexagesimal = function(v, c1, c2) {
   v = (v - f) * 60;
 
   f = Math.round(v);
-	    r += ('0' + f).substr(0, 2) + '&Prime; ';
+  r += ('0' + f).substr(0, 2) + '&Prime; ';
   return (r + c);
 };
 

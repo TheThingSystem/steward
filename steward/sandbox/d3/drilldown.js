@@ -1016,14 +1016,14 @@ var climate_device_arcs = function(device) {
   props = sortprops(device.info, [ 'lastSample',
                                  , 'temperature',     'airQuality',      'voc',      'rainRate',      'windAverage'
                                  , 'goalTemperature', 'flame',           'moisture', 'waterVolume',   'rainTotal',
-                                                      'needsWater',      'text',     'windGust'
+                                                      'needsWater',      'text',     'windGust',      'armed'
                                  , 'humidity',        'co2',             'smoke',    'light',         'flow',
-                                                      'needsMist',       'rssi',     'windDirection'
+                                                      'needsMist',       'rssi',     'windDirection', 'water',
+                                                      'motion',
                                  , 'hvac',            'noise',           'co',       'concentration', 'nextSample',
-                                                      'needsFertilizer', 'battery',  'batteryLevel',  'location'
+                                                      'needsFertilizer', 'battery',  'batteryLevel',  'location',
+                                                      'fanSpeed',        'state',
                                  , 'away',            'pressure',        'no2'
-                                 , 
-                                 ,         
                                  ]);
 
   for (i = 0; i < props.length; i++) {
@@ -1179,6 +1179,16 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'armed':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'ARMED'
+                          , cooked : v === 'true' ? 'YES' : 'NO'
+                          , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
+                          , index  : 0.40
+                          });
+        break;
+
 
 // 3rd ring
       case 'humidity':
@@ -1262,8 +1272,30 @@ var climate_device_arcs = function(device) {
                           });
         break;
 
+      case 'water':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'LEAK'
+                          , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
+                          , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
+                          , index  : 0.40
+                          });
+        break;
+
+      case 'motion':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'MOTION'
+                          , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
+                          , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
+                          , index  : 0.40
+                          });
+        break;
+
+
 // 4th ring
       case 'hvac':
+        if ((!!device.info.fanSpeed) && (v === 'fan')) break;
         arcs.splice(4, 0, { name   : prop
                           , raw    : v
                           , label  : 'MODE'
@@ -1378,6 +1410,26 @@ var climate_device_arcs = function(device) {
                           , cooked : cooked
                           , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
                           , index  : 0.30
+                          });
+        break;
+
+      case 'fanSpeed':
+        arcs.splice(4, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'FAN'
+                          , cooked : v + '%'
+                          , value  : clip2bars(v, 0, 100)
+                          , index  : 0.30
+                          });
+        break;
+
+      case 'state':
+        arcs.splice(3, 0, { name   : prop
+                          , raw    : v
+                          , label  : 'STATE'
+                          , cooked : v === 'opened' ? 'OPEN' : 'CLOSED'
+                          , value  : clip2bars(v === 'opened' ? 100 : 0, 0, 100)
+                          , index  : 0.40
                           });
         break;
 

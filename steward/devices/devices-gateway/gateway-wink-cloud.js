@@ -84,7 +84,7 @@ Cloud.prototype.scan = function(self) {
       if (!!devices.devices[udn]) continue;
 
       deviceType = { air_conditioner : '/device/climate/wink/control'
-                   , cloud_clock     : '/device/indicator/wink/nimbus'
+                   , cloud_clock     : '/device/indicator/wink/gauges'
                    , powerstrip      : '/device/switch/wink/strip'
                    , sensor_pod      : '/device/sensor/wink/spotter'
                    }[device.type];

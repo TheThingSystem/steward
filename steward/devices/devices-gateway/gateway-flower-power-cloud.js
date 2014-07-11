@@ -85,6 +85,7 @@ Cloud.prototype.scan = function(self) {
         sensors[plant.sensor_serial].location_name = plant.location_name || plant.plant_nickname;
         sensors[plant.sensor_serial].location = [ plant.latitude, plant.longitude ];
         sensors[plant.sensor_serial].samples = plant.samples;
+        if (!plant.location_name) plant.location_name = sensors[plant.sensor_serial].nickname;
       }
       if (!plant.status) plant.status = {};
       if (!plant.status.soil_moisture) plant.status.soil_moisture = {};
@@ -94,6 +95,8 @@ Cloud.prototype.scan = function(self) {
       if (!plant.status.light) plant.status.light = {};
       if (!plant.status.light.instruction_key) plant.status.light.instruction_key = 'light_good';
 
+      if (!plant.location_name) {
+      }
       params = { placement       : plant.location_name
                , lastSample      : new Date(plant.last_sample_utc).getTime()
                , needsWater      : plant.status.soil_moisture.status_key !== 'status_ok'                ? 'true' : 'false'
@@ -134,6 +137,7 @@ Cloud.prototype.scan = function(self) {
     for (k in sensors) {
       if ((!sensors.hasOwnProperty(k)) || (!util.isArray(sensors[k].samples))) continue;
       sample = sensors[k].samples[0];
+      if (!sample) continue;
 
       // moisture = relativeHumidity * (saturationVaporPressure(temperatureC) / 100);
       antoine = 8.07131 - (1730.63 / (233.426 + sample.air_temperature_celsius));

@@ -21,7 +21,7 @@ var Gauge = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
 
-  self.info = {};
+  self.info = { display: null };
   self.gateway = info.gateway;
   self.update(self, info.params);
 
@@ -126,6 +126,8 @@ Gauge.prototype.egress = function(self) {
                                          , brightness            : 75
                                          , channel_configuration : { channel_id: 10 }
                                          }, function(err, params) {
+    var updateP = false;
+
     if (!!err) {
       if (!self.errorP) logger.error('device/' + self.deviceID, { event: 'setDial', diagnostic: err.message });
       self.errorP = true;
@@ -133,7 +135,17 @@ Gauge.prototype.egress = function(self) {
     }
     delete(self.errorP);
 
-    if (!!params) self.update(self, params);
+    if (self.info.display != value) {
+      self.info.display = value;
+      updateP = true;
+    }
+    if (!!params) updateP = true;
+
+    if (updateP) {
+      self.changed();
+      self.update(self, params);
+    }
+
   });
 };
 
@@ -202,6 +214,7 @@ exports.start = function() {
                                    , status   : [ 'present' ]
                                    , actor    : true
                                    , property : true
+                                   , display  : true
                                    }
                     }
       , $validate : { perform    : validate_perform

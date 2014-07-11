@@ -62,6 +62,10 @@ var list = exports.list = function(logger, ws, api, message, tag) {/* jshint unu
       parts = id.split('/');
       actor = actors;
       for (p = 1; p < parts.length; p++) actor = actor[parts[p]];
+      if (!actor) {
+        logger.error(tag, 'missing linkage for ' + id);
+        continue;
+      }
       if (!!actor.$list) {
         entities = (actor.$list)();
         for (i = 0; i < entities.length; i++) {

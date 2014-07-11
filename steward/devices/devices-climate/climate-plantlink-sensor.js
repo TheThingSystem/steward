@@ -62,7 +62,7 @@ var Plant = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
-  self.getName();
+  self.setName(self.name);
 
   status = self.initInfo(info.params);
   self.update(self, info.params, status);

@@ -363,7 +363,7 @@ var advertise = exports.advertise = function() {
 
 
 exports.vous = null;
-exports.suffix = null;
+exports.suffix = '';
 
 var keycheck = function (params) {
   var addresses, i, ifaddr, ifaddrs, ifname;

@@ -420,7 +420,7 @@ var Sonos_Bridge = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = '/device/gateway/sonos/bridge';
+  self.whatami = '/device/gateway/sonos/wired';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -502,8 +502,8 @@ exports.start = function() {
   steward.actors.device.gateway.sonos = steward.actors.device.gateway.sonos ||
       { $info     : { type: '/device/gateway/sonos' } };
 
-  steward.actors.device.gateway.sonos.bridge =
-      { $info     : { type       : '/device/gateway/sonos/bridge'
+  steward.actors.device.gateway.sonos.wired =
+      { $info     : { type       : '/device/gateway/sonos/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name    : true
@@ -514,7 +514,7 @@ exports.start = function() {
       };
   devices.makers['Sonos ZoneBridge ZB100'] = Sonos_Bridge;
 
-  steward.actors.device.media.sonos.dock = utility.clone(steward.actors.device.gateway.sonos.bridge);
+  steward.actors.device.media.sonos.dock = utility.clone(steward.actors.device.gateway.sonos.wired);
   steward.actors.device.media.sonos.dock.$info.type = '/device/media/sonos/dock';
 
   discovery.upnp_register('/device/media/sonos/dock', function(upnp) {

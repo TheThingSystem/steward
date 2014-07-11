@@ -260,7 +260,7 @@ var scan = function () {
              , deviceType : steward.actors.device.gateway['greenwave-gop'].$info.type
            };
       info.url = info.device.url;
-      info.deviceType = '/device/gateway/greenwave-gop/lighting';
+      info.deviceType = '/device/gateway/greenwave-gop/wired';
       info.id = info.device.unit.udn;
       if (!!devices.devices[info.id]) return;
 
@@ -279,8 +279,8 @@ exports.start = function() {
   steward.actors.device.gateway['greenwave-gop'] = steward.actors.device.gateway['greenwave-gop'] ||
       { $info     : { type: '/device/gateway/greenwave-gop' } };
 
-  steward.actors.device.gateway['greenwave-gop'].lighting =
-      { $info     : { type       : '/device/gateway/greenwave-gop/lighting'
+  steward.actors.device.gateway['greenwave-gop'].wired =
+      { $info     : { type       : '/device/gateway/greenwave-gop/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name   : true
@@ -290,7 +290,7 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/gateway/greenwave-gop/lighting'] = GreenWaveGOP;
+  devices.makers['/device/gateway/greenwave-gop/wired'] = GreenWaveGOP;
 
   steward.actors.device.lighting.tcpi = steward.actors.device.lighting.tcpi ||
       { $info     : { type: '/device/lighting/tcpi' } };

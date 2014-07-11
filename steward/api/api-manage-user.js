@@ -324,7 +324,7 @@ var authenticate = exports.authenticate = function(logger, ws, api, message, tag
 
     meta = ws.clientInfo;
     meta.event = 'login';
-    logger.notice(tag, meta);
+    logger.info(tag, meta);
 
     stamp = utility.clone(meta);
     stamp.tag = tag;

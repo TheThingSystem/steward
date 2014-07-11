@@ -76,7 +76,7 @@ Cloud.prototype.scan = function(self) {
   if (!self.cloudapi) return;
 
   self.cloudapi.getGarden(function(err, plants, links, stations) {
-    var battery, info, ipaddr, k, link, params, plant, rssi, secs, station, status, udn;
+    var battery, i, info, ipaddr, k, link, params, plant, rssi, secs, station, status, udn;
 
     if (!!err) return self.error(self, 'getGarden', err);
 
@@ -94,6 +94,13 @@ Cloud.prototype.scan = function(self) {
                                            && (plant.lower_moisture_threshold > plant.last_measurements[0].moisture)
                                        ? 'true' : 'false'
                };
+      for (i = 0; i < plant.links_key.length; i++) {
+        link = links[plant.links_key[i].toString()];
+        if ((!link) || (!link.serial)) continue;
+
+        params.placement = 'Plant link ' + link.serial;
+        break;
+      }
 
       udn = 'plantlink:plant:' + k;
       if (!!devices.devices[udn]) {
@@ -212,7 +219,7 @@ Cloud.prototype.scan = function(self) {
                     };
 
       info.url = info.device.url;
-      info.deviceType = '/device/gateway/plantlink/station';
+      info.deviceType = '/device/gateway/plantlink/wired';
       info.id = info.device.unit.udn;
 
       logger.info('device/' + self.deviceID, { name: info.device.name, id: info.device.unit.serial,  params: info.params });
@@ -278,7 +285,7 @@ var Station = function(deviceID, deviceUID, info) {
 
   self = this;
 
-  self.whatami = '/device/gateway/plantlink/station';
+  self.whatami = '/device/gateway/plantlink/wired';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -333,8 +340,8 @@ exports.start = function() {
       };
   devices.makers['/device/gateway/plantlink/cloud'] = Cloud;
 
-  steward.actors.device.gateway.plantlink.station =
-      { $info     : { type       : '/device/gateway/plantlink/station'
+  steward.actors.device.gateway.plantlink.wired =
+      { $info     : { type       : '/device/gateway/plantlink/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name       : true
@@ -344,7 +351,7 @@ exports.start = function() {
                     }
       , $validate : { perform    : devices.validate_perform }
       };
-  devices.makers['/device/gateway/plantlink/station'] = Station;
+  devices.makers['/device/gateway/plantlink/wired'] = Station;
 
   utility.acquire2(__dirname + '/../*/*-plantlink-*.js', function(err) {
     if (!!err) logger('plantlink-cloud', { event: 'glob', diagnostic: err.message });

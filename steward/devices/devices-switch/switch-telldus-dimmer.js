@@ -22,7 +22,7 @@ var Dimmer = exports.Device = function(deviceID, deviceUID, info) {
 
   self.info = { level: 0
               , lastlevel: 0 // last used level when it was turned on - should be persistent
-	      };
+              };
   self.gateway = info.gateway;
   self.status = 'off';
   self.update(self, info.params);

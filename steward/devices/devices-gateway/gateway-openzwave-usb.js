@@ -74,7 +74,7 @@ var scan = function() {
 
     configuration = utility.configuration.serialPorts && utility.configuration.serialPorts['openzwave-usb'];
     if (!configuration) return;
-    
+
     for (i = 0; i < info.length; i++) {
       fingerprint = configuration[info[i].comName];
       if (!fingerprint) continue;
@@ -299,12 +299,12 @@ var fingerprints  =
   [ { mID        : '0086'
     , pID        : '0001'
     , modelName  : 'Z-Stick S2'
-    , deviceType : '/device/gateway/aeotec/zstick-s2'
+    , deviceType : '/device/gateway/aeotec/usb'
     }
   , { mID        : '0086'
     , pID        : '0025'
     , modelName  : 'Range Extender'
-    , deviceType : '/device/gateway/aeotec/repeater'
+    , deviceType : '/device/gateway/aeotec/wireless'
     }
   ];
 

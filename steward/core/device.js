@@ -415,6 +415,7 @@ Device.prototype.setName = function(deviceName, taskID) {
   var self = this;
 
   if (!deviceName) return false;
+  if (typeof deviceName === 'number') deviceName = deviceName.toString();
   if (self.name === deviceName) return ((!taskID) || steward.performed(taskID));
 
   db.run('UPDATE devices SET deviceName=$deviceName WHERE deviceID=$deviceID',

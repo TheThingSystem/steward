@@ -476,7 +476,7 @@ var scan = function() {
            , deviceType : steward.actors.device.lighting['heroic-robotics'].$info.type
            };
     info.url = info.device.url;
-    info.deviceType = '/device/gateway/heroic-robotics/pixelpusher';
+    info.deviceType = '/device/gateway/heroic-robotics/wired';
     info.id = info.device.unit.udn;
     if (!!devices.devices[info.id]) {
       device = devices.devices[info.id].device;
@@ -498,8 +498,8 @@ exports.start = function() {
   steward.actors.device.gateway['heroic-robotics'] = steward.actors.device.gateway['heroic-robotics'] ||
       { $info     : { type: '/device/gateway/heroic-robotics' } };
 
-  steward.actors.device.gateway['heroic-robotics'].pixelpusher =
-      { $info     : { type       : '/device/gateway/heroic-robotics/pixelpusher'
+  steward.actors.device.gateway['heroic-robotics'].wired =
+      { $info     : { type       : '/device/gateway/heroic-robotics/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name   : true
@@ -510,7 +510,7 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/gateway/heroic-robotics/pixelpusher'] = PixelPusher;
+  devices.makers['/device/gateway/heroic-robotics/wired'] = PixelPusher;
 
   steward.actors.device.lighting['heroic-robotics'] = steward.actors.device.lighting['heroic-robotics'] ||
       { $info     : { type: '/device/lighting/heroic-robotics' } };

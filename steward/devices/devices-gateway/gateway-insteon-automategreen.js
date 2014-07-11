@@ -293,7 +293,7 @@ var scan = function() {
 
     configuration = utility.configuration.serialPorts && utility.configuration.serialPorts['insteon-automategreen'];
     if (!configuration) return;
-    
+
     for (i = 0; i < info.length; i++) {
       fingerprint = configuration[info[i].comName];
       if (!fingerprint) continue;

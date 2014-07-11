@@ -56,7 +56,7 @@ var route = function(ws, tag) {
        if ((!best) || (best.prefix.length < prefix.length)) best = apis[i];
     }
     if (!best) {
-      error(ws, tag, 'route', message.requestID, false, 'unknown api: ' + path);
+      error(ws, tag, 'route', message.requestID, false, 'unknown api');
       return;
     }
 
@@ -68,7 +68,7 @@ var route = function(ws, tag) {
     }
 
     if (!accessP(best, ws.clientInfo, message, tag)) {
-      error(ws, tag, 'route', message.requestID, false, 'unknown api: ' + path);
+      error(ws, tag, 'route', message.requestID, false, 'unknown api');
       return;
     }
 
@@ -111,12 +111,12 @@ var accessP = function(api, clientInfo, message, tag) {
       return true;
     }
 
-    logger.warning(tag, { event      : 'access'
-                        , diagnostic : 'unauthorized'
-                        , role       : role
-                        , resource   : 'manage'
-                        , level      : utility.value2key(access.levels, api.access)
-                        });
+    logger.info(tag, { event      : 'access'
+                     , diagnostic : 'unauthorized'
+                     , role       : role
+                     , resource   : 'manage'
+                     , level      : utility.value2key(access.levels, api.access)
+                     });
     return false;
   }
 
@@ -133,7 +133,7 @@ var error = exports.error = function(ws, tag, event, requestID, permanent, diagn
     if (err) try { ws.terminate(); } catch(ex) {}
 
     meta.event = event;
-    logger.warning(tag, meta);
+    logger[diagnostic != 'unknown api' ? 'warning' : 'info'](tag, meta);
   });
 
   return !permanent;

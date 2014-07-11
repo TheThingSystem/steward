@@ -756,7 +756,7 @@ var apprentices =
                                     , parameter : { color: { model: 'rgb', rgb: { r: 255, g:   0, b:   0 }}, brightness: 50 }
                                     }
                                   , { perform   : '.on' 
-                                    , parameter : { color: { model: 'rgb', rgb: { r: 255, g: 131, b:   0 }}, brightness: 25 }
+                                    , parameter : { color: { model: 'rgb', rgb: { r: 255, g: 191, b:   0 }}, brightness: 25 }
                                     }
                                   , { perform   : '.on' 
                                     , parameter : { color: { model: 'rgb', rgb: { r:   0, g:   0, b: 255 }}, brightness:  5 }

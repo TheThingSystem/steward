@@ -137,8 +137,8 @@ exports.start = function() {
   steward.actors.device.indicator.wink = steward.actors.device.indicator.wink ||
       { $info     : { type: '/device/indicator/wink' } };
 
-  steward.actors.device.indicator.wink.nimbus =
-      { $info     : { type       : '/device/indicator/wink/nimbus'
+  steward.actors.device.indicator.wink.gauges =
+      { $info     : { type       : '/device/indicator/wink/gauges'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name       : true
@@ -149,5 +149,5 @@ exports.start = function() {
       , $validate : { perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/indicator/wink/nimbus'] = Nimbus;
+  devices.makers['/device/indicator/wink/gauges'] = Nimbus;
 };

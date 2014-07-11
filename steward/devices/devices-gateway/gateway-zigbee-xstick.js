@@ -148,7 +148,7 @@ var fingerprints  =
     , vendorId       : 0x0403
     , productId      : 0x6001
     , pnpId          : 'usb-Digi_XStick-'
-    , deviceType     : '/device/gateway/zigbee/xstick2-zb'
+    , deviceType     : '/device/gateway/zigbee/usb'
     }
   ];
 
@@ -197,8 +197,8 @@ exports.start = function() {
   steward.actors.device.gateway.zigbee = steward.actors.device.gateway.zigbee ||
       { $info     : { type: '/device/gateway/zigbee' } };
 
-  steward.actors.device.gateway.zigbee['xstick2-zb'] =
-      { $info     : { type       : '/device/gateway/zigbee/xstick2-zb'
+  steward.actors.device.gateway.zigbee.usb =
+      { $info     : { type       : '/device/gateway/zigbee/usb'
                     , observe    : [ ]
                     , perform    : utility.keys(Gateway.operations)
                     , properties : { name   : true
@@ -208,7 +208,7 @@ exports.start = function() {
       , $validate : { perform    : validate_perform
                     }
       };
-  devices.makers['/device/gateway/zigbee/xstick2-zb'] = Gateway;
+  devices.makers['/device/gateway/zigbee/usb'] = Gateway;
 
   utility.acquire2(__dirname + '/../*/*-zigbee-*.js', function(err) {
     if (!!err) logger('zigbee-xstick2-zb', { event: 'glob', diagnostic: err.message });

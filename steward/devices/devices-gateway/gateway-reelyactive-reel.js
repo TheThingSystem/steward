@@ -321,7 +321,7 @@ var onmessage = function(message, reel, writer) {
                                  }
                 };
   info.url = info.device.url;
-  info.deviceType = '/device/gateway/reelyactive/hublet';
+  info.deviceType = '/device/gateway/reelyactive/wired';
   info.id = info.device.unit.udn;
   if (!!devices.devices[info.id]) return;
 
@@ -346,8 +346,8 @@ exports.start = function() {
   steward.actors.device.gateway.reelyactive = steward.actors.device.gateway.reelyactive ||
       { $info     : { type: '/device/gateway/reelyactive' } };
 
-  steward.actors.device.gateway.reelyactive.hublet =
-      { $info     : { type       : '/device/gateway/reelyactive/hublet'
+  steward.actors.device.gateway.reelyactive.wired =
+      { $info     : { type       : '/device/gateway/reelyactive/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name       : true
@@ -357,7 +357,7 @@ exports.start = function() {
       , $validate : { perform    : validate_perform
                     }
       };
-  devices.makers['/device/gateway/reelyactive/hublet'] = Hublet;
+  devices.makers['/device/gateway/reelyactive/wired'] = Hublet;
 
   steward.actors.device.gateway.reelyactive.reelceiver =
       { $info     : { type       : '/device/gateway/reelyactive/reelceiver'

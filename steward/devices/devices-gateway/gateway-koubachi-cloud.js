@@ -149,7 +149,8 @@ Cloud.prototype.addstation = function(self, station) {
     plant = self.plants[plantID];
     if (!plant) continue;
 
-    name = plant.location;
+    if (!!plant.location) name = plant.location;
+    if (!!plant.name) params.placement = plant.name;
     break;
   }
   for (i = 0; i < station.plants.length; i++) {

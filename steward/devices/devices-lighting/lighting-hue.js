@@ -21,7 +21,7 @@ var logger = lighting.logger;
 var Hue = exports.Device = function(deviceID, deviceUID, info) {
   var self = this;
 
-  self.whatami = '/device/gateway/hue/bridge';
+  self.whatami = '/device/gateway/hue/wired';
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
@@ -743,8 +743,8 @@ exports.start = function() {
   steward.actors.device.gateway.hue = steward.actors.device.gateway.hue ||
       { $info     : { type: '/device/gateway/hue' } };
 
-  steward.actors.device.gateway.hue.bridge =
-      { $info     : { type       : '/device/gateway/hue/bridge'
+  steward.actors.device.gateway.hue.wired =
+      { $info     : { type       : '/device/gateway/hue/wired'
                     , observe    : [ ]
                     , perform    : [ 'wake' ]
                     , properties : { name   : true
