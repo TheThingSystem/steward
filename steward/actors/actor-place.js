@@ -478,6 +478,7 @@ Place.prototype.getWeather = function(self) {
       atmosphere = response.query.results.channel.atmosphere;
       for (a in atmosphere) if ((atmosphere.hasOwnProperty(a)) && (atmosphere[a].length === 0)) delete(atmosphere[a]);
       wind = response.query.results.channel.wind;
+      if (!wind) wind = { chill: '' };
       if (wind.chill.length === 0) delete(wind.chill);
       current = response.query.results.channel.item.condition;
       if (current.temp.length === 0) delete(current.temp);
