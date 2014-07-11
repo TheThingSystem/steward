@@ -94,6 +94,7 @@ exports.start = function() {
 var securePort = 0;
 
 var logins = exports.logins = {};
+exports.suffix = '';
 
 var httpsT = 'http'
   , wssT   = 'ws'
@@ -293,6 +294,21 @@ var start = function(port, secureP) {
     }).listen(80);
 
     if (secureP) {
+      var addresses, i, ifaddr, ifaddrs, ifname;
+
+      addresses = [];
+      for (ifname in steward.ifaces) if (steward.ifaces.hasOwnProperty(ifname)) {
+        ifaddrs = steward.ifaces[ifname].addresses;
+        for (i = 0; i < ifaddrs.length; i++) {
+          ifaddr = ifaddrs[i];
+          if ((!ifaddr.internal) && (ifaddr.family === 'IPv4')) addresses.push(ifaddr.address);
+        }
+      }
+      exports.suffix = '%26hostName='           + encodeURIComponent(os.hostname())
+                            + '%26name='        + encodeURIComponent('steward')
+                            + '%26ipAddresses=' + encodeURIComponent(addresses)
+                            + '%26port='        + encodeURIComponent(wssP);
+
       fs.exists(__dirname + '/../db/' + steward.uuid + '.js', function(existsP) {
         var crt2, params;
 
@@ -366,30 +382,13 @@ exports.vous = null;
 exports.suffix = '';
 
 var keycheck = function (params) {
-  var addresses, i, ifaddr, ifaddrs, ifname;
-
   var crt  = __dirname + '/../sandbox/server2.crt'
     , key  = __dirname + '/../db/server2.key'
     , sha1 = __dirname + '/../sandbox/server2.sha1'
     ;
 
   if (!exports.vous) exports.vous = params.name;
-  if (!!exports.vous) {
-    advertise();
-
-    addresses = [];
-    for (ifname in steward.ifaces) if (steward.ifaces.hasOwnProperty(ifname)) {
-      ifaddrs = steward.ifaces[ifname].addresses;
-      for (i = 0; i < ifaddrs.length; i++) {
-        ifaddr = ifaddrs[i];
-        if ((!ifaddr.internal) && (ifaddr.family === 'IPv4')) addresses.push(ifaddr.address);
-      }
-    }
-    exports.suffix = '%26hostName='           + encodeURIComponent(os.hostname())
-                          + '%26name='        + encodeURIComponent('steward')
-                          + '%26ipAddresses=' + encodeURIComponent(addresses)
-                          + '%26port='        + encodeURIComponent(wssP);
-  }
+  if (!!exports.vous) advertise();
 
   fs.exists(key, function(existsP) {
     var alternates, i, label, x;
