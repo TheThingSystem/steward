@@ -1,6 +1,7 @@
 var fs          = require('fs')
   , glob        = require('glob')
   , EventBroker = require('observer').EventBroker
+  , lsof        = require('lsof')
   , path        = require('path')
   , stacktrace  = require('stack-trace')
   , stringify   = require('json-stringify-safe')
@@ -150,7 +151,14 @@ exports.logger = function(x) {
 
     this.logaux(level !== 'fatal' ? level : 'emerg', '[' + x + '] ' + msg, meta, callback);
 
-    if ((level === 'emerg') || (level === 'fatal')) process.exit(1);
+    if ((level !== 'emerg') && (level !== 'fatal')) return;
+
+    if ((x !== 'discovery') || (!meta.exception) || (meta.exception.syscall !== 'bind')) return;
+
+    lsof.rawUdpPort(1900, function(data) {
+      console.log(util.inspect(data, { depth: null }));
+      process.exit(1);
+    });
   };
 
   logger.debug('begin');

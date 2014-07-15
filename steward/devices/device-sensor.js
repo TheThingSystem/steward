@@ -17,11 +17,9 @@ exports.units = { Celsius     : { symbol: 'C',   units: 'celsius'               
                 , Millibars   : { symbol: 'mb',  units: 'millibars'                           }
                 , PPM         : { symbol: 'ppm', units: 'ppm'                                 }
                 , Percentage  : { symbol: '%',   units: 'percentage', numberFormat: '000.000' }
-                , Voltage     : { symbol: 'V',   units: 'voltage'                             }
                 };
 var measures = exports.measures =
-                 { airQuality  : { symbol: 'AQI', units: 'voltage',    type: 'contextDependentUnits' }
-                 , co          : { symbol: 'co',  units: 'ppm',        type: 'contextDependentUnits' }
+                 { co          : { symbol: 'co',  units: 'ppm',        type: 'contextDependentUnits' }
                  , co2         : { symbol: 'co2', units: 'ppm',        type: 'contextDependentUnits' }
                  , humidity    : { symbol: 'RH',  units: 'percentage', type: 'contextDependentUnits' }
                  , light       : { symbol: 'lx',  units: 'lux',        type: 'derivedSI'             }
@@ -29,7 +27,6 @@ var measures = exports.measures =
                  , no2         : { symbol: 'no2', units: 'ppm',        type: 'contextDependentUnits' }
                  , noise       : { symbol: 'dB',  units: 'decibels',   type: 'derivedUnits'          }
                  , pressure    : { symbol: 'mb',  units: 'millibars',  type: 'derivedUnits'          }
-                 , smoke       : { symbol: 'v',   units: 'voltage',    type: 'contextDependentUnits' }
                  , temperature : { symbol: 'C',   units: 'celsius',    type: 'derivedSI'             }
                  , voc         : { symbol: 'voc', units: 'ppm',        type: 'contextDependentUnits' }
                  };
