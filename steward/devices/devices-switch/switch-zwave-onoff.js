@@ -44,8 +44,8 @@ var ZWave_OnOff = exports.Device = function(deviceID, deviceUID, info) {
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
   });
 
-  self.driver.enablePoll(self.peripheral.nodeid, 0x25);
-  self.driver.enablePoll(self.peripheral.nodeid, 0x32);
+  self.driver.enablePoll(self.peripheral.nodeid, 0x25); // switch binary
+  self.driver.enablePoll(self.peripheral.nodeid, 0x32); // meter
 };
 util.inherits(ZWave_OnOff, plug.Device);
 
@@ -53,7 +53,7 @@ util.inherits(ZWave_OnOff, plug.Device);
 ZWave_OnOff.prototype.update = function(self, event, comclass, value) {
   if (event === 'value added') event = 'value changed';
 
-  var f = { 'value changed' :
+  var handler = { 'value changed' :
               function() {
                 var meterData = self.peripheral.classes[0x32];
                 if (!!meterData) {
@@ -83,7 +83,7 @@ ZWave_OnOff.prototype.update = function(self, event, comclass, value) {
 // TBD: something to do here?
               }
   };
-  if (!!f[event]) return (f[event])();
+  if (!!handler[event]) return (handler[event])();
 
   logger.warning('device/' + self.deviceID,
     { event: event, comclass: comclass, value: value, diagnostic: 'unexpected update' });

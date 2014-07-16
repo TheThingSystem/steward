@@ -191,8 +191,15 @@ var scan1 = function(driver) {
                             , product      : props.product
                             , type         : props.type
                             });
-      devices.discover(info);
-      nodes[nodeid].device = devices.devices[info.id];
+      devices.discover(info, function(err, deviceId) {
+        if (err!==null) {
+          logger2.debug("Error creating device for Z-Wave device %s.", udn, err);
+          return;
+        }
+        if (deviceId) {
+          nodes[nodeid].device = devices.devices[info.id];
+        }
+      });
     }).on('notification', function(nodeid, value) {
       var values = { 0 : 'message complete'
                    , 1 : 'timeout'
