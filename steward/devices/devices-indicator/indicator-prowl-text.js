@@ -79,6 +79,11 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (request === 'attention') {
+      if (self.status === 'error') self.alert('please check login credentials at https://prowlapp.com/');
+      return;
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);

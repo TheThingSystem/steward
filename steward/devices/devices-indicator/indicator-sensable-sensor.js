@@ -34,6 +34,11 @@ var Sensable = exports.Device = function(deviceID, deviceUID, info) {
   broker.subscribe('readings', function(deviceID, point) { self.update(self, deviceID, point); });
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
+    if (request === 'attention') {
+      if (self.status === 'error') self.alert('please check login credentials at https://sensable.io/');
+      return;
+    }
+
     if (actor !== ('device/' + self.deviceID)) return;
 
     if (request === 'perform') return self.perform(self, taskID, perform, parameter);
@@ -95,7 +100,12 @@ Sensable.prototype.update = function(self, deviceID, point) {
           ,{ accessToken : self.info.token
            , private     : self.info.private !== 'off'
            }).upload(point.value, point.timestamp, function(err) {
-    if (!!err) logger.error('device/' + self.deviceID, { event: 'uplaod', diagnostic: err.message });
+    if (!err) return;
+
+    logger.error('device/' + self.deviceID, { event: 'uplaod', diagnostic: err.message });
+    if (self.status === 'error') return;
+    self.status = 'error';
+    self.changed();
   });
 };
 
