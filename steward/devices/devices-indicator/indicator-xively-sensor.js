@@ -69,14 +69,14 @@ var Cosm = exports.Device = function(deviceID, deviceUID, info) {
              }
            , private       : (!!info.private) ? (info.private === 'on') : false
            };
-  if (util.isArray(place.info.coordinates)) {
-    params.location.lat = place.info.coordinates[0];
-    params.location.lon = place.info.coordinates[1];
-    if (place.info.coordinates.length > 2) params.location.ele = place.info.coordinates[2];
+  if (util.isArray(place.info.location)) {
+    params.location.lat = place.info.location[0];
+    params.location.lon = place.info.location[1];
+    if (place.info.location.length > 2) params.location.ele = place.info.location[2];
     if (!params.private) {
-      params.location.lat = params.location.lat.toFixed(1);
-      params.location.lon = params.location.lon.toFixed(1);
-      params.location.ele = params.location.ele.toFixed(1);
+      params.location.lat = params.location.lat.toFixed(3);
+      params.location.lon = params.location.lon.toFixed(3);
+      params.location.ele = params.location.ele.toFixed(3);
     }
   }
 

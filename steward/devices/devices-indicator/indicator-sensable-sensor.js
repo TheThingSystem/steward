@@ -79,17 +79,19 @@ Sensable.prototype.update = function(self, deviceID, point) {
     entity = actor.$lookup(deviceID);
     if (!!entity) device = entity.proplist();
     if (!!device) point.device.name = device.name;
+    if (!!device.info) location = device.info.location;
   }
 
-  actor = steward.actors.place;
-  if (!!actor) {
-    entity = actor.$lookup("1");
-    if (!!entity) place = entity.proplist();
-    if (!!place) location = place.info && place.info.location;
-    if (!!location) location = [ parseFloat(location[0]), parseFloat(location[1]) ];
+  if (!location) {
+    actor = steward.actors.place;
+    if (!!actor) {
+      entity = actor.$lookup("1");
+      if (!!entity) place = entity.proplist();
+      if (!!place) location = place.info && place.info.location;
+    }
   }
-  if (!location) location = [ 0, 0 ]; 
-  if (self.info.private !== 'off') location = [ parseFloat(location[0].toFixed(1)), parseFloat(location[1].toFixed(1)) ];
+  if (!!location) location = [ parseFloat(location[0]), parseFloat(location[1]) ]; else location = [ 0, 0 ]; 
+  if (self.info.private !== 'off') location = [ parseFloat(location[0].toFixed(3)), parseFloat(location[1].toFixed(3)) ];
 
   sensable({ sensorid    : 'device/' + deviceID + '.' + point.measure.name
            , unit        : point.measure.label
