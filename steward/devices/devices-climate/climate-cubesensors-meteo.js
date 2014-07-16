@@ -45,7 +45,9 @@ Sensor.prototype.scan = function(self) {
   self.gateway.getDeviceState(self.cubeID, function(err, state) {
     if (!!err) return logger.error('device/' + self.deviceID, { event: 'getDeviceState', diagnostic: err.message });
 
+    self.status = 'absent';
     if (self.updateInfo(state)) {
+      self.status = 'present';
       self.changed();
       sensor.update(self.deviceID, state);
     }
