@@ -85,24 +85,6 @@ Cloud.prototype.scan = function(self) {
     for (i = 0; i < results.length; i++) if (results[i].type === 'device') {
       self.telldus.getDeviceInfo(results[i], self.getDevice(self, i));
     }
-
-results = [
-{ id: '127952',
-  name: 'Ute: Garage/Port',
-  state: '2',
-  statevalue: '1',
-  methods: '19',
-  type: 'device',
-  protocol: 'arctech',
-  model: 'selflearning-dimmer:nexa',
-  online: '1',
-  editable: 1,
-  parameter:
-   [ { name: 'house', value: '51002' },
-     { name: 'unit', value: '1' } ],
-  status: 'off' }
-];for (i = 0; i < results.length; i++) (self.getDevice(self, i))(null,results[i]);
-
   }).getSensors(function(err, results) {
     var i;
 
