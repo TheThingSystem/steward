@@ -145,15 +145,15 @@ var scan1 = function(driver) {
     }).on('node ready', function(nodeid, nodeinfo) {
       var comclass, info, oops, props, udn;
 
+      udn = 'openzwave:' + homeid.toString(16) + ':' + nodeid;
+      if (!!devices.devices[udn]) return;
+
       props = utility.clone(nodeinfo);
       props.homeid = homeid.toString(16);
       props.nodeid = nodeid;
       oops = utility.clone(props);
       props.classes = nodes[nodeid].classes;
       nodes[nodeid] = props;
-
-      udn = 'openzwave:' + homeid.toString(16) + ':' + nodeid;
-      if (!!devices.devices[udn]) return;
 
       info = { source: comName, driver: zwave, peripheral: nodes[nodeid] };
       info.device = { url          : null
