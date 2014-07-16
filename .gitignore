@@ -35,3 +35,6 @@ zwcfg_*.xml
 
 .node-xmlhttprequest-*
 typescript
+
+.idea
+*.iml
