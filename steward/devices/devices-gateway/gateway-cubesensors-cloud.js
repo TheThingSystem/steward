@@ -40,26 +40,24 @@ var Cloud = exports.Device = function(deviceID, deviceUID, info) {
   });
 
   if ((!!info.consumerKey) && (!!info.consumerSecret) && (!!info.token) && (!!info.tokenSecret)) {
-    setTimeout(function() { self.login(self); }, 0);
+    setTimeout(function() { self.authorize(self); }, 0);
   }
 };
 util.inherits(Cloud, require('./../device-gateway').Device);
 
 
-Cloud.prototype.login = function(self) {
+Cloud.prototype.authorize = function(self) {
   self.cloud = new CubeSensors.CubeSensorsAPI({ consumerKey      : self.info.consumerKey
                                               , consumerSecret   : self.info.consumerSecret
                                               , oAuthToken       : self.info.token
                                               , oAuthTokenSecret : self.info.tokenSecret
                                               , logger           : utility.logfnx(logger, 'device/' + self.deviceID)
-                                              }).login(self.info.token, self.info.tokenSecret, function(err, user) {
-    if (!!err) { self.cloud = null; return self.error(self, 'login', err); }
-
-    user.event = 'login';
-    logger.info('device/' + self.deviceID, user);
+                                              }).authorize(function(err, state) {/* jshint unused: false */
+    if (!!err) { self.cloud = null; return self.error(self, 'authorize', err); }
 
     self.status = 'ready';
     self.changed();
+    self.setInfo();
 
     if (!!self.timer) clearInterval(self.timer);
     self.timer = setInterval(function() { self.scan(self); }, 600 * 1000);
@@ -68,7 +66,7 @@ Cloud.prototype.login = function(self) {
     self.error(self, 'background', err);
 
     if (!!self.timer) { clearInterval(self.timer); self.timer = null; }
-    setTimeout(function() { self.login(self); }, 30 * 1000);
+    setTimeout(function() { self.authorize(self); }, 30 * 1000);
   });
 };
 
@@ -139,7 +137,7 @@ Cloud.prototype.perform = function(self, taskID, perform, parameter) {
   if (!!params.consumerSecret) self.info.consumerSecret = params.consumerSecret;
   if (!!params.token) self.info.token = params.token;
   if (!!params.tokenSecret) self.info.tokenSecret = params.tokenSecret;
-  self.login(self);
+  self.authorize(self);
 
   self.setInfo();
 

@@ -729,6 +729,20 @@ var clouds = { '':
                    , crtPath      : ''
                    }
                  }
+               , cubesensors      :
+                 { text           : 'If you have the CubeSensor system, the steward can manage it for you.'
+                 , instructions   : 'Enter your OAuth info. TO get OAuth info, send an email to api@cubesensors.com'
+                 , site           : 'http://cubesensors.com'
+                 , icon           : ''
+                 , name           : 'cubesensors'
+                 , actor          :'/device/gateway/cubsensors/cloud'
+                 , info           :
+                   { consumerKey  : ''
+                   , consumerSecret : ''
+                   , token        : ''
+                   , tokenSecret  : ''
+                   }
+                 }
                , dweetio          :
                  { text           : 'The steward can automatically upload measurements to dweet.io'
                  , instructions   : 'No account is necessary. The key is an optional identifier for your use.'
@@ -895,6 +909,17 @@ var clouds = { '':
                  , info           :
                    { apikey       : ''
                    , userkey      : ''
+                   }
+                 }
+               , sensable         :
+                 { text           : 'The steward can automatically upload measurements to sensable.io'
+                 , instructions   : 'Go to http://sensable.io/, create an account, and get your token.'
+                 , site           : 'https://sensable.io/'
+                 , icon           : ''
+                 , name           : 'sensable'
+                 , actor          : '/device/indicator/sensable/sensor'
+                 , info           :
+                   { token        : ''
                    }
                  }
                , 'telldus live'   :

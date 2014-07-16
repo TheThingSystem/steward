@@ -230,9 +230,10 @@ var validate_create = function(info) {
   if (!info.feed) result.requires.push('feed');
   else if ((typeof info.feed !== 'string') || (info.feed.length < 8)) result.invalid.push('feed');
 
+  if ((!!info.private) && (info.private !== 'on') && (info.private !== 'off')) result.invalid.push('private');
+
   if ((!!info.measurements) && (!util.isArray(info.measurements))) result.invalid.push('measurements');
   if ((!!info.sensors) && (!util.isArray(info.sensors))) result.invalid.push('sensors');
-  if ((!!info.private) && (info.private !== 'on') && (info.private !== 'off')) result.invalid.push('private');
 
   return result;
 };
@@ -270,9 +271,9 @@ exports.start = function() {
                                    , status       : [ 'waiting', 'ready', 'error' ]
                                    , apikey       : true
                                    , feed         : true
+                                   , private      : [ 'on', 'off' ]
                                    , measurements : measurements
                                    , sensors      : []
-                                   , private      : [ 'on', 'off' ]
                                    }
                     }
       , $validate : { create     : validate_create
