@@ -93,7 +93,8 @@ Sensable.prototype.update = function(self, deviceID, point) {
   if (!!location) location = [ parseFloat(location[0]), parseFloat(location[1]) ]; else location = [ 0, 0 ]; 
   if (self.info.private === 'off') location = [ parseFloat(location[0].toFixed(3)), parseFloat(location[1].toFixed(3)) ];
 
-  sensable({ sensorid    : 'device/' + deviceID + '.' + point.measure.name
+  sensable({ sensorid    : 'device-' + deviceID + '-' + point.measure.name
+           , name        : point.device.name
            , unit        : point.measure.label
            , sensortype  : point.measure.name
            , latitude    : location[0]
@@ -101,7 +102,7 @@ Sensable.prototype.update = function(self, deviceID, point) {
            }
           ,{ accessToken : self.info.token
            , private     : self.info.private !== 'off'
-           }).upload(point.value, point.timestamp, function(err) {
+           }).upload(point.value, point.timestamp, function(err, response, result) {
     if (!err) return;
 
     logger.error('device/' + self.deviceID, { event: 'uplaod', diagnostic: err.message });
