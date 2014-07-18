@@ -24,7 +24,7 @@ var Hub = exports.Device = function(deviceID, deviceUID, info) {
 
   var self = this;
 
-  self.whatami = { 'VirtualHub'        : '/device/gateway/yoctopuce/virtual'
+  self.whatami = { 'VirtualHub'        : '/device/gateway/yoctopuce/usb'
                  , 'YoctoHub-Ethernet' : '/device/gateway/yoctopuce/wired'
                  , 'YoctoHub-Wireless' : '/device/gateway/yoctopuce/wireless'
                  }[info.deviceType] || info.deviceType;
