@@ -236,7 +236,7 @@ exports.start = function() {
   devices.makers['YoctoHub-Wireless'] = Hub;
 
   steward.actors.device.gateway.yoctopuce.virtual = utility.clone(steward.actors.device.gateway.yoctopuce.wired);
-  steward.actors.device.gateway.yoctopuce.virtual.$info.type = '/device/gateway/yoctopuce/virtual';
+  steward.actors.device.gateway.yoctopuce.virtual.$info.type = '/device/gateway/yoctopuce/usb';
   devices.makers.VirtualHub = Hub;
 
   utility.acquire2(__dirname + '/../*/*-yoctopuce-*.js', function(err) {
