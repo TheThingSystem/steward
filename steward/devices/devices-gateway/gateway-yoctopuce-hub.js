@@ -235,8 +235,8 @@ exports.start = function() {
   steward.actors.device.gateway.yoctopuce.wireless.$info.type = '/device/gateway/yoctopuce/wireless';
   devices.makers['YoctoHub-Wireless'] = Hub;
 
-  steward.actors.device.gateway.yoctopuce.virtual = utility.clone(steward.actors.device.gateway.yoctopuce.wired);
-  steward.actors.device.gateway.yoctopuce.virtual.$info.type = '/device/gateway/yoctopuce/usb';
+  steward.actors.device.gateway.yoctopuce.usb = utility.clone(steward.actors.device.gateway.yoctopuce.wired);
+  steward.actors.device.gateway.yoctopuce.usb.$info.type = '/device/gateway/yoctopuce/usb';
   devices.makers.VirtualHub = Hub;
 
   utility.acquire2(__dirname + '/../*/*-yoctopuce-*.js', function(err) {
