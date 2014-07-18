@@ -212,6 +212,17 @@ exports.acquire = function(logger, directory, pattern, start, stop, suffix, arg)
     }
   }
 
+  configuration = exports.configuration.discovery;
+  tail = directory.split('/');
+  if ((!!configuration) && (suffix === ' discovery') && (tail.length > 0) && (tail[tail.length - 1] === 'discovery')) {
+    include = configuration.include;
+    exclude = configuration.exclude;
+    if ((include.length === 0) && (exclude.length === 0)) {
+        include = null;
+        exclude = null;
+    }
+  }
+
   fs.readdir(directory, function(err, files) {
     var absolute, didP, file, i, module;
 
