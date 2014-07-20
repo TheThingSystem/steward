@@ -1,5 +1,3 @@
-exports.start = function() {};return;
-
 // CubeSensors: https://my.cubesensors.com/docs
 
 var CubeSensors = require('cubesensors-cloud')
@@ -47,11 +45,11 @@ util.inherits(Cloud, require('./../device-gateway').Device);
 
 
 Cloud.prototype.authorize = function(self) {
-  self.cloud = new CubeSensors.CubeSensorsAPI({ consumerKey      : self.info.consumerKey
-                                              , consumerSecret   : self.info.consumerSecret
-                                              , oAuthToken       : self.info.token
-                                              , oAuthTokenSecret : self.info.tokenSecret
-                                              , logger           : utility.logfnx(logger, 'device/' + self.deviceID)
+  self.cloud = new CubeSensors.CubeSensorsAPI({ consumerKey       : self.info.consumerKey
+                                              , consumerSecret    : self.info.consumerSecret
+                                              , oAuthAccessToken  : self.info.token
+                                              , oAuthAccessSecret : self.info.tokenSecret
+                                              , logger            : utility.logfnx(logger, 'device/' + self.deviceID)
                                               }).authorize(function(err, state) {/* jshint unused: false */
     if (!!err) { self.cloud = null; return self.error(self, 'authorize', err); }
 
@@ -79,15 +77,15 @@ Cloud.prototype.error = function(self, event, err) {
 Cloud.prototype.scan = function(self) {
   if (!self.cloud) return;
 
-  self.cloud.getDevices(function(err, devices) {
+  self.cloud.getDevices(function(err, results) {
     var changedP, device, deviceType, i, info, udn;
 
     if (!!err) return self.error(self, 'getDevices', err);
 
     changedP = false;
 
-    for (i = 0; i < devices.length; i++) {
-      device = devices[i];
+    for (i = 0; i < results.length; i++) {
+      device = results[i];
       udn = 'cubesensors:' + device.uid;
       if (!!devices.devices[udn]) continue;
       if (!!self.seen[udn]) return;
@@ -148,16 +146,16 @@ var validate_create = function(info) {
   var result = { invalid: [], requires: [] };
 
   if (!info.consumerKey) result.requires.push('consumerKey');
-  else if ((typeof info.consumerKey !== 'string') || (info.consumerKey.length !== 32)) result.invalid.push('consumerKey');
+  else if ((typeof info.consumerKey !== 'string') || (info.consumerKey.length !== 20)) result.invalid.push('consumerKey');
 
   if (!info.consumerSecret) result.requires.push('consumerSecret');
-  else if ((typeof info.consumerSecret !== 'string') || (info.consumerSecret.length !== 32)) result.invalid.push('consumerSecret');
+  else if ((typeof info.consumerSecret !== 'string') || (info.consumerSecret.length !== 24)) result.invalid.push('consumerSecret');
 
   if (!info.token) result.requires.push('token');
-  else if ((typeof info.token !== 'string') || (info.token.length === 0)) result.invalid.push('token');
+  else if ((typeof info.token !== 'string') || (info.token.length !== 12)) result.invalid.push('token');
 
   if (!info.tokenSecret) result.requires.push('tokenSecret');
-  else if ((typeof info.tokenSecret !== 'string') || (info.tokenSecret.length != 32)) result.invalid.push('tokenSecret');
+  else if ((typeof info.tokenSecret !== 'string') || (info.tokenSecret.length != 16)) result.invalid.push('tokenSecret');
 
   return result;
 };
@@ -174,10 +172,10 @@ var validate_perform = function(perform, parameter) {
     return result;
   }
 
-  if (!params.consumerKey) params.consumerKey = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
-  if (!params.consumerSecret) params.consumerSecret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
-  if (!params.token) params.token = ' ';
-  if (!params.tokenSecret) params.tokenSecret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+  if (!params.consumerKey) params.consumerKey = 'XXXXXXXXXXXXXXXXXXXX';
+  if (!params.consumerSecret) params.consumerSecret = 'XXXXXXXXXXXXXXXXXXXXXXXX';
+  if (!params.token) params.token = 'XXXXXXXXXXXX';
+  if (!params.tokenSecret) params.tokenSecret = 'XXXXXXXXXXXXXXXX';
 
   return validate_create(params);
 };

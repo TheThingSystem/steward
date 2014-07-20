@@ -731,11 +731,11 @@ var clouds = { '':
                  }
                , cubesensors      :
                  { text           : 'If you have the CubeSensor system, the steward can manage it for you.'
-                 , instructions   : 'Enter your OAuth info. TO get OAuth info, send an email to api@cubesensors.com'
+                 , instructions   : 'Enter your OAuth info. To get OAuth info, send an email to api@cubesensors.com'
                  , site           : 'http://cubesensors.com'
                  , icon           : ''
                  , name           : 'cubesensors'
-                 , actor          :'/device/gateway/cubsensors/cloud'
+                 , actor          :'/device/gateway/cubesensors/cloud'
                  , info           :
                    { consumerKey  : ''
                    , consumerSecret : ''

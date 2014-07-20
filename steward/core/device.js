@@ -804,6 +804,7 @@ exports.expand = function(line, defentity) {
   var entity, field, info, now, p, part, parts, result, term, then, times, who, x;
 
   if (typeof line !== 'string') return line;
+
   result = '';
   while ((x = line.indexOf('.[')) >= 0) {
     if (x > 0) result += line.substring(0, x);

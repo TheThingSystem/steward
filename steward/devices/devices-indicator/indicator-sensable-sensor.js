@@ -102,7 +102,7 @@ Sensable.prototype.update = function(self, deviceID, point) {
            }
           ,{ accessToken : self.info.token
            , private     : self.info.private !== 'off'
-           }).upload(point.value, point.timestamp, function(err, response, result) {
+           }).upload(point.value, point.timestamp, function(err, response, result) {/* jshint unused: false */
     if (!err) return;
 
     logger.error('device/' + self.deviceID, { event: 'uplaod', diagnostic: err.message });

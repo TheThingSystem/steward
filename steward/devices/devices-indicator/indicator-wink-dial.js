@@ -97,7 +97,7 @@ Gauge.prototype.egress = function(self) {
                , heading         : metricP ? 'C'    : 'F'
                , humidity        : '%'
                , intTemperature  : metricP ? 'C'    : 'F'
-               , light           : 'LM'
+               , light           : 'LX'
                , moisture        : 'MB'
                , no              : 'PPM'
                , no2             : 'PPM'
