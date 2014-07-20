@@ -551,8 +551,9 @@ var device_drilldown = function(name, devices, arcs, instructions) {
 
 var drawArcs = function(arcs) {
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
-  var MAXARCS = 7;
-  
+  var MAXARCS = 8;
+  if (arcs.length > MAXARCS) arcs = arcs.slice(0, MAXARCS - 1);
+
   chart = document.getElementById("chart");
   if (document.getElementById("arcCanvas")) {
     chart.removeChild(document.getElementById("labels"));
@@ -843,7 +844,11 @@ var single_device_arcs = function(device) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
     v = device.info[prop];
-    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    if (!isNaN(v)) {
+      if (toType(v) === 'null') continue;
+      if (typeof v === 'string') v = v * 1.0;
+    }
+
     switch (prop) {
       case 'contact':
         arcs.splice(a0,0, { name   : prop
@@ -1030,7 +1035,11 @@ var climate_device_arcs = function(device) {
     prop = props[i];
 
     v = device.info[prop];
-    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    if (!isNaN(v)) {
+      if (toType(v) === 'null') continue;
+      if (typeof v === 'string') v = v * 1.0;
+    }
+
     switch (prop) {
 // outer ring
       case 'lastSample':
@@ -1559,7 +1568,11 @@ var media_device_arcs = function(device) {
     prop = props[i];
 
     v = device.info[prop];
-    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    if (!isNaN(v)) {
+      if (toType(v) === 'null') continue;
+      if (typeof v === 'string') v = v * 1.0;
+    }
+
     switch (prop) {
       case 'track':
         if (!!v.title && v.title.indexOf('http') === 0) {
@@ -1691,7 +1704,11 @@ var motive_device_arcs = function(device) {
     prop = props[i];
 
     v = device.info[prop];
-    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    if (!isNaN(v)) {
+      if (toType(v) === 'null') continue;
+      if (typeof v === 'string') v = v * 1.0;
+    }
+
     switch (prop) {
       case 'lastSample':
         now = new Date().getTime();
@@ -2064,7 +2081,11 @@ var weather_arcs = function(device) {
     if (!device.info.hasOwnProperty(prop)) continue;
 
     v = device.info[prop];
-    if ((!isNaN(v)) && typeof v === 'string') v = v * 1.0;
+    if (!isNaN(v)) {
+      if (toType(v) === 'null') continue;
+      if (typeof v === 'string') v = v * 1.0;
+    }
+
     switch (prop) {
       case 'text':
         v2 = "wx" + device.info.code;
@@ -2526,6 +2547,10 @@ function textColor(bgColor, arcVal) {
      };
    }
 }
+
+// http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
+var toType = function(obj) { return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase(); };
+
 
 var entries = {
 // actors
