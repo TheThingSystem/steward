@@ -552,9 +552,9 @@ var device_drilldown = function(name, devices, arcs, instructions) {
   drawArcs(arcs);
 };
 
+var MAXARCS = 8;
 var drawArcs = function(arcs) {
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
-  var MAXARCS = 8;
   if (arcs.length > MAXARCS) arcs = arcs.slice(0, MAXARCS - 1);
 
   chart = document.getElementById("chart");
@@ -1015,26 +1015,28 @@ var azimuth2cardinal = function(deg) {
 };
 
 var climate_device_arcs = function(device) {
-  var arcs, i, metric, now, prop, props, v;
+  var arcs, i, metric, now, prop, props, v, z;
 
   metric = place.info.displayUnits === 'metric';
   arcs = [];
 
   if (!device.info.lastSample) device.info.lastSample = device.updated;
+// acceleration, heading, magnetism, orientation
   props = sortprops(device.info, [ 'lastSample',
                                  , 'temperature',     'airQuality',      'voc',      'rainRate',      'windAverage'
                                  , 'goalTemperature', 'flame',           'moisture', 'waterVolume',   'rainTotal',
                                                       'needsWater',      'text',     'windGust',      'armed'
                                  , 'humidity',        'co2',             'smoke',    'light',         'flow',
-                                                      'needsMist',       'rssi',     'windDirection', 'water',
-                                                      'motion',
+                                                      'needsMist',       'windDirection', 'water',    'motion'
                                  , 'hvac',            'noise',           'co',       'concentration', 'nextSample',
-                                                      'needsFertilizer', 'battery',  'batteryLevel',  'location',
+                                                      'needsFertilizer', 'location',
                                                       'fanSpeed',        'state',
-                                 , 'away',            'pressure',        'no2'
+                                 , 'away',            'pressure',        'no2',      'battery',  'batteryLevel',
+                                                      'rssi'
                                  ]);
 
-  for (i = 0; i < props.length; i++) {
+  for (i = 0, z = 0.7; i < props.length; i++) {
+    if (z <= 0) break;
     prop = props[i];
 
     v = device.info[prop];
@@ -1047,260 +1049,260 @@ var climate_device_arcs = function(device) {
 // outer ring
       case 'lastSample':
         now = new Date().getTime();
-        arcs.splice(0, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'TIME'
                           , cooked : d3.timestamp.ago(v)
                           , value  : clip2bars(now - (new Date(v).getTime()), 0, 86400 * 1000)
-                          , index  : 0.70
+                          , index  : z
                           });
         break;
 
 
 // 1st ring
       case 'temperature':
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'TEMPERATURE'
                           , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, v >= 18 ? 18 : 0, v <= 28 ? 28 : 100)
-                          , index  : 0.60
+                          , index  : z
                           });
         break;
 
       case 'airQuality':
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'QUALITY'
                           , cooked : isNaN(v) ? v : (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                           , value  : clip2bars(-v, -5, 1.5)
-                          , index  : 0.60
+                          , index  : z
                           });
         break;
 
       case 'voc':
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'VOC'
                           , cooked : v + ' ppm'
                           , value  : clip2bars(v, 450, 900)
-                          , index  : 0.60
+                          , index  : z
                           });
         break;
 
       case 'rainRate':
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'RAIN RATE'
                           , cooked : (metric) ? v.toFixed(1) + 'mm' : (v * 0.0393701).toFixed(1) + 'in'
                           , value  : clip2bars(v, 0, metric ? 254 : 10)
-                          , index  : 0.60
+                          , index  : z
                           });
         break;
 
       case 'windAverage':
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'WIND AVERAGE'
                           , cooked : v.toFixed(1) + 'm/s'
                           , value  : clip2bars(v, 0, 50)
-                          , index  : 0.60
+                          , index  : z
                           });
         break;
 
 
 // 2nd ring
       case 'goalTemperature':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'GOAL'
                           , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, 18, 28)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'flame':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'FLAME'
                           , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
                           , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'moisture':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'MOISTURE'
                           , cooked : v.toFixed(3) + ' mb'
                           , value  : clip2bars(v, 50, 250)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'waterVolume':
         if (!!device.info.moisture) break;
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'WATER CONCENTRATION'
                           , cooked : v + '%'
                           , value  : clip2bars(v, 21, 70)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'rainTotal':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'PRECIPITATION'
                           , cooked : (metric) ? v.toFixed(1) + 'mm' : (v * 0.0393701).toFixed(1) + 'in'
                           , value  : clip2bars(v, 0, metric ? 254 : 10)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'needsWater':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'WATER'
                           , cooked : v === 'true' ? 'NEEDS WATER!' : 'ok'
                           , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'text':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'CONDITIONS'
                           , cooked : v
                           , value  : clip2bars(v.length ? 100 : 0, 0, 100)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'windGust':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'WIND GUST'
                           , cooked : v.toFixed(1) + 'm/s'
                           , value  : clip2bars(v, 0, 50)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'armed':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'ARMED'
                           , cooked : v === 'true' ? 'YES' : 'NO'
                           , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
 
 // 3rd ring
       case 'humidity':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'HUMIDITY'
                           , cooked : v + '%'
                           , value  : clip2bars(v, 21, 70)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'co2':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'CO<sub>2</sub>'
                           , cooked : v + ' ppm'
                           , value  : clip2bars(v, 0, 1200)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'smoke':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'SMOKE'
                           , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                                                  : (v !== 'absent') ? v.toUpperCase() : v
                           , value  : clip2bars((isNaN(v)) ? ((v === 'absent') ? -5 : 1.5) : -v, -5, 1.5)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'light':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'LIGHT'
                           , cooked : v.toFixed(1) + ' lx'
                           , value  : clip2bars(v, 5000, 25000)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'flow':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'AIR FLOW'
                           , cooked : isNaN(v) ? v : (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                           , value  : clip2bars(-v, -5, 2.5)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'needsMist':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'MIST'
                           , cooked : v === 'true' ? 'NEEDS MISTING!' : 'ok'
                           , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'rssi':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'SIGNAL'
                           , cooked : v + ' dB'
                           , value  : clip2bars(v, -127, 128)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'windDirection':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'WIND DIRECTION'
                           , cooked : azimuth2cardinal(v) + ' (' + v.toFixed(0) + '&deg;)'
                           , value  : clip2bars(v, 0, 360)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'water':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'LEAK'
                           , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
                           , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'motion':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'MOTION'
                           , cooked : v === 'detected' ? 'YES!' : 'nothing detected'
                           , value  : clip2bars(v === 'detected' ? 100 : 0, 0, 100)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
@@ -1308,98 +1310,98 @@ var climate_device_arcs = function(device) {
 // 4th ring
       case 'hvac':
         if ((!!device.info.fanSpeed) && (v === 'fan')) break;
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'MODE'
                           , cooked : v
                           , value  : clip2bars(  v === 'fan'  ?  33
                                                : v === 'heat' ?  66
                                                : v === 'cool' ? 100 : 0, 0, 100)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'noise':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'NOISE'
                           , cooked : v + ' dB'
                           , value  : clip2bars(v, 0, 70)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'co':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'CO'
                           , cooked : (!isNaN(v)) ? (v + (typeof v === 'string' ? '&sigma;' : 'ppm'))
                                                  : (v !== 'absent') ? v.toUpperCase() : v
 
                           , value  : clip2bars((isNaN(v)) ? ((v === 'absent') ? -5 : 1.5) : -v, -5, 1.5)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'concentration':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'CONCENTRATION'
                           , cooked : v.toFixed(0) + ' pcs/liter'
                           , value  : clip2bars(v, 0, 14000)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'nextSample':
         now = new Date().getTime();
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'NEXT SAMPLE'
                           , cooked : d3.timestamp.ago(v)
                           , value  : clip2bars((new Date(v).getTime()) - now, 0, 86400 * 1000)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'needsFertilizer':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'FERTILIZER'
                           , cooked : v === 'true' ? 'NEEDS FERTILIZER!' : 'ok'
                           , value  : clip2bars(v === 'true' ? 100 : 0, 0, 100)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'battery':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'BATTERY'
                           , cooked : v + ' volts'
                           , value  : clip2bars(v, 0, 12)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'batteryLevel':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'BATTERY'
                           , cooked : v + '%'
                           , value  : clip2bars(v, 0, 100)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'location':
         if (!!device.info.placement) {
-          arcs.splice(4, 0, { name   : prop
+          arcs.push(        { name   : prop
                             , raw    : v
                             , label  : prop.toUpperCase()
                             , cooked : device.info.placement
                             , value  : 0
-                            , index  : 0.30
+                            , index  : z
                             });
           break;
         }
@@ -1416,70 +1418,72 @@ var climate_device_arcs = function(device) {
           cooked = v.toString();
           dist = -1;
         }
-        arcs.splice(4,0, { name   : prop
+        arcs.push(      { name   : prop
                           , raw    : v
                           , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
                           , cooked : cooked
                           , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'fanSpeed':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'FAN'
                           , cooked : v + '%'
                           , value  : clip2bars(v, 0, 100)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'state':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'STATE'
                           , cooked : v === 'opened' ? 'OPEN' : 'CLOSED'
                           , value  : clip2bars(v === 'opened' ? 100 : 0, 0, 100)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
 
 // 5th ring
       case 'away':
-        arcs.splice(5, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'AWAY'
                           , cooked : v
                           , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
-                          , index  : 0.20
+                          , index  : z
                           });
         break;
 
       case 'pressure':
-        arcs.splice(5, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'PRESSURE'
                           , cooked : v.toFixed(0) + ' mbars'
                           , value  : clip2bars(v, 980, 1060)
-                          , index  : 0.20
+                          , index  : z
                           });
         break;
 
       case 'no2':
-        arcs.splice(5, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'NO<sub>2</sub>'
                           , cooked : v.toFixed(0) + ' ppm'
                           , value  : clip2bars(v, 0, 1200)
-                          , index  : 0.20
+                          , index  : z
                           });
         break;
 
       default:
         continue;
     }
+
+    z -= 0.1;
   }
 
   return arcs;
@@ -1552,7 +1556,7 @@ var single_presence_instructions = function(device) {
 };
 
 var media_device_arcs = function(device) {
-  var anchor, arcs, prop, text, v;
+  var anchor, arcs, prop, text, v, z;
 
   arcs = [];
 
@@ -1567,7 +1571,8 @@ var media_device_arcs = function(device) {
             , index  : 0.70
             });
 
-  for (i = 0; i < props.length; i++) {
+  for (i = 0, z = 0.6; i < props.length; i++) {
+    if (z <= 0) break;
     prop = props[i];
 
     v = device.info[prop];
@@ -1586,12 +1591,12 @@ var media_device_arcs = function(device) {
         text = v.title || '';
         if ((text.length > 0) && (!!v.artist)) text += ' / ' + v.artist;
         if ((text.length > 0) && (!!v.album))  text += ' / ' + v.album;
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v.title || ''
                           , label  : 'TRACK'
                           , cooked : text
                           , value  : clip2bars((text.length > 0) ? 100 : 0, 0, 100)
-                          , index  : 0.60
+                          , index  : z
                           });
 
         text = getTimeString(v.position);
@@ -1604,50 +1609,52 @@ var media_device_arcs = function(device) {
           text = getTimeString(v.duration);
         } else break;
         
-        arcs.splice(2, 0, { name   : 'position'
+        arcs.push(        { name   : 'position'
                           , raw    : v.pos || ''
                           , label  : v2
                           , cooked : text
                           , value  : clip2bars(v.position || 0, 0, v.duration || 1)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'volume':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'VOLUME'
                           , cooked : v + '%'
                           , value  : clip2bars(v, 0, 100)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'muted':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'MUTE'
                           , cooked : v
                           , value  : clip2bars(v !== 'on' ? 0 : 100, 0, 100)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'mode':
-        arcs.splice(5, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'MODE'
                           , cooked : v
                           , value  : clip2bars(  v === 'repeat'   ?  33
                                                : v === 'shuffle'  ?  66
                                                : v === 'shuffle1' ? 100 : 0, 0, 100)
-                          , index  : 0.20
+                          , index  : z
                           });
         break;
 
       default:
         continue;
     }
+
+    z -= 0.1;
   }
 
   return arcs;
@@ -1697,13 +1704,15 @@ var single_motive_instructions = function(device) {
 }
 
 var motive_device_arcs = function(device) {
-  var arcs, cooked, dist, i, prop, props, v;
+  var arcs, cooked, dist, i, prop, props, v, z;
 
   metric = place.info.displayUnits === 'metric';
   arcs = [];
+// accuracy, distance, locations, physical
   props = sortprops(device.info, [ 'lastSample', 'location', 'velocity', 'heading', 'odometer', 'charger', 'intTemperature' ]);
 
-  for (i = 0; i < props.length; i++) {
+  for (i = 0, z = 0.7; i < props.length; i++) {
+    if (z <= 0) break;
     prop = props[i];
 
     v = device.info[prop];
@@ -1715,12 +1724,12 @@ var motive_device_arcs = function(device) {
     switch (prop) {
       case 'lastSample':
         now = new Date().getTime();
-        arcs.splice(0, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'TIME'
                           , cooked : d3.timestamp.ago(v)
                           , value  : clip2bars(now - (new Date(v).getTime()), 0, 86400 * 1000)
-                          , index  : 0.70
+                          , index  : z
                           });
         break;
 
@@ -1738,28 +1747,28 @@ var motive_device_arcs = function(device) {
           cooked = v.toString();
           dist = -1;
         }
-        arcs.splice(1, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : (dist > 1) ? 'DISTANCE' : 'LOCATION'
                           , cooked : cooked
                           , value  : clip2bars(dist > 0 ? dist : 0, 0, 4700)
-                          , index  : 0.60
+                          , index  : z
                           });
         break;
 
       case 'velocity':
-        arcs.splice(2, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'SPEED'
                           , cooked : (v > 0) ? (metric) ? ((v * 3.6).toFixed(0) + ' km/h') : ((v * 2.23694).toFixed(0) + ' mph')
                                              : 'stationary'
                           , value  : clip2bars(v, 0, 50)
-                          , index  : 0.50
+                          , index  : z
                           });
         break;
 
       case 'heading':
-        arcs.splice(3, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'HEADING'
                           , cooked :   (v <  22.5) ? 'north' 
@@ -1772,22 +1781,22 @@ var motive_device_arcs = function(device) {
                                      : (v < 335.5) ? 'north-west'
                                      : 'north'
                           , value  : clip2bars((v > 180) ? (360 - v) : v, 0, 180)
-                          , index  : 0.40
+                          , index  : z
                           });
         break;
 
       case 'odometer':
-        arcs.splice(4, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'ODOMETER'
                           , cooked : (metric) ? v.toFixed(0) + ' km' : (v / 1.60934).toFixed(0) + ' mi'
                           , value  : clip2bars(v % 20000, 0, 20000)
-                          , index  : 0.30
+                          , index  : z
                           });
         break;
 
       case 'charger':
-        arcs.splice(5, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'CHARGER'
                           , cooked : v
@@ -1795,23 +1804,25 @@ var motive_device_arcs = function(device) {
                                      : v === 'regenerating'  ? 0.375
                                      : v === 'drawing'       ? 0
                                      : 0.25
-                          , index  : 0.20
+                          , index  : z
                           });
         break;
 
       case 'intTemperature':
-        arcs.splice(6, 0, { name   : prop
+        arcs.push(        { name   : prop
                           , raw    : v
                           , label  : 'INTERIOR'
                           , cooked : (metric) ? v.toFixed(2) + '&deg;C' : ((v * 1.8) + 32).toFixed(2) + '&deg;F'
                           , value  : clip2bars(v, 17, 32)
-                          , index  : 0.10
+                          , index  : z
                           });
         break;
 
       default:
         continue;
     }
+
+    z -= 0.1;
   }
 
   if (arcs.length > 0) return arcs;
@@ -1842,7 +1853,12 @@ var sortprops = function(info, ordered) {
 
   props = [];
   for (prop in info) if (!!info.hasOwnProperty(prop)) props.push(prop);
-  props.sort(function(a, b) { return (ordered.indexOf(a) - ordered.indexOf(b)); });
+  props.sort(function(a, b) { 
+    if (ordered.indexOf(a) === -1) {
+      return (ordered.indexOf(b) === -1 ? 0 : (-1));
+    } else if (ordered.indexOf(b) === -1) return (1);
+    return (ordered.indexOf(a) - ordered.indexOf(b));
+  });
 
   return props;
 };

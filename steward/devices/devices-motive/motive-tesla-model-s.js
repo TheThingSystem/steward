@@ -391,7 +391,7 @@ ModelS.prototype.stream = function(self, fastP) {
       if (!util.isArray(self.info.location)) self.info.location = [ 0, 0, 0 ];
       if (self.info.location[2] !== sample.elevation) {
         didP = true;
-        self.info.location[2] = parseInt(sample.elevation, 10);
+        self.info.location[2] = parseFloat(sample.elevation);
       }
 
       if (!self.info.cycleTime) self.info.cycleTime = new Date().getTime();
@@ -405,13 +405,13 @@ ModelS.prototype.stream = function(self, fastP) {
         self.info.velocity = speed;
       }
 
-      odometer = (sample.odometer * 1.60934).toFixed(1);    // miles -> kilometers
+      odometer = parseFloat((sample.odometer * 1.60934).toFixed(1));   // miles -> kilometers
       if (self.info.odometer != odometer) {
         didP = true;
         self.info.odometer = odometer;
       }
 
-      range = (sample.est_range * 1.60934).toFixed(2);    // miles -> kilometers
+      range = parseFloat((sample.est_range * 1.60934).toFixed(2));    // miles -> kilometers
       if (self.info.range != range) {
         didP = true;
         self.info.range = range;

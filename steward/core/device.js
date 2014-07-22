@@ -336,10 +336,17 @@ Device.prototype.initInfo = function(params) {
 Device.prototype.updateInfo = function(params) {
   var self = this;
 
-  var param, updateP;
+  var now, param, updateP;
 
   updateP = false;
 
+  if (!!params.lastSample)  {
+    try {
+      params.lastSample = new Date(params.lastSample).getTime();
+      now = new Date().getTime();
+      if (params.lastSample > now) params.lastSample = now;
+    } catch(ex) {}
+  }
   for (param in params) {
     if ((!params.hasOwnProperty(param))
             || (typeof self.info[param] === 'undefined')
