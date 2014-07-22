@@ -22,6 +22,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
   self.getName();
+  if (!self.ikon) self.setIkon('sensor-soil');
 
   status = self.initInfo(info.params);
   self.update(self, info.params, status);
@@ -63,6 +64,7 @@ var Plant = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
   self.setName(self.name);
+  if (!self.ikon) self.setIkon('sensor-plant');
 
   status = self.initInfo(info.params);
   self.update(self, info.params, status);

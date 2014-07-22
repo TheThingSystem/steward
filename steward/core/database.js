@@ -18,7 +18,7 @@ exports.start = function() {
   db.serialize(function() {
     db.run('CREATE TABLE IF NOT EXISTS devices('
            + 'deviceID INTEGER PRIMARY KEY ASC, deviceUID TEXT, deviceType TEXT, parentID INTEGER, childID INTEGER, '
-           + 'deviceName TEXT, deviceIP TEXT, deviceMAC TEXT, '
+           + 'deviceName TEXT, deviceIkon TEXT, deviceIP TEXT, deviceMAC TEXT, '
            + 'sortOrder INTEGER default "0", '
            + 'created CURRENT_TIMESTAMP, updated CURRENT_TIMESTAMP'
            + ')');
@@ -145,6 +145,18 @@ exports.start = function() {
            + 'created CURRENT_TIMESTAMP, updated CURRENT_TIMESTAMP'
            + ')', function(err) {
       if (err) return logger.error('database', { event: 'database initialization', diagnostic: err.message });
+
+      db.all('PRAGMA table_info(devices)', function(err, rows) {
+        var ikonP;
+
+        if (err) return logger.error('database', { event: 'PRAGMA table_info(devices)', diagnostic: err.message });
+
+        ikonP = false;
+        rows.forEach(function(row) {
+          if (row.name === 'deviceIkon') ikonP = true;          
+        });
+        if (!ikonP) db.run('ALTER TABLE devices ADD COLUMN deviceIkon TEXT');
+      });
 
       exports.db = db;
       require('./device').start();

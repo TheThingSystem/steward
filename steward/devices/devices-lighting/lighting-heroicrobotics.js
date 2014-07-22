@@ -22,6 +22,7 @@ var PixelPusher = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
   self.getName();
+  if (!self.ikon) self.setIkon('lighting-led');
 
   broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     var led;

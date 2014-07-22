@@ -123,6 +123,7 @@ Sonos_Audio.prototype.perform = function(self, taskID, perform, parameter) {
           self.setName(params.name);
         });
       }
+      if (!!params.ikon) self.setIkon(params.ikon);
       if (self.status === 'zoned') return false;
 
       if (!!params.mode) {

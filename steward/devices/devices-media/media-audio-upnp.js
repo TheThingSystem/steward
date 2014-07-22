@@ -126,6 +126,7 @@ UPnP_Audio.prototype.perform = function(self, taskID, perform, parameter) {
   switch (perform) {
     case 'set':
       if (!!params.name) self.setName(params.name);
+      if (!!params.ikon) self.setIkon(params.ikon);
       if ((!!params.mode) && (self.info.mode !== params.mode)) {
         param0 = { normal   : 'NORMAL'
                  , repeat   : 'REPEAT_ALL'

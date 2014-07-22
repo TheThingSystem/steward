@@ -48,7 +48,7 @@ Blinkstick.prototype.perform = function(self, taskID, perform, parameter) {
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
-  if (perform === 'set') return self.setName(params.name, taskID);
+  if (perform === 'set') return self.perform(self, taskID, perform, parameter);
 
   state = { color: [ 0, 0, 0 ] };
   if (perform === 'off') state.on = false;

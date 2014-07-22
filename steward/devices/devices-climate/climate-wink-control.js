@@ -20,6 +20,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  if (!self.ikon) self.setIkon('control-thermostat');
 
   self.status = self.initInfo({});
 
@@ -97,6 +98,9 @@ Thermostat.operations =
          devices.attempt_perform('name', params, function(value) {
            self.setName(value);
          });
+         devices.attempt_perform('ikon', params, function(value) {
+           self.setIkon(value);
+         });
 
          if (!!params.away) params.hvac = { true: 'auto_eco', false: 'cool' }[params.away] || params.hvac;
 
@@ -155,6 +159,7 @@ var validate_perform = function(perform, parameter) {
   if (!params) return result;
 
   devices.validate_param('name',            params, result, false, {                                  });
+  devices.validate_param('ikon',            params, result, false, {                                  });
   devices.validate_param('away',            params, result, false, { off:  1, on:  1                  });
   devices.validate_param('hvac',            params, result, false, { off:  1, fan: 1,         cool: 1 });
   devices.validate_param('fanSpeed',        params, result, true,  {                                  });

@@ -94,7 +94,6 @@ Gauge.prototype.egress = function(self) {
                , distance        : metricP ? 'KM'   : 'MI'
                , extTemperature  : metricP ? 'C'    : 'F'
                , goalTemperature : metricP ? 'C'    : 'F'
-               , heading         : metricP ? 'C'    : 'F'
                , humidity        : '%'
                , intTemperature  : metricP ? 'C'    : 'F'
                , light           : 'LX'

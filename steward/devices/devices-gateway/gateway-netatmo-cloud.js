@@ -199,6 +199,7 @@ Cloud.prototype.perform = function(self, taskID, perform, parameter) {
   if (perform !== 'set') return false;
 
   if (!!params.name) self.setName(params.name);
+  if (!!params.ikon) self.setIkon(params.ikon);
 
   if (!!params.email) self.info.email = params.email;
   if (!!params.passphrase) self.info.passphrase = params.passphrase;

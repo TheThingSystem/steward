@@ -158,11 +158,7 @@ Lumen.prototype.perform = function(self, taskID, perform, parameter) {
 
   refresh = function() { setTimeout (function() { self.refresh(self); }, 0); };
 
-  if (perform === 'set') {
-    if (!params.name) return false;
-
-    return self.setName(params.name, taskID);
-  }
+  if (perform === 'set') return self.perform(self, taskID, perform, parameter);
 
   state = { color: self.info.color, brightness: self.info.brightness };
   if (perform === 'off') state.on = false;

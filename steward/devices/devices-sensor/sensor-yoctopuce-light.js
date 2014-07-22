@@ -1,4 +1,4 @@
-// Yocto-LIGHT: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-light
+// Yocto-Light: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-light
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -52,6 +52,14 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   } else self.status = 'absent';
   self.changed();
 
+  self.light.get_unit_async(function(ctx, led, result) {
+    if (result === yapi.Y_UNIT_INVALID) {
+      return logger.error('device/' + self.deviceID, { event: 'light.get_unit', diagnostic: 'unit invalid' });
+    }
+
+    logger.info('device/' + self.deviceID, { event: 'light.get_unit', result: result });
+  });
+
   utility.broker.subscribe('actors', function(request, taskID, actor, perform, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
@@ -103,11 +111,15 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (perform !== 'set') return false;
 
-  result = self.light.set_logicalName(params.name);
-  if (result === yapi.YAPI_SUCCESS) return self.setName(params.name, taskID);
+  if (!!params.name) {
+    result = self.light.set_logicalName(params.name);
+    if (result === yapi.YAPI_SUCCESS) self.setName(params.name, taskID);
+    else logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
+  }
 
-  logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
-  return false;
+  if ((!!params.ikon) && self.setIkon(params.ikon, taskID)) result = yapi.YAPI_SUCCESS;
+
+  return (result === yapi.YAPI_SUCCESS);
 };
 
 

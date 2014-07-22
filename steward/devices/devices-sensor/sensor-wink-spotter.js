@@ -19,6 +19,7 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  if (!self.ikon) self.setIkon('sensor-generic');
 
   self.initInfo({});
   self.gateway = info.gateway;

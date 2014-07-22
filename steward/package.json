@@ -95,7 +95,7 @@
     , "xmlbuilder"              : "0.4.x"
     , "xmldom"		        : "0.1.x"
     , "xmlhttprequest"          : "git://github.com/TheThingSystem/node-XMLHttpRequest.git"
-    , "yoctolib"                : "git://github.com/TheThingSystem/yoctolib_nodejs.git"
+    , "yoctolib"                : "1.10.16490",
     , "yql"                     : "git://github.com/TheThingSystem/node-yql.git"
     , "zbee"                    : "git://github.com/stormboy/node-zbee.git"
     }

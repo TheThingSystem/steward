@@ -90,7 +90,7 @@ Sensor.prototype.comfort = function(self) {
   w = 25;
   d = 15;
 
-  v =   (temperature < to0 
+  v =   (temperature < to0
             ? (temperature < tc0
                    ? (-0.25 * Math.pow(Math.abs((temperature - tc0) / (3 / d)), 0.50) + 0.21)
                    : (-0.25 * Math.pow(Math.abs((temperature - to0) / 2.5),     1.66) + 1.00))
@@ -99,7 +99,7 @@ Sensor.prototype.comfort = function(self) {
                           ? (-0.25 * Math.pow(Math.abs((temperature - tc1) / (3 / d)), 0.50) + 0.21)
                           : (-0.25 * Math.pow(Math.abs((temperature - to1) / 1.5),     1.66) + 1.00))
                    : 1)) * w
-    + (humidity < 45 
+    + (humidity < 45
            ? (humidity < 30
                   ? (-0.25 * Math.pow(Math.abs((humidity - 30) / (30 / d)), 0.50) + 0.21)
                   : (-0.25 * Math.pow(Math.abs((humidity - 45) / 7.5),      1.66) + 1.00))

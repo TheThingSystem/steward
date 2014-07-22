@@ -20,6 +20,7 @@ var Thermostat = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
   self.getName();
+  if (!self.ikon) self.setIkon('control-thermostat');
 
   self.serial = info.device.unit.serial;
 
@@ -60,6 +61,9 @@ Thermostat.operations =
 
          devices.attempt_perform('name', params, function(value) {
            self.setName(value);
+         });
+         devices.attempt_perform('ikon', params, function(value) {
+           self.setIkon(value);
          });
 
          devices.attempt_perform('away', params, function(value) {
@@ -135,6 +139,7 @@ var validate_perform = function(perform, parameter) {
   if (!params) return result;
 
   devices.validate_param('name',            params, result, false, {                                   });
+  devices.validate_param('ikon',            params, result, false, {                                   });
   devices.validate_param('away',            params, result, false, { off:  1, on:  1                   });
   devices.validate_param('hvac',            params, result, false, { off:  1, fan: 1, heat: 1, cool: 1 });
   devices.validate_param('fan',             params, result, true,  { off:  1, on:  1, auto: 1          });

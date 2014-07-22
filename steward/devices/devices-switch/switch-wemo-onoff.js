@@ -194,11 +194,10 @@ WeMo_OnOff.prototype.perform = function(self, taskID, perform, parameter) {/* js
 
     switch (perform) {
       case 'set':
-        self.setName(params.name);
-        return;
+        return devices.perform(self, taskID, perform, parameter);
 
        case 'off':
-       self.status = 'off';
+        self.status = 'off';
         break;
 
        case 'on':

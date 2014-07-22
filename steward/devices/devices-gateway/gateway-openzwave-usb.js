@@ -51,7 +51,7 @@ var Gateway = exports.Device = function(deviceID, deviceUID, info) {
     if (!!params.name) self.driver.setName(self.peripheral.nodeid, params.name);
     if (!!params.physical) self.driver.setLocation(self.peripheral.nodeid, params.physical);
 
-    return ((!params.name) || self.setName(params.name, taskID));
+    return (devices.perform(self, taskID, perform, parameter) || (!!params.physical));
   });
 };
 util.inherits(Gateway, require('./../device-gateway').Device);

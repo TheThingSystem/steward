@@ -23,6 +23,7 @@ var ModelS = exports.device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
   self.getName();
+  if (!self.ikon) self.setIkon('motive-vehicle');
 
   self.vehicle = info.vehicle;
   self.vehicle.lastSample = { timestamp: 0 };
@@ -432,7 +433,7 @@ ModelS.prototype.perform = function(self, taskID, perform, parameter) {
   f = null;
   switch (perform) {
     case 'set':
-      return self.setName(params.name, taskID);
+      return devices.perform(self, taskID, perform, parameter);
 
     case 'doors':
       f = function() { tesla.door_lock({ id: self.vehicle.id, lock : params.doors || parameter }, cb); };

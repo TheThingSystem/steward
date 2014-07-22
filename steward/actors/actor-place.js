@@ -196,6 +196,7 @@ var Place = exports.Place = function(info) {
     return { whatami : self.whatami
            , whoami  : 'place/1'
            , name    : self.name
+           , ikon    : self.ikon
            , status  : self.status
            , info    : info
            , updated : new Date(devices.lastupdated)

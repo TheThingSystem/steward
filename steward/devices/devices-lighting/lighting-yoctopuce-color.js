@@ -20,6 +20,7 @@ var Color = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  if (!self.ikon) self.setIkon('lighting-led');
 
   self.status = 'waiting';
   self.changed();
@@ -77,11 +78,15 @@ Color.prototype.perform = function(self, taskID, perform, parameter) {
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
   if (perform === 'set') {
-    result = self.led.set_logicalName(params.name);
-    if (result === yapi.YAPI_SUCCESS) return self.setName(params.name, taskID);
+    if (!!params.name) {
+      result = self.led.set_logicalName(params.name);
+      if (result === yapi.YAPI_SUCCESS) self.setName(params.name, taskID);
+      else logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
+    }
 
-    logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
-    return false;
+    if ((!!params.ikon) && self.setIkon(params.ikon, taskID)) result = yapi.YAPI_SUCCESS;
+
+    return (result === yapi.YAPI_SUCCESS);
   }
 
   state = {};

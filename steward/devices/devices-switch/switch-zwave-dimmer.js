@@ -96,7 +96,7 @@ ZWave_Dimmer.prototype.perform = function(self, taskID, perform, parameter) {
     if (!!params.name) self.driver.setName(self.peripheral.nodeid, params.name);
     if (!!params.physical) self.driver.setLocation(self.peripheral.nodeid, params.physical);
 
-    return ((!params.name) || self.setName(params.name, taskID));
+    return (devices.perform(self, taskID, perform, parameter) || (!!params.physical));
   }
 
   state = {};

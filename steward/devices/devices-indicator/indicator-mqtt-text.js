@@ -141,6 +141,10 @@ Mqtt.prototype.perform = function(self, taskID, perform, parameter) {
       self.setName(params.name);
       delete(params.name);
     }
+    if (!!params.ikon) {
+      self.setIkon(params.ikon);
+      delete(params.ikon);
+    }
     if (!self.updateInfo(params)) return true;
 
     self.setInfo();

@@ -100,6 +100,9 @@ AppleTV.operations =
             devices.attempt_perform('name', params, function(value) {
               self.setName(value);
             });
+            devices.attempt_perform('ikon', params, function(value) {
+              self.setIkon(value);
+            });
 
             devices.attempt_perform('position', params, function(value) {
               value = parseFloat(value);
@@ -135,6 +138,7 @@ var validate_perform = function(perform, parameter) {
   if (!AppleTV.operations[perform]) return devices.validate_perform(perform, parameter);
 
   devices.validate_param('name',     params, result, false,                { });
+  devices.validate_param('ikon',     params, result, false,                { });
   devices.validate_param('position', params, result, media.validPosition,  { });
   devices.validate_param('volume',   params, result, media.validVolume,    { });
 

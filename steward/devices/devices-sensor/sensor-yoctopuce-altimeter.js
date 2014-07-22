@@ -1,4 +1,4 @@
-// Yocto-Meteo: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-meteo
+// Yocto-Altimeter: http://www.yoctopuce.com/EN/products/usb-sensors/yocto-altimeter
 
 var util        = require('util')
   , yapi        = require('yoctolib')
@@ -23,22 +23,23 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceID = deviceID.toString();
   self.deviceUID = deviceUID;
   self.name = info.device.name;
+  if (!self.ikon) self.setIkon('sensor-generic');
 
-  self.info = { humidity: null, pressure: null, temperature: null, lastSample: new Date().getTime() };
+  self.info = { altitude: null, pressure: null, temperature: null, lastSample: new Date().getTime() };
   for (param in info.params) if (info.params.hasOwnProperty(param)) self.info[param] = info.params[param];
   sensor.update(self.deviceID, info.params);
 
   self.status = 'waiting';
-  self.meteo = { module      : info.module
-               , temperature : yapi.yFindTemperature(info.device.unit.serial + '.temperature')
-               , humidity    : yapi.yFindHumidity(info.device.unit.serial + '.humidity')
-               , pressure    : yapi.yFindPressure(info.device.unit.serial + '.pressure')
-               };
+  self.altimeter = { module      : info.module
+                   , altitude    : yapi.yFindAltitude(info.device.unit.serial + '.altitude')
+                   , temperature : yapi.yFindTemperature(info.device.unit.serial + '.temperature')
+                   , pressure    : yapi.yFindPressure(info.device.unit.serial + '.pressure')
+                   };
 
-  if (self.meteo.module.isOnline()) {
+  if (self.altimeter.module.isOnline()) {
      self.status = 'present';
 
-    self.meteo.module.get_logicalName_async(function(ctx, led, result) {
+    self.altimeter.module.get_logicalName_async(function(ctx, led, result) {
       if (result === yapi.Y_LOGICALNAME_INVALID) {
         return logger.error('device/' + self.deviceID, { event: 'get_logicalName', diagnostic: 'logicalName invalid' });
       }
@@ -51,21 +52,21 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
   } else self.status = 'absent';
   self.changed();
 
-  self.meteo.temperature.get_unit_async(function(ctx, led, result) {
+  self.altimeter.altitude.get_unit_async(function(ctx, led, result) {
+    if (result === yapi.Y_UNIT_INVALID) {
+      return logger.error('device/' + self.deviceID, { event: 'altitude.get_unit', diagnostic: 'unit invalid' });
+    }
+
+    logger.info('device/' + self.deviceID, { event: 'altitude.get_unit', result: result });
+  });
+  self.altimeter.temperature.get_unit_async(function(ctx, led, result) {
     if (result === yapi.Y_UNIT_INVALID) {
       return logger.error('device/' + self.deviceID, { event: 'temperature.get_unit', diagnostic: 'unit invalid' });
     }
 
     logger.info('device/' + self.deviceID, { event: 'temperature.get_unit', result: result });
   });
-  self.meteo.humidity.get_unit_async(function(ctx, led, result) {
-    if (result === yapi.Y_UNIT_INVALID) {
-      return logger.error('device/' + self.deviceID, { event: 'humidity.get_unit', diagnostic: 'unit invalid' });
-    }
-
-    logger.info('device/' + self.deviceID, { event: 'humidity.get_unit', result: result });
-  });
-  self.meteo.pressure.get_unit_async(function(ctx, led, result) {
+  self.altimeter.pressure.get_unit_async(function(ctx, led, result) {
     if (result === yapi.Y_UNIT_INVALID) {
       return logger.error('device/' + self.deviceID, { event: 'pressure.get_unit', diagnostic: 'unit invalid' });
     }
@@ -85,7 +86,7 @@ var Sensor = exports.Device = function(deviceID, deviceUID, info) {
 util.inherits(Sensor, climate.Device);
 
 Sensor.prototype.scan = function(self) {
-  var status = self.meteo.module.isOnline() ? 'present' : 'absent';
+  var status = self.altimeter.module.isOnline() ? 'present' : 'absent';
 
   if (self.status !== status) {
     self.status = status;
@@ -93,7 +94,16 @@ Sensor.prototype.scan = function(self) {
   }
   if (self.status !== 'present') return;
 
-  self.meteo.temperature.get_currentValue_async(function(ctx, led, result) {
+  self.altimeter.altitude.get_currentValue_async(function(ctx, led, result) {
+    if (result === yapi.Y_LCURRENTVALUE_INVALID) {
+      return logger.error('device/' + self.deviceID,
+                          { event: 'get_currentValue', diagnostic: 'altitude currentValue invalid' });
+    }
+
+    self.update(self, { altitude: result, lastSample: new Date().getTime() });
+  });
+
+  self.altimeter.temperature.get_currentValue_async(function(ctx, led, result) {
     if (result === yapi.Y_LCURRENTVALUE_INVALID) {
       return logger.error('device/' + self.deviceID,
                           { event: 'get_currentValue', diagnostic: 'temperature currentValue invalid' });
@@ -102,16 +112,7 @@ Sensor.prototype.scan = function(self) {
     self.update(self, { temperature: result, lastSample: new Date().getTime() });
   });
 
-  self.meteo.humidity.get_currentValue_async(function(ctx, led, result) {
-    if (result === yapi.Y_LCURRENTVALUE_INVALID) {
-      return logger.error('device/' + self.deviceID,
-                          { event: 'get_currentValue', diagnostic: 'humidity currentValue invalid' });
-    }
-
-    self.update(self, { humidity: result, lastSample: new Date().getTime() });
-  });
-
-  self.meteo.pressure.get_currentValue_async(function(ctx, led, result) {
+  self.altimeter.pressure.get_currentValue_async(function(ctx, led, result) {
     if (result === yapi.Y_LCURRENTVALUE_INVALID) {
       return logger.error('device/' + self.deviceID,
                           { event: 'get_currentValue', diagnostic: 'pressure currentValue invalid' });
@@ -145,7 +146,7 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
   if (!!params.ikon) self.setIkon(params.ikon, taskID);
 
-  result = self.meteo.module.set_logicalName(params.name);
+  result = self.altimeter.module.set_logicalName(params.name);
   if (result === yapi.YAPI_SUCCESS) return self.setName(params.name, taskID);
 
   logger.error('device/' + self.deviceID, { event: 'set_logicalName', result: result });
@@ -154,24 +155,24 @@ Sensor.prototype.perform = function(self, taskID, perform, parameter) {
 
 
 exports.start = function() {
-  steward.actors.device.climate.yoctopuce = steward.actors.device.climate.yoctopuce ||
-      { $info     : { type: '/device/climate/yoctopuce' } };
+  steward.actors.device.sensor.yoctopuce = steward.actors.device.sensor.yoctopuce ||
+      { $info     : { type: '/device/sensor/yoctopuce' } };
 
-  steward.actors.device.climate.yoctopuce.meteo =
-      { $info     : { type       : '/device/climate/yoctopuce/meteo'
+  steward.actors.device.sensor.yoctopuce.altimeter =
+      { $info     : { type       : '/device/sensor/yoctopuce/altimeter'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name        : true
                                    , status      : [ 'present', 'absent' ]
                                    , lastSample  : 'timestamp'
+                                   , altitude    : 'meters'
                                    , temperature : 'celsius'
-                                   , humidity    : 'percentage'
                                    , pressure    : 'millibars'
                                    }
                     }
       , $validate : {  perform   : hub.validate_perform }
       };
-  devices.makers['/device/climate/yoctopuce/meteo'] = Sensor;
+  devices.makers['/device/sensor/yoctopuce/altimeter'] = Sensor;
 
-  hub.register('Yocto-Meteo', '/device/climate/yoctopuce/meteo');
+  hub.register('Yocto-Altimeter', '/device/sensor/yoctopuce/altimeter');
 };

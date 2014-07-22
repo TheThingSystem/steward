@@ -249,6 +249,7 @@ GroveStreams.prototype.perform = function(self, taskID, perform, parameter) {
   if (perform !== 'set') return false;
 
   if (!!params.name) self.setName(params.name);
+  if (!!params.ikon) self.setIkon(params.ikon);
 
   updateP = false;
   if ((!!params.measurements) && (util.isArray(params.measurements))) {

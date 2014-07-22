@@ -30,6 +30,7 @@ var SensorTag = exports.Device = function(deviceID, deviceUID, info) {
   self.deviceUID = deviceUID;
   self.name = info.device.name;
   self.getName();
+  if (!self.ikon) self.setIkon('sensor-generic');
 
   self.status = 'present';
   self.changed();

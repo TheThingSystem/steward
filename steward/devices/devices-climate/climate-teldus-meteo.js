@@ -92,7 +92,7 @@ exports.start = function() {
                                    , lastSample   : 'timestamp'
                                    , windAverage   : 'm/s'
                                    , windGust      : 'm/s'
-                                   , windDirection : 'degres'
+                                   , windDirection : 'degrees'
                                    }
                     }
       , $validate : { perform    : devices.validate_perform

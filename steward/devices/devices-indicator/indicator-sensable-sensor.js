@@ -90,7 +90,7 @@ Sensable.prototype.update = function(self, deviceID, point) {
       if (!!place) location = place.info && place.info.location;
     }
   }
-  if (!!location) location = [ parseFloat(location[0]), parseFloat(location[1]) ]; else location = [ 0, 0 ]; 
+  if (!!location) location = [ parseFloat(location[0]), parseFloat(location[1]) ]; else location = [ 0, 0 ];
   if (self.info.private === 'off') location = [ parseFloat(location[0].toFixed(3)), parseFloat(location[1].toFixed(3)) ];
 
   sensable({ sensorid    : 'device-' + deviceID + '-' + point.measure.name
@@ -121,6 +121,7 @@ Sensable.prototype.perform = function(self, taskID, perform, parameter) {
   if (perform !== 'set') return false;
 
   if (!!params.name) self.setName(params.name);
+  if (!!params.ikon) self.setIkon(params.ikon);
 
   updateP = false;
   if (!!params.token) {

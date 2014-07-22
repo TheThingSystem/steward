@@ -58,7 +58,8 @@ WeMo_Motion.prototype.perform = function(self, taskID, perform, parameter) {/* j
 
   switch (perform) {
     case 'set':
-      if (!params.name) return false;
+      if (!params.name) return devices.perform(self, taskID, perform, parameter);
+
       action = '"urn:Belkin:service:basicevent:1#ChangeFriendlyName"';
       body =
 '<u:ChangeFriendlyName xmlns:u="urn:Belkin:service:basicevent:1">\
@@ -101,7 +102,7 @@ WeMo_Motion.prototype.perform = function(self, taskID, perform, parameter) {/* j
                         { event: 'controller', perform: perform, parameter: parameter, diagonstic: stringify(faults[i]) });
     }
 
-    if ((faults.length === 0) && (perform === 'set')) self.setName(params.name);
+    if ((faults.length === 0) && (perform === 'set')) devices.perform(self, taskID, perform, parameter);
   });
 
   return steward.performed(taskID);

@@ -92,7 +92,7 @@ Lock.prototype.perform = function(self, taskID, perform, parameter) {
 
   switch (perform) {
     case 'set':
-      return self.setName(params.name, taskID);
+      return devices.perform(self, taskID, perform, parameter);
 
     case 'lock':
     case 'unlock':

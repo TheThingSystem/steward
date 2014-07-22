@@ -165,6 +165,7 @@ var home = function(state) {
   for (a = i = 0; i < devices.length; i++) {
     device = devices[i];
     entry = entries[device.deviceType] || entries.default(device.deviceType);
+    if (device.ikon) entry.img = 'actors/' + device.ikon + '.svg';
     if ((!entry) || (!entry.img)) continue;
 
     actor = document.createElement('div');
@@ -505,6 +506,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
        .attr('src', function(d, i) {
          if (/\weather\b/.test(devices[i].actor)) return weather_icon(devices[i].info.code); 
          var entry = entries[devices[i].deviceType] || entries.default(devices[i].deviceType); 
+         if (devices[i].ikon) entry.img = 'actors/' + devices[i].ikon + '.svg';
          return entry.img; })
        .style('background-color', function(d, i) {return statusColor(devices[i]); })
        .style('width', function(d, i) {if (/\weather\b/.test(devices[i].actor)) return '50px'; return 'inherit';})
@@ -530,6 +532,7 @@ var device_drilldown = function(name, devices, arcs, instructions) {
     device = devices[0];
     currDevice.device = device;
     entry = entries[device.deviceType] || entries.default(device.deviceType);
+    if (device.ikon) entry.img = 'actors/' + device.ikon + '.svg';
     currDevice.entry = entry;
     if (readOnlyAccess) instructions = '';
     img = (/\weather\b/.test(device.actor)) ? weather_icon(device.info.code) : entry.img;
@@ -2577,10 +2580,6 @@ var entries = {
                         result.pop = 'thermostat_pop';
                         break;
                       }
-                           if (quad[4] === 'monitor')     result.img = 'actors/sensor-meteo.svg';
-                      else if (quad[4] === 'temperature') result.img = 'actors/sensor-meteo.svg';
-                      else if (quad[4] === 'sensor')      result.img = 'actors/sensor-generic.svg';
-                      else                                result.img = 'actors/sensor-' + quad[4] + '.svg';
                       result.single = single_climate_drilldown;
                       result.arcs = climate_device_arcs;
                       result.instrux = single_device_instructions;
@@ -2588,8 +2587,6 @@ var entries = {
                       break;
 
                     case 'lighting':
-                           if (quad[4].indexOf('rgb') !== -1)   result.img = 'actors/' + quad[2] + '-lightstrip.svg';
-                      else if (quad[4].indexOf('color') !== -1) result.img = 'actors/' + quad[2] + '-led.svg';
                       result.single = single_lighting_drilldown;
                       result.arcs = lighting_device_arcs;
                       result.instrux = single_lighting_instructions;
@@ -2604,8 +2601,6 @@ var entries = {
                       break;
 
                     case 'motive':
-// temporary
-                      if (quad[4] === 'model-s') result.img = 'actors/' + quad[2] + '-vehicle.svg';
                       result.single = single_motive_drilldown;
                       result.arcs = motive_device_arcs;
                       result.instrux = single_motive_instructions;
@@ -2620,10 +2615,6 @@ var entries = {
                       break;
 
                     case 'sensor':
-// temporary
-                      if ((quad[4] === 'spotter') || (quad[4] === 'sensortag')) {
-                        result.img = 'actors/' + quad[2] + '-generic.svg';
-                      }
                       result.single = single_sensor_drilldown;
                       result.arcs = sensor_device_arcs;
                       result.instrux = no_instructions;

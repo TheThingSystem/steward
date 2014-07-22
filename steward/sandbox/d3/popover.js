@@ -167,6 +167,7 @@ var showPop = function(device) {
   // Popover window positioning/dimensions
   var w, h, t, l;
   var entry = entries[device.deviceType] || entries.default(device.deviceType);
+  if (device.ikon) entry.img = 'actors/' + device.ikon + '.svg';
 
   switch (device.deviceType.match(/\/\w*\/\w*\//)[0]) {
 	case "/device/climate/":

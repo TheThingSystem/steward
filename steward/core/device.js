@@ -1,5 +1,6 @@
 var arp         = require('arp-a')
   , events      = require('events')
+  , fs          = require('fs')
   , geocoder    = require('geocoder')
   , serialport  = require('serialport')
   , stringify   = require('json-stringify-safe')
@@ -208,7 +209,7 @@ exports.discover = function(info, callback) {
   }
   if (typeof makers[deviceType] !== 'function') return;
 
-  db.get('SELECT deviceID FROM devices WHERE deviceUID=$deviceUID', { $deviceUID: deviceUID }, function(err, row) {
+  db.get('SELECT deviceID, deviceIkon FROM devices WHERE deviceUID=$deviceUID', { $deviceUID: deviceUID }, function(err, row) {
     var deviceMAC;
 
     if (!!info.ipaddress) deviceMAC = arptab[info.ipaddress];
@@ -220,6 +221,7 @@ exports.discover = function(info, callback) {
 
       if (!info.device.name) info.device.name = 'device/' +  row.deviceID;
       devices[deviceUID].device = new (makers[deviceType])(row.deviceID, deviceUID, info);
+      devices[deviceUID].device.ikon = row.deviceIkon;
       devices[deviceUID].proplist = Device.prototype.proplist;
       logger.info('found ' + info.device.name, { deviceID: row.deviceID, deviceType: deviceType });
 
@@ -232,10 +234,10 @@ exports.discover = function(info, callback) {
       return;
     }
 
-    db.run('INSERT INTO devices(deviceUID, deviceType, deviceName, deviceIP, deviceMAC, created) '
-           + 'VALUES($deviceUID, $deviceType, $deviceName, $deviceIP, $deviceMAC, datetime("now"))',
-           { $deviceUID: deviceUID, $deviceType: deviceType, $deviceName: info.device.name, $deviceIP: info.ipaddress,
-             $deviceMAC: deviceMAC }, function(err) {
+    db.run('INSERT INTO devices(deviceUID, deviceType, deviceName, deviceIkon, deviceIP, deviceMAC, created) '
+           + 'VALUES($deviceUID, $deviceType, $deviceName, $deviceIkon, $deviceIP, $deviceMAC, datetime("now"))',
+           { $deviceUID: deviceUID, $deviceType: deviceType, $deviceName: info.device.name, $deviceIkon: info.device.ikon || '',
+             $deviceIP: info.ipaddress, $deviceMAC: deviceMAC }, function(err) {
       var deviceID;
 
       if (err) {
@@ -247,6 +249,7 @@ exports.discover = function(info, callback) {
       deviceID = this.lastID;
 
       if (!info.device.name) info.device.name = 'device/' +  deviceID;
+      if (!info.device.ikon) info.device.ikon = '';
       devices[deviceUID].device = new (makers[deviceType])(deviceID, deviceUID, info);
       devices[deviceUID].proplist = Device.prototype.proplist;
       logger.notice('adding ' + info.device.name, { deviceID: deviceID, deviceType: deviceType });
@@ -281,6 +284,7 @@ Device.prototype.proplist = function() {
   return { whatami   : self.whatami
          , whoami    : 'device/' + self.deviceID
          , name      : !!self.name ? self.name : ''
+         , ikon      : !!self.ikon ? self.ikon : undefined
          , status    : self.status
          , info      : info
          , updated   : !!self.updated ? new Date(self.updated) : null
@@ -321,6 +325,7 @@ Device.prototype.initInfo = function(params) {
   for (param in self.$properties) {
     if ((self.$properties.hasOwnProperty(param))
             && (param !== 'name')
+            && (param !== 'ikon')
             && (param !== 'status')
             && (typeof params[param] === 'undefined')) self.info[param] = null;
   }
@@ -398,16 +403,25 @@ Device.prototype.addinfo = function(info, changedP) {
 Device.prototype.getName = function() {
   var self = this;
 
-  db.get('SELECT deviceName FROM devices WHERE deviceID=$deviceID',
+  db.get('SELECT deviceName, deviceIkon FROM devices WHERE deviceID=$deviceID',
          { $deviceID : self.deviceID }, function(err, row) {
+    var updateP = false;
+
     if (err) {
       logger.error('devices', { event: 'SELECT device.deviceName for ' + self.deviceID, diagnostic: err.message });
       return;
     }
+
     if ((row !== undefined) && (!!row.deviceName) && (self.name !== row.deviceName)) {
+      updateP = true;
       self.name = row.deviceName;
-      self.changed();
     }
+    if ((row !== undefined) && (!!row.deviceIkon) && (self.ikon !== row.deviceIkon)) {
+      updateP = true;
+      self.ikon = row.deviceIkon;
+    }
+
+    if (updateP) self.changed();
   });
 };
 
@@ -431,13 +445,37 @@ Device.prototype.setName = function(deviceName, taskID) {
   return ((!taskID) || steward.performed(taskID));
 };
 
+Device.prototype.setIkon = function(deviceIkon, taskID) {
+  var self = this;
+
+  if (!deviceIkon) return false;
+  if (self.ikon === deviceIkon) return ((!taskID) || steward.performed(taskID));
+  if ((deviceIkon.indexOf('/') !== -1) || (deviceIkon.indexOf('..') !== -1)) return false;
+
+  fs.exists(__dirname + '/../sandbox/d3/actors/' + deviceIkon + '.svg', function(exists) {
+    if (!exists) return logger.warning('device/' + self.deviceID, { event: 'fs.exists', deviceIkon: deviceIkon });
+
+    db.run('UPDATE devices SET deviceIkon=$deviceIkon WHERE deviceID=$deviceID',
+           { $deviceIkon: deviceIkon, $deviceID : self.deviceID }, function(err) {
+      if (err) {
+        return logger.error('devices', { event: 'UPDATE device.deviceIkon for ' + self.deviceID, diagnostic: err.message });
+      }
+
+      self.ikon = deviceIkon;
+      self.changed();
+    });
+  });
+
+  return ((!taskID) || steward.performed(taskID));
+};
+
 Device.prototype.setInfo = function() {
   var self = this;
 
   var info = utility.clone(self.info);
   if (!info.id) info.id = self.deviceUID;
   if (!info.deviceType) info.deviceType = self.whatami;
-  if (!info.device) info.device = { name: self.name };
+  if (!info.device) info.device = { name: self.name, ikon: self.ikon };
 
   db.run('UPDATE deviceProps SET value=$value WHERE deviceID=$deviceID AND deviceProps.key="info"',
          { $value: JSON.stringify(info), $deviceID : self.deviceID }, function(err) {
@@ -697,7 +735,7 @@ exports.attempt_perform = function(key, params, fn) {
 };
 
 exports.perform = function(self, taskID, perform, parameter) {
-  var params;
+  var params, performedP;
 
   try { params = JSON.parse(parameter); } catch(ex) { params = {}; }
 
@@ -705,9 +743,13 @@ exports.perform = function(self, taskID, perform, parameter) {
 
   if (perform !== 'set') return false;
 
-  if (!!params.name) return self.setName(params.name);
+  performedP = false;
 
-  return false;
+  if ((!!params.name) && (self.setName(params.name))) performedP = true;
+
+  if ((!!params.ikon) && (self.setIkon(params.ikon))) performedP = true;
+
+  return performedP;
 };
 
 exports.validate_param = function(key, params, result, numericP, map) {
@@ -742,7 +784,7 @@ exports.validate_perform = function(perform, parameter) {
     return result;
   }
 
-  if (!params.name) result.requires.push('name');
+  if ((!params.name) && (!params.ikon)) result.requires.push('name');
 
   return result;
 };
@@ -836,7 +878,7 @@ exports.expand = function(line, defentity) {
       continue;
     }
 
-    if ((parts.length == 2) && ((parts[1] === 'name') || (parts[1] === 'status'))) {
+    if ((parts.length == 2) && ((parts[1] === 'name') || (parts[1] === 'ikon') || (parts[1] === 'status'))) {
       result += entity[parts[1]];
       continue;
     }
