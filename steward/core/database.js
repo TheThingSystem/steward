@@ -153,7 +153,7 @@ exports.start = function() {
 
         ikonP = false;
         rows.forEach(function(row) {
-          if (row.name === 'deviceIkon') ikonP = true;          
+          if (row.name === 'deviceIkon') ikonP = true;
         });
         if (!ikonP) db.run('ALTER TABLE devices ADD COLUMN deviceIkon TEXT');
       });

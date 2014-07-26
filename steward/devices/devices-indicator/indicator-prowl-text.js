@@ -24,8 +24,7 @@ var Prowl = exports.Device = function(deviceID, deviceUID, info) {
     if (!!err) {
       self.status = 'error';
       self.changed();
-      logger.error('device/' + self.deviceID, { diagnostic: err.message });
-      return;
+      return logger.error('device/' + self.deviceID, { diagnostic: err.message });
     }
 
     if (self.status !== 'ready') {

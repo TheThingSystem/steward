@@ -555,7 +555,6 @@ var device_drilldown = function(name, devices, arcs, instructions) {
 var MAXARCS = 8;
 var drawArcs = function(arcs) {
   var arcText, arcz, chart, div, i, index, limit, labels, trayLeft, values;
-  if (arcs.length > MAXARCS) arcs = arcs.slice(0, MAXARCS - 1);
 
   chart = document.getElementById("chart");
   if (document.getElementById("arcCanvas")) {
@@ -570,6 +569,7 @@ var drawArcs = function(arcs) {
   labels = '';
   arcz = [];
   if (!arcs) arcs = multiple_arcs;
+  if (arcs.length > MAXARCS) arcs = arcs.slice(0, MAXARCS - 1);
   
   trayLeft = (document.getElementById("image-tray")) ? parseInt(d3.select("#image-tray").style("left"), 10) : null;
   if ((trayLeft == null) || (arcs.length < 5)) {

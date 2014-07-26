@@ -360,7 +360,7 @@ ModelS.prototype.stream = function(self, fastP) {
                , email      : self.gateway.info.email
                , password   : self.vehicle.tokens[0]
                }, function(error, response, body) {
-    var didP, i, j, odometer, range, record, records, sample, speed;
+    var didP, energy, i, j, odometer, range, record, records, sample, speed;
 
     self.vehicle.streamingP = false;
     try {
@@ -415,6 +415,12 @@ ModelS.prototype.stream = function(self, fastP) {
       if (self.info.range != range) {
         didP = true;
         self.info.range = range;
+      }
+
+      energy = parseFloat(sample.power);
+      if (self.info.energyUsage != energy) {
+        didP = true;
+        self.info.energyUsage = energy;
       }
     }
 
@@ -597,6 +603,7 @@ exports.start = function() {
                                                       , 'drawing'
                                                       , 'regenerating' ]
                                    , batteryLevel   : 'array'
+                                   , energyUsage    : 'kilowatts'
 
                                    , hvac           : [ 'on', 'off', 'celsius' ]
                                    , intTemperature : 'celsius'

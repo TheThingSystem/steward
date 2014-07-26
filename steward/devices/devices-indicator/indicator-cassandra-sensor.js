@@ -282,8 +282,8 @@ exports.start = function() {
     if (sensor.measures.hasOwnProperty(measureName)) measurements[measureName] = sensor.measures[measureName].units;
   }
 
-  steward.actors.device.indicator.cassandra.nosql =
-      { $info     : { type       : '/device/indicator/cassandra/nosql'
+  steward.actors.device.indicator.cassandra.sensor =
+      { $info     : { type       : '/device/indicator/cassandra/sensor'
                     , observe    : [ ]
                     , perform    : [ ]
                     , properties : { name         : true
@@ -301,5 +301,5 @@ exports.start = function() {
                     , perform    : devices.validate_perform
                     }
       };
-  devices.makers['/device/indicator/cassandra/nosql'] = Cassandra;
+  devices.makers['/device/indicator/cassandra/sensor'] = Cassandra;
 };

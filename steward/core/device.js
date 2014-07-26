@@ -338,6 +338,8 @@ Device.prototype.updateInfo = function(params) {
 
   var now, param, updateP;
 
+  if (!params) return;
+
   updateP = false;
 
   if (!!params.lastSample)  {

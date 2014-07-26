@@ -183,15 +183,19 @@ var showLogin = function(changeLogin) {
   function goClientBootstrap(firstUser) {
 		var clientURL =
 		    { hostname : window.location.hostname
-				, port     : (window.location.protocol.indexOf('https:') === 0) ? '8888' : '8887'
-				, protocol : window.location.protocol
-				, path     : '/d3/index.html'
-				};
+		    , port     : (window.location.protocol.indexOf('https:') === 0) ? '8888' : '8887'
+		    , protocol : window.location.protocol
+		    , path     : '/d3/index.html'
+		    };
 		var bootstrapURL = clientURL;
     clientURL = encodeURIComponent(clientURL.protocol + '//' + clientURL.hostname + ':' + clientURL.port + clientURL.path);
 		bootstrapURL.path = '/../client.html';
 		if (firstUser) {
-		  bootstrapURL.hostname = (bootstrapURL.hostname !== 'steward.local') ? '127.0.0.1' : 'steward.local';
+                  var hostaddr = bootstrapURL.hostname.split('.');
+                  if ((hostaddr.length !== 4)
+                          || (isNaN(hostaddr[0])) || (isNaN(hostaddr[1])) || (isNaN(hostaddr[2])) || (isNaN(hostaddr[3]))) {
+		    bootstrapURL.hostname = (bootstrapURL.hostname !== 'steward.local') ? '127.0.0.1' : 'steward.local';
+                  }
 		  bootstrapURL.port = '8887';
 		  bootstrapURL.protocol = 'http:';
 		}
@@ -721,7 +725,7 @@ var clouds = { '':
                  , site           : ''
                  , icon           : ''
                  , name           : 'cassandra'
-                 , actor          : '/device/indicator/cassandra/nosql'
+                 , actor          : '/device/indicator/cassandra/sensor'
                  , info           :
                    { url          : ''
                    , username     : ''
@@ -986,6 +990,17 @@ var clouds = { '':
                  , info           :
                    { apikey       : ''
                    , feed         : ''
+                   }
+                 }
+               , yo               :
+                 { text           : 'If you have a Yo account, the steward can say "Yo"'
+                 , instructions   : 'Go to http://yoapi.justyo.co, create an API account, and you\'ll get an API token'
+                 , site           : 'http://yoapi.justyo.co'
+                 , icon           : ''
+                 , name           : 'yo'
+                 , actor          : '/device/indicator/yo/1bit'
+                 , info           :
+                   { apikey       : ''
                    }
                  }
                };
