@@ -65,7 +65,7 @@ Yo.prototype.perform = function(self, taskID, perform, parameter) {
     return true;
   }
 
-  var callback = function(err, data) {
+  var callback = function(err, data) {/* jshint unused: false */
     if (!!err) {
       self.status = 'error';
       self.changed();
