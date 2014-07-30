@@ -1,6 +1,51 @@
 CHANGELOG
 =========
 
+## Release 1.10 "Tooth Fairy" - August 7, 2014
+## Commit - TBD
+
+### Steward
+- APIs: no changes
+- Discovery: no changes
+- HTTP server: no changes
+- Logging: no changes
+
+### TAAS (Things as a Service)
+- no changes
+
+### TSRP (Thing Simple Reporting Protocol)
+- no changes
+
+### Places
+- no changes
+
+### Things
+- device/climate: no changes
+- device/gateway: no changes
+- device/indicator: no changes
+- device/lighting: no changes
+- device/media: no changes
+- device/motive: no changes
+- device/presence: no changes
+- device/sensor: no changes
+- device/switch: no changes
+- device/wearable: no changes
+
+### HTML5/D3 client
+- no changes
+
+### User policy client
+- no changes
+
+### Developer console
+- no changes
+
+### Developer Libraries
+- iOS: no changes
+
+### Utilities
+- no changes
+
 ## Release 1.9 "Peppermint Candy" - July 7, 2014
 ## Commit - 062cd7a2612dc9bc66b40e896c623b9bceb9a887
 
