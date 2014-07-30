@@ -26,7 +26,7 @@
     , "flower-power-cloud"      : "0.2.1"
     , "geocoder"                : "0.1.0"
     , "glob"                    : "3.2.9"
-    , "greenwave-gop"           : "0.0.2"
+    , "greenwave-gop"           : "0.1.0"
     , "grovestreams-api"        : "0.2.3"
     , "home-controller"         : "0.4.2"
     , "Instapush"               : "git://github.com/TheThingSystem/instapush-nodejs.git"
