@@ -18,6 +18,7 @@
 
 var querystring = require('querystring')
   , url         = require('url')
+  , util        = require('util')
   , device      = require('./../core/device')
   , steward     = require('./../core/steward')
   , utility     = require('./../core/utility')
@@ -191,7 +192,8 @@ var report = function(query, proplist) {
   var data, i, metricP, parts, prop, properties, s, v;
 
   data = '';
-  properties = (!!query.properties) ? query.properties.split(',') : [ 'status' ];
+  properties = util.isArray(query.properties)
+                   ? query.properties : (!!query.properties) ? query.properties.split(',') : [ 'status' ];
   for (i = 0, s = ''; i < properties.length; i++, s = ', ') {
     prop = properties[i];
 
