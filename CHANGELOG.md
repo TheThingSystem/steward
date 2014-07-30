@@ -6,9 +6,17 @@ CHANGELOG
 
 ### Steward
 - APIs: no changes
-- Discovery: no changes
+    - bullet-proof against linkage errors (for development)
+    - fix QR code generation issue
+    - oneshot: bullet-proof against query.parameters already an array
+- Discovery:
+    - if unable to open SSDP listener, report which process has the port
+    - discovery mechanisms may be enabled/disabled through configuration
 - HTTP server: no changes
 - Logging: no changes
+    - demote some logging entries from notice/warning to info
+- package dependencies
+    - updated to the latest for cosm, cron-parser, greenwave-gop, lumen, mdns, mqtt, lsof, prowl, and xmlhttprequest
 
 ### TAAS (Things as a Service)
 - no changes
@@ -17,22 +25,40 @@ CHANGELOG
 - no changes
 
 ### Places
-- no changes
+- bullet-proof against no wind report
 
 ### Things
-- device/climate: no changes
-- device/gateway: no changes
-- device/indicator: no changes
+- device
+    - ensure deviceNames are always strings
+    - normalize deviceTypes
+    - add 'ikon' proto-property
+- device/climate:
+    - cubesensors/meteo: NEW
+    - flower-power/*, koubachi/*, plantlink/*: better algorithm for 'placement' property
+    - wink/control: use numeric values only for 'fanSpeed' property
+- device/gateway:
+    - cubesensors/cloud: NEW
+    - myq/cloud: NEW
+    - openzwave/usb: bug fixes, thanks @sja
+    - yoctopuce/*: update to latest library
+- device/indicator:
+    - all: add error checks ('attention' subscription)
+    - sensable/sensor: NEW
+    - wink/nimbus: add 'display' property
+    - yo/1bit: NEW
 - device/lighting: no changes
 - device/media: no changes
-- device/motive: no changes
+- device/motive:
+    - myq/garage-door: NEW
 - device/presence: no changes
 - device/sensor: no changes
+    - leapmotion/gesture: experimental
 - device/switch: no changes
 - device/wearable: no changes
 
 ### HTML5/D3 client
-- no changes
+- fix inadvertant redirect to 127.0.0.1
+- ensure at most 8 arcs drawn
 
 ### User policy client
 - no changes
