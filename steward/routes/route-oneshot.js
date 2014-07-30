@@ -310,7 +310,7 @@ var oneshot = function(request, response, query, tag) {
                       ct = 'text/plain';
                       if (!!o.proplist) data = report(query, o.proplist);
                       else if (o.proplists.length === 0) data = 'nothing to report';
-                      else if (o.proplists.length === 1) data = report(query, o.proplists[0]);
+                      else if ((!query.prefix) && (o.proplists.length === 1)) data = report(query, o.proplists[0]);
                       else {
                         data = '';
                         for (i = 0, s = 'report for '; i < o.proplists.length; i++, s = '; report for ') {
