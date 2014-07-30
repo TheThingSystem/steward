@@ -34,8 +34,11 @@ var Spotter = exports.Device = function(deviceID, deviceUID, info) {
   broker.subscribe('actors', function(request, eventID, actor, observe, parameter) {
     if (actor !== ('device/' + self.deviceID)) return;
 
-    if ((request === 'observe') && ({ brightness: true, loudness: true, motion: true }[observe])) {
-      self.events[eventID] = { observe: observe };
+    if (request === 'observe') {
+      if ({ brightness : true
+          , loudness   : true
+          , motion     : true
+          }[observe]) self.events[eventID] = { observe: observe };
       return;
     }
     if ((request === 'perform') && (observe === 'set')) return self.perform(self, eventID, observe, parameter);
@@ -113,9 +116,9 @@ Spotter.prototype.update = function(self, params) {
     if (firstP) continue;
 
     self.status = observation;
-    self.info.lastSample = now;
+    self.info.lastSample = now.getTime();
     for (eventID in self.events) {
-      if ((!self.events.hasOwnProperty(eventID)) && (self.events[eventID].observe === observation)) steward.observed(eventID);
+      if ((self.events.hasOwnProperty(eventID)) && (self.events[eventID].observe === observation)) steward.observed(eventID);
     }
     updateP = true;
   }

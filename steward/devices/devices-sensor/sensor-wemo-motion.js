@@ -125,7 +125,7 @@ WeMo_Motion.prototype.observe = function(self, results) {
     motion = parseInt(onoff[0], 10);
     if (motion) {
       self.status = 'motion';
-      self.info.lastSample = now;
+      self.info.lastSample = now.getTime();
       for (eventID in self.events) if (self.events.hasOwnProperty(eventID)) steward.observed(eventID);
       self.changed();
     } else self.status = 'quiet';

@@ -733,6 +733,18 @@ var clouds = { '':
                    , crtPath      : ''
                    }
                  }
+               , 'chamberlain myq':
+                 { text           : 'If you have the Chamberlain MyQ gateway, the steward can manage it for you.'
+                 , instructions   : 'Enter your email address and password.'
+                 , site           : 'https://www.mychamberlain.com/Login.aspx'
+                 , icon           : ''
+                 , name           : 'myq'
+                 , actor          : '/device/gateway/myq/cloud'
+                 , info           :
+                   { email        : ''
+                   , passphrase   : ''
+                   }
+                 }
                , cubesensors      :
                  { text           : 'If you have the CubeSensor system, the steward can manage it for you.'
                  , instructions   : 'Enter your OAuth info. To get OAuth info, send an email to api@cubesensors.com'
