@@ -194,7 +194,7 @@ var report = function(query, proplist) {
   data = '';
   properties = util.isArray(query.properties)
                    ? query.properties : (!!query.properties) ? query.properties.split(',') : [ 'status' ];
-  for (i = 0, s = ''; i < properties.length; i++, s = ', ') {
+  for (i = 0, s = ''; i < properties.length; i++) {
     prop = properties[i];
 
     v = device.expand('.[.' + prop + '].', proplist);
@@ -212,6 +212,7 @@ var report = function(query, proplist) {
                    , no2      : 'N O 2'
                    , voc      : 'volatile organic compounds'
                    }[prop] || prop) + ' is ';
+      s = ', ';
     }
 // TBD: this is really a UI thing, but it is rather convenient to place here...
     metricP = places.place1.info.displayUnits === 'metric';
@@ -305,7 +306,7 @@ var oneshot = function(request, response, query, tag) {
                     }
 
         , report  : function() {
-                      var proplist, i, s;
+                      var proplist, i, s, v;
 
                       ct = 'text/plain';
                       if (!!o.proplist) data = report(query, o.proplist);
@@ -315,7 +316,8 @@ var oneshot = function(request, response, query, tag) {
                         data = '';
                         for (i = 0, s = 'report for '; i < o.proplists.length; i++, s = '; report for ') {
                           proplist = o.proplists[i];
-                          data += s + proplist.name + ': ' + report(query, proplist);
+                          v = report(query, proplist);
+                          data += s + proplist.name + ': ' + (v.length > 0 ? v : 'nothing to report');
                         }
                       }
 
