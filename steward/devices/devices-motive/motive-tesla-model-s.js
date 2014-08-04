@@ -378,7 +378,7 @@ ModelS.prototype.stream = function(self, fastP) {
     didP = false;
 
     records = body.split('\r\n');
-    for (i = 0; i < records.length; i++) {
+    for (i = records.length - 1; i >= 0; i--) {
       record = records[i].split(',');
       if (record.length < tesla.stream_columns.length) continue;
 

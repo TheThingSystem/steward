@@ -8,7 +8,9 @@ CHANGELOG
 - APIs: no changes
     - bullet-proof against linkage errors (for development)
     - fix QR code generation issue
-    - oneshot: bullet-proof against query.parameters already an array
+    - oneshot:
+        - tighten text
+        - bullet-proof against query.parameters already an array
 - Discovery:
     - if unable to open SSDP listener, report which process has the port
     - discovery mechanisms may be enabled/disabled through configuration
@@ -50,6 +52,7 @@ CHANGELOG
 - device/media: no changes
 - device/motive:
     - myq/garage-door: NEW
+    - tesla/model-s: properly traverse streaming data
 - device/presence: no changes
 - device/sensor: no changes
     - leapmotion/gesture: experimental
