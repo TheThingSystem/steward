@@ -73,7 +73,7 @@ CHANGELOG
 - iOS: no changes
 
 ### Utilities
-- no changes
+- added scripts to help MTR build RPI images
 
 ## Release 1.9 "Peppermint Candy" - July 7, 2014
 ## Commit - 062cd7a2612dc9bc66b40e896c623b9bceb9a887
