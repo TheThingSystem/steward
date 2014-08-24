@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-## Release 1.10 "Tooth Fairy" - August 7, 2014
-## Commit - TBD
+## Release 1.10 "Tooth Fairy" - August 25, 2014
+## Commit - e488d9572cdfdb1588b3486cba73adb21ed06618
 
 ### Steward
 - APIs: no changes
