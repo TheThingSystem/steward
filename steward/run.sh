@@ -59,10 +59,10 @@ if [ "$SUDO_USER" = "debian" ]; then
    export HOME;
 fi
 if [ ! -f $HOME/.nvm/nvm.sh ]; then
-   echo "$$HOME/.nvm/nvm.sh doesn't exist! is $$HOME set correctly?"
+   echo "\$HOME/.nvm/nvm.sh doesn't exist! is \$HOME set correctly?"
+else
+   . $HOME/.nvm/nvm.sh
 fi
-
-. $HOME/.nvm/nvm.sh
 
 echo ${OSSTR}
 echo "info: using node `node --version`"
