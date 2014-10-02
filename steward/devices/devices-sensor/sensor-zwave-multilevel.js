@@ -1,4 +1,4 @@
-// Z-wave dimmer switches
+// Z-wave multi-level sensor
 
 var registrar
 				, utility = require('./../../core/utility')
