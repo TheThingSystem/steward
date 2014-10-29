@@ -66,79 +66,80 @@ ZWave_MLSensor.prototype.update = function(self, event, comclass, value) {
   if (event === 'value added')
     event = 'value changed';
 
-  var f = {'value changed':
-            function() {
+  var f = {
+    'value changed':
+        function() {
 
-              if (!self.peripheral.classes[comclass])
-                self.peripheral.classes[comclass] = {};
-              self.peripheral.classes[comclass][value.index] = value;
-              if ((comclass !== 0x31))
-                return;
+          if (!self.peripheral.classes[comclass])
+            self.peripheral.classes[comclass] = {};
+          self.peripheral.classes[comclass][value.index] = value;
+          if ((comclass !== 0x31))
+            return;
 
-              // TBD: could do something more with this
-              self.status = 'present';
-              switch (comclass) {
-                case 0x31:
-                  switch (value.index) {
-                    case 1:
-                      // Take care of bug in Aeon firmware
-                      if (value.value < 1000 && value.value > -1000)
-                        self.info.temperature = Math.round((value.value - 32) * 5 / 9);
-                      break;
-                    case 3:
-                      self.info.light = value.value;
-                      break;
-                    case 5:
-                      self.info.measurement = value.value;
-                      break;
-                    default:
-                      logger.warning('device/' + self.deviceID, {event: 'value changed', description: 'Multi-Sensor value not supported of \'' + value.label + '\' (index: ' + value.index + ')'});
-                      console.log(util.inspect(value));
-                      return;
-                  }
+          // TBD: could do something more with this
+          self.status = 'present';
+          switch (comclass) {
+            case 0x31:
+              switch (value.index) {
+                case 1:
+                  // Take care of bug in Aeon firmware
+                  if (value.value < 1000 && value.value > -1000)
+                    self.info.temperature = Math.round((value.value - 32) * 5 / 9);
                   break;
-                case 0x80:
-                  switch (value.index) {
-                    case 0:
-                      self.info.batteryLevel = value.value;
-                      break;
-                    default:
-                      logger.warning('device/' + self.deviceID, {event: 'value changed', description: 'Battery value not supported of \'' + value.label + '\' (index: ' + value.index + ')'});
-                      console.log(util.inspect(value));
-                      return;
-                  }
+                case 3:
+                  self.info.light = value.value;
+                  break;
+                case 5:
+                  self.info.measurement = value.value;
                   break;
                 default:
-                  logger.warning('device/' + self.deviceID, {event: 'value changed', description: 'Command Class not supported for \'' + comclass + '\' (index: ' + value.index + ')'});
+                  logger.warning('device/' + self.deviceID, {event: 'value changed', description: 'Multi-Sensor value not supported of \'' + value.label + '\' (index: ' + value.index + ')'});
                   console.log(util.inspect(value));
                   return;
               }
-              logger.info('device/' + self.deviceID, {event: 'value changed', command_class: comclass, label: value.label, value: value.value, index: value.index});
-              self.info.lastSample = new Date().getTime();
-              self.changed();
-              sensor.update(self.deviceID, {lastSample: self.info.lastSample
-                , temperature: self.info.temperature
-                , light: self.info.light
-                , humidity: self.info.humidity
-                , batteryLevel: self.info.batteryLevel
-              });
-            }
+              break;
+            case 0x80:
+              switch (value.index) {
+                case 0:
+                  self.info.batteryLevel = value.value;
+                  break;
+                default:
+                  logger.warning('device/' + self.deviceID, {event: 'value changed', description: 'Battery value not supported of \'' + value.label + '\' (index: ' + value.index + ')'});
+                  console.log(util.inspect(value));
+                  return;
+              }
+              break;
+            default:
+              logger.warning('device/' + self.deviceID, {event: 'value changed', description: 'Command Class not supported for \'' + comclass + '\' (index: ' + value.index + ')'});
+              console.log(util.inspect(value));
+              return;
+          }
+          logger.info('device/' + self.deviceID, {event: 'value changed', command_class: comclass, label: value.label, value: value.value, index: value.index});
+          self.info.lastSample = new Date().getTime();
+          self.changed();
+          sensor.update(self.deviceID, {lastSample: self.info.lastSample
+            , temperature: self.info.temperature
+            , light: self.info.light
+            , humidity: self.info.humidity
+            , batteryLevel: self.info.batteryLevel
+          });
+        }
 
     , 'value removed':
-            function() {
-              try {
-                delete(self.peripheral.classes[comclass][value]);
-              } catch (ex) {
-              }
+        function() {
+          try {
+            delete(self.peripheral.classes[comclass][value]);
+          } catch (ex) {
+          }
 
-// TBD: something to do here?
-            }
+        // TBD: something to do here?
+        }
     , 'notification':
-            function() {
-              logger.warning('device/' + self.deviceID, {event: 'notification', value: value});
+        function() {
+          logger.warning('device/' + self.deviceID, {event: 'notification', value: value});
 
-// TBD: something to do here?
-            }
+        // TBD: something to do here?
+        }
   };
   if (!!f[event])
     return (f[event])();
