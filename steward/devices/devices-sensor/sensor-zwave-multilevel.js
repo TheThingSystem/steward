@@ -150,7 +150,7 @@ ZWave_MLSensor.prototype.update = function(self, event, comclass, value) {
 
 
 ZWave_MLSensor.prototype.perform = function(self, taskID, perform, parameter) {
-  var params, state;
+  var params;
 
   try {
     params = JSON.parse(parameter);
@@ -171,19 +171,11 @@ ZWave_MLSensor.prototype.perform = function(self, taskID, perform, parameter) {
 };
 
 
-var validate_perform = function(perform, parameter) {
-  var params = {}
-  , result = {invalid: [], requires: []}
-  ;
-
-  return result;
-};
-
 exports.start = function() {
-  steward.actors.device['sensor'].zwave = steward.actors.device['sensor'].zwave ||
+  steward.actors.device.sensor.zwave = steward.actors.device.sensor.zwave ||
           {$info: {type: '/device/sensor/zwave'}};
 
-  steward.actors.device['sensor'].zwave.multilevel =
+  steward.actors.device.sensor.zwave.multilevel =
           {$info: {type: '/device/sensor/zwave/multilevel'
               , observe: []
               , perform: []
@@ -198,7 +190,7 @@ exports.start = function() {
                 , batteryLevel: 'percentage'
               }
             }
-            , $validate: {perform: validate_perform}
+        , $validate : { perform    : devices.validate_perform }
           };
   devices.makers['/device/sensor/zwave/multilevel'] = ZWave_MLSensor;
   registrar.pair(0x31, '/device/sensor/zwave/multilevel'); // COMMAND_CLASS_SENSOR_MULTILEVEL
