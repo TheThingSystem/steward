@@ -149,4 +149,19 @@ exports.start = function() {
   steward.actors.device.presence.chipolo.fob.$info.type = '/device/presence/chipolo/fob';
   devices.makers['/device/presence/chipolo/fob'] = Fob;
   register('/device/presence/chipolo/fob', 'Chipolo', [ '451085d6f8334f7783d44f9438894ed5' ]);
+
+  steward.actors.device.presence.pebblebee = utility.clone(steward.actors.device.presence.ble);
+  steward.actors.device.presence.pebblebee.$info.type = '/device/presence/pebblebee';
+  steward.actors.device.presence.pebblebee.fob = utility.clone(steward.actors.device.presence.ble.fob);
+  steward.actors.device.presence.pebblebee.fob.$info.type = '/device/presence/pebblebee/fob';
+  devices.makers['/device/presence/pebblebee/fob'] = Fob;
+  register('/device/presence/pebblebee/fob', 'Chipolo', ['1802', '1803', '1804', '180f']);
+
+  steward.actors.device.presence.lightbluebean = utility.clone(steward.actors.device.presence.ble);
+  steward.actors.device.presence.lightbluebean.$info.type = '/device/presence/lightbluebean';
+  steward.actors.device.presence.lightbluebean.fob = utility.clone(steward.actors.device.presence.ble.fob);
+  steward.actors.device.presence.lightbluebean.fob.$info.type = '/device/presence/lightbluebean/fob';
+  devices.makers['/device/presence/lightbluebean/fob'] = Fob;
+  register('/device/presence/lightbluebean/fob', 'LightBlue Bean', [ 'a495ff10c5b14b44b5121370f02d74de' ]);
+
 };
