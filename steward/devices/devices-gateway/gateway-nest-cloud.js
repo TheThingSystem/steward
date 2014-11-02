@@ -189,11 +189,11 @@ Cloud.prototype.addstation = function(self, id, station, name, away, data, times
     return sensor.update(sensor, params, status);
   }
 
-  if (name) { name += ':'; }
+  if (name) name += ': ';
   params.status = status;
   info =  { source: self.deviceID, gateway: self, params: params };
   info.device = { url                          : 'ip://' + station.local_ip
-                , name                         : data.name
+                , name                         : name + data.name
                 , manufacturer                 : 'Nest Labs'
                 , model        : { name        : station.type
                                  , description : ''
