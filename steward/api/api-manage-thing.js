@@ -385,6 +385,7 @@ var report = function(logger, ws, api, message, tag) {
 
     event = message.events[eventID];
     if (!!event.status) {
+      if (event.status === 'proceed') return true
       if (event.status === 'success') return steward.report(eventIDs[eventID].eventID, {});
                                                           return error(true,  'invalid status for ' + eventID);
     }
