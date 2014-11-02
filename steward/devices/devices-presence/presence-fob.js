@@ -155,7 +155,7 @@ exports.start = function() {
   steward.actors.device.presence.pebblebee.fob = utility.clone(steward.actors.device.presence.ble.fob);
   steward.actors.device.presence.pebblebee.fob.$info.type = '/device/presence/pebblebee/fob';
   devices.makers['/device/presence/pebblebee/fob'] = Fob;
-  register('/device/presence/pebblebee/fob', 'Chipolo', ['1802', '1803', '1804', '180f']);
+  register('/device/presence/pebblebee/fob', 'Pebblebee', ['1802', '1803', '1804', '180f']);
 
   steward.actors.device.presence.lightbluebean = utility.clone(steward.actors.device.presence.ble);
   steward.actors.device.presence.lightbluebean.$info.type = '/device/presence/lightbluebean';
