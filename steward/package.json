@@ -45,7 +45,7 @@
     , "mime"                    : "1.2.9"
     , "mqtt"                    : "0.3.11"
     , "netmask"                 : "1.0.4"
-    , "noble"                   : "git://github.com/sandeepmistry/noble.git"
+    , "noble"                   : "0.2.8"
     , "node-blink1"             : "0.1.0"
     , "node-cassandra-cql"      : "git://github.com/TheThingSystem/node-cassandra-cql.git"
     , "node-dweetio"            : "0.0.8"
