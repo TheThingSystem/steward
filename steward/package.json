@@ -49,7 +49,7 @@
     , "node-blink1"             : "0.1.0"
     , "node-cassandra-cql"      : "git://github.com/TheThingSystem/node-cassandra-cql.git"
     , "node-dweetio"            : "0.0.8"
-    , "node-hid"                : "0.2.3"
+    , "node-hid"                : "0.3.2"
     , "lsof"                    : "0.1.0"
     , "node-netatmo"            : "git://github.com/TheThingSystem/node-netatmo.git"
     , "node-prowl"              : "0.1.7"
