@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/TheThingSystem/steward.png?label=ready&title=Ready)](https://waffle.io/TheThingSystem/steward)
 The Thing System Steward
 =======
 
