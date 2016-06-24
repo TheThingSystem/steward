@@ -84,11 +84,8 @@ new SSDP().on('response', function(msg, rinfo) {
       } catch(ex) {
         return f(location, response.headers, data);
       }
-<<<<<<< Updated upstream
 
       if ((!!json.root) && (!json.root.URLBase)) json.root.URLBase = options.protocol + '//' + options.host + '/';
-=======
->>>>>>> Stashed changes
 
       if ((!json.root) || (!json.root.device.serviceList) || (!util.isArray(json.root.device.serviceList.service))) return;
 
